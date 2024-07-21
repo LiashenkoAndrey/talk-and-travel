@@ -12,6 +12,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication(scanBasePackages = "com.gmail.smaglenko.talkandtravel")
 @OpenAPIDefinition(
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Bean;
                         + "written in Java using Spring Boot."
         )
 )
+@Profile("dev")
 @RequiredArgsConstructor
 public class TalkAndTravelApplication {
     @Value("${USER_ADMIN_NAME}")
