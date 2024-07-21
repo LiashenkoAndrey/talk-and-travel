@@ -38,21 +38,24 @@ public class CountryWebSocketController {
     )
     @MessageMapping("/country/create")
     @SendTo("/countries/{countryName}")
-    public ResponseEntity<CountryDto> create(@Payload CountryDto dto) {
+    public void create(@Payload CountryDto dto) {
         if (dto.getName() == null) throw new IllegalArgumentException("A country name must be specified");
         log.info("Create a country {}", dto);
         var country = countryDtoMapper.mapToModel(dto);
         var newCountry = countryService.create(country, dto.getUserId());
         var countryDto = countryDtoMapper.mapToDto(newCountry);
-        simpMessagingTemplate.convertAndSend("/countries/" + dto.getName(), countryDto);
-        return ResponseEntity.ok().body(countryDto);
+        notifyThatCountryCreatedOrUpdated(countryDto);
     }
 
     @MessageMapping("/countries/update/{countryName}")
-    @SendTo("/countries/{countryName}")
-    public ResponseEntity<CountryDto> update(@Payload CountryDto dto) {
+    public void update(@Payload CountryDto dto) {
+        log.info("Update a country {}", dto);
         var country = countryService.update(dto.getId(), dto.getUserId());
         var countryDto = countryDtoMapper.mapToDto(country);
-        return ResponseEntity.ok().body(countryDto);
+        notifyThatCountryCreatedOrUpdated(countryDto);
+    }
+
+    private void notifyThatCountryCreatedOrUpdated(CountryDto countryDto) {
+        simpMessagingTemplate.convertAndSend("/countries/" + countryDto.getName(), countryDto);
     }
 }
