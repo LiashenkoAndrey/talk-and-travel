@@ -68,7 +68,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Transactional
     public Country create(Country country, Long userId) {
-        isCountryExist(country);
+        ifCountryExistsThrowException(country);
         var user = userService.findById(userId);
         var participant = participantService.create(user);
         var newCountry = createNewCountry(country);
@@ -139,7 +139,7 @@ public class CountryServiceImpl implements CountryService {
         );
     }
 
-    private void isCountryExist(Country country) {
+    private void ifCountryExistsThrowException(Country country) {
         var existingCountry = repository.findByName(country.getName());
         if (existingCountry.isPresent()) {
             throw new RuntimeException("Country already exist");
