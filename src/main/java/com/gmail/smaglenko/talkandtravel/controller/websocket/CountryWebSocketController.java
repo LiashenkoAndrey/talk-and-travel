@@ -36,7 +36,7 @@ public class CountryWebSocketController {
             method = "websocket",
             description = "create a new country"
     )
-    @MessageMapping("/country/create")
+    @MessageMapping("/countries/create")
     @SendTo("/countries/{countryName}")
     public void create(@Payload CountryDto dto) {
         if (dto.getName() == null) throw new IllegalArgumentException("A country name must be specified");
