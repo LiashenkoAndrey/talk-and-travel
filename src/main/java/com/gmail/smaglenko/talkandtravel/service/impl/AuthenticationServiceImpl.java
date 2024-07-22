@@ -80,6 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         checkForDuplicateEmail(userByEmail);
     }
 
+    //todo: clarify an appointment of this method and create documentation
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenService.findAllValidTokensByUserId(user.getId());
         if (validUserTokens.isEmpty()) {
