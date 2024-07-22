@@ -22,7 +22,7 @@ public class ApiExceptionHandler {
             ImageWriteException.class, RuntimeException.class, ImageProcessingException.class})
     public ResponseEntity<Object> handleException(Exception e) {
         log.error(e);
-        log.trace(e);
+        e.printStackTrace();
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
         ApiException apiException = new ApiException(
                 e.getMessage(),

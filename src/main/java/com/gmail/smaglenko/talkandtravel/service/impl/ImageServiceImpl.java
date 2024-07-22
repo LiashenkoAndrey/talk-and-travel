@@ -10,9 +10,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 @Service
+@Log4j2
 public class ImageServiceImpl implements ImageService {
     private static final int INDEX = 0;
     private static final int IMAGE_X = 0;
@@ -28,6 +31,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public byte[] generateImage(String name) {
+        log.info("generateImage: name - {}", name);
         char firstLetterOfName = name.charAt(INDEX);
         var image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
         createImageWithFirstLetter(firstLetterOfName, image);
@@ -45,6 +49,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     private void createImageWithFirstLetter(char firstLetterOfName, BufferedImage image) {
+        log.info("calculateXAndYCoordinates: firstLetterOfName - {}", firstLetterOfName);
         Graphics2D graphics = getGraphics2D(image);
         int[] xAndYCoordinatesOfFirstLetterOfName
                 = calculateXAndYCoordinates(graphics, firstLetterOfName);
@@ -68,6 +73,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     private int[] calculateXAndYCoordinates(Graphics2D graphics, char letter) {
+        log.info("calculateXAndYCoordinates: letter - {}, graphics - {}", letter, graphics);
         int[] xAndYCoordinates = new int[2];
         FontMetrics fontMetrics = graphics.getFontMetrics();
         xAndYCoordinates[0] = (IMAGE_WIDTH - fontMetrics.charWidth(letter)) / 2;

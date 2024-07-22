@@ -11,11 +11,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class AvatarServiceImpl implements AvatarService {
     private static final String[] SUPPORTED_FORMAT_AVATAR = {"jpeg", "jpg", "png"};
@@ -36,6 +38,7 @@ public class AvatarServiceImpl implements AvatarService {
 
     @Override
     public Avatar createDefaultAvatar(String username) {
+        log.info("createDefaultAvatar: username - {}", username);
         byte[] defaultAvatar = imageService.generateImage(username);
         return createNewAvatar(defaultAvatar);
     }

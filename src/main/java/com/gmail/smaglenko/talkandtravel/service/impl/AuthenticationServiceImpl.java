@@ -18,12 +18,14 @@ import com.gmail.smaglenko.talkandtravel.util.validator.UserEmailValidator;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordValidator passwordValidator;
     private final UserEmailValidator emailValidator;
@@ -94,6 +96,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private void generateStandardAvatar(User savedUser) throws IOException {
+        log.info("generateStandardAvatar: savedUser - {}", savedUser);
         var avatar = avatarService.createDefaultAvatar(savedUser.getUserName());
         avatar.setUser(savedUser);
         avatarService.save(avatar);
