@@ -39,23 +39,21 @@ public class TalkAndTravelApplication {
 
     @Bean
     CommandLineRunner run() {
-        return args -> {
-            userService.findUserByEmail(adminEmail)
-                    .ifPresentOrElse(
-                            user -> {},
-                            () -> {
-                                try {
-                                    userService.save(User.builder()
-                                            .userName(adminName)
-                                            .userEmail(adminEmail)
-                                            .password(adminPassword)
-                                            .role(Role.ADMIN)
-                                            .build());
-                                } catch (IOException e) {
-                                    throw new RuntimeException("Cant generate standard avatar.");
-                                }
+        return args -> userService.findUserByEmail(adminEmail)
+                .ifPresentOrElse(
+                        user -> {},
+                        () -> {
+                            try {
+                                userService.save(User.builder()
+                                        .userName(adminName)
+                                        .userEmail(adminEmail)
+                                        .password(adminPassword)
+                                        .role(Role.ADMIN)
+                                        .build());
+                            } catch (IOException e) {
+                                throw new RuntimeException("Cant generate standard avatar.");
                             }
-                    );
-        };
+                        }
+                );
     }
 }
