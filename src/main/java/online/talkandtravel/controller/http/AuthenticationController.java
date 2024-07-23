@@ -1,6 +1,8 @@
 package online.talkandtravel.controller.http;
 
+import jakarta.validation.Valid;
 import online.talkandtravel.model.dto.AuthResponse;
+import online.talkandtravel.model.dto.LoginDto;
 import online.talkandtravel.model.dto.UserDto;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.constants.ApiPathConstants;
@@ -35,10 +37,9 @@ public class AuthenticationController {
             description = "Log in a user."
     )
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody UserDto dto) {
-        log.info("Login - {}", dto);
-        var user = mapper.mapToModel(dto);
-        var authResponse = authService.login(user);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginDto loginDto) {
+        log.info("Login - {}", loginDto);
+        var authResponse = authService.login(loginDto.getUserEmail(), loginDto.getPassword());
         return ResponseEntity.ok(authResponse);
     }
 }

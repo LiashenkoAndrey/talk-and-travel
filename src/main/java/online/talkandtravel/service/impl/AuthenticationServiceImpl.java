@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl;
 
 import online.talkandtravel.exception.AuthenticationException;
 import online.talkandtravel.exception.RegistrationException;
+import online.talkandtravel.exception.UserNotFoundException;
 import online.talkandtravel.model.Role;
 import online.talkandtravel.model.Token;
 import online.talkandtravel.model.TokenType;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,16 +48,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     @Transactional
-    public AuthResponse login(User user) {
-        var authenticatedUser = authenticateUser(user);
+    public AuthResponse login(String email, String password) {
+        var authenticatedUser = authenticateUser(email, password);
         String jwtToken = manageUserTokens(authenticatedUser);
         return createNewAuthResponse(jwtToken, authenticatedUser);
     }
 
-    private User authenticateUser(User user) {
-        Optional<User> userByEmail = userService.findUserByEmail(user.getUserEmail().toLowerCase());
-        checkUserCredentials(user.getPassword(), userByEmail);
-        return userByEmail.get();
+    private User authenticateUser(String email, String password) {
+        Optional<User> userOptional = userService.findUserByEmail(email.toLowerCase());
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            checkUserCredentials(password, user);
+            return user;
+        }
+        log.info("User with email - {} not found", email);
+        throw new UserNotFoundException("User with email - "+ email+" not found", "Bad credentials", HttpStatus.BAD_REQUEST);
     }
 
     private User registerNewUser(User user) throws IOException {
@@ -102,9 +110,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         avatarService.save(avatar);
     }
 
-    private void checkUserCredentials(String password, Optional<User> user) {
-        if (user.isEmpty()
-                || !passwordEncoder.matches(password, user.get().getPassword())) {
+    /**
+     * checks if passed password doesn't match password stored in database - throw an exception
+     * @param password passed password
+     * @param user user
+     */
+    private void checkUserCredentials(String password, User user) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new AuthenticationException("Incorrect username or password!!!");
         }
     }

@@ -8,5 +8,5 @@ import java.io.IOException;
 public interface AuthenticationService {
     AuthResponse register(User user) throws IOException;
 
-    AuthResponse login(User user);
+    AuthResponse login(String email, String password);
 }

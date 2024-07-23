@@ -42,7 +42,7 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
             + "LEFT JOIN FETCH c.groupMessages "
             + "LEFT JOIN FETCH c.participants "
             + "WHERE c.id = :id")
-    Optional<Country> findById(@Param("id") Long id);
+    Optional<Country> findByIdCustom(@Param("id") Long id);
 
     @Query("SELECT c "
             + "FROM Country c "

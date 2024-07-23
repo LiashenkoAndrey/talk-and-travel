@@ -34,7 +34,7 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public Country findById(Long countryId) {
-        return repository.findById(countryId).orElseThrow(
+        return repository.findByIdCustom(countryId).orElseThrow(
                 () -> new NoSuchElementException("Can not find Country by id " + countryId)
         );
     }
@@ -134,7 +134,7 @@ public class CountryServiceImpl implements CountryService {
     }
 
     private Country getCountry(Long countryId) {
-        return repository.findById(countryId).orElseThrow(
+        return repository.findByIdCustom(countryId).orElseThrow(
                 () -> new NoSuchElementException("The country does not exist yet.")
         );
     }
