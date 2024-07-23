@@ -26,6 +26,7 @@ public class GroupMessageWebSocketController {
         log.info("create a new message {}", groupMessageRequestDto);
         var groupMessage = groupMessageService.create(groupMessageRequestDto);
         var groupMessageDto = groupMessageDtoMapper.mapToDto(groupMessage);
+        log.info(groupMessageDto);
         simpMessagingTemplate.convertAndSend("/countries/" + groupMessageRequestDto.getCountryId() + "/messages", groupMessageDto);
     }
 }

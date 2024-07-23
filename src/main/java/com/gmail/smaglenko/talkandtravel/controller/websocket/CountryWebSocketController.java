@@ -3,7 +3,6 @@ package com.gmail.smaglenko.talkandtravel.controller.websocket;
 import com.gmail.smaglenko.talkandtravel.model.dto.CountryDto;
 import com.gmail.smaglenko.talkandtravel.service.CountryService;
 import com.gmail.smaglenko.talkandtravel.util.mapper.CountryDtoMapper;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,6 +22,12 @@ public class CountryWebSocketController {
     private final CountryDtoMapper countryDtoMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+    //todo: discuss a proper solution
+    /**
+     * finds a specified country and sends response to requested user
+     * @param countryName name of country
+     * @return CountryDto
+     */
     @MessageMapping("/countries/find-by-name/{countryName}")
     @SendTo("/countries/{countryName}")
     public ResponseEntity<CountryDto> findByName(@DestinationVariable String countryName) {
@@ -32,30 +36,33 @@ public class CountryWebSocketController {
         return ResponseEntity.ok().body(countryDto);
     }
 
-    @Operation(
-            method = "websocket",
-            description = "create a new country"
-    )
+    /**
+     * creates a new country and notifies all users that subscribed to path /countries/{countryName}
+     * @param dto country dto
+     */
     @MessageMapping("/countries/create")
-    @SendTo("/countries/{countryName}")
     public void create(@Payload CountryDto dto) {
         if (dto.getName() == null) throw new IllegalArgumentException("A country name must be specified");
         log.info("Create a country {}", dto);
         var country = countryDtoMapper.mapToModel(dto);
         var newCountry = countryService.create(country, dto.getUserId());
         var countryDto = countryDtoMapper.mapToDto(newCountry);
-        notifyThatCountryCreatedOrUpdated(countryDto);
+        notifyThatCountryWasCreatedOrUpdated(countryDto);
     }
 
-    @MessageMapping("/countries/update/{countryName}")
+    /**
+     * updates country notifies all users that subscribed to path /countries/{countryName} that it was updated
+     * @param dto country dto
+     */
+    @MessageMapping("/countries/update")
     public void update(@Payload CountryDto dto) {
         log.info("Update a country {}", dto);
         var country = countryService.update(dto.getId(), dto.getUserId());
         var countryDto = countryDtoMapper.mapToDto(country);
-        notifyThatCountryCreatedOrUpdated(countryDto);
+        notifyThatCountryWasCreatedOrUpdated(countryDto);
     }
 
-    private void notifyThatCountryCreatedOrUpdated(CountryDto countryDto) {
+    private void notifyThatCountryWasCreatedOrUpdated(CountryDto countryDto) {
         simpMessagingTemplate.convertAndSend("/countries/" + countryDto.getName(), countryDto);
     }
 }
