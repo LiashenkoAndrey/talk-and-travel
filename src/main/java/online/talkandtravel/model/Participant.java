@@ -40,6 +40,5 @@ public class Participant {
     private List<Country> countries;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
     private User user;
 }

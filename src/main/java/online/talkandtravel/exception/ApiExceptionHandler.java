@@ -22,7 +22,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler({AuthenticationException.class, RegistrationException.class,
             NoSuchElementException.class,
             UnsupportedFormatException.class, FileSizeExceededException.class,
-            ImageWriteException.class, RuntimeException.class, ImageProcessingException.class})
+            ImageWriteException.class, ImageProcessingException.class})
     public ResponseEntity<ApiExceptionResponse> handleException(ApiException e) {
         return createResponse(e, HttpStatus.BAD_REQUEST);
     }
@@ -30,6 +30,17 @@ public class ApiExceptionHandler {
     @ExceptionHandler({UserNotFoundException.class, UsernameNotFoundException.class})
     public ResponseEntity<ApiExceptionResponse> handleNotFoundException(ApiException e) {
         return createResponse(e, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({IllegalStateException.class})
+    public ResponseEntity<ApiExceptionResponse> handleInternalExceptions(Exception e) {
+        log.error(e.getMessage(), e);
+        ApiExceptionResponse apiExceptionResponse = new ApiExceptionResponse(
+                "internal",
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ZonedDateTime.now()
+        );
+        return new ResponseEntity<>(apiExceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(value = {ConstraintViolationException.class})

@@ -32,6 +32,12 @@ public class JwtServiceImpl implements JwtService {
         return generateToken(new HashMap<>(), user);
     }
 
+    /**
+     * 86400000 milliseconds = 24 hours
+     * @param extraClaims
+     * @param user
+     * @return
+     */
     @Override
     public String generateToken(Map<String, Object> extraClaims, User user) {
         return Jwts
@@ -39,7 +45,7 @@ public class JwtServiceImpl implements JwtService {
                 .setClaims(extraClaims)
                 .setSubject(user.getUserEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000 ))
                 .signWith(SignatureAlgorithm.HS256, getSignInKey())
                 .compact();
     }

@@ -1,13 +1,17 @@
 package online.talkandtravel.controller.http;
 
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.Country;
 import online.talkandtravel.model.dto.CountryDto;
 import online.talkandtravel.model.dto.CountryWithUserDto;
+import online.talkandtravel.model.dto.IParticipantDto;
+import online.talkandtravel.repository.CountryRepo;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.CountryDtoMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/countries")
 @RequiredArgsConstructor
+@Log4j2
 public class CountryController {
     private final CountryService countryService;
+    private final CountryRepo countryRepo;
     private final CountryDtoMapper countryDtoMapper;
 
     @Operation(
@@ -72,5 +78,16 @@ public class CountryController {
     public ResponseEntity<CountryWithUserDto> findByIdWithUsers(@PathVariable Long countryId) {
         CountryWithUserDto countryWithUserDto = countryService.findByIdWithParticipants(countryId);
         return ResponseEntity.ok().body(countryWithUserDto);
+    }
+
+    @Operation(
+            description = "Get Country by ID with users instead of participants."
+    )
+    @GetMapping("/{countryId}/participants")
+    public List<IParticipantDto> findParticipantsByChatId(@PathVariable Long countryId) {
+        List<IParticipantDto> participants = countryRepo.findAllParticipantsByChatId(countryId);
+        log.info("findParticipantsByChatId participants size - {}", participants.size());
+        log.info("findParticipantsByChatId participants - {}", participants);
+        return participants;
     }
 }

@@ -4,6 +4,7 @@ import online.talkandtravel.model.Country;
 import java.util.List;
 import java.util.Optional;
 
+import online.talkandtravel.model.dto.IParticipantDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -51,4 +52,11 @@ public interface CountryRepo extends JpaRepository<Country, Long> {
             + "LEFT JOIN FETCH p.user u "
             + "WHERE c.id = :id")
     Optional<Country> findByIdWithParticipants(@Param("id") Long id);
+
+    @Query("select new online.talkandtravel.model.dto.IParticipantDto(p.id, new online.talkandtravel.model.dto.UserDtoShort(u.id, u.userName, u.userEmail)) " +
+            "from Country c " +
+            "join c.participants p " +
+            "join p.user u " +
+            "where c.id = :chatId")
+    List<IParticipantDto> findAllParticipantsByChatId(@Param("chatId") Long chatId);
 }
