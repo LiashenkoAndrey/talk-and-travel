@@ -1,6 +1,7 @@
 package online.talkandtravel.controller.websocket;
 
 import online.talkandtravel.model.dto.GroupMessageRequestDto;
+import online.talkandtravel.model.dto.IMessageDto;
 import online.talkandtravel.service.GroupMessageService;
 import online.talkandtravel.util.mapper.GroupMessageDtoMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,10 @@ public class GroupMessageWebSocketController {
     @MessageMapping("/group-messages")
     public void create(@Payload GroupMessageRequestDto groupMessageRequestDto) {
         log.info("create a new message {}", groupMessageRequestDto);
-        var groupMessage = groupMessageService.create(groupMessageRequestDto);
-        var groupMessageDto = groupMessageDtoMapper.mapToDto(groupMessage);
-        log.info(groupMessageDto);
-        simpMessagingTemplate.convertAndSend("/countries/" + groupMessageRequestDto.getCountryId() + "/messages", groupMessageDto);
+        IMessageDto groupMessage = groupMessageService.saveAndReturnDto(groupMessageRequestDto);
+        log.info("groupMessage - {}", groupMessage);
+//        GroupMessageDto groupMessageDto = groupMessageDtoMapper.mapToDto(groupMessage);
+//        log.info("groupMessageDto - {}",groupMessageDto);
+        simpMessagingTemplate.convertAndSend("/countries/" + groupMessageRequestDto.getCountryId() + "/messages", groupMessage);
     }
 }

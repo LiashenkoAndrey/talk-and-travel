@@ -1,6 +1,9 @@
 package online.talkandtravel.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,7 +28,15 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class GroupMessage {
+
+    public GroupMessage(Long id, String content, LocalDateTime creationDate) {
+        this.id = id;
+        this.content = content;
+        this.creationDate = creationDate;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,9 +48,12 @@ public class GroupMessage {
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     @JsonIgnore
+    @JsonBackReference
     private Country country;
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
     @PrePersist
     protected void onCreate() {

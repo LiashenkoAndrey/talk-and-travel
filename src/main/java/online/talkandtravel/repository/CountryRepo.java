@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CountryRepository extends JpaRepository<Country, Long> {
+public interface CountryRepo extends JpaRepository<Country, Long> {
     @Query("SELECT c "
             + "FROM Country c "
             + "LEFT JOIN FETCH c.groupMessages "

@@ -3,6 +3,7 @@ package online.talkandtravel.controller.http;
 import online.talkandtravel.model.GroupMessage;
 import online.talkandtravel.model.dto.GroupMessageDto;
 import online.talkandtravel.model.dto.GroupMessageRequestDto;
+import online.talkandtravel.model.dto.IMessageDto;
 import online.talkandtravel.service.GroupMessageService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.GroupMessageDtoMapper;
@@ -42,11 +43,11 @@ public class GroupMessageController {
 
     @Operation(
             description = "Create GroupMessage"
+
     )
     @PostMapping
-    public ResponseEntity<GroupMessageDto> create(@RequestBody GroupMessageRequestDto groupMessageRequestDto) {
-        var groupMessage = groupMessageService.create(groupMessageRequestDto);
-        var groupMessageDto = groupMessageDtoMapper.mapToDto(groupMessage);
-        return ResponseEntity.ok().body(groupMessageDto);
+    public ResponseEntity<IMessageDto> create(@RequestBody GroupMessageRequestDto groupMessageRequestDto) {
+        IMessageDto groupMessage = groupMessageService.saveAndReturnDto(groupMessageRequestDto);
+        return ResponseEntity.ok().body(groupMessage);
     }
 }

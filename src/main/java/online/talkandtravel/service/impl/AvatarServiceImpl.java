@@ -55,7 +55,7 @@ public class AvatarServiceImpl implements AvatarService {
     }
 
     private Avatar getExistingAvatar(Long userId) {
-        var avatar = repository.findByUserId(userId).orElseThrow(
+        Avatar avatar = repository.findByUserId(userId).orElseThrow(
                 () -> new NoSuchElementException("Can not find avatar by user ID: " + userId)
         );
         avatar.setContent(avatar.getContent());

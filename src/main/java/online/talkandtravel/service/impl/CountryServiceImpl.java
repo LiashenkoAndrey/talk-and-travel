@@ -5,7 +5,7 @@ import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
 import online.talkandtravel.model.dto.CountryWithUserDto;
 import online.talkandtravel.model.dto.UserDto;
-import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.CountryRepo;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.service.ParticipantService;
 import online.talkandtravel.service.UserService;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class CountryServiceImpl implements CountryService {
-    private final CountryRepository repository;
+    private final CountryRepo repository;
     private final UserService userService;
     private final ParticipantService participantService;
 
