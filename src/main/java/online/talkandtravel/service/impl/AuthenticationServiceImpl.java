@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +62,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return user;
         }
         log.info("User with email - {} not found", email);
-        throw new UserNotFoundException("User with email - "+ email+" not found", "Bad credentials", HttpStatus.BAD_REQUEST);
+        throw new UserNotFoundException("User with email - "+ email+" not found", "Bad credentials");
     }
 
     private User registerNewUser(User user) throws IOException {
