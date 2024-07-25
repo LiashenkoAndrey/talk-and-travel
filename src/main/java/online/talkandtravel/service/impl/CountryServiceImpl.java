@@ -1,7 +1,9 @@
 package online.talkandtravel.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.CountryExistsException;
+import online.talkandtravel.exception.UserAlreadySubscribedException;
 import online.talkandtravel.model.Country;
 import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
@@ -70,6 +72,12 @@ public class CountryServiceImpl implements CountryService {
     }
 
 
+    @Override
+    public boolean userIsSubscribed(String countryName, Long userId) {
+        log.info("userIsSubscribed countryId - {}, userId - {}", countryName, userId);
+        return repository.isUserSubscribed(countryName, userId);
+    }
+
     /**
      * Creates a new country
      * If country already exists - throw exception
@@ -86,14 +94,26 @@ public class CountryServiceImpl implements CountryService {
     /**
      * joins a user to a country
      * @param userId user id
-     * @param country country entity
+     * @param countryName country entity
      */
     @Override
     @Transactional
-    public void joinUserToCountry(Long userId, Country country) {
+    public void joinUserToCountry(Long userId, String countryName) {
+        throwExceptionIfAlreadySubscribed(userId, countryName);
+        log.info("joinUserToCountry userId - {}, country - {}", userId, countryName);
         var user = userRepo.getReferenceById(userId);
         var participant = participantService.createAndSave(user);
+        Country country = repository.findByName(countryName).orElseThrow(EntityNotFoundException::new);
         joinCountry(country, participant);
+    }
+
+    private void throwExceptionIfAlreadySubscribed(Long userId, String countryName) {
+        Boolean isSubscribed = userIsSubscribed(countryName ,userId);
+        log.info("isSubscribed {}", isSubscribed);
+        if (isSubscribed) {
+            throw new UserAlreadySubscribedException("User with id : "+ userId +
+                    " already subscribed to a country with name " + countryName, "User already subscribed");
+        }
     }
 
     @Override

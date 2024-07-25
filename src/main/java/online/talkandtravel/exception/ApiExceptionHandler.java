@@ -22,7 +22,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler({AuthenticationException.class, RegistrationException.class,
             NoSuchElementException.class,
             UnsupportedFormatException.class, FileSizeExceededException.class,
-            ImageWriteException.class, ImageProcessingException.class})
+            ImageWriteException.class, ImageProcessingException.class, UserAlreadySubscribedException.class})
     public ResponseEntity<ApiExceptionResponse> handleException(ApiException e) {
         return createResponse(e, HttpStatus.BAD_REQUEST);
     }

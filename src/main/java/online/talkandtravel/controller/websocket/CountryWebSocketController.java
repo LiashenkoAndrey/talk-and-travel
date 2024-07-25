@@ -2,9 +2,7 @@ package online.talkandtravel.controller.websocket;
 
 import jakarta.persistence.EntityNotFoundException;
 import online.talkandtravel.model.Country;
-import online.talkandtravel.model.dto.CountryDto;
-import online.talkandtravel.model.dto.ICountryDto;
-import online.talkandtravel.model.dto.NewParticipantCountryDto;
+import online.talkandtravel.model.dto.*;
 import online.talkandtravel.repository.CountryRepo;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.mapper.CountryDtoMapper;
@@ -16,9 +14,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashSet;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,22 +40,34 @@ public class CountryWebSocketController {
     }
 
     /**
-     * creates a new country and notifies all users that subscribed to path /countries/{countryName}
+     *  When user opens country (subscribed, unsubscribed) frontend sends message here
+     *  If the user was not subscribed to the country - join user to country
+     *  As a response it'll we send a country DTO to user to path /countries/{name}
      * @param dto country dto
      */
-    @MessageMapping("/countries/create")
-    public void create(@Payload CountryDto dto) {
-        if (dto.getName() == null) throw new IllegalArgumentException("A country name must be specified");
-        log.info("Create a country {}", dto);
-        Country country = countryDtoMapper.mapToModel(dto);
-        country.setParticipants(new HashSet<>());
-        Country saved = countryService.createAndSave(country);
-        log.info("saved country partisipants - {}", saved.getParticipants());
-        log.info("saved country  - {}", saved);
-        countryService.joinUserToCountry(dto.getUserId(), saved);
-        ICountryDto sendDto = countryRepo.findDtoById(saved.getId()).orElseThrow(EntityNotFoundException::new);
-        log.info("send country dto... data - {}", sendDto);
-        notifyThatCountryWasCreatedOrUpdated(sendDto);
+    @MessageMapping("/countries/{countryName}/open")
+    public void open(@Payload OpenCountryRequestDto dto, @DestinationVariable String countryName) {
+        log.info("Open a country {}", dto);
+        Country country = countryRepo.findByName(countryName).orElseThrow(EntityNotFoundException::new);
+        log.info("found country {}", country);
+        Boolean isSubscribed = countryService.userIsSubscribed(countryName ,dto.getUserId());
+        log.info("isSubscribed {}", isSubscribed);
+
+        OpenCountryResponseDto responseDto = OpenCountryResponseDto.builder()
+                .country(countryDtoMapper.mapToDto(country))
+                .isSubscribed(isSubscribed)
+                .build();
+        log.info("response - {}", responseDto);
+        simpMessagingTemplate.convertAndSend("/countries/" + countryName, responseDto);
+    }
+
+    /**
+     * Joins a user to a country
+     */
+    @PostMapping("/countries/{countryName}/join")
+    public ResponseEntity<?> join(@RequestBody Long userId, @PathVariable String countryName) {
+        countryService.joinUserToCountry(userId, countryName);
+        return ResponseEntity.ok().build();
     }
 
     /**

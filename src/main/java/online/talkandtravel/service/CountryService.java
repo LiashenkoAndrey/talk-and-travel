@@ -8,9 +8,11 @@ import java.util.List;
 
 public interface CountryService {
 
+    boolean userIsSubscribed(String countryName, Long userId);
+
     Country createAndSave(Country country);
 
-    void joinUserToCountry(Long userId, Country country);
+    void joinUserToCountry(Long userId, String countryName);
 
     Country update(Long countryId, Long userID);
 

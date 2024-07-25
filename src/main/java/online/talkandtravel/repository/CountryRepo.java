@@ -13,6 +13,16 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CountryRepo extends JpaRepository<Country, Long> {
+
+
+    @Query(value = """
+    select
+        count(*) > 0 as is_subscribed
+        from participant_countries p join public.countries c on c.id = p.country_id
+        where c.name = :countryName and p.participant_id = :userId
+    """, nativeQuery = true)
+    boolean isUserSubscribed(@Param("countryName") String countryName, @Param("userId") Long userId);
+
     @Query("SELECT c "
             + "FROM Country c "
             + "LEFT JOIN FETCH c.groupMessages "
