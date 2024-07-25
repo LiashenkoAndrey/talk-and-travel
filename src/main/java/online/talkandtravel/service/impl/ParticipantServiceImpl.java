@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl;
 
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
 import online.talkandtravel.repository.ParticipantRepository;
@@ -12,12 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class ParticipantServiceImpl implements ParticipantService {
     private final ParticipantRepository repository;
 
     @Override
     public Participant save(Participant participant) {
+       log.info("save new Participant - {}", participant);
         return repository.save(participant);
     }
 
@@ -27,9 +30,8 @@ public class ParticipantServiceImpl implements ParticipantService {
     }
 
     @Override
-    public Participant create(User user) {
-        var participant = createNewParticipant(user);
-        return save(participant);
+    public Participant createAndSave(User user) {
+        return save(new Participant(user));
     }
 
     @Override
@@ -53,10 +55,4 @@ public class ParticipantServiceImpl implements ParticipantService {
         participant.getCountries().remove(country);
     }
 
-    private Participant createNewParticipant(User user) {
-        return Participant.builder()
-                .user(user)
-                .countries(new ArrayList<>())
-                .build();
-    }
 }

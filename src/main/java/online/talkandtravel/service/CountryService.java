@@ -2,12 +2,15 @@ package online.talkandtravel.service;
 
 import online.talkandtravel.model.Country;
 import online.talkandtravel.model.dto.CountryWithUserDto;
+import online.talkandtravel.model.dto.NewParticipantCountryDto;
 
 import java.util.List;
 
 public interface CountryService {
 
-    Country create(Country country, Long userID);
+    Country createAndSave(Country country);
+
+    void joinUserToCountry(Long userId, Country country);
 
     Country update(Long countryId, Long userID);
 
@@ -24,4 +27,6 @@ public interface CountryService {
     List<Country> findAllCountriesByUser(Long userId);
 
     CountryWithUserDto findByIdWithParticipants(Long countryId);
+
+    void addNewParticipantToCountry(NewParticipantCountryDto dto);
 }

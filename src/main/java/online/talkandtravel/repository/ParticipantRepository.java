@@ -16,4 +16,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
             + "WHERE p.user.id = :userId "
             + "AND c.id = :countryId")
     Optional<Participant> findByUserIdAndCountryId(@Param("userId") Long userId, @Param("countryId") Long countryId);
+
+    Optional<Participant> findByUserId(Long userId);
 }

@@ -10,7 +10,7 @@ public interface ParticipantService {
 
     Optional<Participant> findByUserIdAndCountryId(Long userId, Long countryId);
 
-    Participant create(User user);
+    Participant createAndSave(User user);
 
     String leaveCountry(Long userId, Long countryId);
 }

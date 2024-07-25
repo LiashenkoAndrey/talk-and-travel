@@ -1,19 +1,21 @@
 package online.talkandtravel.service.impl;
 
+import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.CountryExistsException;
 import online.talkandtravel.model.Country;
 import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
 import online.talkandtravel.model.dto.CountryWithUserDto;
+import online.talkandtravel.model.dto.NewParticipantCountryDto;
 import online.talkandtravel.model.dto.UserDto;
 import online.talkandtravel.repository.CountryRepo;
+import online.talkandtravel.repository.ParticipantRepository;
+import online.talkandtravel.repository.UserRepo;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.service.ParticipantService;
 import online.talkandtravel.service.UserService;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,11 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class CountryServiceImpl implements CountryService {
     private final CountryRepo repository;
     private final UserService userService;
     private final ParticipantService participantService;
+    private final UserRepo userRepo;
+    private final ParticipantRepository participantRepository;
 
     @Override
     public Country save(Country country) {
@@ -65,15 +70,30 @@ public class CountryServiceImpl implements CountryService {
     }
 
 
+    /**
+     * Creates a new country
+     * If country already exists - throw exception
+     * @param country country dto
+     * @return saved new country
+     */
     @Override
     @Transactional
-    public Country create(Country country, Long userId) {
+    public Country createAndSave(Country country) {
         ifCountryExistsThrowException(country);
-        var user = userService.findById(userId);
-        var participant = participantService.create(user);
-        var newCountry = createNewCountry(country);
-        joinCountry(newCountry, participant);
-        return repository.save(newCountry);
+        return repository.save(country);
+    }
+
+    /**
+     * joins a user to a country
+     * @param userId user id
+     * @param country country entity
+     */
+    @Override
+    @Transactional
+    public void joinUserToCountry(Long userId, Country country) {
+        var user = userRepo.getReferenceById(userId);
+        var participant = participantService.createAndSave(user);
+        joinCountry(country, participant);
     }
 
     @Override
@@ -91,6 +111,24 @@ public class CountryServiceImpl implements CountryService {
         Country country = findCountryByIdWithParticipants(countryId);
         Set<UserDto> userDtos = mapParticipantsToUserDtos(country);
         return buildCountryWithUserDto(country, userDtos);
+    }
+
+    @Override
+    public void addNewParticipantToCountry(NewParticipantCountryDto dto) {
+        log.info("addNewParticipantToCountry - {}", dto);
+        Optional<Participant> participantOptional = participantRepository.findByUserId(dto.getUserId());
+        participantOptional.ifPresentOrElse((participant) -> {
+            log.info("Participant exists - {}", participant.getId());
+        },
+                () -> {
+            log.info("Participant not exists. create new record....");
+            Participant participant = Participant.builder()
+                    .user(userRepo.getReferenceById(dto.getUserId()))
+                    .countries(List.of(repository.getReferenceById(dto.getId())))
+                    .build();
+            Participant saved = participantService.save(participant);
+            log.info("save ok - {}, {}", saved.getId(), saved.getCountries().size());
+        });
     }
 
     private CountryWithUserDto buildCountryWithUserDto(Country country, Set<UserDto> userDtos) {
@@ -130,7 +168,7 @@ public class CountryServiceImpl implements CountryService {
     private Participant getParticipant(Long countryId, Long userId) {
         var user = userService.findById(userId);
         return participantService.findByUserIdAndCountryId(userId, countryId)
-                .orElseGet(() -> participantService.create(user));
+                .orElseGet(() -> participantService.createAndSave(user));
     }
 
     private Country getCountry(Long countryId) {
@@ -142,11 +180,12 @@ public class CountryServiceImpl implements CountryService {
     private void ifCountryExistsThrowException(Country country) {
         var existingCountry = repository.findByName(country.getName());
         if (existingCountry.isPresent()) {
-            throw new RuntimeException("Country already exist");
+            throw new CountryExistsException("Country already exist");
         }
     }
 
     private void joinCountry(Country country, Participant participant) {
+        log.info("joinCountry country - {}, participant - {}", country, participant.getCountries());
         if (!country.getParticipants().contains(participant)) {
             country.getParticipants().add(participant);
         }
@@ -159,8 +198,6 @@ public class CountryServiceImpl implements CountryService {
         return Country.builder()
                 .name(country.getName())
                 .flagCode(country.getFlagCode())
-                .groupMessages(new ArrayList<>())
-                .participants(new HashSet<>())
                 .build();
     }
 }

@@ -11,6 +11,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -40,7 +43,7 @@ public class Country {
     @Column(nullable = false, unique = true)
     private String flagCode;
     @OneToMany(mappedBy = "country", fetch = FetchType.LAZY)
-    private List<GroupMessage> groupMessages;
+    private List<GroupMessage> groupMessages = new ArrayList<>();
     @ManyToMany(mappedBy = "countries", fetch = FetchType.LAZY)
-    private Set<Participant> participants;
+    private Set<Participant> participants = new HashSet<>();
 }
