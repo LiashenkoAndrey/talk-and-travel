@@ -67,9 +67,7 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public List<Country> findAllCountriesByUser(Long userId) {
-        return repository.findCountriesByUserId(userId).orElseThrow(
-                () -> new NoSuchElementException("The User is not a participant of any Country")
-        );
+        return repository.findCountriesByUserId(userId);
     }
 
 
@@ -102,10 +100,21 @@ public class CountryServiceImpl implements CountryService {
     public void joinUserToCountry(Long userId, String countryName) {
         throwExceptionIfAlreadySubscribed(userId, countryName);
         log.info("joinUserToCountry userId - {}, country - {}", userId, countryName);
-        var user = userRepo.getReferenceById(userId);
-        var participant = participantService.createAndSave(user);
+//        var user = userRepo.getReferenceById(userId);
         Country country = repository.findByName(countryName).orElseThrow(EntityNotFoundException::new);
-        joinCountry(country, participant);
+        Participant participant = Participant.builder()
+                .user(userRepo.getReferenceById(userId))
+                .countries(List.of(country))
+                .build();
+        Participant saved = participantService.save(participant);
+        log.info("save ok - {}, {}", saved.getId(), saved.getCountries().size());
+//        Country country = repository.findByName(countryName).orElseThrow(EntityNotFoundException::new);
+//        participant.getCountries().add(country);
+//        country.getParticipants().add(participant);
+//        Participant savedPartisipant = participantRepository.save(participant);
+//        Country savedCountry  = repository.save(country);
+//        log.info("savedPartisipant - {}", savedPartisipant.getCountries());
+//        log.info("savedCountry - {}", savedCountry.getParticipants());
     }
 
     private void throwExceptionIfAlreadySubscribed(Long userId, String countryName) {

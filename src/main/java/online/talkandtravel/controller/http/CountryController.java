@@ -14,10 +14,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/countries")
@@ -37,6 +34,16 @@ public class CountryController {
                 .map(countryDtoMapper::mapToDto)
                 .toList();
         return ResponseEntity.ok().body(countryDtos);
+    }
+
+    @Operation(
+            description = "Joins a user to a country"
+    )
+    @PostMapping("/{countryName}/join")
+    public ResponseEntity<?> join(@RequestBody Long userId, @PathVariable String countryName) {
+        log.info("join country userId - {}, countryName - {}", userId, countryName);
+        countryService.joinUserToCountry(userId, countryName);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(

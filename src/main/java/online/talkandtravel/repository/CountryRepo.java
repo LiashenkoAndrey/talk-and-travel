@@ -45,11 +45,13 @@ public interface CountryRepo extends JpaRepository<Country, Long> {
             + "WHERE c.id = :countryId")
     Long countUsersInCountry(Long countryId);
 
-    @Query("SELECT NEW Country(c.id, c.name, c.flagCode) "
+    @Query("SELECT distinct NEW Country(c.id, c.name, c.flagCode) "
             + "FROM Participant p "
-            + "JOIN p.countries c "
+            + "left join p.countries c "
             + "WHERE p.user.id = :userId")
-    Optional<List<Country>> findCountriesByUserId(@Param("userId") Long userId);
+    List<Country> findCountriesByUserId(@Param("userId") Long userId);
+
+
 
     @Query("SELECT c "
             + "FROM Country c "

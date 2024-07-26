@@ -68,14 +68,7 @@ public class CountryWebSocketController {
         simpMessagingTemplate.convertAndSend("/countries/" + dto.getCountryName(), responseDto);
     }
 
-    /**
-     * Joins a user to a country
-     */
-    @PostMapping("/countries/{countryName}/join")
-    public ResponseEntity<?> join(@RequestBody Long userId, @PathVariable String countryName) {
-        countryService.joinUserToCountry(userId, countryName);
-        return ResponseEntity.ok().build();
-    }
+
 
     /**
      * updates country notifies all users that subscribed to path /countries/{countryName} that it was updated
