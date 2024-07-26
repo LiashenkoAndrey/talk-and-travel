@@ -45,12 +45,12 @@ public class CountryWebSocketController {
      *  As a response it'll we send a country DTO to user to path /countries/{name}
      * @param dto country dto
      */
-    @MessageMapping("/countries/{countryName}/open")
-    public void open(@Payload OpenCountryRequestDto dto, @DestinationVariable String countryName) {
+    @MessageMapping("/countries/open")
+    public void open(@RequestBody OpenCountryRequestDto dto) {
         log.info("Open a country {}", dto);
-        Country country = countryRepo.findByName(countryName).orElseThrow(EntityNotFoundException::new);
+        Country country = countryRepo.findByName(dto.getCountryName()).orElseThrow(EntityNotFoundException::new);
         log.info("found country {}", country);
-        Boolean isSubscribed = countryService.userIsSubscribed(countryName ,dto.getUserId());
+        Boolean isSubscribed = countryService.userIsSubscribed(dto.getCountryName() ,dto.getUserId());
         log.info("isSubscribed {}", isSubscribed);
 
         OpenCountryResponseDto responseDto = OpenCountryResponseDto.builder()
@@ -58,7 +58,7 @@ public class CountryWebSocketController {
                 .isSubscribed(isSubscribed)
                 .build();
         log.info("response - {}", responseDto);
-        simpMessagingTemplate.convertAndSend("/countries/" + countryName, responseDto);
+        simpMessagingTemplate.convertAndSend("/countries/" + dto.getCountryName(), responseDto);
     }
 
     /**
@@ -84,7 +84,4 @@ public class CountryWebSocketController {
 //        notifyThatCountryWasCreatedOrUpdated(countryDto);
     }
 
-    private void notifyThatCountryWasCreatedOrUpdated(ICountryDto countryDto) {
-        simpMessagingTemplate.convertAndSend("/countries/" + countryDto.getName(), countryDto);
-    }
 }
