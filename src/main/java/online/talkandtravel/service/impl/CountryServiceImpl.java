@@ -36,6 +36,7 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public Country save(Country country) {
+        log.info("save country... {}", country);
         return repository.save(country);
     }
 

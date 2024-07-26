@@ -23,6 +23,8 @@ public interface CountryRepo extends JpaRepository<Country, Long> {
     """, nativeQuery = true)
     boolean isUserSubscribed(@Param("countryName") String countryName, @Param("userId") Long userId);
 
+    boolean existsByName(String name);
+
     @Query("SELECT c "
             + "FROM Country c "
             + "LEFT JOIN FETCH c.groupMessages "

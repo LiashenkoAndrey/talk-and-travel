@@ -16,7 +16,7 @@ public class CountryDto {
     private Long id;
     private String name;
     private String flagCode;
-    private Long userId;
+//    private Long userId;
     private List<GroupMessage> groupMessages;
     private List<Participant> participants;
 }

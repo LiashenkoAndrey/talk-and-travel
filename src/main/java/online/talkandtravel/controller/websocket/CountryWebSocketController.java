@@ -48,9 +48,16 @@ public class CountryWebSocketController {
     @MessageMapping("/countries/open")
     public void open(@RequestBody OpenCountryRequestDto dto) {
         log.info("Open a country {}", dto);
-        Country country = countryRepo.findByName(dto.getCountryName()).orElseThrow(EntityNotFoundException::new);
+
+        Country country = countryRepo.findByName(dto.getCountryName())
+                .orElseGet(() -> countryService.save(Country.builder()
+                        .flagCode(dto.getFlagCode())
+                        .name(dto.getCountryName())
+                        .build())
+                );
+
         log.info("found country {}", country);
-        Boolean isSubscribed = countryService.userIsSubscribed(dto.getCountryName() ,dto.getUserId());
+        Boolean isSubscribed = countryService.userIsSubscribed(dto.getCountryName(), dto.getUserId());
         log.info("isSubscribed {}", isSubscribed);
 
         OpenCountryResponseDto responseDto = OpenCountryResponseDto.builder()
