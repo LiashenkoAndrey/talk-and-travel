@@ -1,32 +1,11 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.exception.RegistrationException;
-import online.talkandtravel.model.Avatar;
-import online.talkandtravel.model.User;
-import online.talkandtravel.model.dto.AuthResponse;
-import online.talkandtravel.model.dto.UserDto;
-import online.talkandtravel.service.AvatarService;
-import online.talkandtravel.service.JwtService;
-import online.talkandtravel.service.TokenService;
-import online.talkandtravel.service.UserService;
-import online.talkandtravel.util.mapper.UserDtoMapper;
-import online.talkandtravel.util.validator.PasswordValidator;
-import online.talkandtravel.util.validator.UserEmailValidator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.io.IOException;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceImplTest {

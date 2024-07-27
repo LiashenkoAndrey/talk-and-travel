@@ -1,6 +1,6 @@
 package online.talkandtravel.controller.http;
 
-import online.talkandtravel.model.dto.UserDto;
+import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserDtoMapper;
@@ -25,7 +25,7 @@ public class UserController {
             description = "Update a user."
     )
     @PutMapping()
-    public ResponseEntity<UserDto> update(@RequestBody UserDto dto) {
+    public ResponseEntity<UserDtoWithAvatarAndPassword> update(@RequestBody UserDtoWithAvatarAndPassword dto) {
         var user = userDtoMapper.mapToModel(dto);
         var updatedUser = userService.update(user);
         var userDto = userDtoMapper.mapToDto(updatedUser);
@@ -36,7 +36,7 @@ public class UserController {
             description = "Get a user by ID."
     )
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> findById(@PathVariable Long userId) {
+    public ResponseEntity<UserDtoWithAvatarAndPassword> findById(@PathVariable Long userId) {
         var user = userService.findById(userId);
         var userDto = userDtoMapper.mapToDto(user);
         return ResponseEntity.ok().body(userDto);

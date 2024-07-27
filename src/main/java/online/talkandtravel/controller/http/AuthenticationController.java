@@ -3,7 +3,7 @@ package online.talkandtravel.controller.http;
 import jakarta.validation.Valid;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.LoginDto;
-import online.talkandtravel.model.dto.UserDto;
+import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserDtoMapper;
@@ -26,7 +26,7 @@ public class AuthenticationController {
             description = "Register a user."
     )
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody UserDto dto) throws IOException {
+    public ResponseEntity<AuthResponse> register(@RequestBody UserDtoWithAvatarAndPassword dto) throws IOException {
         log.info("register - {}", dto);
         var user = mapper.mapToModel(dto);
         var authResponse = authService.register(user);
