@@ -37,6 +37,12 @@ public class GroupMessage {
         this.creationDate = creationDate;
     }
 
+    public GroupMessage(String content, Country country, User user) {
+        this.content = content;
+        this.country = country;
+        this.user = user;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

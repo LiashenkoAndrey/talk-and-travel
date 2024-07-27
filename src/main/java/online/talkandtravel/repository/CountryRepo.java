@@ -1,20 +1,17 @@
 package online.talkandtravel.repository;
 
 import online.talkandtravel.model.Country;
-import java.util.List;
-import java.util.Optional;
-
-import online.talkandtravel.model.dto.ICountryDto;
 import online.talkandtravel.model.dto.IParticipantDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
-public interface CountryRepo extends JpaRepository<Country, Long> {
-
-
+public interface CountryRepo extends JpaRepository<Country, Long>, CountryRepoCustom {
     @Query(value = """
     select
         count(*) > 0 as is_subscribed
@@ -32,12 +29,7 @@ public interface CountryRepo extends JpaRepository<Country, Long> {
             + "ORDER BY c.name")
     List<Country> findAllSortedByName();
 
-    @Query("SELECT c "
-            + "FROM Country c "
-            + "LEFT JOIN FETCH c.groupMessages "
-            + "LEFT JOIN FETCH c.participants "
-            + "WHERE c.name = :name")
-    Optional<Country> findByName(@Param("name") String name);
+    Optional<Country> findByName(String name);
 
     @Query("SELECT COUNT (DISTINCT p.user.id) "
             + "FROM  Participant p "
@@ -50,8 +42,6 @@ public interface CountryRepo extends JpaRepository<Country, Long> {
             + "left join p.countries c "
             + "WHERE p.user.id = :userId")
     List<Country> findCountriesByUserId(@Param("userId") Long userId);
-
-
 
     @Query("SELECT c "
             + "FROM Country c "
@@ -75,6 +65,4 @@ public interface CountryRepo extends JpaRepository<Country, Long> {
             "where c.id = :chatId")
     List<IParticipantDto> findAllParticipantsByChatId(@Param("chatId") Long chatId);
 
-    @Query("select c.name as name, c.id as id, c.flagCode as flagCode from Country c where c.id = :id")
-    Optional<ICountryDto> findDtoById(Long id);
 }

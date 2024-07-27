@@ -1,14 +1,14 @@
 package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.model.User;
-import online.talkandtravel.model.dto.UserDto;
+import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserDtoMapper {
     @Mapping(target = "password", ignore = true)
-    UserDto mapToDto(User user);
+    UserDtoWithAvatarAndPassword mapToDto(User user);
 
-    User mapToModel(UserDto dto);
+    User mapToModel(UserDtoWithAvatarAndPassword dto);
 }

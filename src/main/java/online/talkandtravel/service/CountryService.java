@@ -1,6 +1,7 @@
 package online.talkandtravel.service;
 
 import online.talkandtravel.model.Country;
+import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
 import online.talkandtravel.model.dto.CountryWithUserDto;
 import online.talkandtravel.model.dto.NewParticipantCountryDto;
 
@@ -20,8 +21,9 @@ public interface CountryService {
 
     Country findById(Long countryId);
 
+    CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, Country country);
 
-    Country findByName(String countryMame);
+//    Country findByName(String countryMame);
 
     List<Country> getAll();
 

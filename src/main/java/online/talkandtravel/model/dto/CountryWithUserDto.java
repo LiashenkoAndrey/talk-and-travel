@@ -18,5 +18,5 @@ public class CountryWithUserDto {
     private String name;
     private String flagCode;
     private List<GroupMessage> groupMessages;
-    private Set<UserDto> participants;
+    private Set<UserDtoWithAvatarAndPassword> participants;
 }

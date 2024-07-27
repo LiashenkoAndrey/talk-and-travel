@@ -7,9 +7,10 @@ import online.talkandtravel.exception.UserAlreadySubscribedException;
 import online.talkandtravel.model.Country;
 import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
+import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
 import online.talkandtravel.model.dto.CountryWithUserDto;
 import online.talkandtravel.model.dto.NewParticipantCountryDto;
-import online.talkandtravel.model.dto.UserDto;
+import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.repository.CountryRepo;
 import online.talkandtravel.repository.ParticipantRepository;
 import online.talkandtravel.repository.UserRepo;
@@ -48,12 +49,16 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    @Transactional
-    public Country findByName(String countryMame) {
-        return repository.findByName(countryMame).orElseThrow(
-                () -> new NoSuchElementException("Can not find Country by mane " + countryMame)
-        );
+    public CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, Country country) {
+        if (repository.existsByName(name)) {
+            log.info("EXIST");
+            return repository.findDtoByName(name);
+        }
+        log.info("Not exist, save...");
+        save(country);
+        return repository.findDtoByName(name);
     }
+
 
     @Override
     public List<Country> getAll() {
@@ -100,7 +105,6 @@ public class CountryServiceImpl implements CountryService {
     public void joinUserToCountry(Long userId, String countryName) {
         throwExceptionIfAlreadySubscribed(userId, countryName);
         log.info("joinUserToCountry userId - {}, country - {}", userId, countryName);
-//        var user = userRepo.getReferenceById(userId);
         Country country = repository.findByName(countryName).orElseThrow(EntityNotFoundException::new);
         Participant participant = Participant.builder()
                 .user(userRepo.getReferenceById(userId))
@@ -108,13 +112,7 @@ public class CountryServiceImpl implements CountryService {
                 .build();
         Participant saved = participantService.save(participant);
         log.info("save ok - {}, {}", saved.getId(), saved.getCountries().size());
-//        Country country = repository.findByName(countryName).orElseThrow(EntityNotFoundException::new);
-//        participant.getCountries().add(country);
-//        country.getParticipants().add(participant);
-//        Participant savedPartisipant = participantRepository.save(participant);
-//        Country savedCountry  = repository.save(country);
-//        log.info("savedPartisipant - {}", savedPartisipant.getCountries());
-//        log.info("savedCountry - {}", savedCountry.getParticipants());
+
     }
 
     private void throwExceptionIfAlreadySubscribed(Long userId, String countryName) {
@@ -139,8 +137,8 @@ public class CountryServiceImpl implements CountryService {
     @Transactional
     public CountryWithUserDto findByIdWithParticipants(Long countryId) {
         Country country = findCountryByIdWithParticipants(countryId);
-        Set<UserDto> userDtos = mapParticipantsToUserDtos(country);
-        return buildCountryWithUserDto(country, userDtos);
+        Set<UserDtoWithAvatarAndPassword> userDtoWithAvatarAndPasswords = mapParticipantsToUserDtos(country);
+        return buildCountryWithUserDto(country, userDtoWithAvatarAndPasswords);
     }
 
     @Override
@@ -161,25 +159,25 @@ public class CountryServiceImpl implements CountryService {
         });
     }
 
-    private CountryWithUserDto buildCountryWithUserDto(Country country, Set<UserDto> userDtos) {
+    private CountryWithUserDto buildCountryWithUserDto(Country country, Set<UserDtoWithAvatarAndPassword> userDtoWithAvatarAndPasswords) {
         return CountryWithUserDto.builder()
                 .id(country.getId())
                 .name(country.getName())
                 .flagCode(country.getFlagCode())
                 .groupMessages(country.getGroupMessages())
-                .participants(userDtos)
+                .participants(userDtoWithAvatarAndPasswords)
                 .build();
     }
 
-    private Set<UserDto> mapParticipantsToUserDtos(Country country) {
+    private Set<UserDtoWithAvatarAndPassword> mapParticipantsToUserDtos(Country country) {
         return country.getParticipants().stream()
                 .map(this::mapParticipantToUserDto)
                 .collect(Collectors.toSet());
     }
 
-    private UserDto mapParticipantToUserDto(Participant participant) {
+    private UserDtoWithAvatarAndPassword mapParticipantToUserDto(Participant participant) {
         User user = participant.getUser();
-        return UserDto.builder()
+        return UserDtoWithAvatarAndPassword.builder()
                 .id(user.getId())
                 .userName(user.getUserName())
                 .userEmail(user.getUserEmail())
