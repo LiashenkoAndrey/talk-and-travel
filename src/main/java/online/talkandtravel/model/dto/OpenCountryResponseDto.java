@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OpenCountryResponseDto {
-    CountryDto country;
+    CountryDtoWithParticipantsAmountAndMessages country;
     Boolean isSubscribed;
 }
