@@ -30,7 +30,10 @@ public class SecurityConfiguration {
             "/swagger-ui/**",
             "/v3/**",
             "/api/users/exists-by-email/**",
-            "/ws/", "/ws/**"};
+            "/ws/",
+            "/ws/**",
+            "/privacy-policy"
+    };
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
     private final CorsConfigurationSource corsConfigurationSource;
