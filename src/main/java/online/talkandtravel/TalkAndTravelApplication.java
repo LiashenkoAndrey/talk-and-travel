@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Profile;
                 description = "This is a chat application for people who like to travel"
         )
 )
-@Profile("dev")
 @RequiredArgsConstructor
 public class TalkAndTravelApplication {
     @Value("${USER_ADMIN_NAME}")
