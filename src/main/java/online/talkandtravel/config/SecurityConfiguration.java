@@ -32,7 +32,8 @@ public class SecurityConfiguration {
             "/api/users/exists-by-email/**",
             "/ws/",
             "/ws/**",
-            "/privacy-policy"
+            "/privacy-policy",
+            "/public-terms-of-service"
     };
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;

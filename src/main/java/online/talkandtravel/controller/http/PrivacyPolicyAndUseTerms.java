@@ -5,11 +5,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/privacy-policy")
-public class PrivacyPolicy {
+@RequestMapping("/")
+public class PrivacyPolicyAndUseTerms {
 
-    @GetMapping
+    @GetMapping("/privacy-policy")
     public String getPrivacyPolicy() {
         return "pp";
+    }
+
+    @GetMapping("/public-terms-of-service")
+    public String getPublicTerms() {
+        return "use-tems";
     }
 }
