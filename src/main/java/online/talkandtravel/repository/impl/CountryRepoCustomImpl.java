@@ -53,7 +53,7 @@ public class CountryRepoCustomImpl implements CountryRepoCustom {
                         select m.id as id, m.content as content, m.creationDate as creationDate, new online.talkandtravel.model.dto.UserDtoBasic(m.user.id, m.user.userName, m.user.userEmail, m.user.about) as user  
                         from GroupMessage m 
                         where m.country.name = :name 
-                        order by m.creationDate desc 
+                        order by m.creationDate  
                         """, MessageDto.class)
                 .setParameter("name", countryName)
                 .getResultList();
