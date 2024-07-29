@@ -49,7 +49,7 @@ public class CountryWebSocketController {
     @MessageMapping("/countries/open")
     public void open(@RequestBody OpenCountryRequestDto dto) {
         log.info("Open a country {}", dto);
-        CountryDtoWithParticipantsAmountAndMessages countryDto = countryService.findByNameAndCreateIfNotExist(dto.getCountryName(), countryDtoMapper.mapToModel(dto) );
+        CountryDtoWithParticipantsAmountAndMessages countryDto = countryService.findByNameAndCreateIfNotExist(dto.getCountryName(), dto );
         log.info("found country {}", countryDto);
         Boolean isSubscribed = countryService.userIsSubscribed(dto.getCountryName(), dto.getUserId());
         log.info("isSubscribed {}", isSubscribed);

@@ -7,10 +7,7 @@ import online.talkandtravel.exception.UserAlreadySubscribedException;
 import online.talkandtravel.model.Country;
 import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
-import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
-import online.talkandtravel.model.dto.CountryWithUserDto;
-import online.talkandtravel.model.dto.NewParticipantCountryDto;
-import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
+import online.talkandtravel.model.dto.*;
 import online.talkandtravel.repository.CountryRepo;
 import online.talkandtravel.repository.ParticipantRepository;
 import online.talkandtravel.repository.UserRepo;
@@ -49,13 +46,18 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, Country country) {
+    public CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto) {
         if (repository.existsByName(name)) {
             log.info("EXIST");
             return repository.findDtoByName(name);
         }
         log.info("Not exist, save...");
-        save(country);
+        Country country = Country.builder()
+                .flagCode(requestDto.getFlagCode())
+                .name(requestDto.getCountryName())
+                .build();
+        Country saved = repository.save(country);
+        log.info("saved {}", saved);
         return repository.findDtoByName(name);
     }
 
