@@ -15,8 +15,8 @@ public interface CountryRepo extends JpaRepository<Country, Long>, CountryRepoCu
     @Query(value = """
     select
         count(*) > 0 as is_subscribed
-        from participant_countries p join public.countries c on c.id = p.country_id
-        where c.name = :countryName and p.participant_id = :userId
+        from participant_countries p join public.countries c on c.id = p.country_id join public.participants p2 on p2.id = p.participant_id
+        where c.name = :countryName and p2.user_id = :userId
     """, nativeQuery = true)
     boolean isUserSubscribed(@Param("countryName") String countryName, @Param("userId") Long userId);
 
