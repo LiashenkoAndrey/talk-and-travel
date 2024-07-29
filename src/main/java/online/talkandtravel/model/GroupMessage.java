@@ -46,7 +46,7 @@ public class GroupMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Size(min = 2, max = 1000, message = "The maximum number of characters for a message is 1000")
+    @Size(max = 100000, message = "The maximum number of characters for a message is 100000")
     private String content;
     @Column(nullable = false)
     @Setter(AccessLevel.NONE)
