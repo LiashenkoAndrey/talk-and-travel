@@ -140,7 +140,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var userDto = userDtoMapper.mapToDto(user);
         return AuthResponse.builder()
                 .token(jwtToken)
-                .user(userDto)
+                .userDto(userDto)
                 .build();
     }
 
