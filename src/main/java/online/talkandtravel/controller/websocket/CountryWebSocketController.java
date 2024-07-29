@@ -59,7 +59,12 @@ public class CountryWebSocketController {
                 .isSubscribed(isSubscribed)
                 .build();
         log.info("response - {}", responseDto);
-        simpMessagingTemplate.convertAndSend("/countries/" + dto.getCountryName(), responseDto);
+        sendCountryToSpecificUser(dto.getUserId(), dto.getCountryName(), responseDto);
+    }
+
+
+    private void sendCountryToSpecificUser(Long userId, String countryName, OpenCountryResponseDto responseDto) {
+        simpMessagingTemplate.convertAndSend("/"+ userId +"/countries/" + countryName, responseDto);
     }
 
     /**
