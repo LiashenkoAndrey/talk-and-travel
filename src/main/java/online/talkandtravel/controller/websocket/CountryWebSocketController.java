@@ -64,7 +64,7 @@ public class CountryWebSocketController {
 
 
     private void sendCountryToSpecificUser(Long userId, String countryName, OpenCountryResponseDto responseDto) {
-        simpMessagingTemplate.convertAndSend("/"+ userId +"/countries/" + countryName, responseDto);
+        simpMessagingTemplate.convertAndSend( "/countries/" + countryName + "/user/" + userId, responseDto);
     }
 
     /**
