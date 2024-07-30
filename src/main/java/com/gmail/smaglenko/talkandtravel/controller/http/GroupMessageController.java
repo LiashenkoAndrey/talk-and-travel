@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/group-messages")
 @RequiredArgsConstructor
 public class GroupMessageController {
-    private final GroupMessageService groupMessageService;
-    private final GroupMessageDtoMapper groupMessageDtoMapper;
 
-    @Operation(
-            description = "This method finds all group messages within one country. "
-                    + "The messages that were added last are displayed first."
-    )
-    @GetMapping("/{countryId}")
-    public ResponseEntity<List<GroupMessageDto>> findByCountryIdOrderByCreationDateDesc(
-            @PathVariable Long countryId) {
-        List<GroupMessage> countryGroupMessagesByIdOrderByCreationDateDesc
-                = groupMessageService.findByCountryIdOrderByCreationDateDesc(countryId);
-        List<GroupMessageDto> groupGroupMessageDtos
-                = countryGroupMessagesByIdOrderByCreationDateDesc.stream()
-                .map(groupMessageDtoMapper::mapToDto)
-                .toList();
-        return ResponseEntity.ok().body(groupGroupMessageDtos);
-    }
+  private final GroupMessageService groupMessageService;
+  private final GroupMessageDtoMapper groupMessageDtoMapper;
 
-    @Operation(
-            description = "Create GroupMessage"
-    )
-    @PostMapping
-    public ResponseEntity<GroupMessageDto> create(@RequestBody GroupMessageRequestDto groupMessageRequestDto) {
-        var groupMessage = groupMessageService.create(groupMessageRequestDto);
-        var groupMessageDto = groupMessageDtoMapper.mapToDto(groupMessage);
-        return ResponseEntity.ok().body(groupMessageDto);
-    }
+  @Operation(
+      description =
+          "This method finds all group messages within one country. "
+              + "The messages that were added last are displayed first.")
+  @GetMapping("/{countryId}")
+  public ResponseEntity<List<GroupMessageDto>> findByCountryIdOrderByCreationDateDesc(
+      @PathVariable Long countryId) {
+    List<GroupMessage> countryGroupMessagesByIdOrderByCreationDateDesc =
+        groupMessageService.findByCountryIdOrderByCreationDateDesc(countryId);
+    List<GroupMessageDto> groupGroupMessageDtos =
+        countryGroupMessagesByIdOrderByCreationDateDesc.stream()
+            .map(groupMessageDtoMapper::mapToDto)
+            .toList();
+    return ResponseEntity.ok().body(groupGroupMessageDtos);
+  }
+
+  @Operation(description = "Create GroupMessage")
+  @PostMapping
+  public ResponseEntity<GroupMessageDto> create(
+      @RequestBody GroupMessageRequestDto groupMessageRequestDto) {
+    var groupMessage = groupMessageService.create(groupMessageRequestDto);
+    var groupMessageDto = groupMessageDtoMapper.mapToDto(groupMessage);
+    return ResponseEntity.ok().body(groupMessageDto);
+  }
 }

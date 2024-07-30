@@ -18,26 +18,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/authentication")
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final AuthenticationService authService;
-    private final UserDtoMapper mapper;
 
-    @Operation(
-            description = "Register a user."
-    )
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody UserDto dto) throws IOException {
-        var user = mapper.mapToModel(dto);
-        var authResponse = authService.register(user);
-        return ResponseEntity.ok(authResponse);
-    }
+  private final AuthenticationService authService;
+  private final UserDtoMapper mapper;
 
-    @Operation(
-            description = "Log in a user."
-    )
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody UserDto dto) {
-        var user = mapper.mapToModel(dto);
-        var authResponse = authService.login(user);
-        return ResponseEntity.ok(authResponse);
-    }
+  @Operation(description = "Register a user.")
+  @PostMapping("/register")
+  public ResponseEntity<AuthResponse> register(@RequestBody UserDto dto) throws IOException {
+    var user = mapper.mapToModel(dto);
+    var authResponse = authService.register(user);
+    return ResponseEntity.ok(authResponse);
+  }
+
+  @Operation(description = "Log in a user.")
+  @PostMapping("/login")
+  public ResponseEntity<AuthResponse> login(@RequestBody UserDto dto) {
+    var user = mapper.mapToModel(dto);
+    var authResponse = authService.login(user);
+    return ResponseEntity.ok(authResponse);
+  }
 }

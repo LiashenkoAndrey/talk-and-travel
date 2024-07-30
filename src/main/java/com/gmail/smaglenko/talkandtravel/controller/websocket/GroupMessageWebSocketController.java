@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class GroupMessageWebSocketController {
+
     private final GroupMessageService groupMessageService;
     private final GroupMessageDtoMapper groupMessageDtoMapper;
 

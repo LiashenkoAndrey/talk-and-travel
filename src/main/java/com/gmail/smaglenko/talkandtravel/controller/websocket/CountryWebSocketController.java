@@ -14,31 +14,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class CountryWebSocketController {
-    private final CountryService countryService;
-    private final CountryDtoMapper countryDtoMapper;
 
-    @MessageMapping("/countries/find-by-name/{countryName}")
-    @SendTo("/countries/{countryName}")
-    public ResponseEntity<CountryDto> findByName(@DestinationVariable String countryName) {
-        var country = countryService.findByName(countryName);
-        var countryDto = countryDtoMapper.mapToDto(country);
-        return ResponseEntity.ok().body(countryDto);
-    }
+  private final CountryService countryService;
+  private final CountryDtoMapper countryDtoMapper;
 
-    @MessageMapping("/countries/create/{countryName}")
-    @SendTo("/countries/{countryName}")
-    public ResponseEntity<CountryDto> create(@Payload CountryDto dto) {
-        var country = countryDtoMapper.mapToModel(dto);
-        var newCountry = countryService.create(country, dto.getUserId());
-        var countryDto = countryDtoMapper.mapToDto(newCountry);
-        return ResponseEntity.ok().body(countryDto);
-    }
+  @MessageMapping("/countries/find-by-name/{countryName}")
+  @SendTo("/countries/{countryName}")
+  public ResponseEntity<CountryDto> findByName(@DestinationVariable String countryName) {
+    var country = countryService.findByName(countryName);
+    var countryDto = countryDtoMapper.mapToDto(country);
+    return ResponseEntity.ok().body(countryDto);
+  }
 
-    @MessageMapping("/countries/update/{countryName}")
-    @SendTo("/countries/{countryName}")
-    public ResponseEntity<CountryDto> update(@Payload CountryDto dto) {
-        var country = countryService.update(dto.getId(), dto.getUserId());
-        var countryDto = countryDtoMapper.mapToDto(country);
-        return ResponseEntity.ok().body(countryDto);
-    }
+  @MessageMapping("/countries/create/{countryName}")
+  @SendTo("/countries/{countryName}")
+  public ResponseEntity<CountryDto> create(@Payload CountryDto dto) {
+    var country = countryDtoMapper.mapToModel(dto);
+    var newCountry = countryService.create(country, dto.getUserId());
+    var countryDto = countryDtoMapper.mapToDto(newCountry);
+    return ResponseEntity.ok().body(countryDto);
+  }
+
+  @MessageMapping("/countries/update/{countryName}")
+  @SendTo("/countries/{countryName}")
+  public ResponseEntity<CountryDto> update(@Payload CountryDto dto) {
+    var country = countryService.update(dto.getId(), dto.getUserId());
+    var countryDto = countryDtoMapper.mapToDto(country);
+    return ResponseEntity.ok().body(countryDto);
+  }
 }

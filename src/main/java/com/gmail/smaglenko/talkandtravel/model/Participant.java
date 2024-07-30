@@ -28,18 +28,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Participant {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "participant_countries",
-            joinColumns = @JoinColumn(name = "participant_id"),
-            inverseJoinColumns = @JoinColumn(name = "country_id"))
-    @JsonBackReference
-    private List<Country> countries;
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
-    private User user;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "participant_countries",
+      joinColumns = @JoinColumn(name = "participant_id"),
+      inverseJoinColumns = @JoinColumn(name = "country_id"))
+  @JsonBackReference
+  private List<Country> countries;
+
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  @JsonIgnore
+  private User user;
 }
