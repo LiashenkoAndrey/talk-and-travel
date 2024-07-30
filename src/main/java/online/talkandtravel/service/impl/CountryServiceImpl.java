@@ -106,15 +106,9 @@ public class CountryServiceImpl implements CountryService {
     @Transactional
     public void joinUserToCountry(Long userId, String countryName) {
         throwExceptionIfAlreadySubscribed(userId, countryName);
-        log.info("joinUserToCountry userId - {}, country - {}", userId, countryName);
         Country country = repository.findByName(countryName).orElseThrow(EntityNotFoundException::new);
-        Participant participant = Participant.builder()
-                .user(userRepo.getReferenceById(userId))
-                .countries(List.of(country))
-                .build();
-        Participant saved = participantService.save(participant);
-        log.info("save ok - {}, {}", saved.getId(), saved.getCountries().size());
-
+        User user = userRepo.getReferenceById(userId);
+        participantService.save(new Participant(List.of(country), user));
     }
 
     private void throwExceptionIfAlreadySubscribed(Long userId, String countryName) {

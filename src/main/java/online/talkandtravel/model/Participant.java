@@ -31,6 +31,11 @@ import lombok.NoArgsConstructor;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Participant {
 
+    public Participant(List<Country> countries, User user) {
+        this.countries = countries;
+        this.user = user;
+    }
+
     public Participant(User user) {
         this.user = user;
     }

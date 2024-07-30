@@ -1,17 +1,14 @@
 package online.talkandtravel.repository.impl;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.Country;
 import online.talkandtravel.model.GroupMessage;
-import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
 import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
 import online.talkandtravel.repository.CountryRepo;
 import online.talkandtravel.repository.GroupMessageRepository;
-import online.talkandtravel.repository.ParticipantRepository;
 import online.talkandtravel.repository.UserRepo;
+import online.talkandtravel.util.CountryUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -31,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CountryRepoCustomImplTest {
-
     private final String countryName = "Albania";
 
     @Autowired
@@ -47,10 +44,7 @@ class CountryRepoCustomImplTest {
     private UserRepo userRepo;
 
     @Autowired
-    private ParticipantRepository participantRepository;
-
-    @PersistenceContext
-    private EntityManager em;
+    private CountryUtil util;
 
     @BeforeEach
     public void setUp()  {
@@ -65,25 +59,14 @@ class CountryRepoCustomImplTest {
         assertEquals(2L, dto.getGroupMessages().size());
     }
 
+
     public void saveEntities() {
         User user = userRepo.getReferenceById(1L);
-        Country country = countryRepo.save(Country.builder()
-                .name(countryName)
-                .flagCode("fc")
-                .build());
-        saveParticipant(user, country.getId());
+        Country country = util.createCountry(countryName, "fc");
+        util.saveParticipant(user, country.getId());
         groupMessageRepository.saveAll(List.of(
                 new GroupMessage("HelloWorld", country, user),
                 new GroupMessage("I'm a test message!", country, user)
         ));
-    }
-
-    private void saveParticipant(User user, Long countryId) {
-        Participant participant = participantRepository.save(new Participant(user));
-
-        em.createNativeQuery("insert into public.participant_countries(country_id, participant_id) values (:country_id, :participant_id)")
-                .setParameter("country_id", countryId)
-                .setParameter("participant_id", participant.getId())
-                .executeUpdate();
     }
 }
