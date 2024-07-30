@@ -40,7 +40,7 @@ public class CountryController {
             description = "Joins a user to a country"
     )
     @PostMapping("/{countryName}/join")
-    public ResponseEntity<?> join(@RequestBody Long userId, @PathVariable String countryName) {
+    public ResponseEntity<?> joinUserToCountry(@RequestBody Long userId, @PathVariable String countryName) {
         log.info("join country userId - {}, countryName - {}", userId, countryName);
         countryService.joinUserToCountry(userId, countryName);
         return ResponseEntity.ok().build();
