@@ -1,0 +1,65 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class Country {
+  - name: String
+  - flagCode: String
+  - id: Long
+  - chats: List<Chat>
+}
+
+class Message {
+  - creationDate: LocalDateTime
+  - user: User
+  - content: String
+  - id: Long
+}
+
+class Chat {
+  - id: Long
+  - name: String
+  - creationDate: LocalDateTime
+  - messages: List<Message>
+  - description: String
+}
+
+class User {
+  - about: String
+  - userName: String
+  - tokens: List<Token>
+  - countries: List<Country>
+  - chats: List<Chat>
+  - password: String
+  - avatar: Avatar
+  - id: Long
+  - userEmail: String
+  - role: Role
+}
+
+class UserCountry {
+  - userId: Long
+  - countryId: Long
+}
+
+class UserChat {
+  - userId: Long
+  - chatId: Long
+}
+
+Country      "1" *-[#595959,plain]-> "chats\n*" Chat
+Chat         "1" *-[#595959,plain]-> "messages\n*" Message
+User         "1" *-[#595959,plain]-> "countries\n*" Country
+User         "1" *-[#595959,plain]-> "chats\n*" Chat
+Message      "1" *-[#595959,plain]-> "user\n1" User
+Chat         "1" *-[#595959,plain]-> "users\n*" User
+
+UserCountry  "1" *-[#595959,plain]-> "user\n1" User
+UserCountry  "1" *-[#595959,plain]-> "country\n1" Country
+
+UserChat     "1" *-[#595959,plain]-> "user\n1" User
+UserChat     "1" *-[#595959,plain]-> "chat\n1" Chat
+
+@enduml
