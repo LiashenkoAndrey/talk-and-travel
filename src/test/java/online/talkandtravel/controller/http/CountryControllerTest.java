@@ -34,7 +34,7 @@ class CountryControllerTest {
 
     @Autowired
     private CountryRepo countryRepo;
-    private Long userId = 1L;
+    private final Long userId = 1L;
 
 
     @Nested
@@ -47,6 +47,11 @@ class CountryControllerTest {
         @BeforeAll
         public void beforeAll() {
             util.createCountry(countryName, "al");
+        }
+
+        @AfterAll
+        public void afterAll() {
+            util.deleteAllCountries();
         }
 
         @Test

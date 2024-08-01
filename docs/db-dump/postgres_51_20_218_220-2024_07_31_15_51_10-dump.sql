@@ -489,17 +489,6 @@ ALTER LARGE OBJECT 17279 OWNER TO postgres;
 -- Data for Name: avatars; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.avatars VALUES (1, 2, 17270);
-INSERT INTO public.avatars VALUES (2, 3, 17271);
-INSERT INTO public.avatars VALUES (3, 4, 17272);
-INSERT INTO public.avatars VALUES (4, 5, 17273);
-INSERT INTO public.avatars VALUES (5, 6, 17274);
-INSERT INTO public.avatars VALUES (6, 7, 17275);
-INSERT INTO public.avatars VALUES (7, 8, 17276);
-INSERT INTO public.avatars VALUES (8, 9, 17277);
-INSERT INTO public.avatars VALUES (9, 10, 17278);
-INSERT INTO public.avatars VALUES (10, 11, 17279);
-
 
 --
 -- Data for Name: countries; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -575,93 +564,119 @@ INSERT INTO public.countries VALUES (87, 'am', 'Armenia');
 INSERT INTO public.countries VALUES (88, 'as', 'American Samoa');
 INSERT INTO public.countries VALUES (89, 'aq', 'Antarctica');
 
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
 
+INSERT INTO public.users (id, user_name,about , password,role, user_email) VALUES (1, 'admin', NULL, '$2a$10$d7Hf8rbm/IEDVoK0lmped.w6dApZdlCqfyBiHQ8Z1gUzhbN6cTIWW', 'ADMIN', 'admin@2t.com');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (2, 'srtfdftg', NULL, '$2a$10$XA/DzlsI.QvR1EbTci7gTOVd2J5YCyganRXQMEQM/f3HiB59y2Mqu', 'USER', 'tomas@i.ua');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (3, 'Regina', NULL, '$2a$10$r2pxQtAwmXMy9Xd0AN1kzu2yebojqJMCYmLy5UVyyNnhb0pO4WP3q', 'USER', 'regina@gmail.com');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (4, 'Regi', NULL, '$2a$10$Bu5tIDVtd/j6b3.UYEurKe1VC4f9NUR3b4eYbJn45hLubDgxNS3bq', 'USER', 'regi@gmail.com');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (5, 'test test ', NULL, '$2a$10$xgxdS1Hbc9MuV6nGPGqsueVCIr6V.2qllP8gyfLCAk9s3jAUjRrjK', 'USER', 'test@test.com');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (6, 'safary test', NULL, '$2a$10$6u1eViKSwAURpfF6H/xtR.QuQDg2Tz0Erazn.Hp7gSe4YZ.SENDzS', 'USER', 'test-safary@test.com');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (7, 'ol', NULL, '$2a$10$3acqZW6Uts02usFStQ74M.KKparGzQLTjBOlxRvtDBN6MVZmXuF.m', 'USER', 'prokopenko89@gmail.com');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (8, 'sad', NULL, '$2a$10$2Nn/pPktsfR2CMMW3mbgleNKTGgbvGy0lw2ghourBtC/6946SmGSK', 'USER', 'test@i.ua');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (9, 'andrewasd', NULL, '$2a$10$WcOyE8h0dRt5BL6UbIFF3OZMu0DfM.e/hCwdRIXuOtPP9Itfb7zCS', 'USER', 'tomas3@i.ua');
+INSERT INTO public.users (id, user_name,about , password,role, user_email)VALUES (10, 'Demidas', NULL, '$2a$10$pv2eWVF6DZzi/CvksZX0HutXiHYg7xgGTZyXygW0qbEK8h2Jo7/dC', 'USER', 'demcleany@gmail.com');
+INSERT INTO public.users(id, user_name,about , password,role, user_email) VALUES (11, 'dima test 111', NULL, '$2a$10$rRyFF6Qfw6wsTcQg8SlZJuprxq1uzyprab1uBvo/2Vl8kNUHiz5UK', 'USER', 'test-email@test.com');
+
+
+INSERT INTO public.avatars(id, user_id, content) VALUES (1, 2, 17270);
+INSERT INTO public.avatars(id, user_id, content) VALUES (2, 3, 17271);
+INSERT INTO public.avatars(id, user_id, content) VALUES (3, 4, 17272);
+INSERT INTO public.avatars(id, user_id, content) VALUES (4, 5, 17273);
+INSERT INTO public.avatars(id, user_id, content) VALUES (5, 6, 17274);
+INSERT INTO public.avatars(id, user_id, content) VALUES (6, 7, 17275);
+INSERT INTO public.avatars(id, user_id, content) VALUES (7, 8, 17276);
+INSERT INTO public.avatars(id, user_id, content) VALUES (8, 9, 17277);
+INSERT INTO public.avatars(id, user_id, content) VALUES (9, 10, 17278);
+INSERT INTO public.avatars(id, user_id, content) VALUES (10, 11, 17279);
 --
 -- Data for Name: group_messages; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.group_messages VALUES (3, '2024-07-29 19:59:38.041965', 108, 4, 'dfhdfngfn');
-INSERT INTO public.group_messages VALUES (3, '2024-07-29 19:59:40.214996', 109, 4, 'bdfbfdn');
-INSERT INTO public.group_messages VALUES (5, '2024-07-29 19:59:58.945812', 110, 4, 'dfhfdhfgfg');
-INSERT INTO public.group_messages VALUES (5, '2024-07-29 20:00:01.115519', 111, 4, 'cbnfgnfgn');
-INSERT INTO public.group_messages VALUES (1, '2024-07-29 20:00:16.689855', 112, 4, 'dhtddjtdyjmtyj');
-INSERT INTO public.group_messages VALUES (1, '2024-07-29 20:00:20.480257', 113, 4, 'djtdmdmmym');
-INSERT INTO public.group_messages VALUES (14, '2024-07-29 21:38:32.305856', 114, 4, 'fjkghv');
-INSERT INTO public.group_messages VALUES (3, '2024-07-29 21:44:29.270915', 115, 4, 'ljh');
-INSERT INTO public.group_messages VALUES (15, '2024-07-29 21:44:38.506706', 116, 4, 'lkjlhkh');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 09:48:50.148227', 117, 4, 'Привіт
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (3, '2024-07-29 19:59:38.041965', 108, 4, 'dfhdfngfn');
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (3, '2024-07-29 19:59:40.214996', 109, 4, 'bdfbfdn');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (5, '2024-07-29 19:59:58.945812', 110, 4, 'dfhfdhfgfg');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (5, '2024-07-29 20:00:01.115519', 111, 4, 'cbnfgnfgn');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (1, '2024-07-29 20:00:16.689855', 112, 4, 'dhtddjtdyjmtyj');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (1, '2024-07-29 20:00:20.480257', 113, 4, 'djtdmdmmym');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-29 21:38:32.305856', 114, 4, 'fjkghv');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (3, '2024-07-29 21:44:29.270915', 115, 4, 'ljh');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (15, '2024-07-29 21:44:38.506706', 116, 4, 'lkjlhkh');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 09:48:50.148227', 117, 4, 'Привіт
 ');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 09:49:00.583397', 118, 4, 'лолорлодлаопдл длячмдлячм длчо дялмо  оіждомдля для  я жд жд ож ьж ья ');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 10:50:18.901028', 119, 9, 'nmn,m
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 09:49:00.583397', 118, 4, 'лолорлодлаопдл длячмдлячм длчо дялмо  оіждомдля для  я жд жд ож ьж ья ');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 10:50:18.901028', 119, 9, 'nmn,m
 ');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 10:50:30.341298', 120, 9, '456465465476');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 10:51:30.094771', 121, 9, 'kjhkjhkj
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (14, '2024-07-30 10:50:30.341298', 120, 9, '456465465476');
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (14, '2024-07-30 10:51:30.094771', 121, 9, 'kjhkjhkj
 ');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 10:51:58.221883', 122, 9, 'jnljkkjn,m
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (14, '2024-07-30 10:51:58.221883', 122, 9, 'jnljkkjn,m
 ');
-INSERT INTO public.group_messages VALUES (3, '2024-07-30 10:54:07.215892', 123, 8, 'jbnjm
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (3, '2024-07-30 10:54:07.215892', 123, 8, 'jbnjm
 ');
-INSERT INTO public.group_messages VALUES (3, '2024-07-30 10:54:12.584403', 124, 8, 'gjhgjh
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (3, '2024-07-30 10:54:12.584403', 124, 8, 'gjhgjh
 ');
-INSERT INTO public.group_messages VALUES (17, '2024-07-30 10:57:41.197609', 125, 9, ''';
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (17, '2024-07-30 10:57:41.197609', 125, 9, ''';
 ');
-INSERT INTO public.group_messages VALUES (17, '2024-07-30 10:57:45.75886', 126, 9, ';lk;lk;
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (17, '2024-07-30 10:57:45.75886', 126, 9, ';lk;lk;
 ');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 11:02:37.942367', 127, 4, 'kjlj');
-INSERT INTO public.group_messages VALUES (87, '2024-07-30 11:22:25.947527', 128, 4, 'Hi ');
-INSERT INTO public.group_messages VALUES (89, '2024-07-30 11:26:01.020166', 129, 4, 'kjhlk');
-INSERT INTO public.group_messages VALUES (89, '2024-07-30 11:26:05.13293', 130, 4, 'lkjbhlkjbhljh');
-INSERT INTO public.group_messages VALUES (5, '2024-07-30 11:26:45.042244', 131, 4, 'lihikjhkjh');
-INSERT INTO public.group_messages VALUES (5, '2024-07-30 11:26:46.226672', 132, 4, '');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 11:27:10.37854', 133, 4, 'opipiuh');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 11:27:30.462895', 134, 4, 'mghmfghmfh');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 11:27:33.436888', 135, 4, 'ghmffhm');
-INSERT INTO public.group_messages VALUES (3, '2024-07-30 11:27:50.53241', 136, 4, 'lihiuhi');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 11:28:45.521773', 137, 4, 'rijfyukfyu');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 11:28:48.071955', 138, 4, 'tjtydjfhfmkfh');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 12:00:21.804805', 139, 9, ';lk
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 11:02:37.942367', 127, 4, 'kjlj');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (87, '2024-07-30 11:22:25.947527', 128, 4, 'Hi ');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (89, '2024-07-30 11:26:01.020166', 129, 4, 'kjhlk');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (89, '2024-07-30 11:26:05.13293', 130, 4, 'lkjbhlkjbhljh');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (5, '2024-07-30 11:26:45.042244', 131, 4, 'lihikjhkjh');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (5, '2024-07-30 11:26:46.226672', 132, 4, '');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 11:27:10.37854', 133, 4, 'opipiuh');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 11:27:30.462895', 134, 4, 'mghmfghmfh');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 11:27:33.436888', 135, 4, 'ghmffhm');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (3, '2024-07-30 11:27:50.53241', 136, 4, 'lihiuhi');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 11:28:45.521773', 137, 4, 'rijfyukfyu');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 11:28:48.071955', 138, 4, 'tjtydjfhfmkfh');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 12:00:21.804805', 139, 9, ';lk
 ');
-INSERT INTO public.group_messages VALUES (3, '2024-07-30 12:27:52.167538', 140, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (3, '2024-07-30 12:27:52.167538', 140, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 12:28:03.094999', 141, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 12:28:03.094999', 141, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
 ');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 12:28:09.170276', 142, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 12:28:09.170276', 142, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
 ');
-INSERT INTO public.group_messages VALUES (17, '2024-07-30 12:28:13.79924', 143, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (17, '2024-07-30 12:28:13.79924', 143, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
 ');
-INSERT INTO public.group_messages VALUES (18, '2024-07-30 12:28:26.37469', 144, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (18, '2024-07-30 12:28:26.37469', 144, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
 ');
-INSERT INTO public.group_messages VALUES (87, '2024-07-30 12:28:33.262699', 145, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (87, '2024-07-30 12:28:33.262699', 145, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
 ');
-INSERT INTO public.group_messages VALUES (89, '2024-07-30 12:28:50.246763', 146, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (89, '2024-07-30 12:28:50.246763', 146, 9, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno
 ');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 12:57:23.81455', 147, 9, '');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 12:57:24.761997', 148, 9, '');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 12:57:25.425742', 149, 9, '');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 12:57:25.920027', 150, 9, '');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 12:57:26.376649', 151, 9, '');
-INSERT INTO public.group_messages VALUES (3, '2024-07-30 15:27:02.867555', 152, 4, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno');
-INSERT INTO public.group_messages VALUES (14, '2024-07-30 15:30:08.9819', 153, 4, 'Меседж');
-INSERT INTO public.group_messages VALUES (5, '2024-07-30 15:33:45.209423', 154, 4, 'Vtctl;
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (14, '2024-07-30 12:57:23.81455', 147, 9, '');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 12:57:24.761997', 148, 9, '');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 12:57:25.425742', 149, 9, '');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 12:57:25.920027', 150, 9, '');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 12:57:26.376649', 151, 9, '');
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (3, '2024-07-30 15:27:02.867555', 152, 4, 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unkno');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (14, '2024-07-30 15:30:08.9819', 153, 4, 'Меседж');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (5, '2024-07-30 15:33:45.209423', 154, 4, 'Vtctl;
 ');
-INSERT INTO public.group_messages VALUES (89, '2024-07-30 15:38:13.806871', 155, 4, 'fdbfdbfd');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:08:28.855979', 156, 5, 'hey aruba
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (89, '2024-07-30 15:38:13.806871', 155, 4, 'fdbfdbfd');
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 22:08:28.855979', 156, 5, 'hey aruba
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:08:44.598741', 157, 5, 'hey hey 
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 22:08:44.598741', 157, 5, 'hey hey
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:09:49.369279', 158, 5, 'asdfasdfasdf
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 22:09:49.369279', 158, 5, 'asdfasdfasdf
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:11:39.549571', 159, 11, 'hey test 11
+INSERT INTO public.group_messages (id, creation_date, country_id, user_id, content)VALUES (4, '2024-07-30 22:11:39.549571', 159, 11, 'hey test 11
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:12:16.109088', 160, 11, 'hey test 222
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 22:12:16.109088', 160, 11, 'hey test 222
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:13:12.033371', 161, 5, 'test 33
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 22:13:12.033371', 161, 5, 'test 33
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:13:36.195502', 162, 11, 'asdfasdf
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 22:13:36.195502', 162, 11, 'asdfasdf
 ');
-INSERT INTO public.group_messages VALUES (4, '2024-07-30 22:14:07.505697', 163, 5, 'sdfgsxcvxcvbxcvb
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (4, '2024-07-30 22:14:07.505697', 163, 5, 'sdfgsxcvxcvbxcvb
 ');
-INSERT INTO public.group_messages VALUES (3, '2024-07-30 22:14:31.256665', 164, 11, 'asfasdfasdfasf
+INSERT INTO public.group_messages(id, creation_date, country_id, user_id, content) VALUES (3, '2024-07-30 22:14:31.256665', 164, 11, 'asfasdfasdfasf
 ');
 
 
@@ -801,21 +816,6 @@ INSERT INTO public.tokens VALUES (false, false, 87, 5, 'eyJhbGciOiJIUzI1NiJ9.eyJ
 INSERT INTO public.tokens VALUES (false, false, 89, 11, 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0LWVtYWlsQHRlc3QuY29tIiwiaWF0IjoxNzIyMzc3NDgzLCJleHAiOjE3MjI0NjM4ODN9.AsQdS2i46rnupRs9Yl8dPIoDES5U7LebSKX3lHl954s', 'BEARER');
 
 
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO public.users VALUES (1, 'admin', NULL, '$2a$10$d7Hf8rbm/IEDVoK0lmped.w6dApZdlCqfyBiHQ8Z1gUzhbN6cTIWW', 'ADMIN', 'admin@2t.com');
-INSERT INTO public.users VALUES (2, 'srtfdftg', NULL, '$2a$10$XA/DzlsI.QvR1EbTci7gTOVd2J5YCyganRXQMEQM/f3HiB59y2Mqu', 'USER', 'tomas@i.ua');
-INSERT INTO public.users VALUES (3, 'Regina', NULL, '$2a$10$r2pxQtAwmXMy9Xd0AN1kzu2yebojqJMCYmLy5UVyyNnhb0pO4WP3q', 'USER', 'regina@gmail.com');
-INSERT INTO public.users VALUES (4, 'Regi', NULL, '$2a$10$Bu5tIDVtd/j6b3.UYEurKe1VC4f9NUR3b4eYbJn45hLubDgxNS3bq', 'USER', 'regi@gmail.com');
-INSERT INTO public.users VALUES (5, 'test test ', NULL, '$2a$10$xgxdS1Hbc9MuV6nGPGqsueVCIr6V.2qllP8gyfLCAk9s3jAUjRrjK', 'USER', 'test@test.com');
-INSERT INTO public.users VALUES (6, 'safary test', NULL, '$2a$10$6u1eViKSwAURpfF6H/xtR.QuQDg2Tz0Erazn.Hp7gSe4YZ.SENDzS', 'USER', 'test-safary@test.com');
-INSERT INTO public.users VALUES (7, 'ol', NULL, '$2a$10$3acqZW6Uts02usFStQ74M.KKparGzQLTjBOlxRvtDBN6MVZmXuF.m', 'USER', 'prokopenko89@gmail.com');
-INSERT INTO public.users VALUES (8, 'sad', NULL, '$2a$10$2Nn/pPktsfR2CMMW3mbgleNKTGgbvGy0lw2ghourBtC/6946SmGSK', 'USER', 'test@i.ua');
-INSERT INTO public.users VALUES (9, 'andrewasd', NULL, '$2a$10$WcOyE8h0dRt5BL6UbIFF3OZMu0DfM.e/hCwdRIXuOtPP9Itfb7zCS', 'USER', 'tomas3@i.ua');
-INSERT INTO public.users VALUES (10, 'Demidas', NULL, '$2a$10$pv2eWVF6DZzi/CvksZX0HutXiHYg7xgGTZyXygW0qbEK8h2Jo7/dC', 'USER', 'demcleany@gmail.com');
-INSERT INTO public.users VALUES (11, 'dima test 111', NULL, '$2a$10$rRyFF6Qfw6wsTcQg8SlZJuprxq1uzyprab1uBvo/2Vl8kNUHiz5UK', 'USER', 'test-email@test.com');
 
 
 --
