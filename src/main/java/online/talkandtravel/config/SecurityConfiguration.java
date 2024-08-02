@@ -46,19 +46,20 @@ public class SecurityConfiguration {
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers(WHITE_LIST_URL)
-                                .permitAll()
-                                .requestMatchers(POST, "/api/countries/", "/api/avatars",
-                                        "/api/group-messages/")
-                                .hasAnyAuthority(Role.USER.name())
-                                .requestMatchers(PUT, "/api/users/", "/api/countries/",
-                                        "/api/participants/")
-                                .hasAnyAuthority(Role.USER.name())
-                                .requestMatchers(GET, "/api/users/", "/api/countries/",
-                                        "/api/group-messages/")
-                                .hasAnyAuthority(Role.USER.name())
-                                .anyRequest()
-                                .authenticated()
+                    req.requestMatchers(WHITE_LIST_URL)
+                        .permitAll()
+                        .requestMatchers("/ws-endpoint/**").permitAll()
+                        .requestMatchers(POST, "/api/countries/", "/api/avatars",
+                            "/api/group-messages/")
+                        .hasAnyAuthority(Role.USER.name())
+                        .requestMatchers(PUT, "/api/users/", "/api/countries/",
+                            "/api/participants/")
+                        .hasAnyAuthority(Role.USER.name())
+                        .requestMatchers(GET, "/api/users/", "/api/countries/",
+                            "/api/group-messages/")
+                        .hasAnyAuthority(Role.USER.name())
+                        .anyRequest()
+                        .authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
