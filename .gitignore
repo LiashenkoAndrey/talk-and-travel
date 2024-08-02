@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### db.properties ###
-application-environment.properties
+src/main/resources/application-environment.properties
 
 http-request.http
 
