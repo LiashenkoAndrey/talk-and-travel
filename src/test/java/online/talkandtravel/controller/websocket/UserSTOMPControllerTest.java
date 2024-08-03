@@ -43,9 +43,9 @@ class UserSTOMPControllerTest {
   String userName = "Andrew";
   String sendPath = format("/chat/%s/user/%s/texting-users", chatId, userId);
   BlockingQueue<UserIsTypingDTOResponse> blockingQueue = new ArrayBlockingQueue<>(1);
-
   public WebSocketStompClient webSocketStompClient;
   public StompSession session;
+
   @BeforeAll
   void setup() throws ExecutionException, InterruptedException, TimeoutException {
     this.webSocketStompClient = new WebSocketStompClient(new SockJsClient(
