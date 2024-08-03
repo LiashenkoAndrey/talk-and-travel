@@ -7,15 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserIsTypingDTO {
-
-  public UserIsTypingDTO(String userName, Boolean isTexting) {
-    this.userName = userName;
-    this.isTexting = isTexting;
-  }
-
+public class UserIsTypingDTOResponse {
   Long chatId;
   Long userId;
   String userName;
-  Boolean isTexting;
+  Boolean userIsTexting;
 }

@@ -37,6 +37,6 @@ public class WSConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
     registry.setApplicationDestinationPrefixes("/chat"); //send
-    registry.enableSimpleBroker("/countries", "/group-messages");
+    registry.enableSimpleBroker("/countries", "/group-messages"); // subscribe
   }
 }

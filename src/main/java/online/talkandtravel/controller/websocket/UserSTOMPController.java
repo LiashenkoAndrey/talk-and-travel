@@ -1,12 +1,18 @@
 package online.talkandtravel.controller.websocket;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.dto.UserIsTypingDTO;
+import online.talkandtravel.model.dto.UserIsTypingDTORequest;
+import online.talkandtravel.model.dto.UserIsTypingDTOResponse;
+import online.talkandtravel.service.UserService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * A controller class that processes operations on the user
@@ -26,23 +32,21 @@ import org.springframework.stereotype.Controller;
 @Log4j2
 public class UserSTOMPController {
 
+  private final UserService userService;
+
   /**
-   * Frontend subscribe on WS path /countries/{id}/texting-users and receive {@link UserIsTypingDTO}
-   * if any user started or stopped typing Frontend sends a message to WS path
-   * /chat/{id}/user/{id}/texting-users if user started or stopped typing
+   * If any user started or stopped typing Frontend sends a message to WS path
+   * /chat/{chatId}/user/{userId}/texting-users. Frontend subscribe on WS path
+   * /countries/{countryId}/texting-users and receive {@link UserIsTypingDTOResponse}
    *
-   * @param dto {@link UserIsTypingDTO} with username and isTexting fields
-   * @return {@link UserIsTypingDTO} full filled DTO to subscribed users
+   * @param dto {@link UserIsTypingDTORequest} with username and isTexting fields
    */
   @MessageMapping("/{chatId}/user/{userId}/texting-users")
-  @SendTo("/countries/{chatId}/texting-users")
-  public UserIsTypingDTO onUserStartOrStopTyping(UserIsTypingDTO dto,
-      @DestinationVariable("chatId") Long chatId,
-      @DestinationVariable("userId") Long userId) {
-    log.info("onUserStartOrStopTyping Dto! {}, chatId {}, userId {}", dto, chatId, userId);
-    dto.setUserId(userId);
-    dto.setChatId(chatId);
-    return dto;
+  public void onUserStartOrStopTyping(@Validated UserIsTypingDTORequest dto,
+      @NotNull @DestinationVariable("chatId") Long chatId,
+      @NotNull @DestinationVariable("userId") Long userId) {
+    userService.notifyAllThatUserStartOrStopTyping(chatId, userId, dto.getUserName(),
+        dto.getUserIsTexting());
   }
 }
 

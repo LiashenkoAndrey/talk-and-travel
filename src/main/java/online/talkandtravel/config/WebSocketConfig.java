@@ -12,7 +12,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  */
 @Configuration
 @EnableWebSocketMessageBroker
-@Profile("dev")
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final String[] ALLOWED_URL = new String[]{
             "http://localhost:3001",

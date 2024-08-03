@@ -3,17 +3,22 @@ package online.talkandtravel.controller.websocket;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.dto.UserIsTypingDTO;
+import online.talkandtravel.model.dto.UserIsTypingDTORequest;
+import online.talkandtravel.model.dto.UserIsTypingDTOResponse;
 import online.talkandtravel.util.CustomJSONConverter;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -29,69 +34,71 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Log4j2
+@TestInstance(Lifecycle.PER_CLASS)
 class UserSTOMPControllerTest {
 
   @LocalServerPort
   private Integer port;
+  long chatId = 1L, userId = 1L;
+  String userName = "Andrew";
+  String sendPath = format("/chat/%s/user/%s/texting-users", chatId, userId);
+  BlockingQueue<UserIsTypingDTOResponse> blockingQueue = new ArrayBlockingQueue<>(1);
 
   public WebSocketStompClient webSocketStompClient;
-
-  @BeforeEach
-  void setup() {
+  public StompSession session;
+  @BeforeAll
+  void setup() throws ExecutionException, InterruptedException, TimeoutException {
     this.webSocketStompClient = new WebSocketStompClient(new SockJsClient(
         List.of(new WebSocketTransport(new StandardWebSocketClient()))));
     this.webSocketStompClient.setMessageConverter(new CustomJSONConverter());
+    this.session = webSocketStompClient
+        .connectAsync(getConnectionUrl(port), new StompSessionHandlerAdapter() {})
+        .get(1, SECONDS);
   }
 
   @Test
-  void verifyGreetingIsReceived() throws Exception {
-    long chatId = 1L, userId = 1L;
-    String connectUrl = format("ws://localhost:%d/ws", port);
+  void onUserStartOrStopTyping_shouldNotifyAllSubscribedUsers() {
     String subscribePath = format("/countries/%s/texting-users", chatId);
-    String sendPath = format("/chat/%s/user/%s/texting-users", chatId, userId);
-    String userName = "Andrew";
-    UserIsTypingDTO startTypingDTO = new UserIsTypingDTO(userName, true);
-    UserIsTypingDTO stopTypingDTO = new UserIsTypingDTO(userName, false);
-
-    BlockingQueue<UserIsTypingDTO> blockingQueue = new ArrayBlockingQueue<>(1);
+    UserIsTypingDTORequest startTypingDTO = new UserIsTypingDTORequest(userName, true);
+    UserIsTypingDTORequest stopTypingDTO = new UserIsTypingDTORequest(userName, false);
     CustomStompFrameHandler stompFrameHandler = new CustomStompFrameHandler(blockingQueue);
-
-    StompSession session = webSocketStompClient
-        .connectAsync(connectUrl, new StompSessionHandlerAdapter() {})
-        .get(1, SECONDS);
 
     session.subscribe(subscribePath, stompFrameHandler);
 
     session.send(sendPath, startTypingDTO);
-    UserIsTypingDTO expected1 = new UserIsTypingDTO(chatId, userId, userName, true);
+    var expected1 = new UserIsTypingDTOResponse(chatId, userId, userName, true);
     awaitUtilAsserted(expected1, blockingQueue);
 
     session.send(sendPath, stopTypingDTO);
-    UserIsTypingDTO expected2 = new UserIsTypingDTO(chatId, userId, userName, false);
+    var expected2 = new UserIsTypingDTOResponse(chatId, userId, userName, false);
     awaitUtilAsserted(expected2, blockingQueue);
   }
 
-  private void awaitUtilAsserted(UserIsTypingDTO dto, BlockingQueue<UserIsTypingDTO> blockingQueue ) {
+  private String getConnectionUrl(Integer port) {
+    return format("ws://localhost:%d/ws", port);
+  }
+
+  private void awaitUtilAsserted(UserIsTypingDTOResponse dto, BlockingQueue<UserIsTypingDTOResponse> blockingQueue ) {
     await()
         .atMost(1, SECONDS)
         .untilAsserted(() -> assertEquals(dto, blockingQueue.poll()));
   }
 
   static class CustomStompFrameHandler implements StompFrameHandler {
-    public CustomStompFrameHandler(BlockingQueue<UserIsTypingDTO> blockingQueue) {
+    public CustomStompFrameHandler(BlockingQueue<UserIsTypingDTOResponse> blockingQueue) {
       this.blockingQueue = blockingQueue;
     }
 
-    BlockingQueue<UserIsTypingDTO> blockingQueue;
+    BlockingQueue<UserIsTypingDTOResponse> blockingQueue;
     @Override
     public Type getPayloadType(StompHeaders headers) {
-      return UserIsTypingDTO.class;
+      return UserIsTypingDTOResponse.class;
     }
 
     @Override
     public void handleFrame(StompHeaders headers, Object payload) {
       log.info("handleFrame {}", payload);
-      blockingQueue.add((UserIsTypingDTO) payload);
+      blockingQueue.add((UserIsTypingDTOResponse) payload);
     }
   }
 }
