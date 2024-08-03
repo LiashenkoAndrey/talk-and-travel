@@ -34,7 +34,8 @@ public class UserSTOMPController {
   /**
    * If any user started or stopped typing Frontend sends a message to WS path
    * /chat/{chatId}/user/{userId}/texting-users. Frontend subscribe on WS path
-   * /countries/{countryId}/texting-users and receive {@link UserIsTypingDTOResponse}
+   * /countries/{countryId}/texting-users and will receive a {@link UserIsTypingDTOResponse} if any
+   * user start or stop typing
    *
    * @param dto {@link UserIsTypingDTORequest} with username and isTexting fields
    */
