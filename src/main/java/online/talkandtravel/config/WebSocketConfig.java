@@ -16,6 +16,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final String[] ALLOWED_URL = new String[]{
             "http://localhost:3001",
             "http://localhost:3000",
+            "http://localhost:5500",
             "http://localhost:63342",
             "http://localhost:8080",
             "https://reginavarybrus.github.io"

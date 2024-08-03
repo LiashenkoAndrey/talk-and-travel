@@ -29,21 +29,25 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Country {
-    public Country(Long id, String name, String flagCode) {
-        this.id = id;
-        this.name = name;
-        this.flagCode = flagCode;
-    }
+  public Country(Long id, String name, String flagCode) {
+    this.id = id;
+    this.name = name;
+    this.flagCode = flagCode;
+  }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false, unique = true)
-    private String name;
-    @Column(nullable = false, unique = true)
-    private String flagCode;
-    @OneToMany(mappedBy = "country", fetch = FetchType.LAZY)
-    private List<GroupMessage> groupMessages = new ArrayList<>();
-    @ManyToMany(mappedBy = "countries", fetch = FetchType.LAZY)
-    private Set<Participant> participants = new HashSet<>();
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false, unique = true)
+  private String name;
+
+  @Column(nullable = false, unique = true)
+  private String flagCode;
+
+  @OneToMany(mappedBy = "country", fetch = FetchType.LAZY)
+  private List<GroupMessage> groupMessages = new ArrayList<>();
+
+  @ManyToMany(mappedBy = "countries", fetch = FetchType.LAZY)
+  private Set<Participant> participants = new HashSet<>();
 }
