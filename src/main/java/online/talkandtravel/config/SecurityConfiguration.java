@@ -25,15 +25,17 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
+
     private static final String[] WHITE_LIST_URL = {
-            "/api/authentication/**",
-            "/swagger-ui/**",
-            "/v3/**",
-            "/api/users/exists-by-email/**",
-            "/ws/",
-            "/ws/**",
-            "/privacy-policy",
-            "/public-terms-of-service"
+        "/api/authentication/**",
+        "/swagger-ui/**",
+        "/v3/**",
+        "/api/users/exists-by-email/**",
+        "/ws/",
+        "/ws/**",
+        "/privacy-policy",
+        "/public-terms-of-service",
+        "https://oleksandrprokopenkodev.github.io/websocket-util/"
     };
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
