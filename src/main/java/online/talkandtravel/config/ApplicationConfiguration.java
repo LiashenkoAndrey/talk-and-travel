@@ -21,6 +21,7 @@ public class ApplicationConfiguration {
             "http://localhost:3001",
             "http://localhost:3000",
             "http://localhost:5500",
+            "https://oleksandrprokopenkodev.github.io",
             "http://localhost:8080",
             "http://localhost:63342",
             "https://reginavarybrus.github.io"

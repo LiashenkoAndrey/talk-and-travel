@@ -1,0 +1,1541 @@
+{
+	"info": {
+		"_postman_id": "36c250fd-3e63-41cd-96ae-caa6c83d6528",
+		"name": "Talk-and-Travel",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25447589",
+		"_collection_link": "https://red-moon-54652.postman.co/workspace/cfed11ce-5b08-4497-872f-e9df998fc0f2/collection/25447589-36c250fd-3e63-41cd-96ae-caa6c83d6528?action=share&source=collection_link&creator=25447589"
+	},
+	"item": [
+		{
+			"name": "talk-and-travel.pp.ua",
+			"item": [
+				{
+					"name": "api",
+					"item": [
+						{
+							"name": "authentication",
+							"item": [
+								{
+									"name": "register",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"userName\": \"Badjo\",\r\n    \"userEmail\": \"Badjo@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}"
+										},
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/authentication/register",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"authentication",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "login",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"userEmail\": \"anna@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}"
+										},
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/authentication/login",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"authentication",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "logout",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aXRhbGlpQG1haWwuY29tIiwiaWF0IjoxNzA1OTMzNTExLCJleHAiOjE3MDU5MzQ5NTF9.F8IWQFmaJV77ryxfEnjsDqXgam94UsO1Cdzl81lu4BA",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/authentication/logout",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"authentication",
+												"logout"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "users",
+							"item": [
+								{
+									"name": "update",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0NEBtYWlsLmNvbSIsImlhdCI6MTcwMTYxMDE5OCwiZXhwIjoxNzAxNjExNjM4fQ.hcifRWW-psKOCQC0Kw2CyPbxfyi6Vow64Bhpmh584Ro",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											},
+											{
+												"key": "Authorization",
+												"value": "",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 12,\r\n    \"userName\": \"cors\",\r\n    \"password\": \"123!555Xs\",\r\n    \"userEmail\": \"cors@mail.com\"\r\n}"
+										},
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/users",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-by-id",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm5hQG1haWwuY29tIiwiaWF0IjoxNzA1MjMyMTU0LCJleHAiOjE3MDUyMzM1OTR9.kS6WaF8AcFsNWPgn2FFsW1jnIpPuaVqokYR7g-M0Pbw",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": ""
+											}
+										],
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/users/3",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"users",
+												"3"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "exists-by-email",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/users/exists-by-email/bob@mail.com",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"users",
+												"exists-by-email",
+												"bob@mail.com"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "countries",
+							"item": [
+								{
+									"name": "get-all",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm5hQG1haWwuY29tIiwiaWF0IjoxNzEzOTUyODY5LCJleHAiOjE3MTM5NTQzMDl9.lOdk01YBc6SWdghcZXMq9PLzwNsV5RShb5PNnfqRhJ8",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/countries",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"countries"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-by-id",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm5hQG1haWwuY29tIiwiaWF0IjoxNzE3NzYwNjM0LCJleHAiOjE3MTc3NjIwNzR9.spsZpyqYwQ98V3j_xbASorLHni9pHAqPQAv_x0bMsM4",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/countries/12",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"countries",
+												"12"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-all-countries-by",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm5hQG1haWwuY29tIiwiaWF0IjoxNzE0MTMzNjc1LCJleHAiOjE3MTQxMzUxMTV9.wNC02M2R85cBPf3CxcX8GH3kWmf9Z2zuPbDPRScibnw",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/countries/all-by-user/5/participating",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"countries",
+												"all-by-user",
+												"5",
+												"participating"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "count-users-in-country",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYWRqb0BtYWlsLmNvbSIsImlhdCI6MTcwODU0MzY5NCwiZXhwIjoxNzA4NTQ1MTM0fQ.MpEF8DqutpFji4llBb8W8b0_fyZ194TWNblNJGRvN7Q",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/countries/user-count/1",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"countries",
+												"user-count",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "find-by-Id-with-users",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm5hQG1haWwuY29tIiwiaWF0IjoxNzE3NzYwNjM0LCJleHAiOjE3MTc3NjIwNzR9.spsZpyqYwQ98V3j_xbASorLHni9pHAqPQAv_x0bMsM4",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/countries/43/with-users",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"countries",
+												"43",
+												"with-users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "create",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm5hQG1haWwuY29tIiwiaWF0IjoxNzA3ODI2OTA4LCJleHAiOjE3MDc4MjgzNDh9.9Pkn0kZVtpELfZCUwLKMYvUwzUzRBwBZdCwQmwjUxlg",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"Bulgaria\",\r\n    \"flagCode\": \"bg\",\r\n    \"userId\": 4\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/countries",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"countries"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "update",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aXRhbGlpQG1haWwuY29tIiwiaWF0IjoxNzA4MDgxNTc0LCJleHAiOjE3MDgwODMwMTR9.ysEss-vaMs7FW1CYEgyewsSo56KMLjnq-vO5uhkOCwM",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 1,\r\n    \"userId\": 3\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/countries",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"countries"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "participants",
+							"item": [
+								{
+									"name": "leave-country",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm5hQG1haWwuY29tIiwiaWF0IjoxNzE0MTMxMzkzLCJleHAiOjE3MTQxMzI4MzN9.7ba-mTnX8KZwxA4l25z2yR1bZu4qvbCY571PAMN-grw",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"url": {
+											"raw": "https://talk-and-travel.pp.ua/api/participants/6/leave-country/6",
+											"protocol": "https",
+											"host": [
+												"talk-and-travel",
+												"pp",
+												"ua"
+											],
+											"path": [
+												"api",
+												"participants",
+												"6",
+												"leave-country",
+												"6"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "localhost:8080",
+			"item": [
+				{
+					"name": "api",
+					"item": [
+						{
+							"name": "authentication",
+							"item": [
+								{
+									"name": "register",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"userName\": \"Bob\",\r\n    \"userEmail\": \"bob@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}"
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/authentication/register",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"authentication",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "login",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"userEmail\": \"bob@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}"
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/authentication/login",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"authentication",
+												"login"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "logout",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aXRhbGlpQG1haWwuY29tIiwiaWF0IjoxNzA1OTMzNTExLCJleHAiOjE3MDU5MzQ5NTF9.F8IWQFmaJV77ryxfEnjsDqXgam94UsO1Cdzl81lu4BA",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/authentication/logout",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"authentication",
+												"logout"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "users",
+							"item": [
+								{
+									"name": "update",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTYyNzk0MjksImV4cCI6MTcxNjI4MDg2OX0.fOh9QXv1Y_vZb2KY4vyygQmvcNo-Nb__CY6nwtnGX8k",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 39,\r\n    \"userName\": \"Bob\",\r\n    \"password\": \"!123456Aa\",\r\n    \"userEmail\": \"bob@mail.com\",\r\n    \"about\": \"Yhhhhuuuuu!\"\r\n}"
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/users",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-by-id",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTY2NjI1MTksImV4cCI6MTcxNjY2Mzk1OX0.ZP-nT6lObwz65c5uPMntV0UJTTfoXG3YVprY29tPAs4",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": ""
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/users/43",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"users",
+												"43"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "exists-by-email",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/users/exists-by-email/bob@mail.com",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"users",
+												"exists-by-email",
+												"bob@mail.com"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "countries",
+							"item": [
+								{
+									"name": "get-all",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTY2NjI1MTksImV4cCI6MTcxNjY2Mzk1OX0.ZP-nT6lObwz65c5uPMntV0UJTTfoXG3YVprY29tPAs4",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/countries",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-by-id",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTc3NTE0MzgsImV4cCI6MTcxNzc1Mjg3OH0.EjbrK-lJzw2P7ah43Zh_yazSna3EcZN8psWc9eW-J0s",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/countries/12",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries",
+												"12"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-all-countries-by",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTQ3MjI0OTYsImV4cCI6MTcxNDcyMzkzNn0.U0Wxrin68HyWb_ooQbOLxOO9ntSf4GHZ0euO3TwnIi4",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/countries/all-by-user/5/participating",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries",
+												"all-by-user",
+												"5",
+												"participating"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "countUsersInCountry",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0M0BtYWlsLmNvbSIsImlhdCI6MTcwODI2MDA5NiwiZXhwIjoxNzA4MjYxNTM2fQ.nQR8ON-mCl6K5lQPNctXEg7weOt666Dg5icnUmLeUhQ",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/countries/user-count/2",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries",
+												"user-count",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "create",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aXRhbGlpQG1haWwuY29tIiwiaWF0IjoxNzA4MDgxMjg4LCJleHAiOjE3MDgwODI3Mjh9.gX7JpGrVaAvA3IAwMuCVQEnVa4KEwT1xBA3tUEQm0CM",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"Angola\",\r\n    \"flagCode\": \"ao\",\r\n    \"userId\": 3\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/countries",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "update",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MDgzNDkzNzAsImV4cCI6MTcwODM1MDgxMH0.nFhMW9FFm_qysaZwXN3724TBxj6wtH89n3ZwIYEC3PU",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 1,\r\n    \"userId\": 3\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/countries",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "find-by-Id-with-users",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTc3NjAxODksImV4cCI6MTcxNzc2MTYyOX0.Ykxf4BT4KtOq1FKQaGJp0ZHW5C3VwvX7lhxV6zPaDYI",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/countries/43/with-users",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries",
+												"43",
+												"with-users"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "participants",
+							"item": [
+								{
+									"name": "leave-country",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTQ3MjI0OTYsImV4cCI6MTcxNDcyMzkzNn0.U0Wxrin68HyWb_ooQbOLxOO9ntSf4GHZ0euO3TwnIi4",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/participants/5/leave-country/44",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"participants",
+												"5",
+												"leave-country",
+												"44"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "group-messages",
+							"item": [
+								{
+									"name": "write-message",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MDgzNDkzNzAsImV4cCI6MTcwODM1MDgxMH0.nFhMW9FFm_qysaZwXN3724TBxj6wtH89n3ZwIYEC3PU",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"content\": \"Hello all\",\r\n    \"senderId\": 2,\r\n    \"countryId\": 2\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/group-messages",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"group-messages"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "find-by-countryId-order-By-CreationDate-Desc",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MDgzNDkzNzAsImV4cCI6MTcwODM1MDgxMH0.nFhMW9FFm_qysaZwXN3724TBxj6wtH89n3ZwIYEC3PU",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": []
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/group-messages/2",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"group-messages",
+												"2"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "avatars",
+							"item": [
+								{
+									"name": "get-by-userId",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2JAbWFpbC5jb20iLCJpYXQiOjE3MTY2NjI1MTksImV4cCI6MTcxNjY2Mzk1OX0.ZP-nT6lObwz65c5uPMntV0UJTTfoXG3YVprY29tPAs4",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/avatars/user/43",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"avatars",
+												"user",
+												"43"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "upload-avatar",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyb3J5QG1haWwuY29tIiwiaWF0IjoxNzA2NjQzMzcxLCJleHAiOjE3MDY2NDQ4MTF9.25nnhvge1xKU4AR5315Jnsaw_fjn5viq7xxlEyMljfE",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "image",
+													"type": "file",
+													"src": "/C:/Users/smagl/Pictures/laptop/PXL_20231221_130852905.jpg"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/avatars/user/37",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"avatars",
+												"user",
+												"37"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Elasticbeanstalk",
+			"item": [
+				{
+					"name": "api",
+					"item": [
+						{
+							"name": "authentication",
+							"item": [
+								{
+									"name": "register",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"userName\": \"Vitalii\",\r\n    \"userEmail\": \"vitalii@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}"
+										},
+										"url": {
+											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/authentication/register",
+											"protocol": "http",
+											"host": [
+												"talk-and-travel-app",
+												"us-east-1",
+												"elasticbeanstalk",
+												"com"
+											],
+											"path": [
+												"api",
+												"authentication",
+												"register"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "login",
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "password",
+													"value": "1234",
+													"type": "string"
+												},
+												{
+													"key": "username",
+													"value": "email@gmail.com",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"userEmail\": \"anna@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}\r\n"
+										},
+										"url": {
+											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/authentication/login",
+											"protocol": "http",
+											"host": [
+												"talk-and-travel-app",
+												"us-east-1",
+												"elasticbeanstalk",
+												"com"
+											],
+											"path": [
+												"api",
+												"authentication",
+												"login"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "users",
+							"item": [
+								{
+									"name": "update",
+									"request": {
+										"auth": {
+											"type": "basic",
+											"basic": [
+												{
+													"key": "username",
+													"value": "anna@gmail.com",
+													"type": "string"
+												},
+												{
+													"key": "password",
+													"value": "1234",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "",
+												"value": "",
+												"type": "text"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 5,\r\n    \"userName\": \"Sem\",\r\n    \"password\": 123456,\r\n    \"userEmail\": \"serg@gmail.com\"\r\n}"
+										},
+										"url": {
+											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/users",
+											"protocol": "http",
+											"host": [
+												"talk-and-travel-app",
+												"us-east-1",
+												"elasticbeanstalk",
+												"com"
+											],
+											"path": [
+												"api",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get-user-by-id",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QG1haWwuY29tIiwiaWF0IjoxNzAxMDg5MTk2LCJleHAiOjE3MDEwOTA2MzZ9.CBVKX9JP08gZRjAj4WHtQXeCHogmjRUxM9rgAz2HM8Y",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/users/2",
+											"protocol": "http",
+											"host": [
+												"talk-and-travel-app",
+												"us-east-1",
+												"elasticbeanstalk",
+												"com"
+											],
+											"path": [
+												"api",
+												"users",
+												"2"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "country",
+							"item": [
+								{
+									"name": "createOrUpdateCountryForUser Copy 2",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aXRhbGlpQG1haWwuY29tIiwiaWF0IjoxNzA1MjYwNzYwLCJleHAiOjE3MDUyNjIyMDB9.oG30nXYh6WWIusQNSYPWLzaAV3Q2AWR-YAaNLTFeLSI",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"Aruba\",\r\n    \"userEmail\": \"aw\"\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/country/2",
+											"protocol": "http",
+											"host": [
+												"talk-and-travel-app",
+												"us-east-1",
+												"elasticbeanstalk",
+												"com"
+											],
+											"path": [
+												"api",
+												"country",
+												"2"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "WebSocket",
+			"item": []
+		}
+	]
+}
