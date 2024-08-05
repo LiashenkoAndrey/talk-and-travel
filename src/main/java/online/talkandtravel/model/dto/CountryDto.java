@@ -1,7 +1,5 @@
 package online.talkandtravel.model.dto;
 
-import online.talkandtravel.model.GroupMessage;
-import online.talkandtravel.model.Participant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +15,6 @@ public class CountryDto {
     private String name;
     private String flagCode;
 //    private Long userId;
-    private List<GroupMessage> groupMessages;
-    private List<Participant> participants;
+//    private List<GroupMessage> groupMessages;
+//    private List<Participant> participants;
 }

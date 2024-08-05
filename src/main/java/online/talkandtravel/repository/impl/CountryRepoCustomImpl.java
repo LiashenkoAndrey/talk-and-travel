@@ -14,16 +14,16 @@ import java.util.List;
 @Repository
 @RequiredArgsConstructor
 @Log4j2
-public class CountryRepoCustomImpl implements CountryRepoCustom {
+public class CountryRepoCustomImpl{}/* implements CountryRepoCustom {
 
     @PersistenceContext
     private EntityManager em;
 
-    /**
+    *//**
      * Gets a country DTO with messages and participants amount
      * @param name name of country
      * @return dto
-     */
+     *//*
     @Override
     public CountryDtoWithParticipantsAmountAndMessages findDtoByName(String name) {
         CountryDtoWithParticipantsAmountAndMessages countryDto = getCountryDto(name);
@@ -59,3 +59,4 @@ public class CountryRepoCustomImpl implements CountryRepoCustom {
                 .getResultList();
     }
 }
+*/

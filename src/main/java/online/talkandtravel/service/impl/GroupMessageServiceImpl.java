@@ -2,9 +2,7 @@ package online.talkandtravel.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.Avatar;
 import online.talkandtravel.model.Country;
-import online.talkandtravel.model.GroupMessage;
 import online.talkandtravel.model.User;
 import online.talkandtravel.model.dto.GroupMessageRequestDto;
 import online.talkandtravel.model.dto.IMessageDto;
@@ -16,7 +14,6 @@ import online.talkandtravel.service.CountryService;
 import online.talkandtravel.service.GroupMessageService;
 import online.talkandtravel.service.UserService;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class GroupMessageServiceImpl implements GroupMessageService {
+public class GroupMessageServiceImpl{}/* implements GroupMessageService {
     private final GroupMessageRepository repository;
     private final UserService userService;
     private final CountryRepo countryRepo;
@@ -79,3 +76,4 @@ public class GroupMessageServiceImpl implements GroupMessageService {
                 .build();
     }
 }
+*/

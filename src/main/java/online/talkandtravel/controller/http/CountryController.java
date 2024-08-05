@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/countries")
 @RequiredArgsConstructor
 @Log4j2
-public class CountryController {
+public class CountryController {}/*
     private final CountryService countryService;
     private final CountryRepo countryRepo;
     private final CountryDtoMapper countryDtoMapper;
@@ -98,3 +98,4 @@ public class CountryController {
         return participants;
     }
 }
+*/
