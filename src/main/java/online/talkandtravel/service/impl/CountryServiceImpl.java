@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.CountryExistsException;
 import online.talkandtravel.exception.UserAlreadySubscribedException;
 import online.talkandtravel.model.Country;
-import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
 import online.talkandtravel.model.dto.*;
 import online.talkandtravel.repository.CountryRepo;
@@ -25,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class CountryServiceImpl implements CountryService {
+public class CountryServiceImpl{}/* implements CountryService {
     private final CountryRepo repository;
     private final UserService userService;
     private final ParticipantService participantService;
@@ -84,12 +83,12 @@ public class CountryServiceImpl implements CountryService {
         return repository.isUserSubscribed(countryName, userId);
     }
 
-    /**
+    *//**
      * Creates a new country
      * If country already exists - throw exception
      * @param country country dto
      * @return saved new country
-     */
+     *//*
     @Override
     @Transactional
     public Country createAndSave(Country country) {
@@ -97,11 +96,11 @@ public class CountryServiceImpl implements CountryService {
         return repository.save(country);
     }
 
-    /**
+    *//**
      * joins a user to a country
      * @param userId user id
      * @param countryName country entity
-     */
+     *//*
     @Override
     @Transactional
     public void joinUserToCountry(Long userId, String countryName) {
@@ -225,3 +224,4 @@ public class CountryServiceImpl implements CountryService {
                 .build();
     }
 }
+*/

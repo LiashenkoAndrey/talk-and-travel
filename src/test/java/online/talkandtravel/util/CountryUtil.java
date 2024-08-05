@@ -3,7 +3,6 @@ package online.talkandtravel.util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import online.talkandtravel.model.Country;
-import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
 import online.talkandtravel.repository.CountryRepo;
 import online.talkandtravel.repository.ParticipantRepository;
@@ -11,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CountryUtil {
+public class CountryUtil {}/*
 
   @Autowired private ParticipantRepository participantRepository;
 
@@ -40,3 +39,4 @@ public class CountryUtil {
     countryRepo.deleteAll();
   }
 }
+*/

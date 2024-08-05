@@ -39,24 +39,20 @@ public class User {
     private String userEmail;
 
     @Column(nullable = false)
-    @JsonIgnore
     private String password;
-
-    @Transient
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
-    private Avatar avatar;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Token> tokens;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+    private Avatar avatar;
+
     @Size(min = 10, max = 500, message = "Maximum number of characters for About 500")
     private String about;
 
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
-    private List<Participant> participatedCountries;
-
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
-    private List<Token> tokens;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserCountry> countries;
 }

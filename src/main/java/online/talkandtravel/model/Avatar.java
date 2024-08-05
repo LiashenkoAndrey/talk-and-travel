@@ -20,12 +20,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "avatars")
 public class Avatar {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-    @Lob
-    private byte[] content;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @OneToOne
+  @JoinColumn(name = "user_id")
+  private User user;
+
+  @Lob private byte[] content;
 }

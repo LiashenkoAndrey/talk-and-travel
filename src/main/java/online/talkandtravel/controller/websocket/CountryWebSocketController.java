@@ -34,18 +34,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-public class CountryWebSocketController {
+public class CountryWebSocketController {}/*
     private final CountryService countryService;
     private final CountryDtoMapper countryDtoMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    /**
+    *//**
      * When user opens country (subscribed, unsubscribed) frontend sends message here
      * If the user was not subscribed to the country - join user to country
      * As a response it'll we send a country DTO to user to path /countries/{name}
      *
      * @param dto country dto
-     */
+     *//*
     @MessageMapping("/countries/open")
     public void open(@RequestBody OpenCountryRequestDto dto) {
         log.info("Open a country {}", dto);
@@ -67,10 +67,10 @@ public class CountryWebSocketController {
         simpMessagingTemplate.convertAndSend( "/countries/" + countryName + "/user/" + userId, responseDto);
     }
 
-    /**
+    *//**
      * Updates country notifies all users that subscribed to path /countries/{countryName} that it was updated
      * @param dto country dto
-     */
+     *//*
     //todo: rename path
     @MessageMapping("/countries/update/{countryName}")
     public void addNewParticipantToCountry(@Payload NewParticipantCountryDto dto, @DestinationVariable String countryName) {
@@ -78,3 +78,4 @@ public class CountryWebSocketController {
         countryService.addNewParticipantToCountry(dto);
     }
 }
+*/

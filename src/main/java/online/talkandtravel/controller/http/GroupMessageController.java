@@ -1,6 +1,5 @@
 package online.talkandtravel.controller.http;
 
-import online.talkandtravel.model.GroupMessage;
 import online.talkandtravel.model.dto.GroupMessageDto;
 import online.talkandtravel.model.dto.GroupMessageRequestDto;
 import online.talkandtravel.model.dto.IMessageDto;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/group-messages")
 @RequiredArgsConstructor
-public class GroupMessageController {
+public class GroupMessageController {}/*
     private final GroupMessageService groupMessageService;
     private final GroupMessageDtoMapper groupMessageDtoMapper;
 
@@ -51,3 +50,4 @@ public class GroupMessageController {
         return ResponseEntity.ok().body(groupMessage);
     }
 }
+*/
