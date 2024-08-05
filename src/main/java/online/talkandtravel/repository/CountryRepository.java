@@ -1,22 +1,14 @@
 package online.talkandtravel.repository;
 
-import online.talkandtravel.model.Country;
-import online.talkandtravel.model.dto.IParticipantDto;
+import online.talkandtravel.model.entity.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
-@Repository
-public interface CountryRepo{}/* extends JpaRepository<Country, Long>, CountryRepoCustom {
+public interface CountryRepository extends JpaRepository<Country, Long> {} /*
     @Query(value = """
             select
                 count(*) > 0 as is_subscribed
-                from participant_countries p 
-                join public.countries c on c.id = p.country_id 
+                from participant_countries p
+                join public.countries c on c.id = p.country_id
                 join public.participants p2 on p2.id = p.participant_id
                 where c.name = :countryName and p2.user_id = :userId
             """, nativeQuery = true)

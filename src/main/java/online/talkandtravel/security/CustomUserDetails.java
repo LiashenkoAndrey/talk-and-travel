@@ -1,6 +1,6 @@
 package online.talkandtravel.security;
 
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.User;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
+
     private User user;
 
     @Override

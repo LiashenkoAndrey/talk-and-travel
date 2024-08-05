@@ -1,6 +1,6 @@
-package online.talkandtravel.model.dto;
+package online.talkandtravel.model.dto.avatar;
 
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

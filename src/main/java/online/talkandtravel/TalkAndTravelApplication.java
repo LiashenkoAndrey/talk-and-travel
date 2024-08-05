@@ -1,7 +1,7 @@
 package online.talkandtravel;
 
-import online.talkandtravel.model.Role;
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.service.UserService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -12,7 +12,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication(scanBasePackages = "online.talkandtravel")
 @OpenAPIDefinition(

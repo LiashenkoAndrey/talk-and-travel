@@ -1,4 +1,4 @@
-package online.talkandtravel.model;
+package online.talkandtravel.model.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

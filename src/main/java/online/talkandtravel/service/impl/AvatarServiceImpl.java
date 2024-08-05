@@ -3,7 +3,7 @@ package online.talkandtravel.service.impl;
 import online.talkandtravel.exception.FileSizeExceededException;
 import online.talkandtravel.exception.ImageProcessingException;
 import online.talkandtravel.exception.UnsupportedFormatException;
-import online.talkandtravel.model.Avatar;
+import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.repository.AvatarRepository;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.ImageService;

@@ -1,15 +1,16 @@
 package online.talkandtravel.service.impl;
 
 import online.talkandtravel.exception.RegistrationException;
-import online.talkandtravel.model.Avatar;
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.dto.UserDtoShort;
+import online.talkandtravel.model.entity.Avatar;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.JwtService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
-import online.talkandtravel.util.mapper.UserDtoMapper;
+import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.validator.PasswordValidator;
 import online.talkandtravel.util.validator.UserEmailValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,15 +51,15 @@ class AuthenticationServiceImplTest {
     @Mock
     private TokenService tokenService;
     @Mock
-    private UserDtoMapper userDtoMapper;
+    private UserMapper userMapper;
     @Mock
     private AvatarService avatarService;
     private User user;
-    private UserDtoWithAvatarAndPassword userDto;
+    private UserDtoShort userDto;
 
     @BeforeEach
     void setUp() {
-        userDto = creanteNewUserDto();
+        userDto = creanteNewUserDtoShort();
         user = createNewUser();
     }
 
@@ -69,12 +70,12 @@ class AuthenticationServiceImplTest {
         when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
         when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
         when(avatarService.createDefaultAvatar(USER_NAME)).thenReturn(new Avatar());
-        when(userDtoMapper.mapToDto(user)).thenReturn(userDto);
+        when(userMapper.mapToShortDto(user)).thenReturn(userDto);
 
-        UserDtoWithAvatarAndPassword expected = creanteNewUserDto();
+        UserDtoShort expected = creanteNewUserDtoShort();
 
         AuthResponse authResponse = authenticationService.register(user);
-        UserDtoWithAvatarAndPassword actual = authResponse.getUserDto();
+        UserDtoShort actual = authResponse.getUserDto();
 
         assertEquals(expected, actual);
     }
@@ -137,12 +138,12 @@ class AuthenticationServiceImplTest {
     void login_shouldLoginUserWithCorrectCredentials() {
         when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(USER_PASSWORD, USER_PASSWORD)).thenReturn(true);
-        when(userDtoMapper.mapToDto(user)).thenReturn(userDto);
+        when(userMapper.mapToShortDto(user)).thenReturn(userDto);
 
-        UserDtoWithAvatarAndPassword expected = creanteNewUserDto();
+        UserDtoShort expected = creanteNewUserDtoShort();
 
         AuthResponse authResponse = authenticationService.login(user.getUserEmail(), user.getPassword());
-        UserDtoWithAvatarAndPassword actual = authResponse.getUserDto();
+        UserDtoShort actual = authResponse.getUserDto();
 
         assertEquals(expected, actual);
     }
@@ -163,5 +164,13 @@ class AuthenticationServiceImplTest {
                 .password(USER_PASSWORD)
                 .userName(USER_NAME)
                 .build();
+    }
+
+    private UserDtoShort creanteNewUserDtoShort() {
+        return UserDtoShort.builder()
+            .id(USER_ID)
+            .userEmail(USER_EMAIL)
+            .userName(USER_NAME)
+            .build();
     }
 }

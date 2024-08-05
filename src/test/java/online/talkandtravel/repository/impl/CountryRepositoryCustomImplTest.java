@@ -1,23 +1,11 @@
 package online.talkandtravel.repository.impl;
 
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.Country;
-import online.talkandtravel.model.User;
-import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
-import online.talkandtravel.repository.CountryRepo;
-import online.talkandtravel.repository.GroupMessageRepository;
-import online.talkandtravel.repository.UserRepo;
-import online.talkandtravel.util.CountryUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,14 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Log4j2
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CountryRepoCustomImplTest {}/*
+class CountryRepositoryCustomImplTest {}/*
     private final String countryName = "Albania";
 
     @Autowired
     private CountryRepoCustomImpl repoCustom;
 
     @Autowired
-    private CountryRepo countryRepo;
+    private CountryRepository countryRepo;
 
     @Autowired
     private GroupMessageRepository groupMessageRepository;

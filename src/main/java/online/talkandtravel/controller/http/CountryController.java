@@ -1,16 +1,11 @@
 package online.talkandtravel.controller.http;
 
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.Country;
-import online.talkandtravel.model.dto.CountryDto;
-import online.talkandtravel.model.dto.CountryWithUserDto;
-import online.talkandtravel.model.dto.IParticipantDto;
-import online.talkandtravel.repository.CountryRepo;
+import online.talkandtravel.model.dto.country.CountryInfoDto;
+import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.constants.ApiPathConstants;
-import online.talkandtravel.util.mapper.CountryDtoMapper;
-import io.swagger.v3.oas.annotations.Operation;
-import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,17 +15,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/countries")
 @RequiredArgsConstructor
 @Log4j2
-public class CountryController {}/*
+public class CountryController {
+
+  private final CountryService countryService;
+
+  @GetMapping("/info")
+  public ResponseEntity<List<CountryInfoDto>> getAllCountriesInfo() {
+    return ResponseEntity.ok(countryService.getAllCountriesInfo());
+  }
+}/*
     private final CountryService countryService;
-    private final CountryRepo countryRepo;
-    private final CountryDtoMapper countryDtoMapper;
+    private final CountryRepository countryRepo;
+    private final CountryMapper countryDtoMapper;
 
     @Operation(
             description = "Get all existing countries."
     )
     @GetMapping
-    public ResponseEntity<List<CountryDto>> getAll() {
-        List<CountryDto> countryDtos = countryService.getAll().stream()
+    public ResponseEntity<List<CountryInfoDto>> getAll() {
+        List<CountryInfoDto> countryDtos = countryService.getAll().stream()
                 .map(countryDtoMapper::mapToDto)
                 .toList();
         return ResponseEntity.ok().body(countryDtos);
@@ -50,7 +53,7 @@ public class CountryController {}/*
             description = "Get Country by ID."
     )
     @GetMapping("/{countryId}")
-    public ResponseEntity<CountryDto> findById(@PathVariable Long countryId) {
+    public ResponseEntity<CountryInfoDto> findById(@PathVariable Long countryId) {
         var country = countryService.findById(countryId);
         var countryDto = countryDtoMapper.mapToDto(country);
         return ResponseEntity.ok().body(countryDto);
@@ -69,9 +72,9 @@ public class CountryController {}/*
             description = "Find all countries where the user is a participant"
     )
     @GetMapping("/all-by-user/{userId}/participating")
-    public ResponseEntity<List<CountryDto>> findCountriesByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<CountryInfoDto>> findCountriesByUserId(@PathVariable Long userId) {
         List<Country> countriesByUserId = countryService.findAllCountriesByUser(userId);
-        List<CountryDto> responseCountryDtos
+        List<CountryInfoDto> responseCountryDtos
                 = countriesByUserId.stream()
                 .map(countryDtoMapper::mapToDto)
                 .toList();

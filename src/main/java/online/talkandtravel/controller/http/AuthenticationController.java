@@ -6,7 +6,7 @@ import online.talkandtravel.model.dto.LoginDto;
 import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.constants.ApiPathConstants;
-import online.talkandtravel.util.mapper.UserDtoMapper;
+import online.talkandtravel.util.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Log4j2
 public class AuthenticationController {
     private final AuthenticationService authService;
-    private final UserDtoMapper mapper;
+    private final UserMapper mapper;
 
     @Operation(
             description = "Register a user."

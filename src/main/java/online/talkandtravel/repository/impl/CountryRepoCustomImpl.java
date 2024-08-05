@@ -1,15 +1,8 @@
 package online.talkandtravel.repository.impl;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
-import online.talkandtravel.model.dto.MessageDto;
-import online.talkandtravel.repository.CountryRepoCustom;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor

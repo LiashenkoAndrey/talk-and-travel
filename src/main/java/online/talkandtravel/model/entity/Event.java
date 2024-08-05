@@ -1,4 +1,4 @@
-package online.talkandtravel.model;
+package online.talkandtravel.model.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -13,23 +13,24 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "messages")
-public class Message {
+@Table(name = "event")
+public class Event {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String content;
-
-  private LocalDateTime creationDate;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @ManyToOne
-  @JoinColumn(name = "sender_id")
-  private User sender;
+  @JoinColumn(name = "chat_id")
+  private Chat chat;
 
-  @ManyToOne
-  @JoinColumn(name = "replied_message_id")
-  private Message repliedMessage;
+  @Enumerated(EnumType.STRING)
+  private EventType eventType;
+
+  private LocalDateTime eventTime;
 }
 

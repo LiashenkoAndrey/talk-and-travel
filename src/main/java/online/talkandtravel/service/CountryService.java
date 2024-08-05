@@ -1,16 +1,14 @@
 package online.talkandtravel.service;
 
-import online.talkandtravel.model.Country;
-import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
-import online.talkandtravel.model.dto.CountryWithUserDto;
-import online.talkandtravel.model.dto.NewParticipantCountryDto;
-import online.talkandtravel.model.dto.OpenCountryRequestDto;
+import online.talkandtravel.model.dto.country.CountryInfoDto;
 
 import java.util.List;
 
 public interface CountryService {
 
-    boolean userIsSubscribed(String countryName, Long userId);
+    List<CountryInfoDto> getAllCountriesInfo();
+
+    /*boolean userIsSubscribed(String countryName, Long userId);
 
     Country createAndSave(Country country);
 
@@ -26,7 +24,7 @@ public interface CountryService {
 
 //    Country findByName(String countryMame);
 
-    List<Country> getAll();
+
 
     Long countUsersInCountry(Long countryId);
 
@@ -34,5 +32,5 @@ public interface CountryService {
 
     CountryWithUserDto findByIdWithParticipants(Long countryId);
 
-    void addNewParticipantToCountry(NewParticipantCountryDto dto);
+    void addNewParticipantToCountry(NewParticipantCountryDto dto);*/
 }

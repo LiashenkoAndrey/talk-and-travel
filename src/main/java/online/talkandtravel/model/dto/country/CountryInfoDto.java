@@ -1,4 +1,4 @@
-package online.talkandtravel.model.dto;
+package online.talkandtravel.model.dto.country;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
-    private String token;
-    private UserDtoShort userDto;
+public class CountryInfoDto {
+    private String name;
+    private String flagCode;
 }

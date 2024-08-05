@@ -1,6 +1,6 @@
 package online.talkandtravel.service;
 
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.User;
 import java.util.Map;
 
 import org.springframework.security.core.userdetails.UserDetails;

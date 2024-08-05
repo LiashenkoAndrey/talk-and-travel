@@ -3,7 +3,7 @@ package online.talkandtravel.controller.http;
 import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.constants.ApiPathConstants;
-import online.talkandtravel.util.mapper.UserDtoMapper;
+import online.talkandtravel.util.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserDtoMapper userDtoMapper;
+    private final UserMapper userMapper;
 
     @Operation(
             description = "Update a user."
     )
     @PutMapping()
     public ResponseEntity<UserDtoWithAvatarAndPassword> update(@RequestBody UserDtoWithAvatarAndPassword dto) {
-        var user = userDtoMapper.mapToModel(dto);
+        var user = userMapper.mapToModel(dto);
         var updatedUser = userService.update(user);
-        var userDto = userDtoMapper.mapToDto(updatedUser);
+        var userDto = userMapper.toUserDtoWithAvatarAndPassword(updatedUser);
         return ResponseEntity.ok().body(userDto);
     }
 
@@ -38,7 +38,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<UserDtoWithAvatarAndPassword> findById(@PathVariable Long userId) {
         var user = userService.findById(userId);
-        var userDto = userDtoMapper.mapToDto(user);
+        var userDto = userMapper.toUserDtoWithAvatarAndPassword(user);
         return ResponseEntity.ok().body(userDto);
     }
 
