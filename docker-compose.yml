@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  tt-chat-postgres:
+    image: postgres:latest
+    container_name: tt-chat-postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: t2-local
+    ports:
+      - "5436:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+

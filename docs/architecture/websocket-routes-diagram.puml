@@ -1,0 +1,40 @@
+@startuml
+!define RECTANGLE
+
+title WebSocket Routes Diagram
+
+rectangle "WebSocket Endpoint" as WSE {
+  rectangle "/ws" as ws
+}
+
+WSE -down-> ApplicationDestinationPrefix
+
+rectangle "Application Destination Prefix" as ApplicationDestinationPrefix {
+  rectangle "/chat" as chat
+}
+
+rectangle "Broker Destination Prefixes" as BrokerDestinationPrefixes {
+  rectangle "/countries" as countries
+  rectangle "/group-messages" as group_messages
+}
+
+ApplicationDestinationPrefix -down-> CountryWebSocketController
+BrokerDestinationPrefixes -down-> CountryWebSocketController
+
+rectangle "CountryWebSocketController" as CountryWebSocketController {
+  rectangle "/chat/countries/open" as open
+  rectangle "/chat/countries/update/{countryName}" as update
+}
+
+ApplicationDestinationPrefix -down-> GroupMessageWebSocketController
+BrokerDestinationPrefixes -down-> GroupMessageWebSocketController
+
+rectangle "GroupMessageWebSocketController" as GroupMessageWebSocketController {
+  rectangle "/chat/group-messages" as group_messages_endpoint
+}
+
+open -down-> "/countries/{countryName}" : Sends to
+update -down-> "/countries/{countryName}" : Sends to
+group_messages_endpoint -down-> "/countries/{countryName}/messages" : Sends to
+
+@enduml

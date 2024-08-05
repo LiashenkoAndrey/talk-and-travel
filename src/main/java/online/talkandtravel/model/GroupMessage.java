@@ -31,38 +31,43 @@ import lombok.Setter;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class GroupMessage {
 
-    public GroupMessage(Long id, String content, LocalDateTime creationDate) {
-        this.id = id;
-        this.content = content;
-        this.creationDate = creationDate;
-    }
+  public GroupMessage(Long id, String content, LocalDateTime creationDate) {
+    this.id = id;
+    this.content = content;
+    this.creationDate = creationDate;
+  }
 
-    public GroupMessage(String content, Country country, User user) {
-        this.content = content;
-        this.country = country;
-        this.user = user;
-    }
+  public GroupMessage(String content, Country country, User user) {
+    this.content = content;
+    this.country = country;
+    this.user = user;
+  }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Size(max = 100000, message = "The maximum number of characters for a message is 100000")
-    private String content;
-    @Column(nullable = false)
-    @Setter(AccessLevel.NONE)
-    private LocalDateTime creationDate;
-    @ManyToOne
-    @JoinColumn(name = "country_id", nullable = false)
-    @JsonIgnore
-    @JsonBackReference
-    private Country country;
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
-    private User user;
-    @PrePersist
-    protected void onCreate() {
-        creationDate = LocalDateTime.now();
-    }
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Size(min = 2, max = 1000, message = "The maximum number of characters for a message is 1000")
+  private String content;
+
+  @Column(nullable = false)
+  @Setter(AccessLevel.NONE)
+  private LocalDateTime creationDate;
+
+  @ManyToOne
+  @JoinColumn(name = "country_id", nullable = false)
+  @JsonIgnore
+  @JsonBackReference
+  private Country country;
+
+  @ManyToOne
+  @JsonIgnore
+  @JoinColumn(name = "user_id", nullable = false)
+  @JsonBackReference
+  private User user;
+
+  @PrePersist
+  protected void onCreate() {
+    creationDate = LocalDateTime.now();
+  }
 }

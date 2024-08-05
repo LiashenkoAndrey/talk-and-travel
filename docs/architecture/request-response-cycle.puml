@@ -1,0 +1,39 @@
+@startuml
+actor User
+participant "WebSocket Endpoint" as WS
+participant "CountryWebSocketController" as CWC
+participant "GroupMessageWebSocketController" as GMWC
+participant "Broker Destination Prefixes" as BDP
+
+== User Connects and Subscribes ==
+User -> WS: Connect to /ws
+WS -> User: Connection Established
+
+User -> WS: Subscribe to /countries/{countryName}
+WS -> BDP: Route subscription to /countries/{countryName}
+
+User -> WS: Subscribe to /countries/{countryName}/messages
+WS -> BDP: Route subscription to /countries/{countryName}/messages
+
+== Opening a Country ==
+User -> WS: Send request to /chat/countries/open
+WS -> CWC: Process /chat/countries/open
+CWC -> CWC: Retrieve and prepare country info
+CWC -> WS: Send response to /countries/{countryName}
+WS -> User: Receive country info
+
+== Updating a Country ==
+User -> WS: Send request to /chat/countries/update/{countryName}
+WS -> CWC: Process /chat/countries/update/{countryName}
+CWC -> CWC: Update country info
+CWC -> WS: Send update to /countries/{countryName}
+WS -> User: Receive updated country info
+
+== Sending a Group Message ==
+User -> WS: Send request to /chat/group-messages
+WS -> GMWC: Process /chat/group-messages
+GMWC -> GMWC: Save and prepare group message
+GMWC -> WS: Send message to /countries/{countryName}/messages
+WS -> User: Receive group message
+
+@enduml
