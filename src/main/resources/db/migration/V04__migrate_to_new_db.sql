@@ -1,0 +1,1 @@
+ALTER TABLE chats add column country_id text references countries(name);

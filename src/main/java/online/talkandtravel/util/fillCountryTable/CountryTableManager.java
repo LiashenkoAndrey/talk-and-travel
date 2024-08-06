@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.model.Country;
+import online.talkandtravel.repository.CountryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,17 +25,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 public class CountryTableManager {
 
-  @PersistenceContext
-  private EntityManager em;
+  public CountryTableManager(@Value("${COUNTRIES_JSON_FILE_PATH}") String jsonFilePath,
+      @Qualifier("CountryArraySelectorImpl_v1") CountryArraySelector countryArraySelector,
+      List<Country> list, CountryRepo countryRepo) {
+    this.jsonFilePath = jsonFilePath;
+    this.countryArraySelector = countryArraySelector;
+    this.list = list;
+    this.countryRepo = countryRepo;
+  }
 
-  @Value("${COUNTRIES_JSON_FILE_PATH}")
-  private String jsonFilePath;
+  private final String jsonFilePath;
 
-  @Qualifier("CountryArraySelectorImpl_v1")
-  @Autowired
-  private CountryArraySelector countryArraySelector;
+  private final CountryRepo countryRepo;
 
-  private List<CountryWithNameAndFlag> list = new ArrayList<>();
+  private final CountryArraySelector countryArraySelector;
+
+  private List<Country> list;
 
   @Transactional
   public void readJsonAndSaveAllIfTableIsEmpty() throws IOException {
@@ -52,11 +59,11 @@ public class CountryTableManager {
     return mapper.readTree(new File(jsonFilePath));
   }
 
-  private List<CountryWithNameAndFlag> toCountryList(JsonNode jsonArray) {
-    log.debug("iterate array...");
+  private List<Country> toCountryList(JsonNode jsonArray) {
+    log.debug("iterate an array...");
     for (JsonNode node : jsonArray) {
 
-      CountryWithNameAndFlag country = countryArraySelector.selectCountry(node);
+      Country country = countryArraySelector.selectCountry(node);
 
       if (listHasCollisionWith(country)) {
         country.setFlagCode(country.getFlagCode() + "-collision-" + UUID.randomUUID());
@@ -72,22 +79,17 @@ public class CountryTableManager {
   }
 
   @Transactional
-  public void saveAll(List<CountryWithNameAndFlag> list) {
+  public void saveAll(List<Country> list) {
     log.debug("save...");
-    list.stream().distinct().forEach((country -> {
-      em.persist(country);
-    }));
+    countryRepo.saveAll(list);
     log.debug("save ok");
   }
 
-  private boolean listHasCollisionWith(CountryWithNameAndFlag country)  {
-    return !list.stream().noneMatch(c -> c.getFlagCode().equals(country.getFlagCode()));
+  private boolean listHasCollisionWith(Country country)  {
+    return list.stream().anyMatch(c -> c.getFlagCode().equals(country.getFlagCode()));
   }
 
   private boolean isTableEmpty() {
-    return em.createQuery("from Country c", CountryWithNameAndFlag.class)
-        .setMaxResults(1)
-        .getResultList()
-        .isEmpty();
+    return countryRepo.countCountries() == 0;
   }
 }

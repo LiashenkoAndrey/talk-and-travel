@@ -34,6 +34,11 @@ import lombok.Setter;
 @Builder
 public class Country {
 
+  public Country(String name, String flagCode) {
+    this.name = name;
+    this.flagCode = flagCode;
+  }
+
   @Id
   @Column(nullable = false, unique = true)
   private String name;
