@@ -2,8 +2,8 @@ package online.talkandtravel;
 
 import java.io.IOException;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.Role;
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.util.fillCountryTable.CountryTableManager;
 import online.talkandtravel.service.UserService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;

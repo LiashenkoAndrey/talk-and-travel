@@ -1,7 +1,7 @@
 package online.talkandtravel.util.fillCountryTable;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import online.talkandtravel.model.Country;
+import online.talkandtravel.model.entity.Country;
 
 /**
  * selects required values from a any json file

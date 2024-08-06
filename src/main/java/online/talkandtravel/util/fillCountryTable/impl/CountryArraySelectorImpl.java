@@ -1,7 +1,7 @@
 package online.talkandtravel.util.fillCountryTable.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import online.talkandtravel.model.Country;
+import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.util.fillCountryTable.CountryArraySelector;
 import org.springframework.stereotype.Component;
 

@@ -2,17 +2,12 @@ package online.talkandtravel.util.fillCountryTable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.Country;
-import online.talkandtravel.repository.CountryRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import online.talkandtravel.model.entity.Country;
+import online.talkandtravel.repository.CountryRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,16 +22,16 @@ public class CountryTableManager {
 
   public CountryTableManager(@Value("${COUNTRIES_JSON_FILE_PATH}") String jsonFilePath,
       @Qualifier("CountryArraySelectorImpl_v1") CountryArraySelector countryArraySelector,
-      List<Country> list, CountryRepo countryRepo) {
+      List<Country> list, CountryRepository countryRepository) {
     this.jsonFilePath = jsonFilePath;
     this.countryArraySelector = countryArraySelector;
     this.list = list;
-    this.countryRepo = countryRepo;
+    this.countryRepository = countryRepository;
   }
 
   private final String jsonFilePath;
 
-  private final CountryRepo countryRepo;
+  private final CountryRepository countryRepository;
 
   private final CountryArraySelector countryArraySelector;
 
@@ -74,7 +69,7 @@ public class CountryTableManager {
   @Transactional
   public void saveAll(List<Country> list) {
     log.debug("save...");
-    countryRepo.saveAll(list);
+    countryRepository.saveAll(list);
     log.debug("save ok");
   }
 
@@ -83,6 +78,6 @@ public class CountryTableManager {
   }
 
   private boolean isTableEmpty() {
-    return countryRepo.countCountries() == 0;
+    return countryRepository.countCountries() == 0;
   }
 }

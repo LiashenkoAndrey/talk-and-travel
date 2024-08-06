@@ -1,17 +1,12 @@
 package online.talkandtravel.repository;
 
-import online.talkandtravel.model.Country;
-import online.talkandtravel.model.dto.IParticipantDto;
+import online.talkandtravel.model.entity.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
 @Repository
-public interface CountryRepo extends JpaRepository<Country, String> {
+public interface CountryRepository extends JpaRepository<Country, String> {
   @Query("SELECT COUNT(c) FROM Country c")
   long countCountries();
 }
