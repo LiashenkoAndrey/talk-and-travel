@@ -65,14 +65,7 @@ public class CountryTableManager {
 
       Country country = countryArraySelector.selectCountry(node);
 
-      if (listHasCollisionWith(country)) {
-        country.setFlagCode(country.getFlagCode() + "-collision-" + UUID.randomUUID());
-        list.add(country);
-        log.debug("collision {}", country);
-      } else {
-        list.add(country);
-
-      }
+      list.add(country);
     }
     log.debug("iterate ok");
     return list;

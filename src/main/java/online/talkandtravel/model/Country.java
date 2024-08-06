@@ -43,7 +43,7 @@ public class Country {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String flagCode;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
