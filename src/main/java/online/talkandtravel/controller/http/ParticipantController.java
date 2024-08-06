@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/participants")
 @RequiredArgsConstructor
-public class ParticipantController {
+public class ParticipantController{}/* {
     private final ParticipantService participantService;
 
     @Operation(
@@ -26,3 +26,4 @@ public class ParticipantController {
         return ResponseEntity.ok().body(response);
     }
 }
+*/

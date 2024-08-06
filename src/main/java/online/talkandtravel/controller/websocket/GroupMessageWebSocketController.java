@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-public class GroupMessageWebSocketController {
+public class GroupMessageWebSocketController{}/* {
     private final GroupMessageService groupMessageService;
     private final GroupMessageDtoMapper groupMessageDtoMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
@@ -36,3 +36,4 @@ public class GroupMessageWebSocketController {
         simpMessagingTemplate.convertAndSend("/countries/" + country.getName() + "/messages", groupMessage);
     }
 }
+*/

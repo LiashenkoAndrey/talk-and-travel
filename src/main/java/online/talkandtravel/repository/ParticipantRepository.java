@@ -1,6 +1,5 @@
 package online.talkandtravel.repository;
 
-import online.talkandtravel.model.Participant;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +8,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ParticipantRepository extends JpaRepository<Participant, Long> {
+public interface ParticipantRepository{}
+/*
+extends JpaRepository<Participant, Long> {
     @Query("SELECT p "
             + "FROM Participant p "
             + "JOIN p.countries c "
@@ -19,3 +20,4 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     Optional<Participant> findByUserId(Long userId);
 }
+*/

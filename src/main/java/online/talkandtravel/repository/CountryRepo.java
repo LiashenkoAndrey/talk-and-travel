@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CountryRepo extends JpaRepository<Country, Long>, CountryRepoCustom {
+public interface CountryRepo{}/* extends JpaRepository<Country, Long>, CountryRepoCustom {
     @Query(value = """
             select
                 count(*) > 0 as is_subscribed
@@ -68,3 +68,4 @@ public interface CountryRepo extends JpaRepository<Country, Long>, CountryRepoCu
     List<IParticipantDto> findAllParticipantsByChatId(@Param("chatId") Long chatId);
 
 }
+*/

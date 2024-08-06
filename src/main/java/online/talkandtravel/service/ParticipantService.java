@@ -1,11 +1,10 @@
 package online.talkandtravel.service;
 
-import online.talkandtravel.model.Participant;
 import online.talkandtravel.model.User;
 
 import java.util.Optional;
 
-public interface ParticipantService {
+public interface ParticipantService {}/*
     Participant save(Participant participant);
 
     Optional<Participant> findByUserIdAndCountryId(Long userId, Long countryId);
@@ -14,3 +13,4 @@ public interface ParticipantService {
 
     String leaveCountry(Long userId, Long countryId);
 }
+*/

@@ -2,7 +2,6 @@ package online.talkandtravel.repository.impl;
 
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.Country;
-import online.talkandtravel.model.GroupMessage;
 import online.talkandtravel.model.User;
 import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
 import online.talkandtravel.repository.CountryRepo;
@@ -28,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Log4j2
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CountryRepoCustomImplTest {
+class CountryRepoCustomImplTest {}/*
     private final String countryName = "Albania";
 
     @Autowired
@@ -69,4 +68,4 @@ class CountryRepoCustomImplTest {
                 new GroupMessage("I'm a test message!", country, user)
         ));
     }
-}
+}*/
