@@ -8,6 +8,9 @@ public interface CountryService {
 
     List<CountryInfoDto> getAllCountriesInfo();
 
+
+    void createInitialChats();
+
     /*boolean userIsSubscribed(String countryName, Long userId);
 
     Country createAndSave(Country country);

@@ -4,11 +4,16 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
+import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.ChatType;
+import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.mapper.CountryMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Service
 @Log4j2
 @RequiredArgsConstructor
@@ -17,10 +22,28 @@ public class CountryServiceImpl implements CountryService {
   private final CountryRepository countryRepository;
   private final CountryMapper countryMapper;
 
+  @Transactional(readOnly = true)
   @Override
   public List<CountryInfoDto> getAllCountriesInfo() {
     return countryRepository.findAll().stream().map(countryMapper::toCountryInfoDto).toList();
   }
+
+  @Override
+  public void createInitialChats(){
+    List<Country> allCountries = countryRepository.findAll();
+        allCountries.forEach(
+            country -> {
+              Chat chat =
+                  Chat.builder()
+                      .name(country.getName())
+                      .chatType(ChatType.GROUP)
+                      .description(country.getName() + " main chat")
+                      .build();
+              country.getChats().add(chat);
+            });
+    countryRepository.saveAll(allCountries);
+  }
+
 }
   /*  private final CountryRepository repository;
   private final UserService userService;

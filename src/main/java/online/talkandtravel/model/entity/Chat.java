@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 
 @Getter
@@ -14,6 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "chats")
 public class Chat {
   @Id
@@ -26,6 +29,7 @@ public class Chat {
   @Enumerated(EnumType.STRING)
   private ChatType chatType;
 
+  @CreationTimestamp
   private LocalDateTime creationDate;
 
   @ManyToMany
