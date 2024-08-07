@@ -3,6 +3,7 @@ package online.talkandtravel.controller.http;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.constants.ApiPathConstants;
@@ -21,21 +22,13 @@ public class CountryController {
   public ResponseEntity<List<CountryInfoDto>> getAllCountriesInfo() {
     return ResponseEntity.ok(countryService.getAllCountriesInfo());
   }
-} /*
-      private final CountryService countryService;
-      private final CountryRepository countryRepo;
-      private final CountryMapper countryDtoMapper;
 
-      @Operation(
-              description = "Get all existing countries."
-      )
-      @GetMapping
-      public ResponseEntity<List<CountryInfoDto>> getAll() {
-          List<CountryInfoDto> countryDtos = countryService.getAll().stream()
-                  .map(countryDtoMapper::mapToDto)
-                  .toList();
-          return ResponseEntity.ok().body(countryDtos);
-      }
+  @GetMapping("/{country}")
+  public ResponseEntity<CountryDto> findCountryById(@PathVariable("country") String country){
+    return ResponseEntity.ok(countryService.findCountryByName(country));
+  }
+
+} /*
 
       @Operation(
               description = "Joins a user to a country"

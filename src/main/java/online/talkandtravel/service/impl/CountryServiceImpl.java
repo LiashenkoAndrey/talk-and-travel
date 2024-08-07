@@ -3,9 +3,9 @@ package online.talkandtravel.service.impl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.service.CountryService;
@@ -28,26 +28,19 @@ public class CountryServiceImpl implements CountryService {
     return countryRepository.findAll().stream().map(countryMapper::toCountryInfoDto).toList();
   }
 
+  @Override
+  public CountryDto findCountryByName(String countryName) {
+    Country country = getCountry(countryName);
+    return countryMapper.toCountryDto(country);
+  }
+
+  private Country getCountry(String countryName) {
+    return countryRepository
+        .findById(countryName)
+        .orElseThrow(() -> new CountryNotFoundException(countryName));
+  }
 }
-  /*  private final CountryRepository repository;
-  private final UserService userService;
-  private final ParticipantService participantService;
-  private final UserRepo userRepo;
-  private final ParticipantRepository participantRepository;
-
-  @Override
-  public Country save(Country country) {
-      log.info("save country... {}", country);
-      return repository.save(country);
-  }
-
-  @Override
-  public Country findById(Long countryId) {
-      return repository.findByIdCustom(countryId).orElseThrow(
-              () -> new NoSuchElementException("Can not find Country by id " + countryId)
-      );
-  }
-
+  /*
   @Override
   public CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto) {
       if (repository.existsByName(name)) {

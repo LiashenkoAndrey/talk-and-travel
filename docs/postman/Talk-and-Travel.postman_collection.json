@@ -1604,6 +1604,27 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "find Country By Name",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/countries/Aruba",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries",
+												"Aruba"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},
@@ -1941,245 +1962,6 @@
 							""
 						]
 					}
-				}
-			]
-		},
-		{
-			"name": "Elasticbeanstalk",
-			"item": [
-				{
-					"name": "api",
-					"item": [
-						{
-							"name": "authentication",
-							"item": [
-								{
-									"name": "register",
-									"request": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"userName\": \"Vitalii\",\r\n    \"userEmail\": \"vitalii@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}"
-										},
-										"url": {
-											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/authentication/register",
-											"protocol": "http",
-											"host": [
-												"talk-and-travel-app",
-												"us-east-1",
-												"elasticbeanstalk",
-												"com"
-											],
-											"path": [
-												"api",
-												"authentication",
-												"register"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "login",
-									"request": {
-										"auth": {
-											"type": "basic",
-											"basic": [
-												{
-													"key": "password",
-													"value": "1234",
-													"type": "string"
-												},
-												{
-													"key": "username",
-													"value": "email@gmail.com",
-													"type": "string"
-												}
-											]
-										},
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"userEmail\": \"anna@mail.com\",\r\n    \"password\": \"!123456Aa\"\r\n}\r\n"
-										},
-										"url": {
-											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/authentication/login",
-											"protocol": "http",
-											"host": [
-												"talk-and-travel-app",
-												"us-east-1",
-												"elasticbeanstalk",
-												"com"
-											],
-											"path": [
-												"api",
-												"authentication",
-												"login"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "users",
-							"item": [
-								{
-									"name": "update",
-									"request": {
-										"auth": {
-											"type": "basic",
-											"basic": [
-												{
-													"key": "username",
-													"value": "anna@gmail.com",
-													"type": "string"
-												},
-												{
-													"key": "password",
-													"value": "1234",
-													"type": "string"
-												}
-											]
-										},
-										"method": "PUT",
-										"header": [
-											{
-												"key": "",
-												"value": "",
-												"type": "text"
-											},
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"id\": 5,\r\n    \"userName\": \"Sem\",\r\n    \"password\": 123456,\r\n    \"userEmail\": \"serg@gmail.com\"\r\n}"
-										},
-										"url": {
-											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/users",
-											"protocol": "http",
-											"host": [
-												"talk-and-travel-app",
-												"us-east-1",
-												"elasticbeanstalk",
-												"com"
-											],
-											"path": [
-												"api",
-												"users"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "get-user-by-id",
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QG1haWwuY29tIiwiaWF0IjoxNzAxMDg5MTk2LCJleHAiOjE3MDEwOTA2MzZ9.CBVKX9JP08gZRjAj4WHtQXeCHogmjRUxM9rgAz2HM8Y",
-													"type": "string"
-												}
-											]
-										},
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/users/2",
-											"protocol": "http",
-											"host": [
-												"talk-and-travel-app",
-												"us-east-1",
-												"elasticbeanstalk",
-												"com"
-											],
-											"path": [
-												"api",
-												"users",
-												"2"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "country",
-							"item": [
-								{
-									"name": "createOrUpdateCountryForUser Copy 2",
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aXRhbGlpQG1haWwuY29tIiwiaWF0IjoxNzA1MjYwNzYwLCJleHAiOjE3MDUyNjIyMDB9.oG30nXYh6WWIusQNSYPWLzaAV3Q2AWR-YAaNLTFeLSI",
-													"type": "string"
-												}
-											]
-										},
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"Aruba\",\r\n    \"userEmail\": \"aw\"\r\n}\r\n",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://talk-and-travel-app.us-east-1.elasticbeanstalk.com/api/country/2",
-											"protocol": "http",
-											"host": [
-												"talk-and-travel-app",
-												"us-east-1",
-												"elasticbeanstalk",
-												"com"
-											],
-											"path": [
-												"api",
-												"country",
-												"2"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						}
-					]
 				}
 			]
 		}
