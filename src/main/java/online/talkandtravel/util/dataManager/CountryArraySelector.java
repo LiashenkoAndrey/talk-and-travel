@@ -1,4 +1,4 @@
-package online.talkandtravel.util.fillCountryTable;
+package online.talkandtravel.util.dataManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import online.talkandtravel.model.entity.Country;

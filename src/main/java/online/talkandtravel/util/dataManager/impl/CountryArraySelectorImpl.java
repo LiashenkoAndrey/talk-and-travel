@@ -1,11 +1,11 @@
-package online.talkandtravel.util.fillCountryTable.impl;
+package online.talkandtravel.util.dataManager.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import online.talkandtravel.model.entity.Country;
-import online.talkandtravel.util.fillCountryTable.CountryArraySelector;
+import online.talkandtravel.util.dataManager.CountryArraySelector;
 import org.springframework.stereotype.Component;
 
-@Component("CountryArraySelectorImpl_v1")
+@Component
 public class CountryArraySelectorImpl implements CountryArraySelector {
 
   @Override

@@ -1,7 +1,7 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.user;
 
+import online.talkandtravel.exception.model.ApiException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class UserNotFoundException extends ApiException {
 

@@ -1,4 +1,4 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.model;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -7,6 +7,14 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.auth.AuthenticationException;
+import online.talkandtravel.exception.file.FileSizeExceededException;
+import online.talkandtravel.exception.file.ImageProcessingException;
+import online.talkandtravel.exception.file.ImageWriteException;
+import online.talkandtravel.exception.auth.RegistrationException;
+import online.talkandtravel.exception.file.UnsupportedFormatException;
+import online.talkandtravel.exception.user.UserAlreadySubscribedException;
+import online.talkandtravel.exception.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

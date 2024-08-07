@@ -1,6 +1,8 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.file;
 
-public class ImageProcessingException extends ApiException{
+import online.talkandtravel.exception.model.ApiException;
+
+public class ImageProcessingException extends ApiException {
 
     public ImageProcessingException() {
     }
