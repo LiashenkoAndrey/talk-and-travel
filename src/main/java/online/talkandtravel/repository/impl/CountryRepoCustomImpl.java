@@ -43,7 +43,7 @@ public class CountryRepoCustomImpl{}/* implements CountryRepoCustom {
 
     private List<MessageDto> getMessagesDto(String countryName) {
         return em.createQuery("""
-                        select m.id as id, m.content as content, m.creationDate as creationDate, new online.talkandtravel.model.dto.UserDtoBasic(m.user.id, m.user.userName, m.user.userEmail, m.user.about) as user  
+                        select m.id as id, m.content as content, m.creationDate as creationDate, new online.talkandtravel.model.dto.user.UserDtoBasic(m.user.id, m.user.userName, m.user.userEmail, m.user.about) as user
                         from GroupMessage m 
                         where m.country.name = :name 
                         order by m.creationDate  

@@ -30,11 +30,11 @@ public class Chat {
 
   @ManyToMany
   @JoinTable(
-      name = "chat_user",
+      name = "user_chats",
       joinColumns = @JoinColumn(name = "chat_id"),
       inverseJoinColumns = @JoinColumn(name = "user_id")
   )
-  private List<User> users;
+  private List<UserChat> users;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "chat_id")

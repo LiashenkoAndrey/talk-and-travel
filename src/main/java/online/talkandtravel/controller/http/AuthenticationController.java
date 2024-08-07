@@ -3,7 +3,7 @@ package online.talkandtravel.controller.http;
 import jakarta.validation.Valid;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.LoginDto;
-import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
+import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserMapper;

@@ -23,7 +23,7 @@ public class UserCountry {
   private User user;
 
   @ManyToOne
-  @JoinColumn(name = "country_id")
+  @JoinColumn(name = "country_name")
   private Country country;
 
   @OneToMany(mappedBy = "userCountry", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,8 +1,8 @@
 package online.talkandtravel.util.mapper;
 
-import online.talkandtravel.model.dto.UserDtoShort;
+import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
+import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

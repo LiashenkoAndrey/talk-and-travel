@@ -59,7 +59,7 @@ public interface CountryRepository extends JpaRepository<Country, String> {
             + "WHERE c.id = :id")
     Optional<Country> findByIdWithParticipants(@Param("id") Long id);
 
-    @Query("select new online.talkandtravel.model.dto.IParticipantDto(p.id, new online.talkandtravel.model.dto.UserDtoShort(u.id, u.userName, u.userEmail)) " +
+    @Query("select new online.talkandtravel.model.dto.IParticipantDto(p.id, new online.talkandtravel.model.dto.user.UserDtoShort(u.id, u.userName, u.userEmail)) " +
             "from Country c " +
             "join c.participants p " +
             "join p.user u " +

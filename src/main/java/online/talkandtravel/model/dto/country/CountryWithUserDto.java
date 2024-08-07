@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import online.talkandtravel.model.dto.UserDtoWithAvatarAndPassword;
+import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
 
 @Data
 @Builder

@@ -1,4 +1,4 @@
-package online.talkandtravel.model.dto;
+package online.talkandtravel.model.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
