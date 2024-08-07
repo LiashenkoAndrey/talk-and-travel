@@ -1625,6 +1625,28 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "getAllCountriesByUserId",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/countries/user/1",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"countries",
+												"user",
+												"1"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},

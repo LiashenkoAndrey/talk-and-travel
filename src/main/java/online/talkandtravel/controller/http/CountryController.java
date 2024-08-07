@@ -28,6 +28,11 @@ public class CountryController {
     return ResponseEntity.ok(countryService.findCountryByName(country));
   }
 
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<List<CountryInfoDto>> getAllCountriesByUserId(@PathVariable("userId") Long userId){
+    return ResponseEntity.ok(countryService.findAllCountriesByUserId(userId));
+  }
+
 } /*
 
       @Operation(
@@ -41,14 +46,6 @@ public class CountryController {
       }
 
 
-      @Operation(
-              description = "Get the quantity of participants in the country."
-      )
-      @GetMapping("/user-count/{countryId}")
-      public ResponseEntity<Long> countUsersInCountry(@PathVariable Long countryId) {
-          var usersInCountry = countryService.countUsersInCountry(countryId);
-          return ResponseEntity.ok().body(usersInCountry);
-      }
 
       @Operation(
               description = "Find all countries where the user is a participant"

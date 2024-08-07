@@ -7,33 +7,35 @@ import java.util.List;
 
 public interface CountryService {
 
-    List<CountryInfoDto> getAllCountriesInfo();
+  List<CountryInfoDto> getAllCountriesInfo();
 
   CountryDto findCountryByName(String countryName);
 
-    /*boolean userIsSubscribed(String countryName, Long userId);
+  List<CountryInfoDto> findAllCountriesByUserId(Long userId);
 
-    Country createAndSave(Country country);
+  /*boolean userIsSubscribed(String countryName, Long userId);
 
-    void joinUserToCountry(Long userId, String countryName);
+      Country createAndSave(Country country);
 
-    Country update(Long countryId, Long userID);
+      void joinUserToCountry(Long userId, String countryName);
 
-    Country save(Country country);
+      Country update(Long countryId, Long userID);
 
-    Country findById(Long countryId);
+      Country save(Country country);
 
-    CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto);
+      Country findById(Long countryId);
 
-//    Country findByName(String countryMame);
+      CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto);
+
+  //    Country findByName(String countryMame);
 
 
 
-    Long countUsersInCountry(Long countryId);
+      Long countUsersInCountry(Long countryId);
 
-    List<Country> findAllCountriesByUser(Long userId);
+      List<Country> findAllCountriesByUser(Long userId);
 
-    CountryWithUserDto findByIdWithParticipants(Long countryId);
+      CountryWithUserDto findByIdWithParticipants(Long countryId);
 
-    void addNewParticipantToCountry(NewParticipantCountryDto dto);*/
+      void addNewParticipantToCountry(NewParticipantCountryDto dto);*/
 }
