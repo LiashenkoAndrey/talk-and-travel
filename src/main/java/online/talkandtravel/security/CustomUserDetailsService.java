@@ -1,6 +1,6 @@
 package online.talkandtravel.security;
 
-import online.talkandtravel.repository.UserRepo;
+import online.talkandtravel.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
-        return userRepo.findByUserEmail(userEmail)
+        return userRepository.findByUserEmail(userEmail)
                 .map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }

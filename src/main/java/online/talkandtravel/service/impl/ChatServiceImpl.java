@@ -66,6 +66,11 @@ public class ChatServiceImpl implements ChatService {
     return chat.getUsers().stream().map(userChatMapper::toUserDtoBasic).toList();
   }
 
+  @Override
+  public ChatDto findChatById(Long chatId) {
+    return chatMapper.toDto(getChat(chatId));
+  }
+
   private Chat getChat(Long chatId) {
     return chatRepository.findById(chatId)
         .orElseThrow(() -> new ChatNotFoundException(chatId));

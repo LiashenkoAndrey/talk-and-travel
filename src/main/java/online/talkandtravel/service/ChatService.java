@@ -17,4 +17,6 @@ public interface ChatService {
   List<ChatDto> findUserChats(Long userId);
 
   List<UserDtoBasic> findAllUsersByChatId(Long chatId);
+
+  ChatDto findChatById(Long chatId);
 }
