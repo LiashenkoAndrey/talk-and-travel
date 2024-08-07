@@ -1,6 +1,8 @@
 package online.talkandtravel.exception.data;
 
-public class FailedToReadJsonException extends RuntimeException {
+import online.talkandtravel.exception.model.ApiException;
+
+public class FailedToReadJsonException extends ApiException {
 
   private static final String MESSAGE = "Failed to parse JSON file at %s";
 

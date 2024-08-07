@@ -7,4 +7,6 @@ import org.springframework.data.domain.Pageable;
 public interface ChatService {
 
   Page<ChatDto> findAllChats(Pageable pageable);
+
+  ChatDto findMainChat(String countryName);
 }
