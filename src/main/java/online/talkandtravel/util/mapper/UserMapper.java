@@ -5,6 +5,7 @@ import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
+import online.talkandtravel.model.entity.UserChat;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -21,5 +22,10 @@ public interface UserMapper {
     @Mapping(target = "countries", ignore = true)
     User mapToModel(UserDtoWithAvatarAndPassword dto);
 
-    UserDtoBasic toUserDtoBasic(User user);
+    UserDtoBasic userChatToUserDtoBasic(User user);
+
+/*    @Mapping(target = "userName", source = "user.userName")
+    @Mapping(target = "userEmail", source = "user.userEmail")
+    @Mapping(target = "about", source = "user.about")
+    UserDtoBasic userChatToUserDtoBasic(UserChat userChat);*/
 }

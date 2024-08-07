@@ -1,8 +1,10 @@
 package online.talkandtravel.controller.http;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.data.domain.Page;
@@ -35,5 +37,15 @@ public class ChatController {
   @GetMapping("/{chatId}/user-count")
   public ResponseEntity<Long> findUserCount(@PathVariable("chatId") Long chatId){
     return ResponseEntity.ok(chatService.countUsersInChat(chatId));
+  }
+
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<List<ChatDto>> findUserChats(@PathVariable("userId") Long userId){
+    return ResponseEntity.ok(chatService.findUserChats(userId));
+  }
+
+  @GetMapping("/{chatId}/users")
+  public ResponseEntity<List<UserDtoBasic>> findUsersByChatId(@PathVariable("chatId") Long chatId){
+    return ResponseEntity.ok(chatService.findAllUsersByChatId(chatId));
   }
 }

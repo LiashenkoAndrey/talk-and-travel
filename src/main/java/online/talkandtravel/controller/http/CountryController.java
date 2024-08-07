@@ -47,18 +47,6 @@ public class CountryController {
 
 
 
-      @Operation(
-              description = "Find all countries where the user is a participant"
-      )
-      @GetMapping("/all-by-user/{userId}/participating")
-      public ResponseEntity<List<CountryInfoDto>> findCountriesByUserId(@PathVariable Long userId) {
-          List<Country> countriesByUserId = countryService.findAllCountriesByUser(userId);
-          List<CountryInfoDto> responseCountryDtos
-                  = countriesByUserId.stream()
-                  .map(countryDtoMapper::mapToDto)
-                  .toList();
-          return ResponseEntity.ok().body(responseCountryDtos);
-      }
 
       @Operation(
               description = "Get Country by ID with users instead of participants."
