@@ -46,38 +46,5 @@ public class CountryController {
       }
 
 
-
-      @Operation(
-              description = "Find all countries where the user is a participant"
-      )
-      @GetMapping("/all-by-user/{userId}/participating")
-      public ResponseEntity<List<CountryInfoDto>> findCountriesByUserId(@PathVariable Long userId) {
-          List<Country> countriesByUserId = countryService.findAllCountriesByUser(userId);
-          List<CountryInfoDto> responseCountryDtos
-                  = countriesByUserId.stream()
-                  .map(countryDtoMapper::mapToDto)
-                  .toList();
-          return ResponseEntity.ok().body(responseCountryDtos);
-      }
-
-      @Operation(
-              description = "Get Country by ID with users instead of participants."
-      )
-      @GetMapping("/{countryId}/with-users")
-      public ResponseEntity<CountryWithUserDto> findByIdWithUsers(@PathVariable Long countryId) {
-          CountryWithUserDto countryWithUserDto = countryService.findByIdWithParticipants(countryId);
-          return ResponseEntity.ok().body(countryWithUserDto);
-      }
-
-      @Operation(
-              description = "Get Country by ID with users instead of participants."
-      )
-      @GetMapping("/{countryId}/participants")
-      public List<IParticipantDto> findParticipantsByChatId(@PathVariable Long countryId) {
-          List<IParticipantDto> participants = countryRepo.findAllParticipantsByChatId(countryId);
-          log.info("findParticipantsByChatId participants size - {}", participants.size());
-          log.info("findParticipantsByChatId participants - {}", participants);
-          return participants;
-      }
   }
   */
