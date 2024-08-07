@@ -45,27 +45,5 @@ public class CountryController {
           return ResponseEntity.ok().build();
       }
 
-
-
-
-      @Operation(
-              description = "Get Country by ID with users instead of participants."
-      )
-      @GetMapping("/{countryId}/with-users")
-      public ResponseEntity<CountryWithUserDto> findByIdWithUsers(@PathVariable Long countryId) {
-          CountryWithUserDto countryWithUserDto = countryService.findByIdWithParticipants(countryId);
-          return ResponseEntity.ok().body(countryWithUserDto);
-      }
-
-      @Operation(
-              description = "Get Country by ID with users instead of participants."
-      )
-      @GetMapping("/{countryId}/participants")
-      public List<IParticipantDto> findParticipantsByChatId(@PathVariable Long countryId) {
-          List<IParticipantDto> participants = countryRepo.findAllParticipantsByChatId(countryId);
-          log.info("findParticipantsByChatId participants size - {}", participants.size());
-          log.info("findParticipantsByChatId participants - {}", participants);
-          return participants;
-      }
   }
   */
