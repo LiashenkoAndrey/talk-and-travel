@@ -1,17 +1,7 @@
 package online.talkandtravel.controller.websocket;
 
-import jakarta.persistence.EntityNotFoundException;
-import online.talkandtravel.model.Country;
-import online.talkandtravel.model.dto.GroupMessageRequestDto;
-import online.talkandtravel.model.dto.IMessageDto;
-import online.talkandtravel.repository.CountryRepo;
-import online.talkandtravel.service.GroupMessageService;
-import online.talkandtravel.util.mapper.GroupMessageDtoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,7 +11,7 @@ public class GroupMessageWebSocketController{}/* {
     private final GroupMessageService groupMessageService;
     private final GroupMessageDtoMapper groupMessageDtoMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final CountryRepo countryRepo;
+    private final CountryRepository countryRepo;
 
     @MessageMapping("/group-messages")
     public void create(@Payload GroupMessageRequestDto groupMessageRequestDto) {

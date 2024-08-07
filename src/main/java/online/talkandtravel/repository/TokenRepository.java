@@ -1,6 +1,6 @@
 package online.talkandtravel.repository;
 
-import online.talkandtravel.model.Token;
+import online.talkandtravel.model.entity.Token;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,20 +1,11 @@
 package online.talkandtravel.service.impl;
 
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.exception.UserAlreadySubscribedException;
-import online.talkandtravel.model.Country;
-import online.talkandtravel.repository.CountryRepo;
-import online.talkandtravel.util.CountryUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -26,7 +17,7 @@ class CountryServiceImplTest {}/*
     private final String countryName = "Albania";
 
     @Autowired
-    private CountryRepo countryRepo;
+    private CountryRepository countryRepo;
 
     @Autowired
     private CountryServiceImpl service;

@@ -2,17 +2,6 @@ package online.talkandtravel.controller.websocket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
-import online.talkandtravel.model.dto.NewParticipantCountryDto;
-import online.talkandtravel.model.dto.OpenCountryRequestDto;
-import online.talkandtravel.model.dto.OpenCountryResponseDto;
-import online.talkandtravel.service.CountryService;
-import online.talkandtravel.util.mapper.CountryDtoMapper;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -36,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 public class CountryWebSocketController {}/*
     private final CountryService countryService;
-    private final CountryDtoMapper countryDtoMapper;
+    private final CountryMapper countryDtoMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     *//**

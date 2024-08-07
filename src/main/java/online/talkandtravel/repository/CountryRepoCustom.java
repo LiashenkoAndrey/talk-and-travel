@@ -1,6 +1,6 @@
 package online.talkandtravel.repository;
 
-import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
+import online.talkandtravel.model.dto.country.CountryDtoWithParticipantsAmountAndMessages;
 
 public interface CountryRepoCustom {
 

@@ -1,19 +1,19 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.exception.AuthenticationException;
-import online.talkandtravel.exception.RegistrationException;
-import online.talkandtravel.exception.UserNotFoundException;
-import online.talkandtravel.model.Role;
-import online.talkandtravel.model.Token;
-import online.talkandtravel.model.TokenType;
-import online.talkandtravel.model.User;
+import online.talkandtravel.exception.auth.AuthenticationException;
+import online.talkandtravel.exception.auth.RegistrationException;
+import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.model.entity.Token;
+import online.talkandtravel.model.entity.TokenType;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.JwtService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
-import online.talkandtravel.util.mapper.UserDtoMapper;
+import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.validator.PasswordValidator;
 import online.talkandtravel.util.validator.UserEmailValidator;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
-    private final UserDtoMapper userDtoMapper;
+    private final UserMapper userMapper;
     private final AvatarService avatarService;
 
     @Override
@@ -137,7 +137,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private AuthResponse createNewAuthResponse(String jwtToken, User user) {
-        var userDto = userDtoMapper.mapToDto(user);
+        var userDto = userMapper.mapToShortDto(user);
         return AuthResponse.builder()
                 .token(jwtToken)
                 .userDto(userDto)

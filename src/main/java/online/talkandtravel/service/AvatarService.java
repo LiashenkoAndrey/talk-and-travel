@@ -1,6 +1,6 @@
 package online.talkandtravel.service;
 
-import online.talkandtravel.model.Avatar;
+import online.talkandtravel.model.entity.Avatar;
 import java.io.IOException;
 
 import org.springframework.web.multipart.MultipartFile;

@@ -1,7 +1,7 @@
 package online.talkandtravel.model.dto;
 
-import online.talkandtravel.model.Country;
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.Country;
+import online.talkandtravel.model.entity.User;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

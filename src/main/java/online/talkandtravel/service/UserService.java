@@ -1,6 +1,6 @@
 package online.talkandtravel.service;
 
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.User;
 
 import java.io.IOException;
 import java.util.Optional;

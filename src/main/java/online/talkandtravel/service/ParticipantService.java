@@ -1,9 +1,5 @@
 package online.talkandtravel.service;
 
-import online.talkandtravel.model.User;
-
-import java.util.Optional;
-
 public interface ParticipantService {}/*
     Participant save(Participant participant);
 

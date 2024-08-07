@@ -1,15 +1,8 @@
 package online.talkandtravel.repository.impl;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.dto.CountryDtoWithParticipantsAmountAndMessages;
-import online.talkandtravel.model.dto.MessageDto;
-import online.talkandtravel.repository.CountryRepoCustom;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -50,7 +43,7 @@ public class CountryRepoCustomImpl{}/* implements CountryRepoCustom {
 
     private List<MessageDto> getMessagesDto(String countryName) {
         return em.createQuery("""
-                        select m.id as id, m.content as content, m.creationDate as creationDate, new online.talkandtravel.model.dto.UserDtoBasic(m.user.id, m.user.userName, m.user.userEmail, m.user.about) as user  
+                        select m.id as id, m.content as content, m.creationDate as creationDate, new online.talkandtravel.model.dto.user.UserDtoBasic(m.user.id, m.user.userName, m.user.userEmail, m.user.about) as user
                         from GroupMessage m 
                         where m.country.name = :name 
                         order by m.creationDate  
