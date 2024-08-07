@@ -1,9 +1,7 @@
 package online.talkandtravel.service.impl;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
@@ -23,16 +21,6 @@ public class ChatServiceImpl implements ChatService {
   @Transactional(readOnly = true)
   @Override
   public Page<ChatDto> findAllChats(Pageable pageable) {
-   return chatRepository.findAll(pageable).map(chatMapper::toDto);
-  }
-
-  @Override
-  public void saveChatList(List<Chat> countryChats) {
-    chatRepository.saveAll(countryChats);
-  }
-
-  @Override
-  public long countAllChats() {
-    return chatRepository.countChats();
+    return chatRepository.findAll(pageable).map(chatMapper::toDto);
   }
 }
