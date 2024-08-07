@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
@@ -38,6 +39,17 @@ public class ChatServiceImpl implements ChatService {
         country.getChats().stream().filter(chat -> chat.getName().equals(countryName)).findFirst();
     Chat chat = optionalChat.orElseThrow(() -> new MainCountryChatNotFoundException(countryName));
     return chatMapper.toDto(chat);
+  }
+
+  @Override
+  public Long countUsersInChat(Long chatId) {
+    Chat chat = getChat(chatId);
+    return (long) chat.getUsers().size();
+  }
+
+  private Chat getChat(Long chatId) {
+    return chatRepository.findById(chatId)
+        .orElseThrow(() -> new ChatNotFoundException(chatId));
   }
 
   private Country getCountry(String countryName) {

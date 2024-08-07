@@ -1894,6 +1894,28 @@
 										"header": []
 									},
 									"response": []
+								},
+								{
+									"name": "New Request",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/api/chats/485/user-count",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"chats",
+												"485",
+												"user-count"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						}

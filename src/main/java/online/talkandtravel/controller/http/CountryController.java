@@ -40,15 +40,6 @@ public class CountryController {
           return ResponseEntity.ok().build();
       }
 
-      @Operation(
-              description = "Get Country by ID."
-      )
-      @GetMapping("/{countryId}")
-      public ResponseEntity<CountryInfoDto> findById(@PathVariable Long countryId) {
-          var country = countryService.findById(countryId);
-          var countryDto = countryDtoMapper.mapToDto(country);
-          return ResponseEntity.ok().body(countryDto);
-      }
 
       @Operation(
               description = "Get the quantity of participants in the country."

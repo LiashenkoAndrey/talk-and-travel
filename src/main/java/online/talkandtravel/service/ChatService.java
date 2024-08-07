@@ -9,4 +9,6 @@ public interface ChatService {
   Page<ChatDto> findAllChats(Pageable pageable);
 
   ChatDto findMainChat(String countryName);
+
+  Long countUsersInChat(Long chatId);
 }

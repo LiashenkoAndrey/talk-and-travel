@@ -31,4 +31,9 @@ public class ChatController {
   public ResponseEntity<ChatDto> findMainChat(@PathVariable("country") String country){
     return ResponseEntity.ok( chatService.findMainChat(country));
   }
+
+  @GetMapping("/{chatId}/user-count")
+  public ResponseEntity<Long> findUserCount(@PathVariable("chatId") Long chatId){
+    return ResponseEntity.ok(chatService.countUsersInChat(chatId));
+  }
 }
