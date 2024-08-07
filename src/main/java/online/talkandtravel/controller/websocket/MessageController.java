@@ -18,15 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class MessageController {
 
   private final SimpMessagingTemplate messagingTemplate;
-  private final ChatService chatService;
   private final MessageService messageService;
 
   @MessageMapping("/messages")
   public void sendMessage(@Payload SendMessageRequest request) {
     log.info("create a new message {}", request);
     MessageDtoBasic message = messageService.saveMessage(request);
-    ChatDto chatDto = chatService.findChatById(request.chatId());
 
-    messagingTemplate.convertAndSend("/countries/" + chatDto.id() + "/messages", message);
+    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
   }
 }
