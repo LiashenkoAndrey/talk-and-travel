@@ -1,6 +1,8 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.file;
 
-public class FileSizeExceededException extends ApiException{
+import online.talkandtravel.exception.model.ApiException;
+
+public class FileSizeExceededException extends ApiException {
 
     public FileSizeExceededException() {
     }

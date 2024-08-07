@@ -1,7 +1,7 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.exception.AuthenticationException;
-import online.talkandtravel.exception.RegistrationException;
+import online.talkandtravel.exception.auth.AuthenticationException;
+import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepo;
 import online.talkandtravel.service.UserService;

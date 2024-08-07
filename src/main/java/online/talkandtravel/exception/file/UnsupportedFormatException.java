@@ -1,4 +1,6 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.file;
+
+import online.talkandtravel.exception.model.ApiException;
 
 public class UnsupportedFormatException extends ApiException {
 

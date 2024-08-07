@@ -28,22 +28,6 @@ public class CountryServiceImpl implements CountryService {
     return countryRepository.findAll().stream().map(countryMapper::toCountryInfoDto).toList();
   }
 
-  @Override
-  public void createInitialChats(){
-    List<Country> allCountries = countryRepository.findAll();
-        allCountries.forEach(
-            country -> {
-              Chat chat =
-                  Chat.builder()
-                      .name(country.getName())
-                      .chatType(ChatType.GROUP)
-                      .description(country.getName() + " main chat")
-                      .build();
-              country.getChats().add(chat);
-            });
-    countryRepository.saveAll(allCountries);
-  }
-
 }
   /*  private final CountryRepository repository;
   private final UserService userService;

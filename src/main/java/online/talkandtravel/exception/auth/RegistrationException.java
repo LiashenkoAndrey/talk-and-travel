@@ -1,4 +1,6 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.auth;
+
+import online.talkandtravel.exception.model.ApiException;
 
 public class RegistrationException extends ApiException {
 

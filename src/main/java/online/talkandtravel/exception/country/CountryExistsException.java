@@ -1,5 +1,6 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.country;
 
+import online.talkandtravel.exception.model.ApiException;
 import org.springframework.http.HttpStatus;
 
 public class CountryExistsException extends ApiException {

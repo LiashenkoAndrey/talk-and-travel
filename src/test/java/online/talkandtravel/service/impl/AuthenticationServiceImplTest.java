@@ -1,6 +1,6 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.exception.RegistrationException;
+import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;

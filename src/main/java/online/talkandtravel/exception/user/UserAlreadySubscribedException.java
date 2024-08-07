@@ -1,8 +1,9 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.user;
 
+import online.talkandtravel.exception.model.ApiException;
 import org.springframework.http.HttpStatus;
 
-public class UserAlreadySubscribedException extends ApiException{
+public class UserAlreadySubscribedException extends ApiException {
     public UserAlreadySubscribedException() {
     }
 

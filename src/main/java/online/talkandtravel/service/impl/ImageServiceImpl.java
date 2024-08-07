@@ -1,6 +1,6 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.exception.ImageWriteException;
+import online.talkandtravel.exception.file.ImageWriteException;
 import online.talkandtravel.service.ImageService;
 import java.awt.Graphics2D;
 import java.awt.Color;

@@ -1,6 +1,8 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.file;
 
-public class ImageWriteException extends ApiException{
+import online.talkandtravel.exception.model.ApiException;
+
+public class ImageWriteException extends ApiException {
 
     public ImageWriteException() {
     }

@@ -1,4 +1,4 @@
-package online.talkandtravel.exception;
+package online.talkandtravel.exception.model;
 
 import lombok.Getter;
 import lombok.Setter;
