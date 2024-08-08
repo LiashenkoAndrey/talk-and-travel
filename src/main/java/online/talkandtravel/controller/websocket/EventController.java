@@ -24,7 +24,7 @@ public class EventController {
     log.info("create a new JOIN CHAT event {}", request);
     EventDtoBasic event = eventService.joinChat(request);
 
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+    sendResponse(request, event);
   }
 
   @MessageMapping("/events.leaveChat")
@@ -32,7 +32,7 @@ public class EventController {
     log.info("create a new LEAVE CHAT event {}", request);
     EventDtoBasic event = eventService.leaveChat(request);
 
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+    sendResponse(request, event);
   }
 
   @MessageMapping("/events.startTyping")
@@ -40,7 +40,7 @@ public class EventController {
     log.info("create a new START TYPING event {}", request);
     EventDtoBasic event = eventService.startTyping(request);
 
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+    sendResponse(request, event);
   }
 
   @MessageMapping("/events.stopTyping")
@@ -48,6 +48,10 @@ public class EventController {
     log.info("create a new STOP TYPING event {}", request);
     EventDtoBasic event = eventService.stopTyping(request);
 
+    sendResponse(request, event);
+  }
+
+  private void sendResponse(EventRequest request, EventDtoBasic event) {
     messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
   }
 }
