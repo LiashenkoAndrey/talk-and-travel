@@ -33,17 +33,4 @@ public class CountryController {
     return ResponseEntity.ok(countryService.findAllCountriesByUserId(userId));
   }
 
-} /*
-
-      @Operation(
-              description = "Joins a user to a country"
-      )
-      @PostMapping("/{countryName}/join")
-      public ResponseEntity<?> joinUserToCountry(@RequestBody Long userId, @PathVariable String countryName) {
-          log.info("join country userId - {}, countryName - {}", userId, countryName);
-          countryService.joinUserToCountry(userId, countryName);
-          return ResponseEntity.ok().build();
-      }
-
-  }
-  */
+}

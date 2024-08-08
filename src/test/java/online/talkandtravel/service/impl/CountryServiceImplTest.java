@@ -38,6 +38,6 @@ class CountryServiceImplTest {}/*
 
         service.joinUserToCountry(1L, countryName);
         assertTrue(countryRepo.isUserSubscribed(countryName,1L));
-        assertThrows(UserAlreadySubscribedException.class, () -> service.joinUserToCountry(1L, countryName));
+        assertThrows(UserAlreadyJoinTheChatException.class, () -> service.joinUserToCountry(1L, countryName));
     }
 }*/

@@ -12,30 +12,4 @@ public interface CountryService {
   CountryDto findCountryByName(String countryName);
 
   List<CountryInfoDto> findAllCountriesByUserId(Long userId);
-
-  /*boolean userIsSubscribed(String countryName, Long userId);
-
-      Country createAndSave(Country country);
-
-      void joinUserToCountry(Long userId, String countryName);
-
-      Country update(Long countryId, Long userID);
-
-      Country save(Country country);
-
-      Country findById(Long countryId);
-
-      CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto);
-
-  //    Country findByName(String countryMame);
-
-
-
-      Long countUsersInCountry(Long countryId);
-
-      List<Country> findAllCountriesByUser(Long userId);
-
-      CountryWithUserDto findByIdWithParticipants(Long countryId);
-
-      void addNewParticipantToCountry(NewParticipantCountryDto dto);*/
 }

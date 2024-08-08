@@ -15,6 +15,6 @@ public class PrivacyPolicyAndUseTerms {
 
     @GetMapping("/public-terms-of-service")
     public String getPublicTerms() {
-        return "use-tems";
+        return "use-terms";
     }
 }

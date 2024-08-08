@@ -7,22 +7,23 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
+import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserChatMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
@@ -30,10 +31,11 @@ public class ChatServiceImpl implements ChatService {
   private final ChatRepository chatRepository;
   private final UserChatRepository userChatRepository;
   private final CountryRepository countryRepository;
+  private final MessageRepository messageRepository;
+  private final MessageMapper messageMapper;
   private final ChatMapper chatMapper;
   private final UserChatMapper userChatMapper;
 
-  @Transactional(readOnly = true)
   @Override
   public Page<ChatDto> findAllChats(Pageable pageable) {
     return chatRepository.findAll(pageable).map(chatMapper::toDto);
@@ -67,13 +69,14 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public ChatDto findChatById(Long chatId) {
-    return chatMapper.toDto(getChat(chatId));
+  public Page<MessageDtoBasic> findAllMessagesInChatOrdered(Long chatId, Pageable pageable) {
+    return messageRepository
+        .findAllByChatId(chatId, pageable)
+        .map(messageMapper::toMessageDtoBasic);
   }
 
   private Chat getChat(Long chatId) {
-    return chatRepository.findById(chatId)
-        .orElseThrow(() -> new ChatNotFoundException(chatId));
+    return chatRepository.findById(chatId).orElseThrow(() -> new ChatNotFoundException(chatId));
   }
 
   private Country getCountry(String countryName) {

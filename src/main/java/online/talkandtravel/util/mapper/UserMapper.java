@@ -1,31 +1,22 @@
 package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
-import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoShort;
-import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
-import online.talkandtravel.model.entity.UserChat;
+import online.talkandtravel.model.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface UserMapper {
 
-    @Mapping(target = "password", ignore = true)
-    UserDtoWithAvatarAndPassword toUserDtoWithAvatarAndPassword(User user);
+  @Mapping(target = "password", ignore = true)
+  UserDtoWithAvatarAndPassword toUserDtoWithAvatarAndPassword(User user);
 
-    UserDtoShort mapToShortDto(User user);
+  UserDtoShort mapToShortDto(User user);
 
-    @Mapping(target = "tokens", ignore = true)
-    @Mapping(target = "role", ignore = true)
-    @Mapping(target = "countries", ignore = true)
-    User mapToModel(UserDtoWithAvatarAndPassword dto);
-
-    UserDtoBasic userChatToUserDtoBasic(User user);
-
-/*    @Mapping(target = "userName", source = "user.userName")
-    @Mapping(target = "userEmail", source = "user.userEmail")
-    @Mapping(target = "about", source = "user.about")
-    UserDtoBasic userChatToUserDtoBasic(UserChat userChat);*/
+  @Mapping(target = "tokens", ignore = true)
+  @Mapping(target = "role", ignore = true)
+  @Mapping(target = "countries", ignore = true)
+  User mapToModel(UserDtoWithAvatarAndPassword dto);
 }
