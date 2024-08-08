@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import online.talkandtravel.model.dto.user.UserDtoShort;
 
 @Data
 @Builder
@@ -11,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
-    private UserDtoWithAvatarAndPassword userDto;
+    private UserDtoShort userDto;
 }

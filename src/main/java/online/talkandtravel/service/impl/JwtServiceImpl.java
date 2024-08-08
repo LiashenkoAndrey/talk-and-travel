@@ -1,6 +1,6 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.model.User;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

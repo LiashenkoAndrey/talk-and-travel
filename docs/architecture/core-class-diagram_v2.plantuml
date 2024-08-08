@@ -58,6 +58,7 @@ class Message {
   - content: String
   - creationDate: LocalDateTime
   - sender: User
+  - chat: Chat
   - repliedMessage: Message
 }
 

@@ -1,6 +1,6 @@
 package online.talkandtravel.controller.http;
 
-import online.talkandtravel.model.Avatar;
+import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import io.swagger.v3.oas.annotations.Operation;

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
 
 @Data
 @Builder
