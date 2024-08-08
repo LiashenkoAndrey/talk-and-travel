@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,15 +24,17 @@ public class Message {
 
   private String content;
 
-  @CreationTimestamp
-  private LocalDateTime creationDate;
+  @CreationTimestamp private LocalDateTime creationDate;
 
   @ManyToOne
   @JoinColumn(name = "sender_id")
   private User sender;
 
+  @OneToOne
+  @JoinColumn(name = "chat_id")
+  private Chat chat;
+
   @ManyToOne
   @JoinColumn(name = "replied_message_id")
   private Message repliedMessage;
 }
-
