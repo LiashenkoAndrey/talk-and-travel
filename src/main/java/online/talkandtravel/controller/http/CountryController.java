@@ -24,12 +24,12 @@ public class CountryController {
   }
 
   @GetMapping("/{country}")
-  public ResponseEntity<CountryDto> findCountryById(@PathVariable("country") String country){
+  public ResponseEntity<CountryDto> findCountryById(@PathVariable String country){
     return ResponseEntity.ok(countryService.findCountryByName(country));
   }
 
   @GetMapping("/user/{userId}")
-  public ResponseEntity<List<CountryInfoDto>> getAllCountriesByUserId(@PathVariable("userId") Long userId){
+  public ResponseEntity<List<CountryInfoDto>> getAllCountriesByUserId(@PathVariable Long userId){
     return ResponseEntity.ok(countryService.findAllCountriesByUserId(userId));
   }
 
