@@ -36,6 +36,26 @@ public class EventServiceImpl implements EventService {
   private final UserChatRepository userChatRepository;
   private final UserCountryRepository userCountryRepository;
 
+  @Override
+  public EventDtoBasic startTyping(EventRequest request) {
+    Chat chat = getChat(request);
+    User author = getUser(request);
+
+    Event event = Event.builder().chat(chat).user(author).eventType(EventType.START_TYPING).build();
+    event = eventRepository.save(event);
+    return eventMapper.toEventDtoBasic(event);
+  }
+
+  @Override
+  public EventDtoBasic stopTyping(EventRequest request) {
+    Chat chat = getChat(request);
+    User author = getUser(request);
+
+    Event event = Event.builder().chat(chat).user(author).eventType(EventType.STOP_TYPING).build();
+    event = eventRepository.save(event);
+    return eventMapper.toEventDtoBasic(event);
+  }
+
   @Transactional
   @Override
   public EventDtoBasic leaveChat(EventRequest request) {

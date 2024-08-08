@@ -8,4 +8,8 @@ public interface EventService {
   EventDtoBasic joinChat(EventRequest request);
 
   EventDtoBasic leaveChat(EventRequest request);
+
+  EventDtoBasic startTyping(EventRequest request);
+
+  EventDtoBasic stopTyping(EventRequest request);
 }

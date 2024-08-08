@@ -34,4 +34,20 @@ public class EventController {
 
     messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
   }
+
+  @MessageMapping("/events.startTyping")
+  public void startTyping(@Payload EventRequest request) {
+    log.info("create a new START TYPING event {}", request);
+    EventDtoBasic event = eventService.startTyping(request);
+
+    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+  }
+
+  @MessageMapping("/events.stopTyping")
+  public void stopTyping(@Payload EventRequest request) {
+    log.info("create a new STOP TYPING event {}", request);
+    EventDtoBasic event = eventService.stopTyping(request);
+
+    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+  }
 }
