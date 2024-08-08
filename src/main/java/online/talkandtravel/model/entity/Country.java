@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +37,8 @@ public class Country {
   @Column(nullable = false)
   private String flagCode;
 
+  @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "country_id")
-  private List<Chat> chats;
+  private List<Chat> chats = new ArrayList<>();
 }

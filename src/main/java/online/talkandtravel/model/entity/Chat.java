@@ -2,6 +2,7 @@ package online.talkandtravel.model.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,20 +33,23 @@ public class Chat {
   @CreationTimestamp
   private LocalDateTime creationDate;
 
+  @Builder.Default
   @ManyToMany
   @JoinTable(
       name = "user_chats",
       joinColumns = @JoinColumn(name = "chat_id"),
       inverseJoinColumns = @JoinColumn(name = "user_id")
   )
-  private List<UserChat> users;
+  private List<UserChat> users = new ArrayList<>();
 
+  @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "chat_id")
-  private List<Message> messages;
+  private List<Message> messages = new ArrayList<>();
 
+  @Builder.Default
   @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Event> events;
+  private List<Event> events = new ArrayList<>();
 
   @ManyToOne
   @JoinColumn(name = "country_id")
