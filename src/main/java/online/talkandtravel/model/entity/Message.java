@@ -30,7 +30,7 @@ public class Message {
   @JoinColumn(name = "sender_id")
   private User sender;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "chat_id")
   private Chat chat;
 

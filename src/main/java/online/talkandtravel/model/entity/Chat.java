@@ -46,5 +46,9 @@ public class Chat {
 
   @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Event> events;
+
+  @ManyToOne
+  @JoinColumn(name = "country_id")
+  private Country country;
 }
 

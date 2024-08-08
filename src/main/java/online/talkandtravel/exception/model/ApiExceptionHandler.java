@@ -16,7 +16,7 @@ import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.ImageWriteException;
 import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.exception.file.UnsupportedFormatException;
-import online.talkandtravel.exception.user.UserAlreadySubscribedException;
+import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +29,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Log4j2
 public class ApiExceptionHandler {
   @ExceptionHandler({
+      ApiException.class
+  })
+  public ResponseEntity<ApiExceptionResponse> handleApiException(ApiException e) {
+    return createResponse(e, e.getHttpStatus());
+  }
+
+  @ExceptionHandler({
     AuthenticationException.class,
     RegistrationException.class,
     NoSuchElementException.class,
@@ -36,8 +43,9 @@ public class ApiExceptionHandler {
     FileSizeExceededException.class,
     ImageWriteException.class,
     ImageProcessingException.class,
-    UserAlreadySubscribedException.class,
-      FailedToReadJsonException.class
+    UserAlreadyJoinTheChatException.class,
+      FailedToReadJsonException.class,
+      UserAlreadyJoinTheChatException.class
   })
   public ResponseEntity<ApiExceptionResponse> handleException(ApiException e) {
     return createResponse(e, HttpStatus.BAD_REQUEST);
@@ -55,7 +63,7 @@ public class ApiExceptionHandler {
 
   @ExceptionHandler({IllegalStateException.class})
   public ResponseEntity<ApiExceptionResponse> handleInternalExceptions(Exception e) {
-    log.error(e.getMessage(), e);
+    log.error(e.getMessage());
     ApiExceptionResponse apiExceptionResponse =
         new ApiExceptionResponse("internal", HttpStatus.INTERNAL_SERVER_ERROR, ZonedDateTime.now());
     return new ResponseEntity<>(apiExceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -23,9 +23,7 @@ import online.talkandtravel.util.mapper.UserChatMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
@@ -38,7 +36,6 @@ public class ChatServiceImpl implements ChatService {
   private final ChatMapper chatMapper;
   private final UserChatMapper userChatMapper;
 
-  @Transactional(readOnly = true)
   @Override
   public Page<ChatDto> findAllChats(Pageable pageable) {
     return chatRepository.findAll(pageable).map(chatMapper::toDto);

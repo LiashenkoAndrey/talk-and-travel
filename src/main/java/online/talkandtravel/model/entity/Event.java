@@ -3,15 +3,18 @@ package online.talkandtravel.model.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "events")
 public class Event {
@@ -31,6 +34,7 @@ public class Event {
   @Enumerated(EnumType.STRING)
   private EventType eventType;
 
+  @CreationTimestamp
   private LocalDateTime eventTime;
 }
 

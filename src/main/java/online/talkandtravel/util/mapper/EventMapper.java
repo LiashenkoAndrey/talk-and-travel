@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperConfig.class)
 public interface EventMapper {
 
+  @Mapping(target = "chatId", source = "chat.id")
   @Mapping(target = "authorId", source = "user.id")
   EventDtoBasic toEventDtoBasic(Event event);
 }
