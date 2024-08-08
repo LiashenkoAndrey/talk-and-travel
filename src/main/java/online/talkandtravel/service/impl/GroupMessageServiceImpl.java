@@ -13,7 +13,7 @@ public class GroupMessageServiceImpl{}/* implements GroupMessageService {
     private final UserService userService;
     private final CountryRepository countryRepo;
     private final CountryService countryService;
-    private final UserRepo userRepo;
+    private final UserRepository userRepo;
     private final AvatarRepository avatarRepository;
 
     @Override

@@ -1,36 +1,41 @@
 package online.talkandtravel.service;
 
+import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 
 import java.util.List;
 
 public interface CountryService {
 
-    List<CountryInfoDto> getAllCountriesInfo();
+  List<CountryInfoDto> getAllCountriesInfo();
 
-    /*boolean userIsSubscribed(String countryName, Long userId);
+  CountryDto findCountryByName(String countryName);
 
-    Country createAndSave(Country country);
+  List<CountryInfoDto> findAllCountriesByUserId(Long userId);
 
-    void joinUserToCountry(Long userId, String countryName);
+  /*boolean userIsSubscribed(String countryName, Long userId);
 
-    Country update(Long countryId, Long userID);
+      Country createAndSave(Country country);
 
-    Country save(Country country);
+      void joinUserToCountry(Long userId, String countryName);
 
-    Country findById(Long countryId);
+      Country update(Long countryId, Long userID);
 
-    CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto);
+      Country save(Country country);
 
-//    Country findByName(String countryMame);
+      Country findById(Long countryId);
+
+      CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto);
+
+  //    Country findByName(String countryMame);
 
 
 
-    Long countUsersInCountry(Long countryId);
+      Long countUsersInCountry(Long countryId);
 
-    List<Country> findAllCountriesByUser(Long userId);
+      List<Country> findAllCountriesByUser(Long userId);
 
-    CountryWithUserDto findByIdWithParticipants(Long countryId);
+      CountryWithUserDto findByIdWithParticipants(Long countryId);
 
-    void addNewParticipantToCountry(NewParticipantCountryDto dto);*/
+      void addNewParticipantToCountry(NewParticipantCountryDto dto);*/
 }

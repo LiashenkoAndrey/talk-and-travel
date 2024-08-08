@@ -3,11 +3,13 @@ package online.talkandtravel.service.impl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
+import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.mapper.CountryMapper;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CountryServiceImpl implements CountryService {
 
   private final CountryRepository countryRepository;
+  private final UserCountryRepository userCountryRepository;
   private final CountryMapper countryMapper;
 
   @Transactional(readOnly = true)
@@ -28,26 +31,26 @@ public class CountryServiceImpl implements CountryService {
     return countryRepository.findAll().stream().map(countryMapper::toCountryInfoDto).toList();
   }
 
+  @Override
+  public CountryDto findCountryByName(String countryName) {
+    Country country = getCountry(countryName);
+    return countryMapper.toCountryDto(country);
+  }
+
+  @Override
+  public List<CountryInfoDto> findAllCountriesByUserId(Long userId) {
+    List<UserCountry> userCountries = userCountryRepository.findByUserId(userId);
+
+    return userCountries.stream().map(countryMapper::toCountryInfoDto).toList();
+  }
+
+  private Country getCountry(String countryName) {
+    return countryRepository
+        .findById(countryName)
+        .orElseThrow(() -> new CountryNotFoundException(countryName));
+  }
 }
-  /*  private final CountryRepository repository;
-  private final UserService userService;
-  private final ParticipantService participantService;
-  private final UserRepo userRepo;
-  private final ParticipantRepository participantRepository;
-
-  @Override
-  public Country save(Country country) {
-      log.info("save country... {}", country);
-      return repository.save(country);
-  }
-
-  @Override
-  public Country findById(Long countryId) {
-      return repository.findByIdCustom(countryId).orElseThrow(
-              () -> new NoSuchElementException("Can not find Country by id " + countryId)
-      );
-  }
-
+  /*
   @Override
   public CountryDtoWithParticipantsAmountAndMessages findByNameAndCreateIfNotExist(String name, OpenCountryRequestDto requestDto) {
       if (repository.existsByName(name)) {
