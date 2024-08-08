@@ -19,7 +19,7 @@ public class EventController {
   private final EventService eventService;
   private final SimpMessagingTemplate messagingTemplate;
 
-  @MessageMapping("/events")
+  @MessageMapping("/events.joinChat")
   public void joinChat(@Payload JoinChatRequest request) {
     log.info("create a new JOIN CHAT event {}", request);
     EventDtoBasic event = eventService.joinChat(request);
