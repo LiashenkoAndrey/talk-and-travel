@@ -1,7 +1,9 @@
 package online.talkandtravel.service.impl;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
+import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
@@ -9,8 +11,10 @@ import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
+import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.MessageService;
 import online.talkandtravel.util.mapper.MessageMapper;
@@ -39,10 +43,13 @@ public class MessageServiceImpl implements MessageService {
   private final MessageRepository messageRepository;
   private final ChatRepository chatRepository;
   private final UserRepository userRepository;
+  private final UserChatRepository userChatRepository;
   private final MessageMapper messageMapper;
 
   @Override
   public MessageDtoBasic saveMessage(SendMessageRequest request) {
+    checkUserJoinedTheChat(request);
+
     Chat chat = getChat(request);
 
     Message repliedMessage = getMessage(request);
@@ -60,6 +67,14 @@ public class MessageServiceImpl implements MessageService {
     // Retrieve the last added message from the saved chat
     message = chat.getMessages().get(chat.getMessages().size() - 1);
     return messageMapper.toMessageDtoBasic(message);
+  }
+
+  private void checkUserJoinedTheChat(SendMessageRequest request) {
+    Optional<UserChat> optionalUserChat = userChatRepository.findByChatIdAndUserId(request.chatId(),
+        request.senderId());
+    if(optionalUserChat.isEmpty()){
+      throw new UserNotJoinedTheChatException(request.senderId(), request.chatId());
+    }
   }
 
   private Chat getChat(SendMessageRequest request) {

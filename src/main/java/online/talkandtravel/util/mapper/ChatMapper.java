@@ -34,10 +34,10 @@ import org.mapstruct.Mapping;
     config = MapperConfig.class,
     uses = {UserMapper.class, EventMapper.class, MessageMapper.class, UserChatMapper.class})
 public interface ChatMapper {
-
+  @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
   ChatDto toDto(Chat chat);
 
-  @Mapping(target = "users", source = "chat.users")
+  @Mapping(target = "usersCount", expression = "java((long) userChat.getChat().getUsers().size())")
   @Mapping(target = "name", source = "chat.name")
   @Mapping(target = "messages", source = "chat.messages")
   @Mapping(target = "events", source = "chat.events")
