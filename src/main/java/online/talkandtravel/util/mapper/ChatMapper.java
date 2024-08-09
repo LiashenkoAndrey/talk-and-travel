@@ -7,6 +7,29 @@ import online.talkandtravel.model.entity.UserChat;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper interface for converting between {@link Chat} entities and {@link ChatDto} data transfer
+ * objects.
+ *
+ * <p>This interface uses MapStruct to define mapping methods that convert {@link Chat} and {@link
+ * UserChat} entities to their corresponding DTO representations. It also handles the mapping of
+ * nested objects such as users, messages, events, and other related fields.
+ *
+ * <p>Key methods include:
+ *
+ * <ul>
+ *   <li>{@link #toDto(Chat)} - Converts a {@link Chat} entity to a {@link ChatDto}. This method
+ *       maps the properties of the {@link Chat} entity to the DTO, including nested collections
+ *       like users and messages.
+ *   <li>{@link #toDto(UserChat)} - Converts a {@link UserChat} entity to a {@link ChatDto}. This
+ *       method handles the mapping of properties from {@link UserChat} to {@link ChatDto},
+ *       including fields such as name, description, and creation date.
+ * </ul>
+ *
+ * <p>This mapper relies on other mappers for converting nested objects, such as {@link UserMapper},
+ * {@link EventMapper}, {@link MessageMapper}, and {@link UserChatMapper}. It is configured with
+ * {@link MapperConfig} to apply global mapping settings.
+ */
 @Mapper(
     config = MapperConfig.class,
     uses = {UserMapper.class, EventMapper.class, MessageMapper.class, UserChatMapper.class})

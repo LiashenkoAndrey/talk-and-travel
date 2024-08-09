@@ -9,7 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-
+/**
+ * Entity class representing an event within a chat application.
+ *
+ * <p>Each event is associated with a user and a chat, and it records the type of event and its
+ * timestamp.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -34,7 +39,5 @@ public class Event {
   @Enumerated(EnumType.STRING)
   private EventType eventType;
 
-  @CreationTimestamp
-  private LocalDateTime eventTime;
+  @CreationTimestamp private LocalDateTime eventTime;
 }
-

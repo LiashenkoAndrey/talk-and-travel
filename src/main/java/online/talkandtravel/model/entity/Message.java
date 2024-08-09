@@ -9,6 +9,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+/**
+ * Entity representing a message in a chat.
+ *
+ * <ul>
+ *   <li>{@code id} - The unique identifier for the message.
+ *   <li>{@code content} - The text content of the message.
+ *   <li>{@code creationDate} - The timestamp when the message was created.
+ *   <li>{@code sender} - The user who sent the message.
+ *   <li>{@code chat} - The chat in which the message was sent.
+ *   <li>{@code repliedMessage} - The message that this message is replying to, if any.
+ * </ul>
+ */
 @Getter
 @Setter
 @AllArgsConstructor

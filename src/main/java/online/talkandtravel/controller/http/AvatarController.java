@@ -15,6 +15,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
+/**
+ * Controller class responsible for handling HTTP requests related to user avatars.
+ *
+ * <ul>
+ *   <li>{@code getByUserId} - Retrieves the avatar for a user identified by their user ID, returning the avatar content as a byte array.</li>
+ *   <li>{@code uploadImage} - Handles the upload of a new avatar image for a user, updating the existing avatar or creating a new one.</li>
+ * </ul>
+ */
+
 
 
 @RestController

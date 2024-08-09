@@ -21,6 +21,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity class representing a user in the application.
+ *
+ * <p>This class contains information about the user, including:
+ *
+ * <ul>
+ *   <li>{@code id} - Unique identifier for the user.
+ *   <li>{@code userName} - The username of the user (must be between 2 and 16 characters).
+ *   <li>{@code userEmail} - The email address of the user (cannot be null).
+ *   <li>{@code password} - The user's password (cannot be null).
+ *   <li>{@code role} - The role of the user, which determines their access level (e.g., ADMIN,
+ *       USER).
+ *   <li>{@code tokens} - List of tokens associated with the user (e.g., for authentication).
+ *   <li>{@code avatar} - The avatar associated with the user (optional, lazily loaded).
+ *   <li>{@code about} - A brief description about the user (must be between 10 and 500 characters).
+ *   <li>{@code countries} - List of countries associated with the user.
+ * </ul>
+ */
 @Entity
 @Data
 @Builder

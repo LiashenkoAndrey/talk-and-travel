@@ -8,6 +8,33 @@ import online.talkandtravel.model.entity.UserCountry;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper interface for converting between {@link Country} entities and {@link CountryDto} and
+ * {@link CountryInfoDto} data transfer objects.
+ *
+ * <p>This interface uses MapStruct to define methods that map properties between {@link Country}
+ * and {@link UserCountry} entities and their corresponding DTO representations. It handles the
+ * conversion of basic country information as well as information related to user countries.
+ *
+ * <p>Key methods include:
+ *
+ * <ul>
+ *   <li>{@link #toCountryInfoDto(Country)} - Converts a {@link Country} entity to a {@link
+ *       CountryInfoDto}. This method maps the basic properties of the {@link Country} entity to the
+ *       DTO.
+ *   <li>{@link #toCountryInfoDto(UserCountry)} - Converts a {@link UserCountry} entity to a {@link
+ *       CountryInfoDto}. This method handles the mapping of properties specific to the user
+ *       context, such as the country name and flag code.
+ *   <li>{@link #toCountryDto(Country)} - Converts a {@link Country} entity to a {@link CountryDto}.
+ *       This method maps the properties of the {@link Country} entity to the DTO, potentially
+ *       including additional information.
+ * </ul>
+ *
+ * <p>This mapper relies on other mappers for converting nested objects or related data, such as
+ * {@link ChatMapper}, {@link UserMapper}, {@link EventMapper}, {@link MessageMapper}, and {@link
+ * UserChatMapper}. It is configured with {@link MapperConfig} to apply global mapping settings.
+ *
+ */
 @Mapper(
     config = MapperConfig.class,
     uses = {

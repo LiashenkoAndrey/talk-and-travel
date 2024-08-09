@@ -13,6 +13,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+/**
+ * Controller class responsible for handling HTTP requests related to user authentication.
+ * This includes user registration and login operations.
+ *
+ * <ul>
+ *   <li>{@code register} - Handles user registration by mapping the DTO to a user model and delegating the registration process to the authentication service.</li>
+ *   <li>{@code login} - Authenticates a user based on their email and password, returning an authentication response upon success.</li>
+ * </ul>
+ */
+
 
 @RestController
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/authentication")
