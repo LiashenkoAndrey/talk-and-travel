@@ -66,6 +66,7 @@ public class MessageServiceImpl implements MessageService {
     chat = chatRepository.save(chat);
     // Retrieve the last added message from the saved chat
     message = chat.getMessages().get(chat.getMessages().size() - 1);
+    message.setChat(chat);
     return messageMapper.toMessageDtoBasic(message);
   }
 
