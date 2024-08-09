@@ -53,7 +53,7 @@ public class CountryServiceImpl implements CountryService {
   public List<CountryInfoDto> findAllCountriesByUserId(Long userId) {
     List<UserCountry> userCountries = userCountryRepository.findByUserId(userId);
 
-    return userCountries.stream().map(countryMapper::toCountryInfoDto).toList();
+    return userCountries.stream().map(countryMapper::userCountryToCountryInfoDto).toList();
   }
 
   private Country getCountry(String countryName) {
