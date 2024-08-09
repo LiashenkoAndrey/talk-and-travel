@@ -21,7 +21,7 @@ import org.mapstruct.Mapping;
  *   <li>{@link #toDto(Chat)} - Converts a {@link Chat} entity to a {@link ChatDto}. This method
  *       maps the properties of the {@link Chat} entity to the DTO, including nested collections
  *       like users and messages.
- *   <li>{@link #toDto(UserChat)} - Converts a {@link UserChat} entity to a {@link ChatDto}. This
+ *   <li>{@link #userChatToDto(UserChat)} - Converts a {@link UserChat} entity to a {@link ChatDto}. This
  *       method handles the mapping of properties from {@link UserChat} to {@link ChatDto},
  *       including fields such as name, description, and creation date.
  * </ul>
@@ -34,6 +34,7 @@ import org.mapstruct.Mapping;
     config = MapperConfig.class,
     uses = {UserMapper.class, EventMapper.class, MessageMapper.class, UserChatMapper.class})
 public interface ChatMapper {
+
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
   ChatDto toDto(Chat chat);
 
@@ -44,5 +45,5 @@ public interface ChatMapper {
   @Mapping(target = "description", source = "chat.description")
   @Mapping(target = "creationDate", source = "chat.creationDate")
   @Mapping(target = "chatType", source = "chat.chatType")
-  ChatDto toDto(UserChat userChat);
+  ChatDto userChatToDto(UserChat userChat);
 }

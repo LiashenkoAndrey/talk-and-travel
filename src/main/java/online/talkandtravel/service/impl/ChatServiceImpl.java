@@ -79,7 +79,7 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public List<ChatDto> findUserChats(Long userId) {
     List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
-    return userChats.stream().map(chatMapper::toDto).toList();
+    return userChats.stream().map(chatMapper::userChatToDto).toList();
   }
 
   @Override
