@@ -17,6 +17,20 @@ import online.talkandtravel.util.mapper.MessageMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of the {@link MessageService} for handling message operations within chats.
+ *
+ * <p>This service provides methods for saving messages to a chat and retrieving required entities
+ * such as the chat, user, and optionally a replied message.
+ *
+ * <p>The service includes the following functionalities:
+ *
+ * <ul>
+ *   <li>{@link #saveMessage(SendMessageRequest)} - Saves a new message to a specified chat. It
+ *       handles adding the message to the chat, associating it with a user, and linking it to a
+ *       replied message if provided.
+ * </ul>
+ */
 @Transactional
 @Service
 @RequiredArgsConstructor

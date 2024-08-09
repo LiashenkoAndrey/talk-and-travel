@@ -1,25 +1,16 @@
 package online.talkandtravel.exception.file;
 
 import online.talkandtravel.exception.model.ApiException;
-
+import org.springframework.http.HttpStatus;
+/**
+ * Exception thrown when an image cannot be processed due to semantic issues or unsupported content.
+ */
 public class ImageWriteException extends ApiException {
 
-    public ImageWriteException() {
-    }
+    private static final HttpStatus STATUS = HttpStatus.UNPROCESSABLE_ENTITY;
 
     public ImageWriteException(String message) {
-        super(message);
+        super(message, STATUS);
     }
 
-    public ImageWriteException(String message, String messageToClient) {
-        super(message, messageToClient);
-    }
-
-    public ImageWriteException(String message, boolean hideMessageFromClient) {
-        super(message, hideMessageFromClient);
-    }
-
-    public ImageWriteException(Throwable cause) {
-        super(cause);
-    }
 }

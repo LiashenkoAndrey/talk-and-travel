@@ -14,6 +14,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity class representing an authentication or authorization token.
+ *
+ * <p>This class stores information about tokens, including their type, whether they are expired or
+ * revoked, and the associated user.
+ */
 @Entity
 @Data
 @Builder

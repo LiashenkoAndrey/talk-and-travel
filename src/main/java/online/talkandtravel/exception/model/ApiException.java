@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
 public class ApiException extends RuntimeException {
     private ZonedDateTime zonedDateTime;
     private String messageToClient;
-    private HttpStatus httpStatus;
+    private HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 
     public ApiException() {
         this.zonedDateTime = ZonedDateTime.now();
@@ -27,6 +27,13 @@ public class ApiException extends RuntimeException {
         super(message);
         this.zonedDateTime = ZonedDateTime.now();
         this.messageToClient = message;
+    }
+
+    public ApiException(String message, HttpStatus httpStatus) {
+        super(message);
+        this.zonedDateTime = ZonedDateTime.now();
+        this.messageToClient = message;
+        this.httpStatus = httpStatus;
     }
     public ApiException(String message, String messageToClient, HttpStatus httpStatus) {
         super(message);

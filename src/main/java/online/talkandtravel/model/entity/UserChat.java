@@ -7,7 +7,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+/**
+ * Entity class representing the relationship between a user and a chat.
+ *
+ * <p>This class is used to manage the association of a user with a chat, including:
+ *
+ * <ul>
+ *   <li>{@code id} - Unique identifier for the user-chat relationship.
+ *   <li>{@code user} - The user associated with the chat.
+ *   <li>{@code chat} - The chat associated with the user.
+ *   <li>{@code userCountry} - The user's country, if applicable.
+ *   <li>{@code lastReadMessageId} - The ID of the last message read by the user in the chat.
+ * </ul>
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -29,10 +41,7 @@ public class UserChat {
   @JoinColumn(name = "chat_id")
   private Chat chat;
 
-  @ManyToOne
-  private UserCountry userCountry;
+  @ManyToOne private UserCountry userCountry;
 
   private Long lastReadMessageId;
-
 }
-

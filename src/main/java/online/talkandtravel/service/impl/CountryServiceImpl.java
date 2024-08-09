@@ -14,6 +14,21 @@ import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.mapper.CountryMapper;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of the {@link CountryService} for managing country-related operations.
+ *
+ * <p>This service provides methods to interact with country data, including:
+ *
+ * <ul>
+ *   <li>{@link #getAllCountriesInfo()} - Retrieves information about all countries.
+ *   <li>{@link #findCountryByName(String)} - Finds a country by its name and returns its detailed
+ *       information.
+ *   <li>{@link #findAllCountriesByUserId(Long)} - Retrieves a list of country information for a
+ *       specific user based on their associated countries.
+ *   <li>{@link #getCountry(String)} - Retrieves a country entity by its name, or throws a {@link
+ *       CountryNotFoundException} if not found.
+ * </ul>
+ */
 @Service
 @Log4j2
 @RequiredArgsConstructor

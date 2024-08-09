@@ -13,6 +13,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity representing user avatars. This entity maps to the `avatars` table and includes the
+ * following fields:
+ *
+ * <ul>
+ *   <li>{@code id} - Unique identifier for the avatar, auto-generated.
+ *   <li>{@code user} - The user associated with this avatar, mapped via a one-to-one relationship.
+ *   <li>{@code content} - The binary data representing the avatar image.
+ * </ul>
+ */
 @Entity
 @Data
 @Builder

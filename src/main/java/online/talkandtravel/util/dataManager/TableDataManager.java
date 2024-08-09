@@ -21,7 +21,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Selects data from any json file and inserts it in a countries table */
+/**
+ * Manages data population and initialization for countries, chats, and admin users.
+ *
+ * <p>This component handles reading data from JSON files, populating country data into the
+ * database, creating initial chat entries based on the countries, and adding an admin user if not
+ * already present. The class ensures that data is only populated when necessary, avoiding duplicate
+ * entries.
+ *
+ * <p>Key functionalities include:
+ *
+ * <ul>
+ *   <li>Reading and parsing JSON files containing country data.
+ *   <li>Saving country data into the database if the country table is empty.
+ *   <li>Creating initial chat entries if the chat table is empty.
+ *   <li>Adding an admin user if one does not already exist.
+ * </ul>
+ */
 @Component
 @Log4j2
 @RequiredArgsConstructor

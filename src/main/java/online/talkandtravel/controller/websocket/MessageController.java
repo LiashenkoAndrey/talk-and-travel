@@ -10,6 +10,14 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class responsible for handling WebSocket messages related to chat functionalities.
+ *
+ * <ul>
+ *   <li>{@code sendMessage} - Processes a request to send a message in a chat, saves the message, and broadcasts it to relevant subscribers.</li>
+ * </ul>
+ */
+
 @RestController
 @RequiredArgsConstructor
 @Log4j2

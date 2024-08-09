@@ -24,6 +24,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of the {@link ChatService} for managing chat operations.
+ *
+ * <p>This service handles various operations related to chats, including:
+ *
+ * <ul>
+ *   <li>{@link #findAllChats(Pageable)} - Retrieves all chats with pagination.
+ *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
+ *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specified chat.
+ *   <li>{@link #findUserChats(Long)} - Retrieves a list of chats associated with a specific user.
+ *   <li>{@link #findAllUsersByChatId(Long)} - Retrieves a list of basic user details for all users
+ *       in a specified chat.
+ *   <li>{@link #findAllMessagesInChatOrdered(Long, Pageable)} - Retrieves all messages in a
+ *       specified chat, ordered and paginated.
+ *   <li>{@link #getChat(Long)} - Retrieves a chat entity by its ID, or throws an exception if not
+ *       found.
+ *   <li>{@link #getCountry(String)} - Retrieves a country entity by its name, or throws an
+ *       exception if not found.
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {

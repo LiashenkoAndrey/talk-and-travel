@@ -17,6 +17,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class responsible for handling HTTP requests related to chat functionalities.
+ *
+ * <ul>
+ *   <li>{@code findAllChats} - Retrieves a paginated list of all available chats.</li>
+ *   <li>{@code findMainChat} - Finds and returns the main chat for a specific country.</li>
+ *   <li>{@code findUserCount} - Returns the number of users in a specific chat, identified by its ID.</li>
+ *   <li>{@code findUserChats} - Retrieves a list of chats associated with a specific user, identified by their user ID.</li>
+ *   <li>{@code findUsersByChatId} - Provides a list of users participating in a specific chat, identified by its ID.</li>
+ *   <li>{@code getChatMessagesOrderedByDate} - Retrieves paginated messages from a specific chat, ordered by date.</li>
+ * </ul>
+ */
+
 @RestController
 @RequestMapping(ApiPathConstants.API_BASE_PATH + "/chats")
 @RequiredArgsConstructor
@@ -53,6 +66,6 @@ public class ChatController {
   @GetMapping("/{chatId}/messages")
   public ResponseEntity<Page<MessageDtoBasic>> getChatMessagesOrderedByDate(
       @PathVariable("chatId") Long chatId, @PageableDefault Pageable pageable) {
-    return ResponseEntity.ok( chatService.findAllMessagesInChatOrdered(chatId, pageable));
+    return ResponseEntity.ok(chatService.findAllMessagesInChatOrdered(chatId, pageable));
   }
 }

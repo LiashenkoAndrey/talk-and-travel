@@ -26,6 +26,35 @@ import online.talkandtravel.util.mapper.EventMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of the {@link EventService} for managing chat-related events.
+ *
+ * <p>This service provides methods for handling various events in a chat, including:
+ *
+ * <ul>
+ *   <li>{@link #startTyping(EventRequest)} - Logs an event when a user starts typing in a chat.
+ *   <li>{@link #stopTyping(EventRequest)} - Logs an event when a user stops typing in a chat.
+ *   <li>{@link #leaveChat(EventRequest)} - Manages the user's departure from a chat and records the
+ *       event.
+ *   <li>{@link #joinChat(EventRequest)} - Handles the user's entry into a chat and records the
+ *       event.
+ * </ul>
+ *
+ * <p>The service also includes internal methods to manage user-chat and user-country relationships:
+ *
+ * <ul>
+ *   <li>{@link #removeConnections(EventRequest, Chat, User)} - Removes user connections and updates
+ *       records when a user leaves a chat.
+ *   <li>{@link #saveConnections(Chat, User)} - Creates and saves connections between a user and a
+ *       chat, and updates user-country relationships.
+ *   <li>{@link #checkUserAlreadyJoinedChat(EventRequest)} - Checks if a user is already part of the
+ *       chat to prevent duplicate entries.
+ *   <li>{@link #getUser(EventRequest)} - Retrieves a user entity by ID, or throws a {@link
+ *       UserNotFoundException} if not found.
+ *   <li>{@link #getChat(EventRequest)} - Retrieves a chat entity by ID, or throws a {@link
+ *       ChatNotFoundException} if not found.
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
