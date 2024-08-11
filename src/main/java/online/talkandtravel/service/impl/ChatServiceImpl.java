@@ -7,6 +7,7 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
@@ -19,7 +20,7 @@ import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
-import online.talkandtravel.util.mapper.UserChatMapper;
+import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,11 +55,11 @@ public class ChatServiceImpl implements ChatService {
   private final MessageRepository messageRepository;
   private final MessageMapper messageMapper;
   private final ChatMapper chatMapper;
-  private final UserChatMapper userChatMapper;
+  private final UserMapper userMapper;
 
   @Override
-  public Page<ChatDto> findAllChats(Pageable pageable) {
-    return chatRepository.findAll(pageable).map(chatMapper::toDto);
+  public Page<ChatInfoDto> findAllChats(Pageable pageable) {
+    return chatRepository.findAll(pageable).map(chatMapper::toInfoDto);
   }
 
   @Override
@@ -77,15 +78,15 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<ChatDto> findUserChats(Long userId) {
+  public List<ChatInfoDto> findUserChats(Long userId) {
     List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
-    return userChats.stream().map(chatMapper::userChatToDto).toList();
+    return userChats.stream().map(chatMapper::userChatToInfoDto).toList();
   }
 
   @Override
   public List<UserDtoBasic> findAllUsersByChatId(Long chatId) {
     Chat chat = getChat(chatId);
-    return chat.getUsers().stream().map(userChatMapper::toUserDtoBasic).toList();
+    return chat.getUsers().stream().map(userMapper::toUserDtoBasic).toList();
   }
 
   @Override

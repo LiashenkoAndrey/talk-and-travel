@@ -8,18 +8,20 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.List;
-import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
+import java.util.Optional;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
+import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
@@ -27,9 +29,9 @@ import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
-import online.talkandtravel.util.mapper.UserChatMapper;
-import org.junit.jupiter.api.Test;
+import online.talkandtravel.util.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -48,14 +50,15 @@ class ChatServiceImplTest {
   @Mock private MessageRepository messageRepository;
   @Mock private MessageMapper messageMapper;
   @Mock private ChatMapper chatMapper;
-  @Mock private UserChatMapper userChatMapper;
+  @Mock private UserMapper userMapper;
 
   @InjectMocks ChatServiceImpl underTest;
 
   private Country country;
   private Chat chat;
   private UserChat userChat;
-  private ChatDto chatDto;
+  private User user;
+  private ChatInfoDto chatInfoDto;
   private UserDtoBasic userDtoBasic;
   private Message message;
   private MessageDtoBasic messageDtoBasic;
@@ -69,17 +72,18 @@ class ChatServiceImplTest {
 
     userChat = new UserChat();
     userChat.setChat(chat);
+    user = new User();
 
-    chatDto =
-        new ChatDto(
+    chatInfoDto =
+        new ChatInfoDto(
             1L,
             "TestCountry",
             "Test Chat Description",
             ChatType.GROUP,
             LocalDateTime.now(),
             10L,
-            Collections.emptyList(),
-            Collections.emptyList());
+            0L,
+            0L);
 
     country = new Country();
     country.setName("TestCountry");
@@ -144,7 +148,7 @@ class ChatServiceImplTest {
     Long userId = 1L;
     when(userChatRepository.findAllByUserId(userId)).thenReturn(List.of());
 
-    List<ChatDto> result = underTest.findUserChats(userId);
+    List<ChatInfoDto> result = underTest.findUserChats(userId);
 
     assertTrue(result.isEmpty());
     verify(userChatRepository, times(1)).findAllByUserId(userId);
@@ -156,14 +160,14 @@ class ChatServiceImplTest {
     Long userId = 1L;
 
     when(userChatRepository.findAllByUserId(userId)).thenReturn(List.of(userChat));
-    when(chatMapper.userChatToDto(userChat)).thenReturn(chatDto);
+    when(chatMapper.userChatToInfoDto(userChat)).thenReturn(chatInfoDto);
 
-    List<ChatDto> result = underTest.findUserChats(userId);
+    List<ChatInfoDto> result = underTest.findUserChats(userId);
 
     assertEquals(1, result.size());
-    assertEquals(chatDto, result.get(0));
+    assertEquals(chatInfoDto, result.get(0));
     verify(userChatRepository, times(1)).findAllByUserId(userId);
-    verify(chatMapper, times(1)).userChatToDto(userChat);
+    verify(chatMapper, times(1)).userChatToInfoDto(userChat);
   }
 
   @Test
@@ -190,16 +194,16 @@ class ChatServiceImplTest {
   @Test
   void findAllUsersByChatId_shouldReturnUserList_whenUsersFound() {
     Long chatId = 1L;
-    chat.setUsers(List.of(userChat));
+    chat.setUsers(List.of(user));
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
-    when(userChatMapper.toUserDtoBasic(userChat)).thenReturn(userDtoBasic);
+    when(userMapper.toUserDtoBasic(user)).thenReturn(userDtoBasic);
 
     List<UserDtoBasic> result = underTest.findAllUsersByChatId(chatId);
 
     assertEquals(1, result.size());
     assertEquals(userDtoBasic, result.get(0));
     verify(chatRepository, times(1)).findById(chatId);
-    verify(userChatMapper, times(1)).toUserDtoBasic(userChat);
+    verify(userMapper, times(1)).toUserDtoBasic(user);
   }
 
   @Test
