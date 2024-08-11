@@ -2,6 +2,7 @@ package online.talkandtravel.model.dto.chat;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.entity.ChatType;
@@ -24,6 +25,7 @@ public record ChatDto(
     Long id,
     String name,
     String description,
+    CountryInfoDto country,
     ChatType chatType,
     LocalDateTime creationDate,
     Long usersCount,

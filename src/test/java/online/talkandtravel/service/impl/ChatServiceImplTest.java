@@ -15,6 +15,7 @@ import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
@@ -127,6 +128,7 @@ class ChatServiceImplTest {
             1L,
             "TestCountry",
             "Description of TestCountry",
+            new CountryInfoDto(countryName, "tc"),
             ChatType.GROUP,
             LocalDateTime.now(),
             100L,

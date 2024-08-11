@@ -33,7 +33,12 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
     config = MapperConfig.class,
-    uses = {UserMapper.class, EventMapper.class, MessageMapper.class, UserChatMapper.class})
+    uses = {
+      UserMapper.class,
+      EventMapper.class,
+      MessageMapper.class,
+      UserChatMapper.class
+    })
 public interface ChatMapper {
 
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
