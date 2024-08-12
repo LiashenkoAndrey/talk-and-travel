@@ -1,6 +1,7 @@
 package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
+import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.UserChat;
 import org.mapstruct.Mapper;
@@ -19,7 +20,7 @@ import org.mapstruct.Mapping;
  * <ul>
  *   <li>{@link #toUserDtoBasic(UserChat)} - Converts a {@link UserChat} entity to a {@link
  *       UserDtoBasic}. This method maps user-related properties such as userName, userEmail, and
- *       about from the associated {@link User} entity within {@link UserChat} to the DTO.
+ *       about from the associated {@link UserDtoBasic} entity within {@link UserChat} to the DTO.
  * </ul>
  *
  * <p>This mapper relies on {@link MapperConfig} to apply global mapping settings.
@@ -31,4 +32,8 @@ public interface UserChatMapper {
   @Mapping(target = "userEmail", source = "user.userEmail")
   @Mapping(target = "about", source = "user.about")
   UserDtoBasic toUserDtoBasic(UserChat userChat);
+
+  @Mapping(target = "companion", source = "user")
+  PrivateChatDto toPrivateChatDto(UserChat userChat);
+
 }

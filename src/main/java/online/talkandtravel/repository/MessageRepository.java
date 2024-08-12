@@ -20,4 +20,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
   Page<Message> findAllByChatId(Long chatId, Pageable pageable);
+
 }
