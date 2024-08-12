@@ -3,6 +3,7 @@ package online.talkandtravel.service;
 import java.util.List;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,9 @@ import org.springframework.data.domain.Pageable;
  * </ul>
  */
 public interface ChatService {
+
+
+  Long createPrivateChat(NewPrivateChatDto dto);
 
   Page<ChatInfoDto> findAllChats(Pageable pageable);
 

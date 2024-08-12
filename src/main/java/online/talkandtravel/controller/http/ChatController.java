@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.service.ChatService;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +43,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
   private final ChatService chatService;
+
+  /**
+   * creates a private chat between two users
+   * @return chat id
+   */
+  @PostMapping("/private")
+  public Long createPrivateChat(@RequestBody NewPrivateChatDto dto) {
+    return chatService.createPrivateChat(dto);
+  }
 
   @GetMapping
   public Page<ChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {

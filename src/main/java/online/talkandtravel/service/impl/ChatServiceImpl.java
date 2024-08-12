@@ -8,15 +8,18 @@ import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
@@ -56,6 +59,31 @@ public class ChatServiceImpl implements ChatService {
   private final MessageMapper messageMapper;
   private final ChatMapper chatMapper;
   private final UserMapper userMapper;
+  private final UserRepository userRepository;
+
+
+  /**
+   * creates private chat between two users
+   * @param dto dto
+   * @return chat id
+   */
+  @Override
+  public Long createPrivateChat(NewPrivateChatDto dto) {
+    Chat privateChat = chatRepository.save(Chat.builder()
+        .chatType(ChatType.PRIVATE)
+        .build());
+
+    saveUserChat(privateChat, dto.userId());
+    saveUserChat(privateChat, dto.companionId());
+    return privateChat.getId();
+  }
+
+  private void saveUserChat(Chat chat, Long userId) {
+    userChatRepository.save(UserChat.builder()
+        .chat(chat)
+        .user(userRepository.getReferenceById(userId))
+        .build());
+  }
 
   @Override
   public Page<ChatInfoDto> findAllChats(Pageable pageable) {
