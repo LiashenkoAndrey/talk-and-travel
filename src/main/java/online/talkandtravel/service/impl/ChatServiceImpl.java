@@ -11,9 +11,11 @@ import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageDtoRequest;
+import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
@@ -23,6 +25,7 @@ import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
+import online.talkandtravel.util.mapper.UserChatMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +63,16 @@ public class ChatServiceImpl implements ChatService {
   private final MessageMapper messageMapper;
   private final ChatMapper chatMapper;
   private final UserMapper userMapper;
+  private final UserChatMapper userChatMapper;
+
+  @Override
+  public List<PrivateChatDto> findAllUsersPrivateChats(Long userId){
+    List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
+    return userChats.stream()
+        .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
+        .map(userChatMapper::toPrivateChatDto)
+        .toList();
+  }
 
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageDtoRequest dto) {

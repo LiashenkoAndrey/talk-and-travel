@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageDtoRequest;
+import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.service.ChatService;
@@ -80,34 +81,39 @@ public class ChatController {
     return chatService.findUnreadMessages(chatId, lastReadMessageId, pageable);
   }
 
+  @GetMapping("/user/{userId}/private")
+  public List<PrivateChatDto> getPrivateChats(@PathVariable Long userId) {
+    return chatService.findAllUsersPrivateChats(userId);
+  }
+
   @GetMapping
   public Page<ChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {
     return chatService.findAllChats(pageable);
   }
 
   @GetMapping("/{country}/main")
-  public ChatDto findMainChat(@PathVariable("country") String country) {
+  public ChatDto findMainChat(@PathVariable String country) {
     return chatService.findMainChat(country);
   }
 
   @GetMapping("/{chatId}/user-count")
-  public Long findUserCount(@PathVariable("chatId") Long chatId) {
+  public Long findUserCount(@PathVariable Long chatId) {
     return chatService.countUsersInChat(chatId);
   }
 
   @GetMapping("/user/{userId}")
-  public List<ChatInfoDto> findUserChats(@PathVariable("userId") Long userId) {
+  public List<ChatInfoDto> findUserChats(@PathVariable Long userId) {
     return chatService.findUserChats(userId);
   }
 
   @GetMapping("/{chatId}/users")
-  public List<UserDtoBasic> findUsersByChatId(@PathVariable("chatId") Long chatId) {
+  public List<UserDtoBasic> findUsersByChatId(@PathVariable Long chatId) {
     return chatService.findAllUsersByChatId(chatId);
   }
 
   @GetMapping("/{chatId}/messages")
   public Page<MessageDtoBasic> getChatMessagesOrderedByDate(
-      @PathVariable("chatId") Long chatId, @PageableDefault Pageable pageable) {
+      @PathVariable Long chatId, @PageableDefault Pageable pageable) {
     return chatService.findAllMessagesInChatOrdered(chatId, pageable);
   }
 }
