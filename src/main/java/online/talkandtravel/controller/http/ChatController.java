@@ -1,10 +1,13 @@
 package online.talkandtravel.controller.http;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageDtoRequest;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.service.ChatService;
@@ -14,7 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,6 +46,39 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
   private final ChatService chatService;
+
+  /**
+   * updates id of last read message of chat by user
+   * @param dtoRequest userId and lastReadMessageId
+   */
+  @PostMapping("/{chatId}/messages/set-last-read-message")
+  public void setLastReadMessage(
+      @PathVariable @Positive @NotNull Long chatId,
+      @RequestBody SetLastReadMessageDtoRequest dtoRequest) {
+    chatService.setLastReadMessage(chatId, dtoRequest);
+  }
+
+  /**
+   * finds messages that was before specified last read message (including last read message)
+   */
+  @GetMapping("/{chatId}/read-messages")
+  public Page<MessageDtoBasic> getReadMessages(
+      @PathVariable Long chatId,
+      @RequestParam Long lastReadMessageId,
+      @PageableDefault(sort = "creationDate") Pageable pageable) {
+    return chatService.findReadMessages(chatId, lastReadMessageId, pageable);
+  }
+
+  /**
+   * finds messages that was sent after specified last read message
+   */
+  @GetMapping("/{chatId}/unread-messages")
+  public Page<MessageDtoBasic> getUnreadMessages(
+      @PathVariable Long chatId,
+      @RequestParam @Positive Long lastReadMessageId,
+      @PageableDefault(sort = "creationDate") Pageable pageable) {
+    return chatService.findUnreadMessages(chatId, lastReadMessageId, pageable);
+  }
 
   @GetMapping
   public Page<ChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {

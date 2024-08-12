@@ -1,13 +1,16 @@
 package online.talkandtravel.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageDtoRequest;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
@@ -47,6 +50,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ChatServiceImpl implements ChatService {
 
   private final ChatRepository chatRepository;
@@ -56,6 +60,27 @@ public class ChatServiceImpl implements ChatService {
   private final MessageMapper messageMapper;
   private final ChatMapper chatMapper;
   private final UserMapper userMapper;
+
+  @Override
+  public void setLastReadMessage(Long chatId, SetLastReadMessageDtoRequest dto) {
+    log.info("setLastReadMessage: chatId:{}, {}", chatId, dto);
+    UserChat userChat = userChatRepository.findByChatIdAndUserId(chatId, dto.userId())
+        .orElseThrow(EntityNotFoundException::new);
+    userChat.setLastReadMessageId(dto.lastReadMessageId());
+    userChatRepository.save(userChat);
+  }
+
+  @Override
+  public Page<MessageDtoBasic> findReadMessages(Long chatId, Long lastReadMessageId,
+      Pageable pageable) {
+    return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable);
+  }
+
+  @Override
+  public Page<MessageDtoBasic> findUnreadMessages(Long chatId, Long lastReadMessageId,
+      Pageable pageable) {
+    return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable);
+  }
 
   @Override
   public Page<ChatInfoDto> findAllChats(Pageable pageable) {
