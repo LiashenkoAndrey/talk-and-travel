@@ -1,10 +1,6 @@
 package online.talkandtravel.model.dto.chat;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.dto.event.EventDtoBasic;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.entity.ChatType;
 
 /**
@@ -17,17 +13,16 @@ import online.talkandtravel.model.entity.ChatType;
  *   <li>{@code chatType} - Type of the chat (e.g., group, private).
  *   <li>{@code creationDate} - Date and time when the chat was created.
  *   <li>{@code usersCount} - Amount of users participating in the chat.
- *   <li>{@code messages} - List of messages exchanged in the chat.
- *   <li>{@code events} - List of events related to the chat.
+ *   <li>{@code messages} - Amount of messages exchanged in the chat.
+ *   <li>{@code events} - Amount of events related to the chat.
  * </ul>
  */
-public record ChatDto(
+public record ChatInfoDto(
     Long id,
     String name,
     String description,
-    CountryInfoDto country,
     ChatType chatType,
     LocalDateTime creationDate,
     Long usersCount,
-    List<MessageDtoBasic> messages,
-    List<EventDtoBasic> events) {}
+    Long messagesCount,
+    Long eventsCount) {}

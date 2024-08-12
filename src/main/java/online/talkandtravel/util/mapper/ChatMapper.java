@@ -2,6 +2,7 @@ package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.UserChat;
 import org.mapstruct.Mapper;
@@ -21,9 +22,9 @@ import org.mapstruct.Mapping;
  *   <li>{@link #toDto(Chat)} - Converts a {@link Chat} entity to a {@link ChatDto}. This method
  *       maps the properties of the {@link Chat} entity to the DTO, including nested collections
  *       like users and messages.
- *   <li>{@link #toDto(UserChat)} - Converts a {@link UserChat} entity to a {@link ChatDto}. This
- *       method handles the mapping of properties from {@link UserChat} to {@link ChatDto},
- *       including fields such as name, description, and creation date.
+ *   <li>{@link #userChatToInfoDto(UserChat)} - Converts a {@link UserChat} entity to a {@link
+ *       ChatInfoDto}. This method handles the mapping of properties from {@link UserChat} to {@link
+ *       ChatInfoDto}, including fields such as name, description, and creation date.
  * </ul>
  *
  * <p>This mapper relies on other mappers for converting nested objects, such as {@link UserMapper},
@@ -32,17 +33,32 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
     config = MapperConfig.class,
-    uses = {UserMapper.class, EventMapper.class, MessageMapper.class, UserChatMapper.class})
+    uses = {
+      UserMapper.class,
+      EventMapper.class,
+      MessageMapper.class,
+      UserChatMapper.class
+    })
 public interface ChatMapper {
+
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
   ChatDto toDto(Chat chat);
 
+  @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
+  @Mapping(target = "eventsCount", expression = "java((long) chat.getEvents().size())")
+  @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
+  ChatInfoDto toInfoDto(Chat chat);
+
   @Mapping(target = "usersCount", expression = "java((long) userChat.getChat().getUsers().size())")
+  @Mapping(
+      target = "eventsCount",
+      expression = "java((long) userChat.getChat().getEvents().size())")
+  @Mapping(
+      target = "messagesCount",
+      expression = "java((long) userChat.getChat().getMessages().size())")
   @Mapping(target = "name", source = "chat.name")
-  @Mapping(target = "messages", source = "chat.messages")
-  @Mapping(target = "events", source = "chat.events")
   @Mapping(target = "description", source = "chat.description")
   @Mapping(target = "creationDate", source = "chat.creationDate")
   @Mapping(target = "chatType", source = "chat.chatType")
-  ChatDto toDto(UserChat userChat);
+  ChatInfoDto userChatToInfoDto(UserChat userChat);
 }

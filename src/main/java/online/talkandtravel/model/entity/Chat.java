@@ -57,7 +57,7 @@ public class Chat {
       name = "user_chats",
       joinColumns = @JoinColumn(name = "chat_id"),
       inverseJoinColumns = @JoinColumn(name = "user_id"))
-  private List<UserChat> users = new ArrayList<>();
+  private List<User> users = new ArrayList<>();
 
   @Builder.Default
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

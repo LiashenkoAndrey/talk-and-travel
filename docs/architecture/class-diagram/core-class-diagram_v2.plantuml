@@ -41,6 +41,7 @@ class Chat {
   - id: Long
   - name: String
   - description: String
+  - country: Country
   - chatType: ChatType
   - creationDate: LocalDateTime
   - users: List<User>
