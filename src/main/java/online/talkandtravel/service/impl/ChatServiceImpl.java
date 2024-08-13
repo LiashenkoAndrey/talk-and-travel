@@ -8,9 +8,10 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
-import online.talkandtravel.model.dto.chat.SetLastReadMessageDtoRequest;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -75,11 +76,11 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public void setLastReadMessage(Long chatId, SetLastReadMessageDtoRequest dto) {
-    log.info("setLastReadMessage: chatId:{}, {}", chatId, dto);
-    UserChat userChat = userChatRepository.findByChatIdAndUserId(chatId, dto.userId())
-        .orElseThrow(EntityNotFoundException::new);
-    userChat.setLastReadMessageId(dto.lastReadMessageId());
+  public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
+    log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
+    UserChat userChat = userChatRepository.findByChatIdAndUserId(chatId, dtoRequest.userId())
+        .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
+    userChat.setLastReadMessageId(dtoRequest.lastReadMessageId());
     userChatRepository.save(userChat);
   }
 

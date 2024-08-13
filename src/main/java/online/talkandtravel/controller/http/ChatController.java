@@ -1,5 +1,6 @@
 package online.talkandtravel.controller.http;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
@@ -7,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
-import online.talkandtravel.model.dto.chat.SetLastReadMessageDtoRequest;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -18,7 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,10 +53,10 @@ public class ChatController {
    * updates id of last read message of chat by user
    * @param dtoRequest userId and lastReadMessageId
    */
-  @PostMapping("/{chatId}/messages/set-last-read-message")
+  @PutMapping("/{chatId}/messages/last-read")
   public void setLastReadMessage(
       @PathVariable @Positive @NotNull Long chatId,
-      @RequestBody SetLastReadMessageDtoRequest dtoRequest) {
+      @RequestBody @Valid SetLastReadMessageRequest dtoRequest) {
     chatService.setLastReadMessage(chatId, dtoRequest);
   }
 

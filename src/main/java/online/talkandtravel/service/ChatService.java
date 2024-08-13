@@ -3,7 +3,7 @@ package online.talkandtravel.service;
 import java.util.List;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
-import online.talkandtravel.model.dto.chat.SetLastReadMessageDtoRequest;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -45,7 +45,7 @@ public interface ChatService {
 
   List<PrivateChatDto> findAllUsersPrivateChats(Long userId);
 
-  void setLastReadMessage(Long chatId, SetLastReadMessageDtoRequest dtoRequest);
+  void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
   Page<MessageDtoBasic> findReadMessages(Long chatId, Long lastReadMessageId, Pageable pageable);
 
