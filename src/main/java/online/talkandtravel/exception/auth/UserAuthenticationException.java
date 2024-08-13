@@ -1,6 +1,7 @@
 package online.talkandtravel.exception.auth;
 
 import online.talkandtravel.exception.model.ApiException;
+import org.springframework.http.HttpStatus;
 
 /**
  * Custom exception class for handling authentication errors.
@@ -17,11 +18,11 @@ import online.talkandtravel.exception.model.ApiException;
  *   <li>Other authentication-related issues that require custom handling and messaging.
  * </ul>
  */
-public class AuthenticationException extends ApiException {
+public class UserAuthenticationException extends ApiException {
 
+  private static final HttpStatus STATUS = HttpStatus.UNAUTHORIZED;
 
-
-  public AuthenticationException(String message) {
-    super(message);
+  public UserAuthenticationException(String message) {
+    super(message, STATUS);
   }
 }

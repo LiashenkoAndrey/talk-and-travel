@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @ToString
-public class ApiException extends RuntimeException {
+public abstract class ApiException extends RuntimeException {
     private ZonedDateTime zonedDateTime;
     private String messageToClient;
     private HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
