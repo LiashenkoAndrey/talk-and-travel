@@ -14,7 +14,7 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -59,7 +59,7 @@ class ChatServiceImplTest {
   private Chat chat;
   private UserChat userChat;
   private User user;
-  private ChatInfoDto chatInfoDto;
+  private PrivateChatInfoDto privateChatInfoDto;
   private UserDtoBasic userDtoBasic;
   private Message message;
   private MessageDtoBasic messageDtoBasic;
@@ -75,8 +75,8 @@ class ChatServiceImplTest {
     userChat.setChat(chat);
     user = new User();
 
-    chatInfoDto =
-        new ChatInfoDto(
+    privateChatInfoDto =
+        new PrivateChatInfoDto(
             1L,
             "TestCountry",
             "Test Chat Description",
@@ -150,7 +150,7 @@ class ChatServiceImplTest {
     Long userId = 1L;
     when(userChatRepository.findAllByUserId(userId)).thenReturn(List.of());
 
-    List<ChatInfoDto> result = underTest.findUserChats(userId);
+    List<PrivateChatInfoDto> result = underTest.findUserChats(userId);
 
     assertTrue(result.isEmpty());
     verify(userChatRepository, times(1)).findAllByUserId(userId);
@@ -162,14 +162,14 @@ class ChatServiceImplTest {
     Long userId = 1L;
 
     when(userChatRepository.findAllByUserId(userId)).thenReturn(List.of(userChat));
-    when(chatMapper.userChatToInfoDto(userChat)).thenReturn(chatInfoDto);
+    when(chatMapper.userChatToPrivateChatInfoDto(userChat)).thenReturn(privateChatInfoDto);
 
-    List<ChatInfoDto> result = underTest.findUserChats(userId);
+    List<PrivateChatInfoDto> result = underTest.findUserChats(userId);
 
     assertEquals(1, result.size());
-    assertEquals(chatInfoDto, result.get(0));
+    assertEquals(privateChatInfoDto, result.get(0));
     verify(userChatRepository, times(1)).findAllByUserId(userId);
-    verify(chatMapper, times(1)).userChatToInfoDto(userChat);
+    verify(chatMapper, times(1)).userChatToPrivateChatInfoDto(userChat);
   }
 
   @Test
