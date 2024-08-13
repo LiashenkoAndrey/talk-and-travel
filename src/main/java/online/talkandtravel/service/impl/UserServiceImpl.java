@@ -1,6 +1,6 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.exception.auth.AuthenticationException;
+import online.talkandtravel.exception.auth.UserAuthenticationException;
 import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
  *   <li>{@link #processEmailChange(User, User)} - Handles the process of changing a user's email,
  *       including validation and checking for duplicates.</li>
  *   <li>{@link #checkDuplicateEmail(String)} - Checks for duplicate email addresses and throws
- *       {@link AuthenticationException} if an email already exists.</li>
+ *       {@link UserAuthenticationException} if an email already exists.</li>
  *   <li>{@link #validateNewEmail(String)} - Validates a new email address by checking for duplicates
  *       and ensuring proper format.</li>
  *   <li>{@link #validateEmailFormat(String)} - Validates the format of an email address using
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
     private void checkDuplicateEmail(String email) {
         var userByEmail = findUserByEmail(email);
         if (userByEmail.isPresent()) {
-            throw new AuthenticationException("A user with this email already exists");
+            throw new UserAuthenticationException("A user with this email already exists");
         }
     }
 

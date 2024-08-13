@@ -9,16 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /** Global api exception handler. */
 @RestControllerAdvice
 @Log4j2
-public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
 
-  @ExceptionHandler({ApiException.class})
-  public ResponseEntity<ApiExceptionResponse> handleApiException(ApiException e, ServletWebRequest request) {
+  @ExceptionHandler(ApiException.class)
+  public ResponseEntity<ApiExceptionResponse> handleApiException(ApiException e) {
     return createResponse(e, e.getHttpStatus());
   }
 

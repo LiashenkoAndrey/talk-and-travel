@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.entity.ChatType;
 
 /**
@@ -29,5 +29,5 @@ public record ChatDto(
     ChatType chatType,
     LocalDateTime creationDate,
     Long usersCount,
-    List<MessageDtoBasic> messages,
+    List<MessageDto> messages,
     List<EventDtoBasic> events) {}

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.exception.auth.AuthenticationException;
+import online.talkandtravel.exception.auth.UserAuthenticationException;
 import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.AuthResponse;
@@ -153,7 +153,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   private void checkUserCredentials(String password, User user) {
     if (!passwordEncoder.matches(password, user.getPassword())) {
-      throw new AuthenticationException("Incorrect username or password!!!");
+      throw new UserAuthenticationException("Incorrect username or password!!!");
     }
   }
 

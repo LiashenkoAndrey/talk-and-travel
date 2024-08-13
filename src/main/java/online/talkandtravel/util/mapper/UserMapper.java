@@ -4,6 +4,7 @@ import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
+import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -46,4 +47,6 @@ public interface UserMapper {
   User mapToModel(UserDtoWithAvatarAndPassword dto);
 
   UserDtoBasic toUserDtoBasic(User user);
+
+  UserNameDto toUserNameDto(User user);
 }
