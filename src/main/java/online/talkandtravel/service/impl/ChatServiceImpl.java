@@ -3,14 +3,19 @@ package online.talkandtravel.service.impl;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.PrivateChatDto;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
@@ -20,6 +25,7 @@ import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
+import online.talkandtravel.util.mapper.UserChatMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +53,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ChatServiceImpl implements ChatService {
 
   private final ChatRepository chatRepository;
@@ -56,10 +63,43 @@ public class ChatServiceImpl implements ChatService {
   private final MessageMapper messageMapper;
   private final ChatMapper chatMapper;
   private final UserMapper userMapper;
+  private final UserChatMapper userChatMapper;
+
+  @Override
+  public List<PrivateChatDto> findAllUsersPrivateChats(Long userId) {
+    List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
+    return userChats.stream()
+        .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
+        .map(userChatMapper::toPrivateChatDto)
+        .toList();
+  }
+
+  @Override
+  public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
+    log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
+    UserChat userChat =
+        userChatRepository
+            .findByChatIdAndUserId(chatId, dtoRequest.userId())
+            .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
+    userChat.setLastReadMessageId(dtoRequest.lastReadMessageId());
+    userChatRepository.save(userChat);
+  }
+
+  @Override
+  public Page<MessageDtoBasic> findReadMessages(
+      Long chatId, Long lastReadMessageId, Pageable pageable) {
+    return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable);
+  }
+
+  @Override
+  public Page<MessageDtoBasic> findUnreadMessages(
+      Long chatId, Long lastReadMessageId, Pageable pageable) {
+    return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable);
+  }
 
   @Override
   public Page<ChatInfoDto> findAllChats(Pageable pageable) {
-    return chatRepository.findAll(pageable).map(chatMapper::toInfoDto);
+    return chatRepository.findAll(pageable).map(chatMapper::toChatInfoDto);
   }
 
   @Override
