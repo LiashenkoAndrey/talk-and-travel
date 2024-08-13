@@ -47,7 +47,7 @@ public interface ChatMapper {
   @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
   @Mapping(target = "eventsCount", expression = "java((long) chat.getEvents().size())")
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
-  ChatInfoDto toInfoDto(Chat chat);
+  ChatInfoDto toChatInfoDto(Chat chat);
 
   @Mapping(target = "usersCount", expression = "java((long) userChat.getChat().getUsers().size())")
   @Mapping(

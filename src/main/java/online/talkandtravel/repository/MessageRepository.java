@@ -22,8 +22,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
   Page<MessageDtoBasic> findAllByChatIdAndIdLessThanEqual(Long chatId, Long id, Pageable pageable);
 
-  Page<MessageDtoBasic> findAllByChatIdAndIdAfter(Long chat_id, Long id, Pageable pageable);
+  Page<MessageDtoBasic> findAllByChatIdAndIdAfter(Long chatId, Long id, Pageable pageable);
 
   Page<Message> findAllByChatId(Long chatId, Pageable pageable);
-
 }

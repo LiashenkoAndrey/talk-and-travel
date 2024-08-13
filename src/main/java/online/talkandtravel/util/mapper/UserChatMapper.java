@@ -25,7 +25,7 @@ import org.mapstruct.Mapping;
  *
  * <p>This mapper relies on {@link MapperConfig} to apply global mapping settings.
  */
-@Mapper(config = MapperConfig.class)
+@Mapper(config = MapperConfig.class, uses = {ChatMapper.class})
 public interface UserChatMapper {
 
   @Mapping(target = "userName", source = "user.userName")
