@@ -2,7 +2,6 @@ package online.talkandtravel.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -261,8 +260,8 @@ class ChatServiceImplTest {
 
       Long result = underTest.createPrivateChat(dto);
       assertEquals(1, result);
-      assertUserRepoFindById(1, userId);
-      assertUserRepoFindById(1, companionId);
+      verifyCallsUserRepoFindById(1, userId);
+      verifyCallsUserRepoFindById(1, companionId);
     }
 
     @Test
@@ -295,7 +294,7 @@ class ChatServiceImplTest {
     when(userRepository.findById(id)).thenReturn(thenReturn);
   }
 
-  private void assertUserRepoFindById(int times, Long id) {
+  private void verifyCallsUserRepoFindById(int times, Long id) {
     verify(userRepository, times(times)).findById(id);
   }
 
