@@ -1,6 +1,9 @@
 package online.talkandtravel.repository;
 
+import java.util.List;
+import java.util.Optional;
 import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.ChatType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,4 +22,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
   @Query("SELECT COUNT(c) FROM Chat c")
   long countChats();
+
+  @Query(
+      "SELECT c FROM Chat c JOIN c.users u WHERE c.chatType = :chatType AND SIZE(c.users) = 2 AND u.id IN :userIds GROUP BY c.id HAVING COUNT(u.id) = 2")
+  Optional<Chat> findChatByUsersAndChatType(List<Long> userIds, ChatType chatType);
 }

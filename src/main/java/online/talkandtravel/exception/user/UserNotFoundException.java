@@ -5,9 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class UserNotFoundException extends ApiException {
 
-  public UserNotFoundException() {
-  }
-
   private static final String MESSAGE = "User with id %s not found";
   private static final HttpStatus STATUS = HttpStatus.NOT_FOUND;
 

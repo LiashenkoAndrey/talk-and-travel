@@ -4,17 +4,19 @@ import static java.lang.String.format;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
+import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
-import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
+import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
+import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -71,9 +73,11 @@ public class ChatServiceImpl implements ChatService {
   private final ChatMapper chatMapper;
   private final UserMapper userMapper;
   private final UserRepository userRepository;
+  private final UserChatMapper userChatMapper;
 
   /**
    * creates private chat between two users
+   *
    * @param dto dto
    * @return chat id
    */
@@ -82,13 +86,15 @@ public class ChatServiceImpl implements ChatService {
   public Long createPrivateChat(NewPrivateChatDto dto) {
     User user = getUser(dto.userId());
     User companion = getUser(dto.companionId());
+
+    checkIfChatExists(user, companion);
+
     Chat privateChat = createAndSavePrivateChat(user, companion);
 
     saveUserChat(privateChat, user);
-    saveUserChat(privateChat,companion);
+    saveUserChat(privateChat, companion);
     return privateChat.getId();
   }
-  private final UserChatMapper userChatMapper;
 
   @Override
   public List<PrivateChatDto> findAllUsersPrivateChats(Long userId) {
@@ -96,6 +102,7 @@ public class ChatServiceImpl implements ChatService {
     return userChats.stream()
         .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
         .map(userChatMapper::toPrivateChatDto)
+        .map(chatNameToCompanionName())
         .toList();
   }
 
@@ -123,7 +130,7 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<ChatInfoDto> findAllChats(Pageable pageable) {
+  public Page<PrivateChatInfoDto> findAllChats(Pageable pageable) {
     return chatRepository.findAll(pageable).map(chatMapper::toChatInfoDto);
   }
 
@@ -143,9 +150,9 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<ChatInfoDto> findUserChats(Long userId) {
+  public List<PrivateChatInfoDto> findUserChats(Long userId) {
     List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
-    return userChats.stream().map(chatMapper::userChatToInfoDto).toList();
+    return userChats.stream().map(chatMapper::userChatToPrivateChatInfoDto).toList();
   }
 
   @Override
@@ -166,9 +173,7 @@ public class ChatServiceImpl implements ChatService {
   }
 
   private User getUser(Long userId) {
-    return userRepository
-        .findById(userId)
-        .orElseThrow(() -> new UserNotFoundException(userId));
+    return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
   }
 
   private Country getCountry(String countryName) {
@@ -180,17 +185,41 @@ public class ChatServiceImpl implements ChatService {
   private Chat createAndSavePrivateChat(User user, User companion) {
     String companionName = companion.getUserName();
     String userName = user.getUserName();
-    return chatRepository.save(Chat.builder()
-        .chatType(ChatType.PRIVATE)
-        .description(format("Private chat for %s and %s", userName, companionName))
-        .name(userName + "-" + companionName)
-        .build());
+    return chatRepository.save(
+        Chat.builder()
+            .chatType(ChatType.PRIVATE)
+            .description(format("Private chat for %s and %s", userName, companionName))
+            .name(userName + "-" + companionName)
+            .build());
   }
 
   private void saveUserChat(Chat chat, User user) {
-    userChatRepository.save(UserChat.builder()
-        .chat(chat)
-        .user(user)
-        .build());
+    userChatRepository.save(UserChat.builder().chat(chat).user(user).build());
+  }
+
+  private Function<PrivateChatDto, PrivateChatDto> chatNameToCompanionName() {
+    return oldChat ->
+        new PrivateChatDto(renameChat(oldChat), oldChat.companion(), oldChat.lastReadMessageId());
+  }
+
+  private PrivateChatInfoDto renameChat(PrivateChatDto oldChat) {
+    return new PrivateChatInfoDto(
+        oldChat.chat().id(),
+        oldChat.companion().getUserName(),
+        oldChat.chat().description(),
+        oldChat.chat().chatType(),
+        oldChat.chat().creationDate(),
+        oldChat.chat().usersCount(),
+        oldChat.chat().messagesCount(),
+        oldChat.chat().eventsCount());
+  }
+
+  private void checkIfChatExists(User user, User companion) {
+    List<Long> participantIds = List.of(user.getId(), companion.getId());
+    Optional<Chat> optionalChat =
+        chatRepository.findChatByUsersAndChatType(participantIds, ChatType.PRIVATE);
+    if (optionalChat.isPresent()) {
+      throw new PrivateChatAlreadyExistsException(participantIds);
+    }
   }
 }

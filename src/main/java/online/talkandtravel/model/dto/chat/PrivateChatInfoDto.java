@@ -17,7 +17,7 @@ import online.talkandtravel.model.entity.ChatType;
  *   <li>{@code events} - Amount of events related to the chat.
  * </ul>
  */
-public record ChatInfoDto(
+public record PrivateChatInfoDto(
     Long id,
     String name,
     String description,
