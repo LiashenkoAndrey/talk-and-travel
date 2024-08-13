@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
@@ -14,6 +15,7 @@ import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
@@ -27,6 +29,7 @@ import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of the {@link ChatService} for managing chat operations.
@@ -61,27 +64,30 @@ public class ChatServiceImpl implements ChatService {
   private final UserMapper userMapper;
   private final UserRepository userRepository;
 
-
   /**
    * creates private chat between two users
    * @param dto dto
    * @return chat id
    */
   @Override
+  @Transactional
   public Long createPrivateChat(NewPrivateChatDto dto) {
     Chat privateChat = chatRepository.save(Chat.builder()
         .chatType(ChatType.PRIVATE)
         .build());
 
-    saveUserChat(privateChat, dto.userId());
-    saveUserChat(privateChat, dto.companionId());
+    User user = getUser(dto.userId());
+    User companion = getUser(dto.userId());
+
+    saveUserChat(privateChat, user);
+    saveUserChat(privateChat,companion);
     return privateChat.getId();
   }
 
-  private void saveUserChat(Chat chat, Long userId) {
+  private void saveUserChat(Chat chat, User user) {
     userChatRepository.save(UserChat.builder()
         .chat(chat)
-        .user(userRepository.getReferenceById(userId))
+        .user(user)
         .build());
   }
 
@@ -126,6 +132,12 @@ public class ChatServiceImpl implements ChatService {
 
   private Chat getChat(Long chatId) {
     return chatRepository.findById(chatId).orElseThrow(() -> new ChatNotFoundException(chatId));
+  }
+
+  private User getUser(Long userId) {
+    return userRepository
+        .findById(userId)
+        .orElseThrow(UserNotFoundException::new);
   }
 
   private Country getCountry(String countryName) {

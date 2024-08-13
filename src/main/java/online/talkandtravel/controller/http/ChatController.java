@@ -1,5 +1,6 @@
 package online.talkandtravel.controller.http;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -49,7 +50,7 @@ public class ChatController {
    * @return chat id
    */
   @PostMapping("/private")
-  public Long createPrivateChat(@RequestBody NewPrivateChatDto dto) {
+  public Long createPrivateChat(@Valid @RequestBody NewPrivateChatDto dto) {
     return chatService.createPrivateChat(dto);
   }
 
