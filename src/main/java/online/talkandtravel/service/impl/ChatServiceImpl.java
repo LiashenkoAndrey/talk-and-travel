@@ -1,5 +1,7 @@
 package online.talkandtravel.service.impl;
 
+import static java.lang.String.format;
+
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -72,23 +74,13 @@ public class ChatServiceImpl implements ChatService {
   @Override
   @Transactional
   public Long createPrivateChat(NewPrivateChatDto dto) {
-    Chat privateChat = chatRepository.save(Chat.builder()
-        .chatType(ChatType.PRIVATE)
-        .build());
-
     User user = getUser(dto.userId());
-    User companion = getUser(dto.userId());
+    User companion = getUser(dto.companionId());
+    Chat privateChat = createAndSavePrivateChat(user, companion);
 
     saveUserChat(privateChat, user);
     saveUserChat(privateChat,companion);
     return privateChat.getId();
-  }
-
-  private void saveUserChat(Chat chat, User user) {
-    userChatRepository.save(UserChat.builder()
-        .chat(chat)
-        .user(user)
-        .build());
   }
 
   @Override
@@ -137,12 +129,29 @@ public class ChatServiceImpl implements ChatService {
   private User getUser(Long userId) {
     return userRepository
         .findById(userId)
-        .orElseThrow(UserNotFoundException::new);
+        .orElseThrow(() -> new UserNotFoundException(userId));
   }
 
   private Country getCountry(String countryName) {
     return countryRepository
         .findById(countryName)
         .orElseThrow(() -> new CountryNotFoundException(countryName));
+  }
+
+  private Chat createAndSavePrivateChat(User user, User companion) {
+    String companionName = companion.getUserName();
+    String userName = user.getUserName();
+    return chatRepository.save(Chat.builder()
+        .chatType(ChatType.PRIVATE)
+        .description(format("Private chat for %s and %s", userName, companionName))
+        .name(userName + "-" + companionName)
+        .build());
+  }
+
+  private void saveUserChat(Chat chat, User user) {
+    userChatRepository.save(UserChat.builder()
+        .chat(chat)
+        .user(user)
+        .build());
   }
 }
