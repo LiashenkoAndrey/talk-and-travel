@@ -6,7 +6,7 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
@@ -47,7 +47,7 @@ public class MessageServiceImpl implements MessageService {
   private final MessageMapper messageMapper;
 
   @Override
-  public MessageDtoBasic saveMessage(SendMessageRequest request) {
+  public MessageDto saveMessage(SendMessageRequest request) {
     checkUserJoinedTheChat(request);
 
     Chat chat = getChat(request);
@@ -67,7 +67,7 @@ public class MessageServiceImpl implements MessageService {
     // Retrieve the last added message from the saved chat
     message = chat.getMessages().get(chat.getMessages().size() - 1);
     message.setChat(chat);
-    return messageMapper.toMessageDtoBasic(message);
+    return messageMapper.toMessageDto(message);
   }
 
   private void checkUserJoinedTheChat(SendMessageRequest request) {
