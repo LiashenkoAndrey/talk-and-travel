@@ -6,7 +6,7 @@ on:
 
 jobs:
   redeploy:
-    runs-on: aws-runner
+    runs-on: test
     steps:
       - name: stop running application
         run: sudo systemctl stop talk_and_travel
