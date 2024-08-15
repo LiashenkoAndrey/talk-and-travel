@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - main
-      - KAN-26-setup-CI-CD
 
 jobs:
   redeploy:
