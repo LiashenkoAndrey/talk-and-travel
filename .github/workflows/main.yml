@@ -22,7 +22,7 @@ jobs:
         run: mvn clean test
 
   deploy:
-    needs: build
+    needs: build_and_test
     runs-on: test
     steps:
       - name: stop running application
