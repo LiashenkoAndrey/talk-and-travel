@@ -11,8 +11,9 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
+import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
@@ -58,8 +59,14 @@ public class MessageServiceImplTest {
     Message repliedMessage = new Message();
     Message message = new Message();
     chat.getMessages().add(message);
-    MessageDtoBasic messageDtoBasic =
-        new MessageDtoBasic(1L, content, LocalDateTime.now(), userId, chatId, repliedMessageId);
+    MessageDto messageDto =
+        new MessageDto(
+            1L,
+            content,
+            LocalDateTime.now(),
+            new UserNameDto(userId, "userName"),
+            chatId,
+            repliedMessageId);
 
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
@@ -67,19 +74,19 @@ public class MessageServiceImplTest {
     when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.of(repliedMessage));
     when(userRepository.findById(userId)).thenReturn(Optional.of(user));
     when(chatRepository.save(any(Chat.class))).thenReturn(chat);
-    when(messageMapper.toMessageDtoBasic(any(Message.class))).thenReturn(messageDtoBasic);
+    when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
 
     // Act
-    MessageDtoBasic result = underTest.saveMessage(request);
+    MessageDto result = underTest.saveMessage(request);
 
     // Assert
-    assertEquals(messageDtoBasic, result);
+    assertEquals(messageDto, result);
     verify(userChatRepository, times(1)).findByChatIdAndUserId(chatId, userId);
     verify(chatRepository, times(1)).findById(chatId);
     verify(messageRepository, times(1)).findById(repliedMessageId);
     verify(userRepository, times(1)).findById(userId);
     verify(chatRepository, times(1)).save(chat);
-    verify(messageMapper, times(1)).toMessageDtoBasic(any(Message.class));
+    verify(messageMapper, times(1)).toMessageDto(any(Message.class));
   }
 
   @Test

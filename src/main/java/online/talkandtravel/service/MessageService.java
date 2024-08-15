@@ -1,5 +1,6 @@
 package online.talkandtravel.service;
 
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 
@@ -25,5 +26,5 @@ import online.talkandtravel.model.dto.message.SendMessageRequest;
  */
 public interface MessageService {
 
-  MessageDtoBasic saveMessage(SendMessageRequest sendMessageRequest);
+  MessageDto saveMessage(SendMessageRequest sendMessageRequest);
 }
