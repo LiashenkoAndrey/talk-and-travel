@@ -5,7 +5,7 @@ on:
       - KAN-26-setup-CI-CD
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
