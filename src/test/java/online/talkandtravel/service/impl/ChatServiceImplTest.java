@@ -118,6 +118,11 @@ class ChatServiceImplTest {
   }
 
   @Test
+  void ok() {
+
+  }
+
+  @Test
   void findMainChat_shouldThrow_whenMainChatNotFound() {
     String countryName = "TestCountry";
     country.setChats(Collections.emptyList());
