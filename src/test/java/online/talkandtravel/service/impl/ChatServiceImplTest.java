@@ -1,6 +1,7 @@
 package online.talkandtravel.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -12,8 +13,11 @@ import java.util.List;
 import java.util.Optional;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
+import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
@@ -28,10 +32,12 @@ import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -52,6 +58,7 @@ class ChatServiceImplTest {
   @Mock private MessageMapper messageMapper;
   @Mock private ChatMapper chatMapper;
   @Mock private UserMapper userMapper;
+  @Mock private UserRepository userRepository;
 
   @InjectMocks ChatServiceImpl underTest;
 
@@ -233,5 +240,67 @@ class ChatServiceImplTest {
     assertEquals(messageDtoBasic, result.getContent().get(0));
     verify(messageRepository, times(1)).findAllByChatId(chatId, pageable);
     verify(messageMapper, times(1)).toMessageDtoBasic(message);
+  }
+
+  @Nested
+  class PrivateChat {
+    private final Long userId = 1L, companionId = 2L;
+    private final NewPrivateChatDto dto = new NewPrivateChatDto(userId, companionId);
+    private final List<Long> participantIds = List.of(userId, companionId);
+
+    @Test
+    void createPrivateChat_shouldReturnChatId_whenUserAndCompanionExist() {
+      User user1 = createUserWithId(userId);
+      User companion = createUserWithId(companionId);
+
+      whenUserRepoFindById(userId, Optional.of(user1));
+      whenUserRepoFindById(companionId, Optional.of(companion));
+      whenChatRepoFindPrivateChatByParticipants(participantIds, Optional.empty());
+      when(chatRepository.save(any(Chat.class))).thenReturn(chat);
+
+      Long result = underTest.createPrivateChat(dto);
+      assertEquals(1, result);
+      verifyCallsUserRepoFindById(1, userId);
+      verifyCallsUserRepoFindById(1, companionId);
+    }
+
+    @Test
+    void createPrivateChat_shouldThrow_whenNoCompanionFound() {
+      whenUserRepoFindById(userId, Optional.empty());
+      assertThrows(UserNotFoundException.class, () -> underTest.createPrivateChat(dto));
+    }
+
+    @Test
+    void createPrivateChat_shouldThrow_whenNoUserFound() {
+      whenUserRepoFindById(userId, Optional.of(user));
+      whenUserRepoFindById(companionId, Optional.empty());
+      assertThrows(UserNotFoundException.class, () -> underTest.createPrivateChat(dto));
+    }
+
+    @Test
+    void createPrivateChat_shouldThrow_whenChatAlreadyExists() {
+      whenUserRepoFindById(userId, Optional.of(createUserWithId(1L)));
+      whenUserRepoFindById(companionId, Optional.of(createUserWithId(2L)));
+      whenChatRepoFindPrivateChatByParticipants(participantIds, Optional.of(chat));
+      assertThrows(PrivateChatAlreadyExistsException.class, () -> underTest.createPrivateChat(dto));
+    }
+  }
+
+  private User createUserWithId(Long id) {
+    return User.builder().id(id).build();
+  }
+
+  private void whenUserRepoFindById(Long id, Optional<User> thenReturn) {
+    when(userRepository.findById(id)).thenReturn(thenReturn);
+  }
+
+  private void verifyCallsUserRepoFindById(int times, Long id) {
+    verify(userRepository, times(times)).findById(id);
+  }
+
+  private void whenChatRepoFindPrivateChatByParticipants(List<Long> participantsIds,
+      Optional<Chat> thenReturn) {
+    when(chatRepository.findChatByUsersAndChatType(participantsIds, ChatType.PRIVATE)).thenReturn(
+        thenReturn);
   }
 }
