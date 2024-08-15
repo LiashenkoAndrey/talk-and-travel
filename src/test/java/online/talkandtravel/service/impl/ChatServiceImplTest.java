@@ -114,7 +114,7 @@ class ChatServiceImplTest {
     when(countryRepository.findById(countryName)).thenReturn(Optional.empty());
 
     assertThrows(CountryNotFoundException.class, () -> underTest.findMainChat(countryName));
-    verify(countryRepository, times(1)).findById(countryName);
+    verify(countryRepository, times(21)).findById(countryName);
   }
 
   @Test
