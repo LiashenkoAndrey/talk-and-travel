@@ -19,9 +19,10 @@ jobs:
           distribution: 'adopt'
 
       - name: Install dependencies and test with Maven
-        run: mvn clean install
+        run: mvn clean test
 
   deploy:
+    needs: build
     runs-on: test
     steps:
       - name: stop running application
