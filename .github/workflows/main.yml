@@ -1,0 +1,16 @@
+on:
+  push:
+    branches:
+      - main
+      - KAN-26-setup-CI-CD
+
+jobs:
+  redeploy:
+    runs-on: aws-runner
+    steps:
+      - name: stop running application
+        run: sudo systemctl stop talk_and_travel
+      - name: fetch updated code
+        run: cd /home/admin/talk-and-travel && sudo git pull
+      - name: run service
+        run: sudo systemctl start talk_and_travel
