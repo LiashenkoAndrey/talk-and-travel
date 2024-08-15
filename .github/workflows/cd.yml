@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    needs: build_and_test
     if: github.event_name == 'push'
     runs-on: test
     steps:
