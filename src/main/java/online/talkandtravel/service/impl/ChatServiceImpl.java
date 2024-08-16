@@ -15,6 +15,7 @@ import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
+import online.talkandtravel.model.dto.chat.NewSubChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -30,6 +31,8 @@ import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.security.CustomUserDetails;
+import online.talkandtravel.security.IAuthenticationFacade;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
@@ -37,6 +40,8 @@ import online.talkandtravel.util.mapper.UserChatMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +79,14 @@ public class ChatServiceImpl implements ChatService {
   private final UserMapper userMapper;
   private final UserRepository userRepository;
   private final UserChatMapper userChatMapper;
+  private final IAuthenticationFacade authenticationFacade;
+
+  @Override
+  public ChatDto createCountrySubChat(NewSubChatRequest request) {
+    User user = authenticationFacade.getAuthenticatedUser();
+    Chat chat = createAndSaveSubChatWithUser(request, user);
+    return chatMapper.toDto(chat);
+  }
 
   /**
    * creates private chat between two users
@@ -190,6 +203,18 @@ public class ChatServiceImpl implements ChatService {
             .chatType(ChatType.PRIVATE)
             .description(format("Private chat for %s and %s", userName, companionName))
             .name(userName + "-" + companionName)
+            .build());
+  }
+
+  private Chat createAndSaveSubChatWithUser(NewSubChatRequest request, User user) {
+    Country country = getCountry(request.countryId());
+    return chatRepository.save(
+        Chat.builder()
+            .chatType(ChatType.GROUP)
+            .description(request.description())
+            .name(request.name())
+            .country(country)
+            .users(List.of(user))
             .build());
   }
 

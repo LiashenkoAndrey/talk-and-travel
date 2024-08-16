@@ -30,4 +30,9 @@ public record ChatDto(
     LocalDateTime creationDate,
     Long usersCount,
     List<MessageDto> messages,
-    List<EventDtoBasic> events) {}
+    List<EventDtoBasic> events) {
+
+  public ChatDto(String name) {
+    this(null, name, null, null, null, null, null, null, null);
+  }
+}

@@ -3,10 +3,12 @@ package online.talkandtravel.controller.http;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.NewSubChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
@@ -18,6 +20,8 @@ import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,6 +54,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
   private final ChatService chatService;
+
+  @PostMapping
+  public ChatDto createCountrySubChat(@RequestBody NewSubChatRequest request) {
+    return chatService.createCountrySubChat(request);
+  }
 
   /**
    * creates a private chat between two users

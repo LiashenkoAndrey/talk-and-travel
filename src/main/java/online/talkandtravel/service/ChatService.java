@@ -2,6 +2,7 @@ package online.talkandtravel.service;
 
 import java.util.List;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.NewSubChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -43,9 +44,9 @@ import org.springframework.data.domain.Pageable;
  */
 public interface ChatService {
 
+  ChatDto createCountrySubChat(NewSubChatRequest request);
 
   Long createPrivateChat(NewPrivateChatDto dto);
-
 
   List<PrivateChatDto> findAllUsersPrivateChats(Long userId);
 

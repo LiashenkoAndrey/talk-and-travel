@@ -7,17 +7,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
+import online.talkandtravel.model.dto.chat.NewSubChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
@@ -33,6 +38,9 @@ import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.security.CustomUserDetails;
+import online.talkandtravel.security.IAuthenticationFacade;
+import online.talkandtravel.util.CustomAuthentication;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
@@ -47,8 +55,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 @ExtendWith(MockitoExtension.class)
+@Log4j2
 class ChatServiceImplTest {
 
   @Mock private ChatRepository chatRepository;
@@ -59,6 +70,8 @@ class ChatServiceImplTest {
   @Mock private ChatMapper chatMapper;
   @Mock private UserMapper userMapper;
   @Mock private UserRepository userRepository;
+
+  @Mock private IAuthenticationFacade authenticationFacade;
 
   @InjectMocks ChatServiceImpl underTest;
 
@@ -115,11 +128,6 @@ class ChatServiceImplTest {
 
     assertThrows(CountryNotFoundException.class, () -> underTest.findMainChat(countryName));
     verify(countryRepository, times(1)).findById(countryName);
-  }
-
-  @Test
-  void ok() {
-
   }
 
   @Test
@@ -245,6 +253,58 @@ class ChatServiceImplTest {
     assertEquals(messageDtoBasic, result.getContent().get(0));
     verify(messageRepository, times(1)).findAllByChatId(chatId, pageable);
     verify(messageMapper, times(1)).toMessageDtoBasic(message);
+  }
+
+  @Nested
+  class CreateCountrySubChat {
+    String countryName = "countryName", description = "desc", chatName = "chatName";
+    Country country1 = new Country();
+    User user1 = new User();
+
+    NewSubChatRequest request = new NewSubChatRequest(chatName, description, countryName);
+
+    Chat chat1 = Chat.builder()
+        .chatType(ChatType.GROUP)
+        .description(description)
+        .name(chatName)
+        .country(country1)
+        .users(List.of(user1))
+        .build();
+
+    @Test
+    void createCountrySubChat_shouldReturnChatDto_whenCountryFoundAndUserAuth() {
+      ChatDto chatDto = new ChatDto(chatName);
+
+      when(authenticationFacade.getAuthenticatedUser()).thenReturn(user);
+      when(countryRepository.findById(countryName)).thenReturn(Optional.of(country1));
+      when(chatRepository.save(chat1)).thenReturn(chat1);
+      when(chatMapper.toDto(chat1)).thenReturn(chatDto);
+
+      ChatDto result = underTest.createCountrySubChat(request);
+
+      verify(countryRepository, times(1)).findById(countryName);
+      verify(chatRepository, times(1)).save(chat1);
+      verify(authenticationFacade, times(1)).getAuthenticatedUser();
+      verify(chatMapper, times(1)).toDto(chat1);
+      assertEquals(chatDto, result);
+    }
+
+    @Test
+    void createCountrySubChat_shouldReturnChatDto_whenNoCountryFound() {
+      when(authenticationFacade.getAuthenticatedUser()).thenReturn(user);
+      when(countryRepository.findById(countryName)).thenReturn(Optional.empty());
+
+      assertThrows(CountryNotFoundException.class, () ->  underTest.createCountrySubChat(request));
+
+      verify(countryRepository, times(1)).findById(countryName);
+      verify(authenticationFacade, times(1)).getAuthenticatedUser();
+    }
+
+    @Test
+    void createCountrySubChat_shouldReturnChatDto_whenUserNotAuth() {
+      when(authenticationFacade.getAuthenticatedUser()).thenThrow(UserNotAuthenticatedException.class);
+      assertThrows(UserNotAuthenticatedException.class, () -> underTest.createCountrySubChat(null));
+    }
   }
 
   @Nested
