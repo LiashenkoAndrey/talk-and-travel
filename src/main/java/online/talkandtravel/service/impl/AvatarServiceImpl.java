@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
  *       username.
  *   <li>{@link #uploadAvatar(MultipartFile, Long)} - Uploads and saves a new avatar for a user from
  *       a multipart file.
- *   <li>{@link #getExistingAvatar(Long)} - Retrieves an existing avatar or throws an exception if
+ *   <li>{@link #getAvatar(Long)} - Retrieves an existing avatar or throws an exception if
  *       not found.
  *   <li>{@link #validateImage(MultipartFile, String)} - Validates the format and size of the
  *       uploaded image file.
@@ -60,7 +60,7 @@ public class AvatarServiceImpl implements AvatarService {
   @Override
   @Transactional
   public Avatar findByUserId(Long userId) {
-    return getExistingAvatar(userId);
+    return getAvatar(userId);
   }
 
   @Override
@@ -76,19 +76,9 @@ public class AvatarServiceImpl implements AvatarService {
     byte[] image = extractImageData(file);
     String filename = file.getOriginalFilename();
     validateImage(file, filename);
-    var existingAvatar = getExistingAvatar(userId);
+    var existingAvatar = getAvatar(userId);
     existingAvatar.setContent(image);
     return repository.save(existingAvatar);
-  }
-
-  private Avatar getExistingAvatar(Long userId) {
-    Avatar avatar =
-        repository
-            .findByUserId(userId)
-            .orElseThrow(
-                () -> new UserAvatarNotFoundException(userId));
-    avatar.setContent(avatar.getContent());
-    return avatar;
   }
 
   private void validateImage(MultipartFile imageFile, String originalFilename)
@@ -125,5 +115,12 @@ public class AvatarServiceImpl implements AvatarService {
 
   private Avatar createNewAvatar(byte[] standardAvatar) {
     return Avatar.builder().content(standardAvatar).build();
+  }
+
+
+  private Avatar getAvatar(Long userId) {
+    return repository
+        .findByUserId(userId)
+        .orElseThrow(() -> new UserAvatarNotFoundException(userId));
   }
 }

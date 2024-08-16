@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
  */
 public class UserAvatarNotFoundException extends ApiException {
 
-  private static final String MESSAGE = "User avatar [%s] not found";
+  private static final String MESSAGE = "User avatar with id [%s] not found";
   private static final HttpStatus STATUS = HttpStatus.NOT_FOUND;
 
   public UserAvatarNotFoundException(Long userId) {
