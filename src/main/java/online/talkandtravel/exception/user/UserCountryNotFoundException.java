@@ -1,10 +1,10 @@
 package online.talkandtravel.exception.user;
 
-import online.talkandtravel.exception.model.ApiException;
+import online.talkandtravel.exception.model.HttpException;
 import org.springframework.http.HttpStatus;
 
 /** Exception thrown when a specified UserCountry is not found. */
-public class UserCountryNotFoundException extends ApiException {
+public class UserCountryNotFoundException extends HttpException {
 
   private static final String MESSAGE =
       "UserCountry connection not exists for user %s and Country: %s";
