@@ -1,7 +1,6 @@
 package online.talkandtravel.util;
 
 import java.util.Collection;
-import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
