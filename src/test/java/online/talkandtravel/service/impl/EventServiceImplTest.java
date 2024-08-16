@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
@@ -86,80 +87,71 @@ class EventServiceImplTest {
 
   @Test
   void startTyping_shouldReturnEventDtoBasic_whenChatAndUserExist() {
-    when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-    when(eventRepository.save(any(Event.class))).thenReturn(event);
-    when(eventMapper.toEventDtoBasic(any(Event.class))).thenReturn(eventDtoBasic);
+    when(chatRepository.existsById(1L)).thenReturn(true);
+    when(userRepository.existsById(1L)).thenReturn(true);
 
     EventDtoBasic result = underTest.startTyping(eventRequest);
 
-    assertEquals(eventDtoBasic, result);
-    verify(chatRepository, times(1)).findById(1L);
-    verify(userRepository, times(1)).findById(1L);
-    verify(eventRepository, times(1)).save(any(Event.class));
-    verify(eventMapper, times(1)).toEventDtoBasic(event);
+    assertEqualsExcludingTime(eventDtoBasic, result);
+    verify(chatRepository, times(1)).existsById(1L);
+    verify(userRepository, times(1)).existsById(1L);
   }
 
   @Test
   void startTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
-    when(chatRepository.findById(1L)).thenReturn(Optional.empty());
+    when(chatRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(ChatNotFoundException.class, () -> underTest.startTyping(eventRequest));
-    verify(chatRepository, times(1)).findById(1L);
-    verify(userRepository, never()).findById(anyLong());
-    verify(eventRepository, never()).save(any(Event.class));
-    verify(eventMapper, never()).toEventDtoBasic(any(Event.class));
+    verify(chatRepository, times(1)).existsById(1L);
+    verify(userRepository, never()).existsById(anyLong());
   }
 
   @Test
   void startTyping_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
-    when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-    when(userRepository.findById(1L)).thenReturn(Optional.empty());
+    when(chatRepository.existsById(1L)).thenReturn(true);
+    when(userRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(UserNotFoundException.class, () -> underTest.startTyping(eventRequest));
-    verify(chatRepository, times(1)).findById(1L);
-    verify(userRepository, times(1)).findById(1L);
-    verify(eventRepository, never()).save(any(Event.class));
-    verify(eventMapper, never()).toEventDtoBasic(any(Event.class));
+    verify(chatRepository, times(1)).existsById(1L);
+    verify(userRepository, times(1)).existsById(1L);
   }
 
   @Test
   void stopTyping_shouldReturnEventDtoBasic_whenChatAndUserExist() {
-    when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-    when(eventRepository.save(any(Event.class))).thenReturn(event);
-    when(eventMapper.toEventDtoBasic(any(Event.class))).thenReturn(eventDtoBasic);
+    when(chatRepository.existsById(1L)).thenReturn(true);
+    when(userRepository.existsById(1L)).thenReturn(true);
+    EventDtoBasic expected = new EventDtoBasic(
+        event.getId(),
+        user.getId(),
+        chat.getId(),
+        EventType.STOP_TYPING,
+        LocalDateTime.now() // Use current time for event time
+    );
 
     EventDtoBasic result = underTest.stopTyping(eventRequest);
 
-    assertEquals(eventDtoBasic, result);
-    verify(chatRepository, times(1)).findById(1L);
-    verify(userRepository, times(1)).findById(1L);
-    verify(eventRepository, times(1)).save(any(Event.class));
-    verify(eventMapper, times(1)).toEventDtoBasic(event);
+    assertEqualsExcludingTime(expected, result);
+    verify(chatRepository, times(1)).existsById(1L);
+    verify(userRepository, times(1)).existsById(1L);
   }
 
   @Test
   void stopTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
-    when(chatRepository.findById(1L)).thenReturn(Optional.empty());
+    when(chatRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(ChatNotFoundException.class, () -> underTest.stopTyping(eventRequest));
-    verify(chatRepository, times(1)).findById(1L);
-    verify(userRepository, never()).findById(anyLong());
-    verify(eventRepository, never()).save(any(Event.class));
-    verify(eventMapper, never()).toEventDtoBasic(any(Event.class));
+    verify(chatRepository, times(1)).existsById(1L);
+    verify(userRepository, never()).existsById(anyLong());
   }
 
   @Test
   void stopTyping_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
-    when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-    when(userRepository.findById(1L)).thenReturn(Optional.empty());
+    when(chatRepository.existsById(1L)).thenReturn(true);
+    when(userRepository.existsById(1L)).thenReturn(false);
 
     assertThrows(UserNotFoundException.class, () -> underTest.stopTyping(eventRequest));
-    verify(chatRepository, times(1)).findById(1L);
-    verify(userRepository, times(1)).findById(1L);
-    verify(eventRepository, never()).save(any(Event.class));
-    verify(eventMapper, never()).toEventDtoBasic(any(Event.class));
+    verify(chatRepository, times(1)).existsById(1L);
+    verify(userRepository, times(1)).existsById(1L);
   }
 
   @Test
@@ -293,5 +285,11 @@ class EventServiceImplTest {
 
     // Act & Assert
     assertThrows(UserCountryNotFoundException.class, () -> underTest.leaveChat(eventRequest));
+  }
+
+  public void assertEqualsExcludingTime(EventDtoBasic expected, EventDtoBasic actual) {
+    assertEquals(expected.authorId(), actual.authorId());
+    assertEquals(expected.chatId(), actual.chatId());
+    assertEquals(expected.eventType(), actual.eventType());
   }
 }

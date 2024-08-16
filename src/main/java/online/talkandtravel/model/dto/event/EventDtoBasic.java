@@ -1,6 +1,7 @@
 package online.talkandtravel.model.dto.event;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import online.talkandtravel.model.entity.EventType;
 /**
  * Data Transfer Object (DTO) for representing a basic event.
