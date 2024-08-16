@@ -2,9 +2,9 @@ package online.talkandtravel.service.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.avatar.UserAvatarNotFoundException;
 import online.talkandtravel.exception.file.FileSizeExceededException;
 import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.UnsupportedFormatException;
@@ -86,7 +86,7 @@ public class AvatarServiceImpl implements AvatarService {
         repository
             .findByUserId(userId)
             .orElseThrow(
-                () -> new NoSuchElementException("Can not find avatar by user ID: " + userId));
+                () -> new UserAvatarNotFoundException(userId));
     avatar.setContent(avatar.getContent());
     return avatar;
   }
