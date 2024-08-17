@@ -21,6 +21,15 @@ import org.springframework.data.domain.Pageable;
  * <p>Methods:
  *
  * <ul>
+ *   <li>{@link #createPrivateChat(NewPrivateChatDto)} - creates private chat between two users
+ *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
+ *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} -  updates lastReadMessage
+ *   of  field that represents
+ *   last read message of chat by user
+ *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user
+ *   has already read
+ *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user
+ *   has not yet read
  *   <li>{@link #findAllChats(Pageable)} - Retrieves a paginated list of all chats. The method
  *       returns a {@link Page} of {@link ChatDto} objects, allowing for efficient querying and
  *       pagination.

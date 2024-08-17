@@ -19,11 +19,13 @@ import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
+import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.NewChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -363,5 +365,48 @@ class ChatServiceImplTest {
       Optional<Chat> thenReturn) {
     when(chatRepository.findChatByUsersAndChatType(participantsIds, ChatType.PRIVATE)).thenReturn(
         thenReturn);
+  }
+
+  @Nested
+  class SetLastReadMessage {
+    private final Long chatId = 1L, userId = 1L, lastReadMessageId = 2L;
+    private final UserChat userChat1 = new UserChat();
+    private final SetLastReadMessageRequest requestDto = new SetLastReadMessageRequest(userId, lastReadMessageId);
+
+    @Test
+    void setLastReadMessage_shouldUpdateField_whenUserChatFound() {
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.of(userChat1));
+      underTest.setLastReadMessage(chatId, requestDto);
+      userChat1.setLastReadMessageId(lastReadMessageId);
+      verify(userChatRepository, times(1)).save(userChat1);
+    }
+
+    @Test
+    void setLastReadMessage_shouldThrow_whenNoUserChatFound() {
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.empty());
+      assertThrows(UserChatNotFoundException.class, () -> underTest.setLastReadMessage(chatId, requestDto));
+    }
+  }
+
+  @Nested
+  class FindReadAndUnreadMessages {
+    private final Long chatId = 1L, lastReadMessageId = 1L;
+    private final Pageable pageable1 = PageRequest.of(0,10);
+    private final String content = "test";
+    private final Page<MessageDtoBasic> page = new PageImpl<>(List.of(new MessageDtoBasic(content)));
+
+    @Test
+    void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
+      when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable)).thenReturn(page);
+      Page<MessageDtoBasic> result = underTest.findReadMessages(chatId, lastReadMessageId, pageable1);
+      assertEquals(content, result.toList().get(0).content());
+    }
+
+    @Test
+    void findUnreadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
+      when(messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable)).thenReturn(page);
+      Page<MessageDtoBasic> result = underTest.findUnreadMessages(chatId, lastReadMessageId, pageable1);
+      assertEquals(content, result.toList().get(0).content());
+    }
   }
 }

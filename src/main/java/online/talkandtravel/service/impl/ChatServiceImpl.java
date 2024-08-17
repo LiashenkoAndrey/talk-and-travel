@@ -48,6 +48,15 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This service handles various operations related to chats, including:
  *
  * <ul>
+ *   <li>{@link #createPrivateChat(NewPrivateChatDto)} - creates private chat between two users
+ *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
+ *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} -  updates lastReadMessage
+ *   of  field that represents
+ *   last read message of chat by user
+ *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user
+ *   has already read
+ *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user
+ *   has not yet read
  *   <li>{@link #findAllChats(Pageable)} - Retrieves all chats with pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
  *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specified chat.
@@ -87,7 +96,6 @@ public class ChatServiceImpl implements ChatService {
 
   /**
    * creates private chat between two users
-   *
    * @param dto dto
    * @return chat id
    */
@@ -98,9 +106,7 @@ public class ChatServiceImpl implements ChatService {
     User companion = getUser(dto.companionId());
 
     checkIfChatExists(user, companion);
-
     Chat privateChat = createAndSavePrivateChat(user, companion);
-
     saveUserChat(privateChat, user);
     saveUserChat(privateChat, companion);
     return privateChat.getId();
@@ -119,10 +125,9 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
     log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
-    UserChat userChat =
-        userChatRepository
-            .findByChatIdAndUserId(chatId, dtoRequest.userId())
-            .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
+    UserChat userChat = userChatRepository
+        .findByChatIdAndUserId(chatId, dtoRequest.userId())
+        .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
     userChat.setLastReadMessageId(dtoRequest.lastReadMessageId());
     userChatRepository.save(userChat);
   }
