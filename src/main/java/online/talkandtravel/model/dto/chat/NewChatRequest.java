@@ -1,5 +1,10 @@
 package online.talkandtravel.model.dto.chat;
 
-public record NewChatRequest(String name, String description, String countryId) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
+public record NewChatRequest(
+    @NotBlank String name,
+    @NotBlank String description,
+    @NotNull String countryId) {
 }

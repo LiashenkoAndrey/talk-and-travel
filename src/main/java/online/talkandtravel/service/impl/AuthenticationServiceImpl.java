@@ -1,17 +1,21 @@
 package online.talkandtravel.service.impl;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.UserAuthenticationException;
 import online.talkandtravel.exception.auth.RegistrationException;
+import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.JwtService;
@@ -20,6 +24,8 @@ import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.validator.PasswordValidator;
 import online.talkandtravel.util.validator.UserEmailValidator;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This service handles user registration and login processes, including:
  *
  * <ul>
+ *   <li>{@link #getAuthenticatedUser()} - gets the authenticated
+ *       user from {@link SecurityContextHolder}
  *   <li>{@link #register(User)} - Registers a new user, creates an authentication token, and
  *       generates a default avatar.
  *   <li>{@link #login(String, String)} - Authenticates a user based on email and password, and
@@ -71,6 +79,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final TokenService tokenService;
   private final UserMapper userMapper;
   private final AvatarService avatarService;
+
+
+  /**
+   * gets User entity that stored in spring security
+   */
+  @Override
+  public User getAuthenticatedUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Object principal = authentication.getPrincipal();
+    return getUserFromPrincipal(principal);
+  }
 
   @Override
   @Transactional
@@ -125,6 +144,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   // todo: clarify an appointment of this method and create documentation
+
   private void revokeAllUserTokens(User user) {
     var validUserTokens = tokenService.findAllValidTokensByUserId(user.getId());
     if (validUserTokens.isEmpty()) {
@@ -137,7 +157,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         });
     tokenService.saveAll(validUserTokens);
   }
-
   private void generateStandardAvatar(User savedUser) throws IOException {
     log.info("generateStandardAvatar: savedUser - {}", savedUser);
     var avatar = avatarService.createDefaultAvatar(savedUser.getUserName());
@@ -196,5 +215,38 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         .password(user.getPassword())
         .role(Role.USER)
         .build();
+  }
+
+  /**
+   * In a spring security if a user not auth, principal equals 'anonymousUser' string
+   * This method checks if principal is not {@link CustomUserDetails} class then throw an exception
+   */
+  private User getUserFromPrincipal(Object principal) {
+    ifPrincipalIsStringThrowException(principal);
+    verifyPrincipal(principal);
+    CustomUserDetails userDetails = (CustomUserDetails) principal;
+    return userDetails.getUser();
+  }
+
+  /**
+   * This method checks if a principal is not a {@link CustomUserDetails} class then throw an
+   * exception
+   */
+  private void verifyPrincipal(Object principal) {
+    if (!(principal instanceof CustomUserDetails)) {
+      throw new UserNotAuthenticatedException(
+          format("Principal:%s - is not an instance of a CustomUserDetails", principal),
+          "Unexpected exception!"
+      );
+    }
+  }
+
+  /**
+   * If a principal is a string then throw an exception
+   */
+  private void ifPrincipalIsStringThrowException(Object principal) {
+    if (principal instanceof String) {
+      throw new UserNotAuthenticatedException("principal is a string ");
+    }
   }
 }

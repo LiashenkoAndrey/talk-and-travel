@@ -31,7 +31,7 @@ import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserRepository;
-import online.talkandtravel.security.IAuthenticationFacade;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
@@ -76,11 +76,11 @@ public class ChatServiceImpl implements ChatService {
   private final UserMapper userMapper;
   private final UserRepository userRepository;
   private final UserChatMapper userChatMapper;
-  private final IAuthenticationFacade authenticationFacade;
+  private final AuthenticationService authenticationService;
 
   @Override
   public ChatDto createCountryChat(NewChatRequest request) {
-    User user = authenticationFacade.getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
     Chat chat = createAndSaveChatWithUser(request, user);
     return chatMapper.toDto(chat);
   }

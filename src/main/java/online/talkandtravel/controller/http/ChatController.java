@@ -53,7 +53,7 @@ public class ChatController {
   private final ChatService chatService;
 
   @PostMapping
-  public ChatDto createCountryChat(@RequestBody NewChatRequest request) {
+  public ChatDto createCountryChat(@RequestBody @Valid NewChatRequest request) {
     return chatService.createCountryChat(request);
   }
 

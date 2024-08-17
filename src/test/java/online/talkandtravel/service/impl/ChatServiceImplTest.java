@@ -38,7 +38,7 @@ import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserRepository;
-import online.talkandtravel.security.IAuthenticationFacade;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
@@ -67,7 +67,7 @@ class ChatServiceImplTest {
   @Mock private UserMapper userMapper;
   @Mock private UserRepository userRepository;
 
-  @Mock private IAuthenticationFacade authenticationFacade;
+  @Mock private AuthenticationService authenticationService;
 
   @InjectMocks ChatServiceImpl underTest;
 
@@ -271,7 +271,7 @@ class ChatServiceImplTest {
     void createCountryChat_shouldReturnChatDto_whenCountryFoundAndUserAuth() {
       ChatDto chatDto = new ChatDto(chatName);
 
-      when(authenticationFacade.getAuthenticatedUser()).thenReturn(user);
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(countryRepository.findById(countryName)).thenReturn(Optional.of(country1));
       when(chatRepository.save(chat1)).thenReturn(chat1);
       when(chatMapper.toDto(chat1)).thenReturn(chatDto);
@@ -280,25 +280,25 @@ class ChatServiceImplTest {
 
       verify(countryRepository, times(1)).findById(countryName);
       verify(chatRepository, times(1)).save(chat1);
-      verify(authenticationFacade, times(1)).getAuthenticatedUser();
+      verify(authenticationService, times(1)).getAuthenticatedUser();
       verify(chatMapper, times(1)).toDto(chat1);
       assertEquals(chatDto, result);
     }
 
     @Test
     void createCountryChat_shouldReturnChatDto_whenNoCountryFound() {
-      when(authenticationFacade.getAuthenticatedUser()).thenReturn(user);
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(countryRepository.findById(countryName)).thenReturn(Optional.empty());
 
       assertThrows(CountryNotFoundException.class, () ->  underTest.createCountryChat(request));
 
       verify(countryRepository, times(1)).findById(countryName);
-      verify(authenticationFacade, times(1)).getAuthenticatedUser();
+      verify(authenticationService, times(1)).getAuthenticatedUser();
     }
 
     @Test
     void createCountryChat_shouldReturnChatDto_whenUserNotAuth() {
-      when(authenticationFacade.getAuthenticatedUser()).thenThrow(UserNotAuthenticatedException.class);
+      when(authenticationService.getAuthenticatedUser()).thenThrow(UserNotAuthenticatedException.class);
       assertThrows(UserNotAuthenticatedException.class, () -> underTest.createCountryChat(null));
     }
   }

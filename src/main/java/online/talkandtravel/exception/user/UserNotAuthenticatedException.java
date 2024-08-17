@@ -13,6 +13,10 @@ public class UserNotAuthenticatedException extends ApiException {
     super(message);
   }
 
+  public UserNotAuthenticatedException(String message, String messageToClient) {
+    super(message, messageToClient, STATUS);
+  }
+
   public UserNotAuthenticatedException() {
     super(MESSAGE, STATUS);
   }
