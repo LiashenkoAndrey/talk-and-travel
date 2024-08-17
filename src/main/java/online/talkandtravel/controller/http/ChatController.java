@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.NewSubChatRequest;
+import online.talkandtravel.model.dto.chat.NewChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -53,8 +53,8 @@ public class ChatController {
   private final ChatService chatService;
 
   @PostMapping
-  public ChatDto createCountrySubChat(@RequestBody NewSubChatRequest request) {
-    return chatService.createCountrySubChat(request);
+  public ChatDto createCountryChat(@RequestBody NewChatRequest request) {
+    return chatService.createCountryChat(request);
   }
 
   /**

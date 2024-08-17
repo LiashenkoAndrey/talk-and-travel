@@ -22,7 +22,7 @@ import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.NewSubChatRequest;
+import online.talkandtravel.model.dto.chat.NewChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
@@ -252,12 +252,12 @@ class ChatServiceImplTest {
   }
 
   @Nested
-  class CreateCountrySubChat {
+  class CreateCountryChat {
     String countryName = "countryName", description = "desc", chatName = "chatName";
     Country country1 = new Country();
     User user1 = new User();
 
-    NewSubChatRequest request = new NewSubChatRequest(chatName, description, countryName);
+    NewChatRequest request = new NewChatRequest(chatName, description, countryName);
 
     Chat chat1 = Chat.builder()
         .chatType(ChatType.GROUP)
@@ -268,7 +268,7 @@ class ChatServiceImplTest {
         .build();
 
     @Test
-    void createCountrySubChat_shouldReturnChatDto_whenCountryFoundAndUserAuth() {
+    void createCountryChat_shouldReturnChatDto_whenCountryFoundAndUserAuth() {
       ChatDto chatDto = new ChatDto(chatName);
 
       when(authenticationFacade.getAuthenticatedUser()).thenReturn(user);
@@ -276,7 +276,7 @@ class ChatServiceImplTest {
       when(chatRepository.save(chat1)).thenReturn(chat1);
       when(chatMapper.toDto(chat1)).thenReturn(chatDto);
 
-      ChatDto result = underTest.createCountrySubChat(request);
+      ChatDto result = underTest.createCountryChat(request);
 
       verify(countryRepository, times(1)).findById(countryName);
       verify(chatRepository, times(1)).save(chat1);
@@ -286,20 +286,20 @@ class ChatServiceImplTest {
     }
 
     @Test
-    void createCountrySubChat_shouldReturnChatDto_whenNoCountryFound() {
+    void createCountryChat_shouldReturnChatDto_whenNoCountryFound() {
       when(authenticationFacade.getAuthenticatedUser()).thenReturn(user);
       when(countryRepository.findById(countryName)).thenReturn(Optional.empty());
 
-      assertThrows(CountryNotFoundException.class, () ->  underTest.createCountrySubChat(request));
+      assertThrows(CountryNotFoundException.class, () ->  underTest.createCountryChat(request));
 
       verify(countryRepository, times(1)).findById(countryName);
       verify(authenticationFacade, times(1)).getAuthenticatedUser();
     }
 
     @Test
-    void createCountrySubChat_shouldReturnChatDto_whenUserNotAuth() {
+    void createCountryChat_shouldReturnChatDto_whenUserNotAuth() {
       when(authenticationFacade.getAuthenticatedUser()).thenThrow(UserNotAuthenticatedException.class);
-      assertThrows(UserNotAuthenticatedException.class, () -> underTest.createCountrySubChat(null));
+      assertThrows(UserNotAuthenticatedException.class, () -> underTest.createCountryChat(null));
     }
   }
 

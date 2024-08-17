@@ -15,7 +15,7 @@ import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.NewSubChatRequest;
+import online.talkandtravel.model.dto.chat.NewChatRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -79,9 +79,9 @@ public class ChatServiceImpl implements ChatService {
   private final IAuthenticationFacade authenticationFacade;
 
   @Override
-  public ChatDto createCountrySubChat(NewSubChatRequest request) {
+  public ChatDto createCountryChat(NewChatRequest request) {
     User user = authenticationFacade.getAuthenticatedUser();
-    Chat chat = createAndSaveSubChatWithUser(request, user);
+    Chat chat = createAndSaveChatWithUser(request, user);
     return chatMapper.toDto(chat);
   }
 
@@ -203,7 +203,7 @@ public class ChatServiceImpl implements ChatService {
             .build());
   }
 
-  private Chat createAndSaveSubChatWithUser(NewSubChatRequest request, User user) {
+  private Chat createAndSaveChatWithUser(NewChatRequest request, User user) {
     Country country = getCountry(request.countryId());
     return chatRepository.save(
         Chat.builder()
