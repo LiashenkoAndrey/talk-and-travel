@@ -7,11 +7,10 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
-import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
+import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserCountryNotFoundException;
-import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.entity.Chat;
@@ -104,7 +103,7 @@ class EventServiceImplTest {
   void startTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
     when(chatRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(ChatNotFoundException.class, () -> underTest.startTyping(eventRequest));
+    assertThrows(WebSocketException.class, () -> underTest.startTyping(eventRequest));
     verify(chatRepository, times(1)).findById(1L);
     verify(userRepository, never()).findById(anyLong());
     verify(eventRepository, never()).save(any(Event.class));
@@ -116,7 +115,7 @@ class EventServiceImplTest {
     when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
     when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(UserNotFoundException.class, () -> underTest.startTyping(eventRequest));
+    assertThrows(WebSocketException.class, () -> underTest.startTyping(eventRequest));
     verify(chatRepository, times(1)).findById(1L);
     verify(userRepository, times(1)).findById(1L);
     verify(eventRepository, never()).save(any(Event.class));
@@ -143,7 +142,7 @@ class EventServiceImplTest {
   void stopTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
     when(chatRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(ChatNotFoundException.class, () -> underTest.stopTyping(eventRequest));
+    assertThrows(WebSocketException.class, () -> underTest.stopTyping(eventRequest));
     verify(chatRepository, times(1)).findById(1L);
     verify(userRepository, never()).findById(anyLong());
     verify(eventRepository, never()).save(any(Event.class));
@@ -155,7 +154,7 @@ class EventServiceImplTest {
     when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
     when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(UserNotFoundException.class, () -> underTest.stopTyping(eventRequest));
+    assertThrows(WebSocketException.class, () -> underTest.stopTyping(eventRequest));
     verify(chatRepository, times(1)).findById(1L);
     verify(userRepository, times(1)).findById(1L);
     verify(eventRepository, never()).save(any(Event.class));
@@ -208,7 +207,7 @@ class EventServiceImplTest {
   void joinChat_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
     when(chatRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(ChatNotFoundException.class, () -> underTest.joinChat(eventRequest));
+    assertThrows(WebSocketException.class, () -> underTest.joinChat(eventRequest));
     verify(chatRepository, times(1)).findById(1L);
     verify(userRepository, never()).findById(anyLong());
     verify(userChatRepository, never()).findByChatIdAndUserId(anyLong(), anyLong());
@@ -224,7 +223,7 @@ class EventServiceImplTest {
     when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
     when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(UserNotFoundException.class, () -> underTest.joinChat(eventRequest));
+    assertThrows(WebSocketException.class, () -> underTest.joinChat(eventRequest));
     verify(chatRepository, times(1)).findById(1L);
     verify(userRepository, times(1)).findById(1L);
     verify(userChatRepository, never()).findByChatIdAndUserId(anyLong(), anyLong());

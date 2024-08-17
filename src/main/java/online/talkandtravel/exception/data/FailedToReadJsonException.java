@@ -1,13 +1,13 @@
 package online.talkandtravel.exception.data;
 
-import online.talkandtravel.exception.model.ApiException;
+import online.talkandtravel.exception.model.HttpException;
 import org.springframework.http.HttpStatus;
 
 /**
  * Exception thrown when a JSON file fails to be parsed or read.
  *
  * <p>This exception is used to indicate that there was an error in processing a JSON file,
- * typically due to issues with the file format or content. It extends {@link ApiException} to
+ * typically due to issues with the file format or content. It extends {@link HttpException} to
  * integrate with the application's error handling mechanism, providing both a descriptive message
  * and an HTTP status code.
  *
@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
  * The HTTP status is set to 409 (Conflict) to reflect that the request could not be completed due
  * to a conflict with the current state of the resource.
  */
-public class FailedToReadJsonException extends ApiException {
+public class FailedToReadJsonException extends HttpException {
 
   private static final String MESSAGE = "Failed to parse JSON file at %s";
   private static final HttpStatus STATUS = HttpStatus.CONFLICT;

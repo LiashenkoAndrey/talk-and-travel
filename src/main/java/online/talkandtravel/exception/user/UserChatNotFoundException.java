@@ -1,9 +1,9 @@
 package online.talkandtravel.exception.user;
 
-import online.talkandtravel.exception.model.ApiException;
+import online.talkandtravel.exception.model.HttpException;
 import org.springframework.http.HttpStatus;
 
-public class UserChatNotFoundException extends ApiException {
+public class UserChatNotFoundException extends HttpException {
   private static final String MESSAGE_WHEN_FIND_BY_CHAT_ID_AND_USER_ID = "UserChat record where chat id:%s and userId:%s not found";
   private static final String MESSAGE_WHEN_NOT_FOUND_BY_ID = "UserChat with id %s not found";
 

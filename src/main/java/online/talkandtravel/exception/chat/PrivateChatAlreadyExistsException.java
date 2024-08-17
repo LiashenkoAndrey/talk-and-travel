@@ -1,7 +1,7 @@
 package online.talkandtravel.exception.chat;
 
 import java.util.List;
-import online.talkandtravel.exception.model.ApiException;
+import online.talkandtravel.exception.model.HttpException;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
  *
  * @param participantIds List of users who are part of the existing private chat.
  */
-public class PrivateChatAlreadyExistsException extends ApiException {
+public class PrivateChatAlreadyExistsException extends HttpException {
 
   private static final String MESSAGE = "Private chat already exists for users with ids: %s and %s";
   private static final HttpStatus STATUS = HttpStatus.CONFLICT;
