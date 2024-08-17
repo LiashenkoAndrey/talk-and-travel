@@ -96,9 +96,7 @@ public class ChatServiceImpl implements ChatService {
     User companion = getUser(dto.companionId());
 
     checkIfChatExists(user, companion);
-
     Chat privateChat = createAndSavePrivateChat(user, companion);
-
     saveUserChat(privateChat, user);
     saveUserChat(privateChat, companion);
     return privateChat.getId();
