@@ -18,12 +18,12 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
-import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
+import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
@@ -35,10 +35,12 @@ import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
+import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
+import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.mapper.ChatMapper;
@@ -62,6 +64,7 @@ class ChatServiceImplTest {
 
   @Mock private ChatRepository chatRepository;
   @Mock private UserChatRepository userChatRepository;
+  @Mock private UserCountryRepository userCountryRepository;
   @Mock private CountryRepository countryRepository;
   @Mock private MessageRepository messageRepository;
   @Mock private MessageMapper messageMapper;
@@ -256,34 +259,56 @@ class ChatServiceImplTest {
   @Nested
   class CreateCountryChat {
     String countryName = "countryName", description = "desc", chatName = "chatName";
-    Country country1 = new Country();
-    User user1 = new User();
+    Country country1 = Country.builder().name(countryName).build();
+    User user1 = User.builder().id(1L).build();
 
     NewChatDto request = new NewChatDto(chatName, description, countryName);
 
-    Chat chat1 = Chat.builder()
-        .chatType(ChatType.GROUP)
-        .description(description)
-        .name(chatName)
-        .country(country1)
-        .users(List.of(user1))
-        .build();
+    Chat chat1 =
+        Chat.builder()
+            .chatType(ChatType.GROUP)
+            .description(description)
+            .name(chatName)
+            .country(country1)
+            .users(List.of(user1))
+            .build();
+
+    Chat chat2 =
+        Chat.builder()
+            .id(1L)
+            .chatType(ChatType.GROUP)
+            .description(description)
+            .name(chatName)
+            .country(country1)
+            .users(List.of(user1))
+            .build();
 
     @Test
     void createCountryChat_shouldReturnChatDto_whenCountryFoundAndUserAuth() {
       ChatDto chatDto = new ChatDto(chatName);
+      UserCountry userCountry = new UserCountry();
+      UserChat userChat = new UserChat();
 
-      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user1);
       when(countryRepository.findById(countryName)).thenReturn(Optional.of(country1));
-      when(chatRepository.save(chat1)).thenReturn(chat1);
-      when(chatMapper.toDto(chat1)).thenReturn(chatDto);
+      when(chatRepository.save(chat1)).thenReturn(chat2);
+      when(userCountryRepository.findByCountryNameAndUserId(countryName, user1.getId()))
+          .thenReturn(Optional.of(userCountry));
+      when(userChatRepository.findByChatIdAndUserId(chat2.getId(), user1.getId()))
+          .thenReturn(Optional.of(userChat));
+
+      when(chatMapper.toDto(chat2)).thenReturn(chatDto);
 
       ChatDto result = underTest.createCountryChat(request);
 
-      verify(countryRepository, times(1)).findById(countryName);
-      verify(chatRepository, times(1)).save(chat1);
       verify(authenticationService, times(1)).getAuthenticatedUser();
-      verify(chatMapper, times(1)).toDto(chat1);
+      verify(countryRepository, times(1)).findById(countryName);
+      verify(userCountryRepository, times(1))
+          .findByCountryNameAndUserId(countryName, user1.getId());
+      verify(userChatRepository, times(1)).findByChatIdAndUserId(chat2.getId(), user1.getId());
+      verify(chatRepository, times(1)).save(chat1);
+      verify(chatMapper, times(1)).toDto(chat2);
+
       assertEquals(chatDto, result);
     }
 
@@ -292,7 +317,7 @@ class ChatServiceImplTest {
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(countryRepository.findById(countryName)).thenReturn(Optional.empty());
 
-      assertThrows(CountryNotFoundException.class, () ->  underTest.createCountryChat(request));
+      assertThrows(CountryNotFoundException.class, () -> underTest.createCountryChat(request));
 
       verify(countryRepository, times(1)).findById(countryName);
       verify(authenticationService, times(1)).getAuthenticatedUser();
@@ -300,7 +325,8 @@ class ChatServiceImplTest {
 
     @Test
     void createCountryChat_shouldReturnChatDto_whenUserNotAuth() {
-      when(authenticationService.getAuthenticatedUser()).thenThrow(UserNotAuthenticatedException.class);
+      when(authenticationService.getAuthenticatedUser())
+          .thenThrow(UserNotAuthenticatedException.class);
       assertThrows(UserNotAuthenticatedException.class, () -> underTest.createCountryChat(null));
     }
   }
@@ -361,21 +387,23 @@ class ChatServiceImplTest {
     verify(userRepository, times(times)).findById(id);
   }
 
-  private void whenChatRepoFindPrivateChatByParticipants(List<Long> participantsIds,
-      Optional<Chat> thenReturn) {
-    when(chatRepository.findChatByUsersAndChatType(participantsIds, ChatType.PRIVATE)).thenReturn(
-        thenReturn);
+  private void whenChatRepoFindPrivateChatByParticipants(
+      List<Long> participantsIds, Optional<Chat> thenReturn) {
+    when(chatRepository.findChatByUsersAndChatType(participantsIds, ChatType.PRIVATE))
+        .thenReturn(thenReturn);
   }
 
   @Nested
   class SetLastReadMessage {
     private final Long chatId = 1L, userId = 1L, lastReadMessageId = 2L;
     private final UserChat userChat1 = new UserChat();
-    private final SetLastReadMessageRequest requestDto = new SetLastReadMessageRequest(userId, lastReadMessageId);
+    private final SetLastReadMessageRequest requestDto =
+        new SetLastReadMessageRequest(userId, lastReadMessageId);
 
     @Test
     void setLastReadMessage_shouldUpdateField_whenUserChatFound() {
-      when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.of(userChat1));
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId))
+          .thenReturn(Optional.of(userChat1));
       underTest.setLastReadMessage(chatId, requestDto);
       userChat1.setLastReadMessageId(lastReadMessageId);
       verify(userChatRepository, times(1)).save(userChat1);
@@ -384,28 +412,34 @@ class ChatServiceImplTest {
     @Test
     void setLastReadMessage_shouldThrow_whenNoUserChatFound() {
       when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.empty());
-      assertThrows(UserChatNotFoundException.class, () -> underTest.setLastReadMessage(chatId, requestDto));
+      assertThrows(
+          UserChatNotFoundException.class, () -> underTest.setLastReadMessage(chatId, requestDto));
     }
   }
 
   @Nested
   class FindReadAndUnreadMessages {
     private final Long chatId = 1L, lastReadMessageId = 1L;
-    private final Pageable pageable1 = PageRequest.of(0,10);
+    private final Pageable pageable1 = PageRequest.of(0, 10);
     private final String content = "test";
-    private final Page<MessageDtoBasic> page = new PageImpl<>(List.of(new MessageDtoBasic(content)));
+    private final Page<MessageDtoBasic> page =
+        new PageImpl<>(List.of(new MessageDtoBasic(content)));
 
     @Test
     void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
-      when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable)).thenReturn(page);
-      Page<MessageDtoBasic> result = underTest.findReadMessages(chatId, lastReadMessageId, pageable1);
+      when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable))
+          .thenReturn(page);
+      Page<MessageDtoBasic> result =
+          underTest.findReadMessages(chatId, lastReadMessageId, pageable1);
       assertEquals(content, result.toList().get(0).content());
     }
 
     @Test
     void findUnreadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
-      when(messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable)).thenReturn(page);
-      Page<MessageDtoBasic> result = underTest.findUnreadMessages(chatId, lastReadMessageId, pageable1);
+      when(messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable))
+          .thenReturn(page);
+      Page<MessageDtoBasic> result =
+          underTest.findUnreadMessages(chatId, lastReadMessageId, pageable1);
       assertEquals(content, result.toList().get(0).content());
     }
   }
