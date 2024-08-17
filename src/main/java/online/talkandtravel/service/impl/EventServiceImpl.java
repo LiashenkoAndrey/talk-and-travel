@@ -197,7 +197,7 @@ public class EventServiceImpl implements EventService {
    * @return processed event dto
    */
   private EventDtoBasic createChatTransientEvent(EventRequest request, EventType eventType) {
-    return new EventDtoBasic(-1L, request.authorId(), request.chatId(),
+    return new EventDtoBasic(null, request.authorId(), request.chatId(),
         eventType,
         LocalDateTime.now());
   }

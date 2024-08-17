@@ -29,6 +29,7 @@ import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.util.mapper.EventMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -85,73 +86,87 @@ class EventServiceImplTest {
     eventRequest = new EventRequest(userId, chatId);
   }
 
-  @Test
-  void startTyping_shouldReturnEventDtoBasic_whenChatAndUserExist() {
-    when(chatRepository.existsById(1L)).thenReturn(true);
-    when(userRepository.existsById(1L)).thenReturn(true);
+  @Nested
+  class StartTyping {
 
-    EventDtoBasic result = underTest.startTyping(eventRequest);
+    private final Long chatId= 1L, userId = 1L;
 
-    assertEqualsExcludingTime(eventDtoBasic, result);
-    verify(chatRepository, times(1)).existsById(1L);
-    verify(userRepository, times(1)).existsById(1L);
+    @Test
+    void startTyping_shouldReturnEventDtoBasic_whenChatAndUserExist() {
+      when(chatRepository.existsById(chatId)).thenReturn(true);
+      when(userRepository.existsById(userId)).thenReturn(true);
+
+      EventDtoBasic result = underTest.startTyping(eventRequest);
+
+      assertEqualsExcludingTime(eventDtoBasic, result);
+      verify(chatRepository, times(1)).existsById(chatId);
+      verify(userRepository, times(1)).existsById(userId);
+    }
+
+    @Test
+    void startTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
+      when(chatRepository.existsById(chatId)).thenReturn(false);
+
+      assertThrows(ChatNotFoundException.class, () -> underTest.startTyping(eventRequest));
+      verify(chatRepository, times(1)).existsById(chatId);
+      verify(userRepository, never()).existsById(anyLong());
+    }
+
+    @Test
+    void startTyping_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
+      when(chatRepository.existsById(chatId)).thenReturn(true);
+      when(userRepository.existsById(userId)).thenReturn(false);
+
+      assertThrows(UserNotFoundException.class, () -> underTest.startTyping(eventRequest));
+      verify(chatRepository, times(1)).existsById(chatId);
+      verify(userRepository, times(1)).existsById(userId);
+    }
   }
 
-  @Test
-  void startTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
-    when(chatRepository.existsById(1L)).thenReturn(false);
 
-    assertThrows(ChatNotFoundException.class, () -> underTest.startTyping(eventRequest));
-    verify(chatRepository, times(1)).existsById(1L);
-    verify(userRepository, never()).existsById(anyLong());
-  }
+  @Nested
+  class StopTyping {
 
-  @Test
-  void startTyping_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
-    when(chatRepository.existsById(1L)).thenReturn(true);
-    when(userRepository.existsById(1L)).thenReturn(false);
+    private final Long chatId= 1L, userId = 1L;
 
-    assertThrows(UserNotFoundException.class, () -> underTest.startTyping(eventRequest));
-    verify(chatRepository, times(1)).existsById(1L);
-    verify(userRepository, times(1)).existsById(1L);
-  }
+    @Test
+    void stopTyping_shouldReturnEventDtoBasic_whenChatAndUserExist() {
+      when(chatRepository.existsById(chatId)).thenReturn(true);
+      when(userRepository.existsById(userId)).thenReturn(true);
+      EventDtoBasic expected = new EventDtoBasic(
+          null,
+          user.getId(),
+          chat.getId(),
+          EventType.STOP_TYPING,
+          LocalDateTime.now() // Use current time for event time
+      );
 
-  @Test
-  void stopTyping_shouldReturnEventDtoBasic_whenChatAndUserExist() {
-    when(chatRepository.existsById(1L)).thenReturn(true);
-    when(userRepository.existsById(1L)).thenReturn(true);
-    EventDtoBasic expected = new EventDtoBasic(
-        event.getId(),
-        user.getId(),
-        chat.getId(),
-        EventType.STOP_TYPING,
-        LocalDateTime.now() // Use current time for event time
-    );
+      EventDtoBasic result = underTest.stopTyping(eventRequest);
 
-    EventDtoBasic result = underTest.stopTyping(eventRequest);
+      assertEqualsExcludingTime(expected, result);
+      verify(chatRepository, times(1)).existsById(chatId);
+      verify(userRepository, times(1)).existsById(userId);
+    }
 
-    assertEqualsExcludingTime(expected, result);
-    verify(chatRepository, times(1)).existsById(1L);
-    verify(userRepository, times(1)).existsById(1L);
-  }
+    @Test
+    void stopTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
+      when(chatRepository.existsById(chatId)).thenReturn(false);
 
-  @Test
-  void stopTyping_shouldThrowChatNotFoundException_whenChatDoesNotExist() {
-    when(chatRepository.existsById(1L)).thenReturn(false);
+      assertThrows(ChatNotFoundException.class, () -> underTest.stopTyping(eventRequest));
+      verify(chatRepository, times(1)).existsById(chatId);
+      verify(userRepository, never()).existsById(anyLong());
+    }
 
-    assertThrows(ChatNotFoundException.class, () -> underTest.stopTyping(eventRequest));
-    verify(chatRepository, times(1)).existsById(1L);
-    verify(userRepository, never()).existsById(anyLong());
-  }
+    @Test
+    void stopTyping_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
+      when(chatRepository.existsById(chatId)).thenReturn(true);
+      when(userRepository.existsById(userId)).thenReturn(false);
 
-  @Test
-  void stopTyping_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
-    when(chatRepository.existsById(1L)).thenReturn(true);
-    when(userRepository.existsById(1L)).thenReturn(false);
+      assertThrows(UserNotFoundException.class, () -> underTest.stopTyping(eventRequest));
+      verify(chatRepository, times(1)).existsById(chatId);
+      verify(userRepository, times(1)).existsById(userId);
+    }
 
-    assertThrows(UserNotFoundException.class, () -> underTest.stopTyping(eventRequest));
-    verify(chatRepository, times(1)).existsById(1L);
-    verify(userRepository, times(1)).existsById(1L);
   }
 
   @Test
@@ -288,6 +303,7 @@ class EventServiceImplTest {
   }
 
   public void assertEqualsExcludingTime(EventDtoBasic expected, EventDtoBasic actual) {
+    assertEquals(expected.id(), actual.id());
     assertEquals(expected.authorId(), actual.authorId());
     assertEquals(expected.chatId(), actual.chatId());
     assertEquals(expected.eventType(), actual.eventType());
