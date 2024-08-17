@@ -1,10 +1,10 @@
 package online.talkandtravel.exception.user;
 
-import online.talkandtravel.exception.model.ApiException;
+import online.talkandtravel.exception.model.HttpException;
 import org.springframework.http.HttpStatus;
 
 /** Exception thrown when a user not authenticated. */
-public class UserNotAuthenticatedException extends ApiException {
+public class UserNotAuthenticatedException extends HttpException {
 
   private static final String MESSAGE = "The user is not authenticated";
   private static final HttpStatus STATUS = HttpStatus.UNAUTHORIZED;

@@ -2,7 +2,8 @@ package online.talkandtravel.service;
 
 import java.util.List;
 import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.dto.chat.NewChatRequest;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -53,7 +54,7 @@ import org.springframework.data.domain.Pageable;
  */
 public interface ChatService {
 
-  ChatDto createCountryChat(NewChatRequest request);
+  ChatDto createCountryChat(NewChatDto dto);
 
   Long createPrivateChat(NewPrivateChatDto dto);
 
@@ -65,7 +66,7 @@ public interface ChatService {
 
   Page<MessageDtoBasic> findUnreadMessages(Long chatId, Long lastReadMessageId, Pageable pageable);
 
-  Page<PrivateChatInfoDto> findAllChats(Pageable pageable);
+  Page<ChatInfoDto> findAllChats(Pageable pageable);
 
   ChatDto findMainChat(String countryName);
 

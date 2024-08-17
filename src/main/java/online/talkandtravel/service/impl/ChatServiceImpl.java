@@ -14,8 +14,9 @@ import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.NewChatRequest;
+import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -88,9 +89,9 @@ public class ChatServiceImpl implements ChatService {
   private final AuthenticationService authenticationService;
 
   @Override
-  public ChatDto createCountryChat(NewChatRequest request) {
+  public ChatDto createCountryChat(NewChatDto dto) {
     User user = authenticationService.getAuthenticatedUser();
-    Chat chat = createAndSaveChatWithUser(request, user);
+    Chat chat = createAndSaveChatWithUser(dto, user);
     return chatMapper.toDto(chat);
   }
 
@@ -145,7 +146,7 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<PrivateChatInfoDto> findAllChats(Pageable pageable) {
+  public Page<ChatInfoDto> findAllChats(Pageable pageable) {
     return chatRepository.findAll(pageable).map(chatMapper::toChatInfoDto);
   }
 
@@ -208,7 +209,7 @@ public class ChatServiceImpl implements ChatService {
             .build());
   }
 
-  private Chat createAndSaveChatWithUser(NewChatRequest request, User user) {
+  private Chat createAndSaveChatWithUser(NewChatDto request, User user) {
     Country country = getCountry(request.countryId());
     return chatRepository.save(
         Chat.builder()

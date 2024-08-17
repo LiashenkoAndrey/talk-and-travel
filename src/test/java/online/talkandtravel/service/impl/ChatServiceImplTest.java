@@ -23,7 +23,7 @@ import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.NewChatRequest;
+import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
@@ -259,7 +259,7 @@ class ChatServiceImplTest {
     Country country1 = new Country();
     User user1 = new User();
 
-    NewChatRequest request = new NewChatRequest(chatName, description, countryName);
+    NewChatDto request = new NewChatDto(chatName, description, countryName);
 
     Chat chat1 = Chat.builder()
         .chatType(ChatType.GROUP)
