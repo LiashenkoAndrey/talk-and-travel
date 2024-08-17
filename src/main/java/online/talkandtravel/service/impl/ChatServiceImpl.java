@@ -27,10 +27,12 @@ import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
+import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
+import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
@@ -51,13 +53,12 @@ import org.springframework.transaction.annotation.Transactional;
  * <ul>
  *   <li>{@link #createPrivateChat(NewPrivateChatDto)} - creates private chat between two users
  *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
- *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} -  updates lastReadMessage
- *   of  field that represents
- *   last read message of chat by user
- *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user
- *   has already read
- *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user
- *   has not yet read
+ *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
+ *       field that represents last read message of chat by user
+ *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user has already
+ *       read
+ *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user has not
+ *       yet read
  *   <li>{@link #findAllChats(Pageable)} - Retrieves all chats with pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
  *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specified chat.
@@ -80,6 +81,7 @@ public class ChatServiceImpl implements ChatService {
   private final ChatRepository chatRepository;
   private final UserChatRepository userChatRepository;
   private final CountryRepository countryRepository;
+  private final UserCountryRepository userCountryRepository;
   private final MessageRepository messageRepository;
   private final MessageMapper messageMapper;
   private final ChatMapper chatMapper;
@@ -88,6 +90,7 @@ public class ChatServiceImpl implements ChatService {
   private final UserChatMapper userChatMapper;
   private final AuthenticationService authenticationService;
 
+  @Transactional
   @Override
   public ChatDto createCountryChat(NewChatDto dto) {
     User user = authenticationService.getAuthenticatedUser();
@@ -97,6 +100,7 @@ public class ChatServiceImpl implements ChatService {
 
   /**
    * creates private chat between two users
+   *
    * @param dto dto
    * @return chat id
    */
@@ -126,9 +130,10 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
     log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
-    UserChat userChat = userChatRepository
-        .findByChatIdAndUserId(chatId, dtoRequest.userId())
-        .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
+    UserChat userChat =
+        userChatRepository
+            .findByChatIdAndUserId(chatId, dtoRequest.userId())
+            .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
     userChat.setLastReadMessageId(dtoRequest.lastReadMessageId());
     userChatRepository.save(userChat);
   }
@@ -209,16 +214,24 @@ public class ChatServiceImpl implements ChatService {
             .build());
   }
 
-  private Chat createAndSaveChatWithUser(NewChatDto request, User user) {
-    Country country = getCountry(request.countryId());
-    return chatRepository.save(
-        Chat.builder()
-            .chatType(ChatType.GROUP)
-            .description(request.description())
-            .name(request.name())
-            .country(country)
-            .users(List.of(user))
-            .build());
+  private Chat createAndSaveChatWithUser(NewChatDto dto, User user) {
+    Country country = getCountry(dto.countryId());
+    Chat chat = fromChatDto(dto, user, country);
+    chat = chatRepository.save(chat);
+
+    saveConnections(user, country, chat);
+
+    return chat;
+  }
+
+  private Chat fromChatDto(NewChatDto dto, User user, Country country) {
+    return Chat.builder()
+        .chatType(ChatType.GROUP)
+        .description(dto.description())
+        .name(dto.name())
+        .country(country)
+        .users(List.of(user))
+        .build();
   }
 
   private void saveUserChat(Chat chat, User user) {
@@ -249,5 +262,25 @@ public class ChatServiceImpl implements ChatService {
     if (optionalChat.isPresent()) {
       throw new PrivateChatAlreadyExistsException(participantIds);
     }
+  }
+
+  private void saveConnections(User user, Country country, Chat chat) {
+    Optional<UserCountry> userCountryOptional =
+        userCountryRepository.findByCountryNameAndUserId(country.getName(), user.getId());
+
+    UserCountry userCountry =
+        userCountryOptional.orElseGet(
+            () -> UserCountry.builder().country(country).user(user).build());
+    Optional<UserChat> optionalUserChat =
+        userChatRepository.findByChatIdAndUserId(chat.getId(), user.getId());
+
+    UserChat userChat =
+        optionalUserChat.orElse(
+            UserChat.builder().chat(chat).user(user).userCountry(userCountry).build());
+    userChat.setUserCountry(userCountry);
+    userCountry.getChats().add(userChat);
+
+    // save connection user with country
+    userCountryRepository.save(userCountry);
   }
 }
