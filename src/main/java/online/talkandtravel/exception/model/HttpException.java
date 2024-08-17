@@ -14,40 +14,40 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @ToString
-public abstract class ApiException extends RuntimeException {
+public abstract class HttpException extends RuntimeException {
     private ZonedDateTime zonedDateTime;
     private String messageToClient;
     private HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 
-    public ApiException() {
+    public HttpException() {
         this.zonedDateTime = ZonedDateTime.now();
     }
 
-    public ApiException(String message) {
+    public HttpException(String message) {
         super(message);
         this.zonedDateTime = ZonedDateTime.now();
         this.messageToClient = message;
     }
 
-    public ApiException(String message, HttpStatus httpStatus) {
+    public HttpException(String message, HttpStatus httpStatus) {
         super(message);
         this.zonedDateTime = ZonedDateTime.now();
         this.messageToClient = message;
         this.httpStatus = httpStatus;
     }
-    public ApiException(String message, String messageToClient, HttpStatus httpStatus) {
+    public HttpException(String message, String messageToClient, HttpStatus httpStatus) {
         super(message);
         this.zonedDateTime = ZonedDateTime.now();
         this.messageToClient = messageToClient;
         this.httpStatus = httpStatus;
     }
-    public ApiException(String message, String messageToClient) {
+    public HttpException(String message, String messageToClient) {
         super(message);
         this.zonedDateTime = ZonedDateTime.now();
         this.messageToClient = messageToClient;
     }
 
-    public ApiException(String message, boolean hideMessageFromClient) {
+    public HttpException(String message, boolean hideMessageFromClient) {
         super(message);
         this.zonedDateTime = ZonedDateTime.now();
         if (!hideMessageFromClient) {
@@ -57,12 +57,12 @@ public abstract class ApiException extends RuntimeException {
 
 
 
-    public ApiException(Throwable cause) {
+    public HttpException(Throwable cause) {
         super(cause);
         this.zonedDateTime = ZonedDateTime.now();
     }
 
-    public ApiExceptionResponse toResponse(HttpStatus status) {
-        return new ApiExceptionResponse(this.messageToClient, status, this.zonedDateTime);
+    public ExceptionResponse toResponse(HttpStatus status) {
+        return new ExceptionResponse(this.messageToClient, status, this.zonedDateTime);
     }
 }

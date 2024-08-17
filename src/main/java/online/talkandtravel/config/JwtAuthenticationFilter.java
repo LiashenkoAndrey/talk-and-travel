@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import online.talkandtravel.exception.model.ApiExceptionResponse;
+import online.talkandtravel.exception.model.ExceptionResponse;
 import online.talkandtravel.service.JwtService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
@@ -112,11 +112,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private void sendErrorResponse(HttpServletResponse response) throws IOException {
-    ApiExceptionResponse apiExceptionResponse =
-        new ApiExceptionResponse(
+    ExceptionResponse exceptionResponse =
+        new ExceptionResponse(
             "Authentication failed", HttpStatus.UNAUTHORIZED, ZonedDateTime.now());
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     response.setContentType("application/json");
-    response.getWriter().write(objectMapper.writeValueAsString(apiExceptionResponse));
+    response.getWriter().write(objectMapper.writeValueAsString(exceptionResponse));
   }
 }
