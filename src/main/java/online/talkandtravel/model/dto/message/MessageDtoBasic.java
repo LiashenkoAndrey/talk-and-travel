@@ -15,4 +15,9 @@ import java.time.LocalDateTime;
  */
 
 public record MessageDtoBasic(
-    Long id, String content, LocalDateTime creationDate, Long senderId, Long chatId, Long repliedMessageId) {}
+    Long id, String content, LocalDateTime creationDate, Long senderId, Long chatId, Long repliedMessageId) {
+
+  public MessageDtoBasic(String content) {
+    this(null, content, null, null, null, null);
+  }
+}

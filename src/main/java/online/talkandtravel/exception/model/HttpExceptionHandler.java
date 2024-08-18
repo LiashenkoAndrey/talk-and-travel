@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /** Global api exception handler. */
 @RestControllerAdvice
 @Log4j2
-public class GlobalExceptionHandler {
+public class HttpExceptionHandler {
 
-  @ExceptionHandler(ApiException.class)
-  public ResponseEntity<ApiExceptionResponse> handleApiException(ApiException e) {
+  @ExceptionHandler(HttpException.class)
+  public ResponseEntity<ExceptionResponse> handleApiException(HttpException e) {
     return createResponse(e, e.getHttpStatus());
   }
 
@@ -31,15 +31,15 @@ public class GlobalExceptionHandler {
     Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
     for (ConstraintViolation<?> violation : violations) {
       if (violation.getPropertyPath().toString().equals("userName")) {
-        ApiExceptionResponse apiExceptionResponse =
-            new ApiExceptionResponse(
+        ExceptionResponse exceptionResponse =
+            new ExceptionResponse(
                 violation.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
-        return ResponseEntity.badRequest().body(apiExceptionResponse);
+        return ResponseEntity.badRequest().body(exceptionResponse);
       }
     }
     return ResponseEntity.badRequest()
         .body(
-            new ApiExceptionResponse(
+            new ExceptionResponse(
                 "Validation failed", HttpStatus.BAD_REQUEST, ZonedDateTime.now()));
   }
 
@@ -50,8 +50,8 @@ public class GlobalExceptionHandler {
    * @param httpStatus http status of response
    * @return user-friendly response
    */
-  private ResponseEntity<ApiExceptionResponse> createResponse(
-      ApiException e, HttpStatus httpStatus) {
+  private ResponseEntity<ExceptionResponse> createResponse(
+      HttpException e, HttpStatus httpStatus) {
     log.error(e.getMessage());
     HttpStatus httpStatus1 = e.getHttpStatus() == null ? httpStatus : e.getHttpStatus();
     return new ResponseEntity<>(e.toResponse(httpStatus1), httpStatus1);

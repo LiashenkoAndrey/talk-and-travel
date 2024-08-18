@@ -3,6 +3,7 @@ package online.talkandtravel.security;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import online.talkandtravel.model.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  *   <li>{@link #isEnabled()} - Indicates that the user is enabled.</li>
  * </ul>
  */
-
+@Getter
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 

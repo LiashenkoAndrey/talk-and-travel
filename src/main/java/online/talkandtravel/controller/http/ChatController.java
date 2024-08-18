@@ -31,15 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
  * Controller class responsible for handling HTTP requests related to chat functionalities.
  *
  * <ul>
- *   <li>{@code findAllChats} - Retrieves a paginated list of all available chats.
- *   <li>{@code findMainChat} - Finds and returns the main chat for a specific country.
- *   <li>{@code findUserCount} - Returns the number of users in a specific chat, identified by its
- *       ID.
- *   <li>{@code findUserChats} - Retrieves a list of chats associated with a specific user,
+ *   <li>{@link #createPrivateChat} - creates private chat between two users
+ *   <li>{@link #findAllChats} - Retrieves a paginated list of all available chats.
+ *   <li>{@link #findMainChat} - Finds and returns the main chat for a specific country.
+ *   <li>{@link #findUserCount} - Returns the number of users in a specific chat,
+ *   identified by its ID.
+ *   <li>{@link #getChatMessagesOrderedByDate}</li> - gets chat messages ordered by date
+ *   <li>{@link #updateLastReadMessage}</li> - updates lastReadMessage of  field that represents
+ *   last read message of chat by user
+ *   <li>{@link #getReadMessages}</li> - finds messages that the user has already read
+ *   <li>{@link #getUnreadMessages}</li> - finds messages that the user has not yet read
+ *   <li>{@link #findUserChats} - Retrieves a list of chats associated with a specific user,
  *       identified by their user ID.
- *   <li>{@code findUsersByChatId} - Provides a list of users participating in a specific chat,
+ *   <li>{@link #findUsersByChatId} - Provides a list of users participating in a specific chat,
  *       identified by its ID.
- *   <li>{@code getChatMessagesOrderedByDate} - Retrieves paginated messages from a specific chat,
+ *   <li>{@link #getChatMessagesOrderedByDate} - Retrieves paginated messages from a specific chat,
  *       ordered by date.
  * </ul>
  */
@@ -53,7 +59,6 @@ public class ChatController {
 
   /**
    * creates a private chat between two users
-   *
    * @return chat id
    */
   @PostMapping("/private")
@@ -84,11 +89,10 @@ public class ChatController {
 
   /**
    * updates id of last read message of chat by user
-   *
    * @param dtoRequest userId and lastReadMessageId
    */
   @PutMapping("/{chatId}/messages/last-read")
-  public void setLastReadMessage(
+  public void updateLastReadMessage(
       @PathVariable @Positive @NotNull Long chatId,
       @RequestBody @Valid SetLastReadMessageRequest dtoRequest) {
     chatService.setLastReadMessage(chatId, dtoRequest);
@@ -104,7 +108,7 @@ public class ChatController {
   }
 
   /** finds messages that was sent after specified last read message */
-  @GetMapping("/{chatId}/messages/un-read")
+  @GetMapping("/{chatId}/messages/unread")
   public Page<MessageDtoBasic> getUnreadMessages(
       @PathVariable Long chatId,
       @RequestParam @Positive Long lastReadMessageId,

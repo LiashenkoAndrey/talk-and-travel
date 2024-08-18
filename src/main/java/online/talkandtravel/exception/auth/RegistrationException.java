@@ -1,12 +1,12 @@
 package online.talkandtravel.exception.auth;
 
-import online.talkandtravel.exception.model.ApiException;
+import online.talkandtravel.exception.model.HttpException;
 
 /**
  * Custom exception class for handling registration errors.
  *
  * <p>This exception is used to signal issues related to user registration within the application.
- * It extends {@link ApiException} to integrate with the application's general exception hierarchy
+ * It extends {@link HttpException} to integrate with the application's general exception hierarchy
  * and facilitate consistent exception handling.
  *
  * <p>This exception can be thrown in scenarios such as:
@@ -17,7 +17,7 @@ import online.talkandtravel.exception.model.ApiException;
  *   <li>Other registration-related issues that require specific handling and messaging.
  * </ul>
  */
-public class RegistrationException extends ApiException {
+public class RegistrationException extends HttpException {
 
   public RegistrationException(String message) {
     super(message);
