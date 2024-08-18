@@ -43,4 +43,11 @@ public class WebSocketException extends RuntimeException {
     this.messageToClient = cause.getMessage();
     this.zonedDateTime = ZonedDateTime.now();
   }
+
+  public WebSocketException(HttpException cause) {
+    super(cause.getMessage());
+    this.httpStatus = cause.getHttpStatus();
+    this.messageToClient = cause.getMessage();
+    this.zonedDateTime = ZonedDateTime.now();
+  }
 }

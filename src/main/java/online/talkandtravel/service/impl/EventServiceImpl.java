@@ -180,34 +180,40 @@ public class EventServiceImpl implements EventService {
 
   private void throwIfChatNotExists(Long chatId) {
     if (!chatRepository.existsById(chatId)) {
-      throw new ChatNotFoundException(chatId);
+      try {
+        throw new ChatNotFoundException(chatId);
+      } catch (ChatNotFoundException e) {
+        throw new WebSocketException(e);
+      }
     }
   }
 
   private void throwIfUserNotExists(Long userId) {
     if (!userRepository.existsById(userId)) {
-      throw new UserNotFoundException(userId);
+      try {
+        throw new UserNotFoundException(userId);
+      } catch (UserNotFoundException e) {
+        throw new WebSocketException(e, userId);
+      }
     }
   }
 
-  /**
-   * verify if chat and author exists by specified id
-   */
+  /** verify if chat and author exists by specified id */
   private void validateRequest(EventRequest request) {
     throwIfChatNotExists(request.chatId());
     throwIfUserNotExists(request.authorId());
   }
 
   /**
-   * creates event that it isn't persisted to a database
-   * That is temporary and not intended for persistent storage.
+   * creates event that it isn't persisted to a database That is temporary and not intended for
+   * persistent storage.
+   *
    * @param request event dto
    * @param eventType type of transient event
    * @return processed event dto
    */
   private EventDtoBasic createChatTransientEvent(EventRequest request, EventType eventType) {
-    return new EventDtoBasic(null, request.authorId(), request.chatId(),
-        eventType,
-        LocalDateTime.now());
+    return new EventDtoBasic(
+        null, request.authorId(), request.chatId(), eventType, LocalDateTime.now());
   }
 }
