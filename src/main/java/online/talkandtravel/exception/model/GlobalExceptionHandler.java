@@ -21,11 +21,9 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler({IllegalStateException.class})
-  public ResponseEntity<ApiExceptionResponse> handleInternalExceptions(Exception e) {
+  public ApiExceptionResponse handleValidationExceptions(Exception e) {
     log.error(e.getMessage());
-    ApiExceptionResponse apiExceptionResponse =
-        new ApiExceptionResponse("internal", HttpStatus.INTERNAL_SERVER_ERROR, ZonedDateTime.now());
-    return new ResponseEntity<>(apiExceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    return new ApiExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
   }
 
   @ExceptionHandler(value = {ConstraintViolationException.class})

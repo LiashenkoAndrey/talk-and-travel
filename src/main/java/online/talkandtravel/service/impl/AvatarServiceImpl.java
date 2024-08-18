@@ -49,16 +49,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class AvatarServiceImpl implements AvatarService {
   private static final String[] SUPPORTED_FORMAT_AVATAR = {"jpeg", "jpg", "png"};
   private static final int MAX_SIZE_AVATAR = 4 * 1024 * 1024; // Size in bytes (4MB)
-  private final AvatarRepository repository;
+  private final AvatarRepository avatarRepository;
   private final ImageService imageService;
 
   @Override
   public Avatar save(Avatar avatar) {
-    return repository.save(avatar);
+    return avatarRepository.save(avatar);
   }
 
-  @Override
   @Transactional
+  @Override
   public Avatar findByUserId(Long userId) {
     return getAvatar(userId);
   }
@@ -72,28 +72,28 @@ public class AvatarServiceImpl implements AvatarService {
 
   @Override
   @Transactional
-  public Avatar uploadAvatar(MultipartFile file, Long userId) {
-    byte[] image = extractImageData(file);
+  public Long uploadAvatar(MultipartFile file, Long userId) {
+    log.info("uploadAvatar: username - {}", userId);
     String filename = file.getOriginalFilename();
     validateImage(file, filename);
+    byte[] image = extractImageData(file);
     var existingAvatar = getAvatar(userId);
     existingAvatar.setContent(image);
-    return repository.save(existingAvatar);
+    return avatarRepository.save(existingAvatar).getId();
   }
 
-  private void validateImage(MultipartFile imageFile, String originalFilename)
-      throws UnsupportedFormatException, FileSizeExceededException {
+  private void validateImage(MultipartFile imageFile, String originalFilename) {
     validateImageFormat(originalFilename);
     validateImageSize(imageFile);
   }
 
-  private void validateImageFormat(String originalFilename) throws UnsupportedFormatException {
+  private void validateImageFormat(String originalFilename) {
     if (!isSupportedFormat(originalFilename)) {
       throw new UnsupportedFormatException("Your photo must be in JPEG, JPG, or PNG.");
     }
   }
 
-  private void validateImageSize(MultipartFile imageFile) throws FileSizeExceededException {
+  private void validateImageSize(MultipartFile imageFile) {
     if (imageFile.getSize() > MAX_SIZE_AVATAR) {
       throw new FileSizeExceededException("File size exceeds 4MB");
     }
@@ -119,7 +119,7 @@ public class AvatarServiceImpl implements AvatarService {
 
 
   private Avatar getAvatar(Long userId) {
-    return repository
+    return avatarRepository
         .findByUserId(userId)
         .orElseThrow(() -> new UserAvatarNotFoundException(userId));
   }
