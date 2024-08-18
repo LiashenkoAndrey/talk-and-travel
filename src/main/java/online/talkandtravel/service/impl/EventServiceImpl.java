@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
+import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserCountryNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -158,15 +159,23 @@ public class EventServiceImpl implements EventService {
   }
 
   private User getUser(EventRequest request) {
-    return userRepository
-        .findById(request.authorId())
-        .orElseThrow(() -> new UserNotFoundException(request.authorId()));
+    try {
+      return userRepository
+          .findById(request.authorId())
+          .orElseThrow(() -> new UserNotFoundException(request.authorId()));
+    } catch (UserNotFoundException e) {
+      throw new WebSocketException(e, request.authorId());
+    }
   }
 
   private Chat getChat(EventRequest request) {
-    return chatRepository
-        .findById(request.chatId())
-        .orElseThrow(() -> new ChatNotFoundException(request.chatId()));
+    try {
+      return chatRepository
+          .findById(request.chatId())
+          .orElseThrow(() -> new ChatNotFoundException(request.chatId()));
+    } catch (ChatNotFoundException e) {
+      throw new WebSocketException(e, request.authorId());
+    }
   }
 
   private void throwIfChatNotExists(Long chatId) {

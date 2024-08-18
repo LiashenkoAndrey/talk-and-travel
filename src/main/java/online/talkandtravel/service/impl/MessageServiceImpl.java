@@ -2,9 +2,11 @@ package online.talkandtravel.service.impl;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.message.MessageNotFoundException;
+import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  *       replied message if provided.
  * </ul>
  */
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -79,15 +82,24 @@ public class MessageServiceImpl implements MessageService {
   }
 
   private Chat getChat(SendMessageRequest request) {
-    return chatRepository
-        .findById(request.chatId())
-        .orElseThrow(() -> new ChatNotFoundException(request.chatId()));
+    try {
+      return chatRepository
+          .findById(request.chatId())
+          .orElseThrow(() -> new ChatNotFoundException(request.chatId()));
+    } catch (ChatNotFoundException e) {
+      log.error("chat not found caught");
+      throw new WebSocketException(e, request.senderId());
+    }
   }
 
   private User getUser(SendMessageRequest request) {
-    return userRepository
-        .findById(request.senderId())
-        .orElseThrow(() -> new UserNotFoundException(request.senderId()));
+    try {
+      return userRepository
+          .findById(request.senderId())
+          .orElseThrow(() -> new UserNotFoundException(request.senderId()));
+    } catch (UserNotFoundException e) {
+      throw new WebSocketException(e, request.senderId());
+    }
   }
 
   private Message getMessage(SendMessageRequest request) {
@@ -95,8 +107,12 @@ public class MessageServiceImpl implements MessageService {
     if (messageId == null) {
       return null;
     }
-    return messageRepository
-        .findById(messageId)
-        .orElseThrow(() -> new MessageNotFoundException(messageId));
+    try {
+      return messageRepository
+          .findById(messageId)
+          .orElseThrow(() -> new MessageNotFoundException(messageId));
+    } catch (MessageNotFoundException e) {
+      throw new WebSocketException(e, request.senderId());
+    }
   }
 }

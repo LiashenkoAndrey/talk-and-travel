@@ -7,10 +7,8 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
-import online.talkandtravel.exception.message.MessageNotFoundException;
-import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.dto.user.UserNameDto;
@@ -110,7 +108,7 @@ public class MessageServiceImplTest {
     when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
 
     // Act & Assert
-    assertThrows(ChatNotFoundException.class, () -> underTest.saveMessage(request));
+    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request));
   }
 
   @Test
@@ -125,7 +123,7 @@ public class MessageServiceImplTest {
     when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
     // Act & Assert
-    assertThrows(UserNotFoundException.class, () -> underTest.saveMessage(request));
+    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request));
   }
 
   @Test
@@ -141,6 +139,6 @@ public class MessageServiceImplTest {
     when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.empty());
 
     // Act & Assert
-    assertThrows(MessageNotFoundException.class, () -> underTest.saveMessage(request));
+    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request));
   }
 }
