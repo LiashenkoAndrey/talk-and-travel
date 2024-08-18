@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
+import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.service.EventService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -51,7 +52,7 @@ public class EventController {
   @MessageMapping("/events.startTyping")
   public void startTyping(@Payload EventRequest request) {
     log.info("create a new START TYPING event {}", request);
-    EventDtoBasic event = eventService.startTyping(request);
+    EventResponse event = eventService.startTyping(request);
 
     sendResponse(request, event);
   }
@@ -59,12 +60,16 @@ public class EventController {
   @MessageMapping("/events.stopTyping")
   public void stopTyping(@Payload EventRequest request) {
     log.info("create a new STOP TYPING event {}", request);
-    EventDtoBasic event = eventService.stopTyping(request);
+    EventResponse event = eventService.stopTyping(request);
 
     sendResponse(request, event);
   }
 
   private void sendResponse(EventRequest request, EventDtoBasic event) {
+    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+  }
+
+  private void sendResponse(EventRequest request, EventResponse event) {
     messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
   }
 }

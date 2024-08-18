@@ -13,6 +13,7 @@ import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserCountryNotFoundException;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
+import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Event;
@@ -46,12 +47,11 @@ class EventServiceImplTest {
 
   @InjectMocks private EventServiceImpl underTest;
 
-  private final Long chatId = 1L;
-  private final Long userId = 1L;
   private Chat chat;
   private User user;
   private Event event;
   private EventDtoBasic eventDtoBasic;
+  private EventResponse eventResponse;
   private EventRequest eventRequest;
   private UserChat userChat;
   private UserCountry userCountry;
@@ -59,10 +59,12 @@ class EventServiceImplTest {
   @BeforeEach
   void setUp() {
     chat = new Chat();
+    Long chatId = 1L;
     chat.setId(chatId);
     chat.setName("Chat1");
 
     user = new User();
+    Long userId = 1L;
     user.setId(userId);
     user.setUserName("User1");
 
@@ -81,6 +83,8 @@ class EventServiceImplTest {
             LocalDateTime.now() // Use current time for event time
             );
 
+    eventResponse = new EventResponse(userId, event.getEventType(), LocalDateTime.now());
+
     eventRequest = new EventRequest(userId, chatId);
   }
 
@@ -94,9 +98,9 @@ class EventServiceImplTest {
       when(chatRepository.existsById(chatId)).thenReturn(true);
       when(userRepository.existsById(userId)).thenReturn(true);
 
-      EventDtoBasic result = underTest.startTyping(eventRequest);
+      EventResponse result = underTest.startTyping(eventRequest);
 
-      assertEqualsExcludingTime(eventDtoBasic, result);
+      assertEqualsExcludingTime(eventResponse, result);
       verify(chatRepository, times(1)).existsById(chatId);
       verify(userRepository, times(1)).existsById(userId);
     }
@@ -133,16 +137,14 @@ class EventServiceImplTest {
       void stopTyping_shouldReturnEventDtoBasic_whenChatAndUserExist() {
         when(chatRepository.existsById(chatId)).thenReturn(true);
         when(userRepository.existsById(userId)).thenReturn(true);
-        EventDtoBasic expected =
-            new EventDtoBasic(
-                null,
+        EventResponse expected =
+            new EventResponse(
                 user.getId(),
-                chat.getId(),
                 EventType.STOP_TYPING,
                 LocalDateTime.now() // Use current time for event time
                 );
 
-        EventDtoBasic result = underTest.stopTyping(eventRequest);
+        EventResponse result = underTest.stopTyping(eventRequest);
 
         assertEqualsExcludingTime(expected, result);
         verify(chatRepository, times(1)).existsById(chatId);
@@ -307,10 +309,8 @@ class EventServiceImplTest {
     }
   }
 
-  public void assertEqualsExcludingTime(EventDtoBasic expected, EventDtoBasic actual) {
-    assertEquals(expected.id(), actual.id());
+  public void assertEqualsExcludingTime(EventResponse expected, EventResponse actual) {
     assertEquals(expected.authorId(), actual.authorId());
-    assertEquals(expected.chatId(), actual.chatId());
     assertEquals(expected.eventType(), actual.eventType());
   }
 }

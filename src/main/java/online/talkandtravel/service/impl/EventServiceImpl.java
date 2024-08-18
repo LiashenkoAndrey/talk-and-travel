@@ -12,6 +12,7 @@ import online.talkandtravel.exception.user.UserCountryNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
+import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Event;
 import online.talkandtravel.model.entity.EventType;
@@ -68,13 +69,13 @@ public class EventServiceImpl implements EventService {
   private final UserCountryRepository userCountryRepository;
 
   @Override
-  public EventDtoBasic startTyping(EventRequest request) {
+  public EventResponse startTyping(EventRequest request) {
     validateRequest(request);
     return createChatTransientEvent(request, EventType.START_TYPING);
   }
 
   @Override
-  public EventDtoBasic stopTyping(EventRequest request) {
+  public EventResponse stopTyping(EventRequest request) {
     validateRequest(request);
     return createChatTransientEvent(request, EventType.STOP_TYPING);
   }
@@ -178,12 +179,12 @@ public class EventServiceImpl implements EventService {
     }
   }
 
-  private void throwIfChatNotExists(Long chatId) {
-    if (!chatRepository.existsById(chatId)) {
+  private void throwIfChatNotExists(EventRequest request) {
+    if (!chatRepository.existsById(request.chatId())) {
       try {
-        throw new ChatNotFoundException(chatId);
+        throw new ChatNotFoundException(request.chatId());
       } catch (ChatNotFoundException e) {
-        throw new WebSocketException(e);
+        throw new WebSocketException(e, request.authorId());
       }
     }
   }
@@ -200,7 +201,7 @@ public class EventServiceImpl implements EventService {
 
   /** verify if chat and author exists by specified id */
   private void validateRequest(EventRequest request) {
-    throwIfChatNotExists(request.chatId());
+    throwIfChatNotExists(request);
     throwIfUserNotExists(request.authorId());
   }
 
@@ -212,8 +213,7 @@ public class EventServiceImpl implements EventService {
    * @param eventType type of transient event
    * @return processed event dto
    */
-  private EventDtoBasic createChatTransientEvent(EventRequest request, EventType eventType) {
-    return new EventDtoBasic(
-        null, request.authorId(), request.chatId(), eventType, LocalDateTime.now());
+  private EventResponse createChatTransientEvent(EventRequest request, EventType eventType) {
+    return new EventResponse(request.authorId(), eventType, LocalDateTime.now());
   }
 }
