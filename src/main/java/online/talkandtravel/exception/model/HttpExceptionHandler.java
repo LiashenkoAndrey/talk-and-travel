@@ -21,9 +21,9 @@ public class HttpExceptionHandler {
   }
 
   @ExceptionHandler({IllegalStateException.class})
-  public ApiExceptionResponse handleValidationExceptions(Exception e) {
+  public ExceptionResponse handleValidationExceptions(Exception e) {
     log.error(e.getMessage());
-    return new ApiExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
+    return new ExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
   }
 
   @ExceptionHandler(value = {ConstraintViolationException.class})
@@ -50,8 +50,7 @@ public class HttpExceptionHandler {
    * @param httpStatus http status of response
    * @return user-friendly response
    */
-  private ResponseEntity<ExceptionResponse> createResponse(
-      HttpException e, HttpStatus httpStatus) {
+  private ResponseEntity<ExceptionResponse> createResponse(HttpException e, HttpStatus httpStatus) {
     log.error(e.getMessage());
     HttpStatus httpStatus1 = e.getHttpStatus() == null ? httpStatus : e.getHttpStatus();
     return new ResponseEntity<>(e.toResponse(httpStatus1), httpStatus1);
