@@ -2,6 +2,7 @@ package online.talkandtravel.service;
 
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
+import online.talkandtravel.model.dto.event.EventResponse;
 
 /**
  * Service interface for managing events related to chat interactions.
@@ -32,7 +33,7 @@ public interface EventService {
 
   EventDtoBasic leaveChat(EventRequest request);
 
-  EventDtoBasic startTyping(EventRequest request);
+  EventResponse startTyping(EventRequest request);
 
-  EventDtoBasic stopTyping(EventRequest request);
+  EventResponse stopTyping(EventRequest request);
 }

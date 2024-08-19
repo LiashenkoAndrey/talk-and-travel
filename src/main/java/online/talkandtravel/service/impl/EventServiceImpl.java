@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import online.talkandtravel.exception.user.UserCountryNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
+import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Event;
 import online.talkandtravel.model.entity.EventType;
@@ -67,23 +69,15 @@ public class EventServiceImpl implements EventService {
   private final UserCountryRepository userCountryRepository;
 
   @Override
-  public EventDtoBasic startTyping(EventRequest request) {
-    Chat chat = getChat(request);
-    User author = getUser(request);
-
-    Event event = Event.builder().chat(chat).user(author).eventType(EventType.START_TYPING).build();
-    event = eventRepository.save(event);
-    return eventMapper.toEventDtoBasic(event);
+  public EventResponse startTyping(EventRequest request) {
+    validateRequest(request);
+    return createChatTransientEvent(request, EventType.START_TYPING);
   }
 
   @Override
-  public EventDtoBasic stopTyping(EventRequest request) {
-    Chat chat = getChat(request);
-    User author = getUser(request);
-
-    Event event = Event.builder().chat(chat).user(author).eventType(EventType.STOP_TYPING).build();
-    event = eventRepository.save(event);
-    return eventMapper.toEventDtoBasic(event);
+  public EventResponse stopTyping(EventRequest request) {
+    validateRequest(request);
+    return createChatTransientEvent(request, EventType.STOP_TYPING);
   }
 
   @Transactional
@@ -183,5 +177,43 @@ public class EventServiceImpl implements EventService {
     } catch (ChatNotFoundException e) {
       throw new WebSocketException(e, request.authorId());
     }
+  }
+
+  private void throwIfChatNotExists(EventRequest request) {
+    if (!chatRepository.existsById(request.chatId())) {
+      try {
+        throw new ChatNotFoundException(request.chatId());
+      } catch (ChatNotFoundException e) {
+        throw new WebSocketException(e, request.authorId());
+      }
+    }
+  }
+
+  private void throwIfUserNotExists(Long userId) {
+    if (!userRepository.existsById(userId)) {
+      try {
+        throw new UserNotFoundException(userId);
+      } catch (UserNotFoundException e) {
+        throw new WebSocketException(e, userId);
+      }
+    }
+  }
+
+  /** verify if chat and author exists by specified id */
+  private void validateRequest(EventRequest request) {
+    throwIfChatNotExists(request);
+    throwIfUserNotExists(request.authorId());
+  }
+
+  /**
+   * creates event that it isn't persisted to a database That is temporary and not intended for
+   * persistent storage.
+   *
+   * @param request event dto
+   * @param eventType type of transient event
+   * @return processed event dto
+   */
+  private EventResponse createChatTransientEvent(EventRequest request, EventType eventType) {
+    return new EventResponse(request.authorId(), eventType, LocalDateTime.now());
   }
 }

@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 /**
  * Exception class for handling WebSocket-related errors.
  *
- * <p>Includes additional details such as user ID, timestamp, and HTTP status.
+ * <p>Includes additional details such as user ID, timestamp, and HTTP status. userId is REQUIRED
+ * because every WebSocket exception is sent to * specific user-related path '/user/{userId}/errors
  */
 @ToString
 @Getter
