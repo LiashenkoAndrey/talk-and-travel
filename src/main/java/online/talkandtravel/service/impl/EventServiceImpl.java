@@ -64,7 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EventServiceImpl implements EventService {
 
   public static final String JOINED_THE_CHAT = "%s joined the chat";
-  public static final String LEAVED_THE_CHAT = "%s leaved the chat";
+  public static final String LEAVED_THE_CHAT = "%s left the chat";
   private final ChatRepository chatRepository;
   private final UserRepository userRepository;
   private final UserChatRepository userChatRepository;
