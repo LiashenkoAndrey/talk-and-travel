@@ -2,9 +2,9 @@ package online.talkandtravel.service.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.avatar.UserAvatarNotFoundException;
 import online.talkandtravel.exception.file.FileSizeExceededException;
 import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.UnsupportedFormatException;
@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
  *       username.
  *   <li>{@link #uploadAvatar(MultipartFile, Long)} - Uploads and saves a new avatar for a user from
  *       a multipart file.
- *   <li>{@link #getExistingAvatar(Long)} - Retrieves an existing avatar or throws an exception if
+ *   <li>{@link #getAvatar(Long)} - Retrieves an existing avatar or throws an exception if
  *       not found.
  *   <li>{@link #validateImage(MultipartFile, String)} - Validates the format and size of the
  *       uploaded image file.
@@ -49,18 +49,18 @@ import org.springframework.web.multipart.MultipartFile;
 public class AvatarServiceImpl implements AvatarService {
   private static final String[] SUPPORTED_FORMAT_AVATAR = {"jpeg", "jpg", "png"};
   private static final int MAX_SIZE_AVATAR = 4 * 1024 * 1024; // Size in bytes (4MB)
-  private final AvatarRepository repository;
+  private final AvatarRepository avatarRepository;
   private final ImageService imageService;
 
   @Override
   public Avatar save(Avatar avatar) {
-    return repository.save(avatar);
+    return avatarRepository.save(avatar);
   }
 
-  @Override
   @Transactional
+  @Override
   public Avatar findByUserId(Long userId) {
-    return getExistingAvatar(userId);
+    return getAvatar(userId);
   }
 
   @Override
@@ -72,38 +72,28 @@ public class AvatarServiceImpl implements AvatarService {
 
   @Override
   @Transactional
-  public Avatar uploadAvatar(MultipartFile file, Long userId) {
-    byte[] image = extractImageData(file);
+  public Long uploadAvatar(MultipartFile file, Long userId) {
+    log.info("uploadAvatar: username - {}", userId);
     String filename = file.getOriginalFilename();
     validateImage(file, filename);
-    var existingAvatar = getExistingAvatar(userId);
+    byte[] image = extractImageData(file);
+    var existingAvatar = getAvatar(userId);
     existingAvatar.setContent(image);
-    return repository.save(existingAvatar);
+    return avatarRepository.save(existingAvatar).getId();
   }
 
-  private Avatar getExistingAvatar(Long userId) {
-    Avatar avatar =
-        repository
-            .findByUserId(userId)
-            .orElseThrow(
-                () -> new NoSuchElementException("Can not find avatar by user ID: " + userId));
-    avatar.setContent(avatar.getContent());
-    return avatar;
-  }
-
-  private void validateImage(MultipartFile imageFile, String originalFilename)
-      throws UnsupportedFormatException, FileSizeExceededException {
+  private void validateImage(MultipartFile imageFile, String originalFilename) {
     validateImageFormat(originalFilename);
     validateImageSize(imageFile);
   }
 
-  private void validateImageFormat(String originalFilename) throws UnsupportedFormatException {
+  private void validateImageFormat(String originalFilename) {
     if (!isSupportedFormat(originalFilename)) {
       throw new UnsupportedFormatException("Your photo must be in JPEG, JPG, or PNG.");
     }
   }
 
-  private void validateImageSize(MultipartFile imageFile) throws FileSizeExceededException {
+  private void validateImageSize(MultipartFile imageFile) {
     if (imageFile.getSize() > MAX_SIZE_AVATAR) {
       throw new FileSizeExceededException("File size exceeds 4MB");
     }
@@ -125,5 +115,12 @@ public class AvatarServiceImpl implements AvatarService {
 
   private Avatar createNewAvatar(byte[] standardAvatar) {
     return Avatar.builder().content(standardAvatar).build();
+  }
+
+
+  private Avatar getAvatar(Long userId) {
+    return avatarRepository
+        .findByUserId(userId)
+        .orElseThrow(() -> new UserAvatarNotFoundException(userId));
   }
 }

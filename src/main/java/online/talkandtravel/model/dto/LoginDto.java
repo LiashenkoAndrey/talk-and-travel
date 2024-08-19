@@ -22,4 +22,13 @@ import lombok.NoArgsConstructor;
 public class LoginDto {
   @NotNull private String password;
   @NotNull private String userEmail;
+
+  @Override
+  public String toString() {
+    String maskedPassword = "*".repeat(password.length());
+    return "LoginDto{" +
+        "password='" + maskedPassword + '\'' +
+        ", userEmail='" + userEmail + '\'' +
+        '}';
+  }
 }
