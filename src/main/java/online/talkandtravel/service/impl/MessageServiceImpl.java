@@ -12,6 +12,7 @@ import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
@@ -61,6 +62,7 @@ public class MessageServiceImpl implements MessageService {
 
     Message message =
         Message.builder()
+            .type(MessageType.TEXT)
             .content(request.content())
             .repliedMessage(repliedMessage)
             .sender(sender)

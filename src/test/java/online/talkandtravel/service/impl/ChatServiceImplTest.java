@@ -104,7 +104,6 @@ class ChatServiceImplTest {
             ChatType.GROUP,
             LocalDateTime.now(),
             10L,
-            0L,
             0L);
 
     country = new Country();

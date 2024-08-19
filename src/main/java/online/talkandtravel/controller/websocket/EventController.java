@@ -2,9 +2,9 @@ package online.talkandtravel.controller.websocket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.service.EventService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -36,40 +36,40 @@ public class EventController {
   @MessageMapping("/events.joinChat")
   public void joinChat(@Payload EventRequest request) {
     log.info("create a new JOIN CHAT event {}", request);
-    EventDtoBasic event = eventService.joinChat(request);
+    MessageDto message = eventService.joinChat(request);
 
-    sendResponse(request, event);
+    sendResponse(request, message);
   }
 
   @MessageMapping("/events.leaveChat")
   public void leaveChat(@Payload EventRequest request) {
     log.info("create a new LEAVE CHAT event {}", request);
-    EventDtoBasic event = eventService.leaveChat(request);
+    MessageDto message = eventService.leaveChat(request);
 
-    sendResponse(request, event);
+    sendResponse(request, message);
   }
 
   @MessageMapping("/events.startTyping")
   public void startTyping(@Payload EventRequest request) {
     log.info("create a new START TYPING event {}", request);
-    EventResponse event = eventService.startTyping(request);
+    EventResponse message = eventService.startTyping(request);
 
-    sendResponse(request, event);
+    sendResponse(request, message);
   }
 
   @MessageMapping("/events.stopTyping")
   public void stopTyping(@Payload EventRequest request) {
     log.info("create a new STOP TYPING event {}", request);
-    EventResponse event = eventService.stopTyping(request);
+    EventResponse message = eventService.stopTyping(request);
 
-    sendResponse(request, event);
+    sendResponse(request, message);
   }
 
-  private void sendResponse(EventRequest request, EventDtoBasic event) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+  private void sendResponse(EventRequest request, MessageDto message) {
+    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
   }
 
-  private void sendResponse(EventRequest request, EventResponse event) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/events", event);
+  private void sendResponse(EventRequest request, EventResponse message) {
+    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
   }
 }

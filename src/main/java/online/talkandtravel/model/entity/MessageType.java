@@ -10,7 +10,8 @@ package online.talkandtravel.model.entity;
  *   <li>{@code STOP_TYPING} - User stops typing a message.
  * </ul>
  */
-public enum EventType {
+public enum MessageType {
+  TEXT,
   JOIN,
   LEAVE,
   START_TYPING,

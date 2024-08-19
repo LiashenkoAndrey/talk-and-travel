@@ -66,10 +66,6 @@ public class Chat {
   @JoinColumn(name = "chat_id")
   private List<Message> messages = new ArrayList<>();
 
-  @Builder.Default
-  @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Event> events = new ArrayList<>();
-
   @ManyToOne
   @JoinColumn(name = "country_id")
   private Country country;
@@ -84,7 +80,6 @@ public class Chat {
         ", creationDate=" + creationDate +
         ", users=" + users.size() +
         ", messages=" + messages.size() +
-        ", events=" + events.size() +
         ", country=" + country.getName() +
         '}';
   }
