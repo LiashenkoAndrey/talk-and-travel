@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,6 +38,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Entity
 @Builder
+@EqualsAndHashCode
 @Table(name = "chats")
 public class Chat {
   @Id
@@ -71,4 +73,19 @@ public class Chat {
   @ManyToOne
   @JoinColumn(name = "country_id")
   private Country country;
+
+  @Override
+  public String toString() {
+    return "Chat{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", description='" + description + '\'' +
+        ", chatType=" + chatType +
+        ", creationDate=" + creationDate +
+        ", users=" + users.size() +
+        ", messages=" + messages.size() +
+        ", events=" + events.size() +
+        ", country=" + country.getName() +
+        '}';
+  }
 }

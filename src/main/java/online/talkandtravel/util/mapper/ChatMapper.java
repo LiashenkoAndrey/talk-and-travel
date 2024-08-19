@@ -2,6 +2,7 @@ package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.UserChat;
@@ -47,7 +48,12 @@ public interface ChatMapper {
   @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
   @Mapping(target = "eventsCount", expression = "java((long) chat.getEvents().size())")
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
-  PrivateChatInfoDto toChatInfoDto(Chat chat);
+  ChatInfoDto toChatInfoDto(Chat chat);
+
+  @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
+  @Mapping(target = "eventsCount", expression = "java((long) chat.getEvents().size())")
+  @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
+  PrivateChatInfoDto chatToPrivateChatInfoDto(Chat chat);
 
   @Mapping(target = "usersCount", expression = "java((long) userChat.getChat().getUsers().size())")
   @Mapping(
@@ -59,6 +65,6 @@ public interface ChatMapper {
   @Mapping(target = "description", source = "chat.description")
   @Mapping(target = "creationDate", source = "chat.creationDate")
   @Mapping(target = "chatType", source = "chat.chatType")
-  @Mapping(target = "name", source = "user.userName")
+  @Mapping(target = "name", source = "chat.name")
   PrivateChatInfoDto userChatToPrivateChatInfoDto(UserChat userChat);
 }

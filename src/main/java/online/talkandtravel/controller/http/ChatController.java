@@ -7,9 +7,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
+import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
+import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -57,6 +59,11 @@ public class ChatController {
 
   private final ChatService chatService;
 
+  @PostMapping
+  public ChatDto createCountryChat(@RequestBody @Valid NewChatDto dto) {
+    return chatService.createCountryChat(dto);
+  }
+
   /**
    * creates a private chat between two users
    * @return chat id
@@ -67,7 +74,7 @@ public class ChatController {
   }
 
   @GetMapping
-  public Page<PrivateChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {
+  public Page<ChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {
     return chatService.findAllChats(pageable);
   }
 
