@@ -13,7 +13,6 @@ import online.talkandtravel.model.entity.ChatType;
  *   <li>{@code creationDate} - Date and time when the chat was created.
  *   <li>{@code usersCount} - Amount of users participating in the chat.
  *   <li>{@code messages} - Amount of messages exchanged in the chat.
- *   <li>{@code events} - Amount of events related to the chat.
  * </ul>
  */
 public record ChatInfoDto (
@@ -23,6 +22,5 @@ public record ChatInfoDto (
     ChatType chatType,
     LocalDateTime creationDate,
     Long usersCount,
-    Long messagesCount,
-    Long eventsCount
+    Long messagesCount
 ) {}

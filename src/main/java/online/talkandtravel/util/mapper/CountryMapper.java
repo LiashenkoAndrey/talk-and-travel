@@ -31,7 +31,7 @@ import org.mapstruct.Mapping;
  * </ul>
  *
  * <p>This mapper relies on other mappers for converting nested objects or related data, such as
- * {@link ChatMapper}, {@link UserMapper}, {@link EventMapper}, {@link MessageMapper}, and {@link
+ * {@link ChatMapper}, {@link UserMapper}, {@link MessageMapper}, and {@link
  * UserChatMapper}. It is configured with {@link MapperConfig} to apply global mapping settings.
  *
  */
@@ -40,7 +40,6 @@ import org.mapstruct.Mapping;
     uses = {
       ChatMapper.class,
       UserMapper.class,
-      EventMapper.class,
       MessageMapper.class,
       UserChatMapper.class
     })

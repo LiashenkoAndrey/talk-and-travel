@@ -37,7 +37,7 @@ public class Event {
   private Chat chat;
 
   @Enumerated(EnumType.STRING)
-  private EventType eventType;
+  private MessageType messageType;
 
   @CreationTimestamp private LocalDateTime eventTime;
 }
