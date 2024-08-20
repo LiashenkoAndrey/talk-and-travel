@@ -23,7 +23,9 @@ public class CountryServiceImplIt extends IntegrationTest {
   @Test
   void getAllCountriesInfo_shouldReturnAllCountriesInfo() {
     int expectedCount = getCountriesCount();
+
     List<CountryInfoDto> allCountriesInfo = underTest.getAllCountriesInfo();
+
     assertThat(allCountriesInfo.size()).isEqualTo(expectedCount);
   }
 
