@@ -184,7 +184,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   private User authenticateUser(String email, String password) {
     Optional<User> userOptional = userService.findUserByEmail(email.toLowerCase());
-
     if (userOptional.isPresent()) {
       User user = userOptional.get();
       checkUserCredentials(password, user);
