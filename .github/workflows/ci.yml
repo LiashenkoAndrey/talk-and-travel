@@ -19,5 +19,20 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
+      - name: Install Docker
+        run: sudo apt-get install docker.io
+
+      - name: Start Docker service
+        run: sudo service docker start
+
+      - name: Set up Docker Compose
+        run: sudo apt-get install docker-compose
+
+      - name: Run Docker Compose
+        run: docker-compose up -d
+
       - name: Install dependencies and test with Maven
         run: mvn clean test
+
+      - name: Stop Docker Compose
+        run: docker-compose down
