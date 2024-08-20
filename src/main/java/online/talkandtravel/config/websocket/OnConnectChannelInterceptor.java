@@ -7,6 +7,7 @@ import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -28,22 +29,24 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
 
   private final AuthenticationService authenticationService;
   private final TokenService tokenService;
-  private final UserDetailsService userDetailsService;
-
 
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
-    final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message,
-        StompHeaderAccessor.class);
+    try {
+      final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message,
+          StompHeaderAccessor.class);
 
-    if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-      String authHeader = accessor.getFirstNativeHeader("Authorization");
-      String token = getTokenFromAuthHeader(authHeader);
-      UsernamePasswordAuthenticationToken authenticationToken = auth(token);
-      accessor.setUser(authenticationToken);
-
+      if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+        String authHeader = accessor.getFirstNativeHeader("Authorization");
+        String token = getTokenFromAuthHeader(authHeader);
+        UsernamePasswordAuthenticationToken authenticationToken = auth(token);
+        accessor.setUser(authenticationToken);
+      }
+      return message;
+    } catch (Exception e) {
+      String errorMessage = "Error during connection. Authentication failed.";
+      throw new MessageDeliveryException(message, errorMessage, e);
     }
-    return message;
   }
 
   private UsernamePasswordAuthenticationToken auth(String token) {
@@ -70,5 +73,4 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
       throw new RuntimeException("not valid token or not auth");
     }
   }
-
 }

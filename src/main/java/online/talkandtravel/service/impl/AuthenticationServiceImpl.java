@@ -82,8 +82,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final UserMapper userMapper;
   private final AvatarService avatarService;
 
-
-
   /**
    * gets User entity that stored in spring security
    */
@@ -96,7 +94,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public boolean isUserAuth() {
-    log.info(" SecurityContextHolder.getContext().getAuthentication() {}",  SecurityContextHolder.getContext().getAuthentication());
     return SecurityContextHolder.getContext().getAuthentication() != null;
   }
 
@@ -115,7 +112,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
-
 
   @Override
   @Transactional
@@ -141,7 +137,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       checkUserCredentials(password, user);
       return user;
     }
-    log.info("User with email - {} not found", email);
     throw new UserNotFoundException("User with email - " + email + " not found", "Bad credentials");
   }
 
