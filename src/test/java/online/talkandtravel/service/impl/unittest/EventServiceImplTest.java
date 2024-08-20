@@ -1,4 +1,4 @@
-package online.talkandtravel.service.impl;
+package online.talkandtravel.service.impl.unittest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,6 +26,7 @@ import online.talkandtravel.repository.EventRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.service.impl.EventServiceImpl;
 import online.talkandtravel.util.mapper.EventMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

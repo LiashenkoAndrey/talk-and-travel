@@ -6,6 +6,12 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+/**
+ * Test configuration class for setting up Testcontainers with PostgreSQL.
+ *
+ * <p>Provides a PostgreSQL container configured for integration tests. The container is started and
+ * made available for test cases using the {@code @ServiceConnection} annotation.
+ */
 @TestConfiguration
 @EnableAutoConfiguration
 public class TestContainerConfig {

@@ -1,6 +1,5 @@
 package online.talkandtravel.service;
 
-import java.io.IOException;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.entity.User;
 
@@ -25,7 +24,7 @@ import online.talkandtravel.model.entity.User;
  */
 public interface AuthenticationService {
 
-  AuthResponse register(User user) throws IOException;
+  AuthResponse register(User user);
 
   AuthResponse login(String email, String password);
 
