@@ -251,8 +251,7 @@ public class ChatServiceImpl implements ChatService {
         oldChat.chat().chatType(),
         oldChat.chat().creationDate(),
         oldChat.chat().usersCount(),
-        oldChat.chat().messagesCount(),
-        oldChat.chat().eventsCount());
+        oldChat.chat().messagesCount());
   }
 
   private void checkIfChatExists(User user, User companion) {

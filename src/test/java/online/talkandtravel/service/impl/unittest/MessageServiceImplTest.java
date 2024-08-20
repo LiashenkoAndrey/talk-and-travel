@@ -14,6 +14,7 @@ import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
@@ -46,6 +47,7 @@ public class MessageServiceImplTest {
   private final Long chatId = 1L;
   private final Long userId = 1L;
 
+
   @Test
   void saveMessage_shouldReturnMessageDtoBasic_whenUserJoinedChatAndMessageExists() {
     // Arrange
@@ -58,14 +60,17 @@ public class MessageServiceImplTest {
     Message repliedMessage = new Message();
     Message message = new Message();
     chat.getMessages().add(message);
+    UserNameDto userNameDto = new UserNameDto(1L, "userName");
     MessageDto messageDto =
         new MessageDto(
-            1L,
-            content,
-            LocalDateTime.now(),
-            new UserNameDto(userId, "userName"),
-            chatId,
-            repliedMessageId);
+                    1L,
+                    MessageType.TEXT,
+                    "",
+                    LocalDateTime.now(), // Use current time for event time
+                    userNameDto,
+                    1L,
+                    null
+                );
 
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));

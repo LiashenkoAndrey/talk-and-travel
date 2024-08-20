@@ -1,8 +1,7 @@
 package online.talkandtravel.model.dto.event;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-import online.talkandtravel.model.entity.EventType;
+import online.talkandtravel.model.entity.MessageType;
 /**
  * Data Transfer Object (DTO) for representing a basic event.
  *
@@ -10,9 +9,9 @@ import online.talkandtravel.model.entity.EventType;
  *   <li>{@code id} - Unique identifier for the event.</li>
  *   <li>{@code authorId} - ID of the user who authored the event.</li>
  *   <li>{@code chatId} - ID of the chat where the event occurred.</li>
- *   <li>{@code eventType} - Type of the event (e.g., join, leave, typing).</li>
- *   <li>{@code eventTime} - Date and time when the event occurred.</li>
+ *   <li>{@code type} - Type of the event (e.g., join, leave, typing).</li>
+ *   <li>{@code creationDate} - Date and time when the event occurred.</li>
  * </ul>
  */
 
-public record EventDtoBasic(Long id, Long authorId, Long chatId, EventType eventType, LocalDateTime eventTime) {}
+public record EventDtoBasic(Long id, Long authorId, Long chatId, MessageType messageType, LocalDateTime eventTime) {}

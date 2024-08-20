@@ -110,28 +110,28 @@ where {country} is country name. It is unique for every country.
       "id": 1,
       "authorId": 1,
       "chatId": 485,
-      "eventType": "JOIN",
+      "messageType": "JOIN",
       "eventTime": "2024-08-07T13:49:42"
     },
     {
       "id": 6,
       "authorId": 1,
       "chatId": 485,
-      "eventType": "LEAVE",
+      "messageType": "LEAVE",
       "eventTime": "2024-08-08T13:08:09.046588"
     },
     {
       "id": 14,
       "authorId": 1,
       "chatId": 485,
-      "eventType": "START_TYPING",
+      "messageType": "START_TYPING",
       "eventTime": "2024-08-08T13:31:15.99139"
     },
     {
       "id": 16,
       "authorId": 1,
       "chatId": 485,
-      "eventType": "STOP_TYPING",
+      "messageType": "STOP_TYPING",
       "eventTime": "2024-08-08T13:31:33.033481"
     }
   ]
