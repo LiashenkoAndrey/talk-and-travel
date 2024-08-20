@@ -82,14 +82,14 @@ returns List of all Countries in database (near 240 items)
                     "id": 1,
                     "authorId": 1,
                     "chatId": 485,
-                    "eventType": "JOIN",
+                    "messageType": "JOIN",
                     "eventTime": "2024-08-07T13:49:42"
                 },
                 {
                     "id": 8,
                     "authorId": 1,
                     "chatId": 485,
-                    "eventType": "LEAVE",
+                    "messageType": "LEAVE",
                     "eventTime": "2024-08-08T13:09:38.250979"
                 }
             ]

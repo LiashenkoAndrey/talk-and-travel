@@ -29,14 +29,13 @@ import org.mapstruct.Mapping;
  * </ul>
  *
  * <p>This mapper relies on other mappers for converting nested objects, such as {@link UserMapper},
- * {@link EventMapper}, {@link MessageMapper}, and {@link UserChatMapper}. It is configured with
+ *  {@link MessageMapper}, and {@link UserChatMapper}. It is configured with
  * {@link MapperConfig} to apply global mapping settings.
  */
 @Mapper(
     config = MapperConfig.class,
     uses = {
       UserMapper.class,
-      EventMapper.class,
       MessageMapper.class,
       UserChatMapper.class
     })
@@ -46,19 +45,14 @@ public interface ChatMapper {
   ChatDto toDto(Chat chat);
 
   @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
-  @Mapping(target = "eventsCount", expression = "java((long) chat.getEvents().size())")
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
   ChatInfoDto toChatInfoDto(Chat chat);
 
   @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
-  @Mapping(target = "eventsCount", expression = "java((long) chat.getEvents().size())")
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
   PrivateChatInfoDto chatToPrivateChatInfoDto(Chat chat);
 
   @Mapping(target = "usersCount", expression = "java((long) userChat.getChat().getUsers().size())")
-  @Mapping(
-      target = "eventsCount",
-      expression = "java((long) userChat.getChat().getEvents().size())")
   @Mapping(
       target = "messagesCount",
       expression = "java((long) userChat.getChat().getMessages().size())")

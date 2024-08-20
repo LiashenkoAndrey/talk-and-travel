@@ -10,22 +10,23 @@ import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserCountryNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.entity.Event;
-import online.talkandtravel.model.entity.EventType;
+import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.ChatRepository;
-import online.talkandtravel.repository.EventRepository;
+import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.EventService;
-import online.talkandtravel.util.mapper.EventMapper;
+import online.talkandtravel.util.mapper.MessageMapper;
+import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,50 +62,68 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+
+  public static final String JOINED_THE_CHAT = "%s joined the chat";
+  public static final String LEFT_THE_CHAT = "%s left the chat";
   private final ChatRepository chatRepository;
-  private final EventRepository eventRepository;
   private final UserRepository userRepository;
-  private final EventMapper eventMapper;
   private final UserChatRepository userChatRepository;
   private final UserCountryRepository userCountryRepository;
+  private final MessageRepository messageRepository;
+  private final MessageMapper messageMapper;
+  private final UserMapper userMapper;
 
   @Override
   public EventResponse startTyping(EventRequest request) {
-    validateRequest(request);
-    return createChatTransientEvent(request, EventType.START_TYPING);
+    User user = getUser(request);
+    throwIfChatNotExists(request);
+    return createChatTransientEvent(user, MessageType.START_TYPING);
   }
 
   @Override
   public EventResponse stopTyping(EventRequest request) {
-    validateRequest(request);
-    return createChatTransientEvent(request, EventType.STOP_TYPING);
+    User user = getUser(request);
+    throwIfChatNotExists(request);
+    return createChatTransientEvent(user, MessageType.STOP_TYPING);
   }
 
   @Transactional
   @Override
-  public EventDtoBasic leaveChat(EventRequest request) {
+  public MessageDto leaveChat(EventRequest request) {
     Chat chat = getChat(request);
     User author = getUser(request);
 
     removeConnections(request, chat, author);
 
-    Event event = Event.builder().chat(chat).user(author).eventType(EventType.LEAVE).build();
-    event = eventRepository.save(event);
-    return eventMapper.toEventDtoBasic(event);
+    Message message =
+        Message.builder()
+            .content(LEFT_THE_CHAT.formatted(author.getUserName()))
+            .chat(chat)
+            .sender(author)
+            .type(MessageType.LEAVE)
+            .build();
+    message = messageRepository.save(message);
+    return messageMapper.toMessageDto(message);
   }
 
   @Transactional
   @Override
-  public EventDtoBasic joinChat(EventRequest request) {
+  public MessageDto joinChat(EventRequest request) {
     Chat chat = getChat(request);
     User author = getUser(request);
     checkUserAlreadyJoinedChat(request);
 
     saveConnections(chat, author);
 
-    Event event = Event.builder().chat(chat).user(author).eventType(EventType.JOIN).build();
-    event = eventRepository.save(event);
-    return eventMapper.toEventDtoBasic(event);
+    Message message =
+        Message.builder()
+            .content(JOINED_THE_CHAT.formatted(author.getUserName()))
+            .chat(chat)
+            .sender(author)
+            .type(MessageType.JOIN)
+            .build();
+    message = messageRepository.save(message);
+    return messageMapper.toMessageDto(message);
   }
 
   private void removeConnections(EventRequest request, Chat chat, User author) {
@@ -189,31 +208,15 @@ public class EventServiceImpl implements EventService {
     }
   }
 
-  private void throwIfUserNotExists(Long userId) {
-    if (!userRepository.existsById(userId)) {
-      try {
-        throw new UserNotFoundException(userId);
-      } catch (UserNotFoundException e) {
-        throw new WebSocketException(e, userId);
-      }
-    }
-  }
-
-  /** verify if chat and author exists by specified id */
-  private void validateRequest(EventRequest request) {
-    throwIfChatNotExists(request);
-    throwIfUserNotExists(request.authorId());
-  }
-
   /**
    * creates event that it isn't persisted to a database That is temporary and not intended for
    * persistent storage.
    *
-   * @param request event dto
-   * @param eventType type of transient event
+   * @param user User
+   * @param messageType type of transient event
    * @return processed event dto
    */
-  private EventResponse createChatTransientEvent(EventRequest request, EventType eventType) {
-    return new EventResponse(request.authorId(), eventType, LocalDateTime.now());
+  private EventResponse createChatTransientEvent(User user, MessageType messageType) {
+    return new EventResponse(userMapper.toUserNameDto(user), messageType, LocalDateTime.now());
   }
 }

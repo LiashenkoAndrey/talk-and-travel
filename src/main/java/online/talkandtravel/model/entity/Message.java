@@ -46,6 +46,9 @@ public class Message {
   @JoinColumn(name = "chat_id")
   private Chat chat;
 
+  @Enumerated(EnumType.STRING)
+  private MessageType type;
+
   @ManyToOne
   @JoinColumn(name = "replied_message_id")
   private Message repliedMessage;

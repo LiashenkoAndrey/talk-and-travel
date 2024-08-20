@@ -104,7 +104,6 @@ class ChatServiceImplTest {
             ChatType.GROUP,
             LocalDateTime.now(),
             10L,
-            0L,
             0L);
 
     country = new Country();
@@ -153,7 +152,6 @@ class ChatServiceImplTest {
             ChatType.GROUP,
             LocalDateTime.now(),
             100L,
-            Collections.emptyList(),
             Collections.emptyList());
 
     when(countryRepository.findById(countryName)).thenReturn(Optional.of(country));

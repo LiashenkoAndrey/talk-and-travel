@@ -29,7 +29,7 @@ message (event)
   "id": 37,
   "authorId": 1,
   "chatId": 4,
-  "eventType": "JOIN",
+  "messageType": "JOIN",
   "eventTime": "2024-08-11T08:50:59.607196"
 }
 ```
@@ -56,7 +56,7 @@ message (event)
    "id": 38,
    "authorId": 1,
    "chatId": 4,
-   "eventType": "LEAVE",
+   "messageType": "LEAVE",
    "eventTime": "2024-08-11T08:55:05.42974"
 }
 ```
@@ -79,7 +79,7 @@ message (event)
    "id": 39,
    "authorId": 1,
    "chatId": 3,
-   "eventType": "START_TYPING",
+   "messageType": "START_TYPING",
    "eventTime": "2024-08-11T08:56:53.411722"
 }
 ```
@@ -102,7 +102,7 @@ message (event)
    "id": 40,
    "authorId": 1,
    "chatId": 1,
-   "eventType": "STOP_TYPING",
+   "messageType": "STOP_TYPING",
    "eventTime": "2024-08-11T08:58:07.633556"
 }
 ```
