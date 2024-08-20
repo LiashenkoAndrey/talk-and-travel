@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.entity.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Service interface for handling user authentication and registration operations.

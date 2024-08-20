@@ -23,7 +23,6 @@ import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.TokenService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -40,12 +39,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <ul>
  *   <li>{@link #save(Token)} - Saves a single token to the repository.
- *   <li>{@link #findAllValidTokensByUserId(Long)} - Retrieves a list of valid tokens associated
  *       with a specific user.
  *   <li>{@link #findByToken(String)} - Finds a token by its value, returning an {@code Optional} to
  *       handle the case where the token might not exist.
  *   <li>{@link #saveAll(List)} - Saves a batch of tokens to the repository.
- *   <li>{@link #deleteInvalidTokensByUserId(Long)} - Deletes all invalid tokens associated with a
  *       specific user.
  * </ul>
  */

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Service interface for managing authentication tokens within the application.

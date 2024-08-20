@@ -65,7 +65,6 @@ class AuthenticationServiceImplTest {
 
   @BeforeEach
   void setUp() {
-//    MockitoAnnotations.openMocks(this);
     SecurityContextHolder.clearContext();
     userDto = creanteNewUserDtoShort();
     user = createNewUser();
