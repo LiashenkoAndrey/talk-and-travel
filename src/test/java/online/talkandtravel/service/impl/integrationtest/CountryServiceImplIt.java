@@ -1,6 +1,9 @@
 package online.talkandtravel.service.impl.integrationtest;
 
 import static online.talkandtravel.config.TestDataConstant.USER_COUNTRIES_DATA_SQL;
+import static online.talkandtravel.testdata.CountryTestData.getCountriesCount;
+import static online.talkandtravel.testdata.CountryTestData.getUser1Countries;
+import static online.talkandtravel.testdata.UserTestData.getAdminId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -19,14 +22,19 @@ public class CountryServiceImplIt extends IntegrationTest {
 
   @Test
   void getAllCountriesInfo_shouldReturnAllCountriesInfo() {
+    int expectedCount = getCountriesCount();
     List<CountryInfoDto> allCountriesInfo = underTest.getAllCountriesInfo();
-    assertThat(allCountriesInfo.size()).isEqualTo(240);
+    assertThat(allCountriesInfo.size()).isEqualTo(expectedCount);
   }
 
   @Test
   void findAllCountriesByUserId_shouldReturnAllCountriesInfo() {
-    Long userId = 1L;
-    List<CountryInfoDto> allCountriesByUserId = underTest.findAllCountriesByUserId(userId);
-    assertThat(allCountriesByUserId.size()).isEqualTo(5);
+    Long userId = getAdminId();
+    List<CountryInfoDto> expected = getUser1Countries();
+
+    List<CountryInfoDto> actual = underTest.findAllCountriesByUserId(userId);
+
+    assertThat(actual.size()).isEqualTo(expected.size());
+    assertThat(actual).isEqualTo(expected);
   }
 }
