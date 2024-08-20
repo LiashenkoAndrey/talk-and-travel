@@ -1,8 +1,11 @@
 package online.talkandtravel.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import online.talkandtravel.model.entity.Token;
+import online.talkandtravel.model.entity.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Service interface for managing authentication tokens within the application.
@@ -39,4 +42,13 @@ public interface TokenService {
   List<Token> saveAll(List<Token> tokens);
 
   void deleteInvalidTokensByUserId(Long userId);
+
+  boolean isValidToken(String token);
+
+  String extractUsername(String token);
+
+  String generateToken(User user);
+
+  String generateToken(Map<String, Object> extraClaims, User user);
+
 }

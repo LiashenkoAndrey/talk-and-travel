@@ -18,7 +18,6 @@ import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
-import online.talkandtravel.service.JwtService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
@@ -74,7 +73,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final PasswordValidator passwordValidator;
   private final UserEmailValidator emailValidator;
   private final UserService userService;
-  private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
   private final TokenService tokenService;
   private final UserMapper userMapper;
@@ -89,6 +87,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Object principal = authentication.getPrincipal();
     return getUserFromPrincipal(principal);
+  }
+
+  @Override
+  public boolean isUserAuth() {
+    return SecurityContextHolder.getContext().getAuthentication() == null;
   }
 
   @Override
@@ -127,7 +130,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   private String manageUserTokens(User user) {
-    String jwtToken = jwtService.generateToken(user);
+    String jwtToken = tokenService.generateToken(user);
     var token = createNewToken(jwtToken, user);
     revokeAllUserTokens(user);
     tokenService.deleteInvalidTokensByUserId(user.getId());

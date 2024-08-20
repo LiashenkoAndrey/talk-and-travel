@@ -9,7 +9,6 @@ import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
-import online.talkandtravel.service.JwtService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
@@ -17,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.thymeleaf.util.StringUtils;
@@ -63,7 +61,6 @@ import org.thymeleaf.util.StringUtils;
  *   <li>Forwards the request to the next filter in the chain.
  * </ol>
  *
- * @see JwtService
  * @see UserDetailsService
  * @see TokenService
  */
@@ -71,7 +68,6 @@ import org.thymeleaf.util.StringUtils;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-  private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
@@ -85,31 +81,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     try {
       final String authHeader = request.getHeader("Authorization");
       final String jwt;
-      final String userEmail;
       if (StringUtils.isEmpty(authHeader) || !authHeader.startsWith("Bearer ")) {
         filterChain.doFilter(request, response);
         return;
       }
       jwt = authHeader.substring(7);
-      userEmail = jwtService.extractUsername(jwt);
-      if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-        UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-        var isTokenValid =
-            tokenService.findByToken(jwt).map(t -> !t.isRevoked() && !t.isExpired()).orElse(false);
-        if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
-          UsernamePasswordAuthenticationToken authToken =
-              new UsernamePasswordAuthenticationToken(
-                  userDetails, null, userDetails.getAuthorities());
-          authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-          SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
-      }
+//      auth(jwt);
       filterChain.doFilter(request, response);
     } catch (Exception e) {
       log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage());
       sendErrorResponse(response);
     }
   }
+
+//  private void auth(String jwt) {
+//    String userEmail = tokenService.extractUsername(jwt);
+//
+//    if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+//      UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+//      var isTokenValid =
+//          tokenService.findByToken(jwt).map(t -> !t.isRevoked() && !t.isExpired()).orElse(false);
+//      if (tokenService.isTokenValid(jwt, userDetails) && isTokenValid) {
+//        UsernamePasswordAuthenticationToken authToken =
+//            new UsernamePasswordAuthenticationToken(
+//                userDetails, null, userDetails.getAuthorities());
+////        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//        SecurityContextHolder.getContext().setAuthentication(authToken);
+//      }
+//    }
+//  }
 
   private void sendErrorResponse(HttpServletResponse response) throws IOException {
     ExceptionResponse exceptionResponse =

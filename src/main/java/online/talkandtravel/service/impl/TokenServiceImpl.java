@@ -1,11 +1,29 @@
 package online.talkandtravel.service.impl;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import online.talkandtravel.exception.auth.UserAuthenticationException;
 import online.talkandtravel.model.entity.Token;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
+import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.TokenService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -56,5 +74,99 @@ public class TokenServiceImpl implements TokenService {
   @Override
   public void deleteInvalidTokensByUserId(Long userId) {
     repository.deleteInvalidTokensByUserId(userId);
+  }
+
+
+  private final UserRepository userRepository;
+
+  private UserDetails getUserDetailsByEmail(String email) {
+    return userRepository
+        .findByUserEmail(email)
+        .map(CustomUserDetails::new)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+  }
+
+  @Override
+  public boolean isValidToken(String token) {
+    return !isTokenExpiredAndRevoked(token) && tokenNameMatchesRegisteredUsername(token);
+  }
+
+
+
+  public boolean tokenNameMatchesRegisteredUsername(String token) {
+    String userEmail = extractUsername(token);
+    UserDetails userDetails = getUserDetailsByEmail(userEmail);
+    final String username = extractUsername(token);
+    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+  }
+
+  public boolean isTokenExpiredAndRevoked(String token) {
+    return findByToken(token)
+        .map(t -> !t.isRevoked() && !t.isExpired())
+        .orElse(false);
+  }
+
+  @Value("${SECRET_KEY}")
+  private String secretKey;
+
+  @Override
+  public String extractUsername(String token) {
+    return extractClaim(token, Claims::getSubject);
+  }
+
+  @Override
+  public String generateToken(User user) {
+    return generateToken(new HashMap<>(), user);
+  }
+
+  /**
+   * 86400000 milliseconds = 24 hours
+   *
+   * @param extraClaims
+   * @param user
+   * @return
+   */
+  @Override
+  public String generateToken(Map<String, Object> extraClaims, User user) {
+    return Jwts.builder()
+        .setClaims(extraClaims)
+        .setSubject(user.getUserEmail())
+        .setIssuedAt(new Date(System.currentTimeMillis()))
+        .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+        .signWith(SignatureAlgorithm.HS256, getSignInKey())
+        .compact();
+  }
+
+  private boolean isTokenExpired(String token) {
+    return extractExpiration(token).before(new Date());
+  }
+
+  private Date extractExpiration(String token) {
+    return extractClaim(token, Claims::getExpiration);
+  }
+
+  private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
+    final Claims claims = extractAllClaims(token);
+    return claimsResolvers.apply(claims);
+  }
+
+  private Claims extractAllClaims(String token) {
+    Claims body;
+    try {
+      body =
+          Jwts.parserBuilder()
+              .setSigningKey(getSignInKey())
+              .build()
+              .parseClaimsJws(token)
+              .getBody();
+    } catch (Exception e) {
+      throw new UserAuthenticationException(e.getMessage());
+    }
+    return body;
+  }
+
+  private Key getSignInKey() {
+    byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+    return Keys.hmacShaKeyFor(keyBytes);
   }
 }

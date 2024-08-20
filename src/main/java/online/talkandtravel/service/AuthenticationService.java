@@ -30,4 +30,6 @@ public interface AuthenticationService {
   AuthResponse login(String email, String password);
 
   User getAuthenticatedUser();
+
+  boolean isUserAuth();
 }

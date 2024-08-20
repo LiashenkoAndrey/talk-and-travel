@@ -14,7 +14,6 @@ import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.service.AvatarService;
-import online.talkandtravel.service.JwtService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
