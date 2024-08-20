@@ -38,7 +38,6 @@ class AuthenticationServiceImplTest {
   @Mock private PasswordValidator passwordValidator;
   @Mock private UserEmailValidator emailValidator;
   @Mock private UserService userService;
-  @Mock private JwtService jwtService;
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private TokenService tokenService;
   @Mock private UserMapper userMapper;
@@ -107,7 +106,7 @@ class AuthenticationServiceImplTest {
     when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
     when(avatarService.createDefaultAvatar(USER_NAME)).thenReturn(new Avatar());
     when(avatarService.save(any())).thenReturn(new Avatar());
-    when(jwtService.generateToken(user)).thenReturn(expected);
+    when(tokenService.generateToken(user)).thenReturn(expected);
 
     AuthResponse authResponse = authenticationService.register(user);
     String actual = authResponse.getToken();

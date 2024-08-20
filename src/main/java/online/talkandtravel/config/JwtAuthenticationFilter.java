@@ -9,16 +9,15 @@ import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
+import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalid;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.thymeleaf.util.StringUtils;
 
 /**
  * Filter to handle JWT (JSON Web Token) authentication for incoming HTTP requests.
@@ -71,6 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final UserDetailsService userDetailsService;
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
+  private final AuthenticationService authenticationService;
 
   @Override
   protected void doFilterInternal(
@@ -79,14 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain)
       throws IOException {
     try {
-      final String authHeader = request.getHeader("Authorization");
-      final String jwt;
-      if (StringUtils.isEmpty(authHeader) || !authHeader.startsWith("Bearer ")) {
-        filterChain.doFilter(request, response);
-        return;
-      }
-      jwt = authHeader.substring(7);
-//      auth(jwt);
+      authenticateRequestIfNeed(request);
       filterChain.doFilter(request, response);
     } catch (Exception e) {
       log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage());
@@ -94,22 +87,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
   }
 
-//  private void auth(String jwt) {
-//    String userEmail = tokenService.extractUsername(jwt);
-//
-//    if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//      UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-//      var isTokenValid =
-//          tokenService.findByToken(jwt).map(t -> !t.isRevoked() && !t.isExpired()).orElse(false);
-//      if (tokenService.isTokenValid(jwt, userDetails) && isTokenValid) {
-//        UsernamePasswordAuthenticationToken authToken =
-//            new UsernamePasswordAuthenticationToken(
-//                userDetails, null, userDetails.getAuthorities());
-////        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//        SecurityContextHolder.getContext().setAuthentication(authToken);
-//      }
-//    }
-//  }
+  private void authenticateRequestIfNeed(HttpServletRequest request) {
+    final String authHeader = request.getHeader("Authorization");
+    if (authHeader == null) return;
+    String token = getTokenFromAuthHeader(authHeader);
+    throwIfTokenNotValid(token);
+
+    if (!authenticationService.isUserAuth()) {
+      String email = tokenService.extractUsername(token);
+      UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+      authenticationService.authenticateUser(userDetails, request);
+    }
+  }
+
+  private String getTokenFromAuthHeader(String authHeader) {
+    if (!authHeader.startsWith("Bearer ")) {
+      throw new AuthenticationHeaderIsInvalid(authHeader);
+    }
+    return authHeader.substring(7);
+  }
+
+
+  private void throwIfTokenNotValid(String token) {
+    if (!tokenService.isValidToken(token)) {
+      throw new RuntimeException("not valid token or not auth");
+    }
+  }
 
   private void sendErrorResponse(HttpServletResponse response) throws IOException {
     ExceptionResponse exceptionResponse =

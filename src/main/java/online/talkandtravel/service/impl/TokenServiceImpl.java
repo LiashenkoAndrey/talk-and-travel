@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.UserAuthenticationException;
+import online.talkandtravel.exception.user.UserTokenNotFoundException;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
@@ -25,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of the {@link TokenService} for managing authentication and authorization tokens.
@@ -47,9 +50,15 @@ import org.springframework.stereotype.Service;
  * </ul>
  */
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
+
+  @Value("${SECRET_KEY}")
+  private String secretKey;
+
   private final TokenRepository repository;
+  private final UserRepository userRepository;
 
   @Override
   public Token save(Token token) {
@@ -76,9 +85,6 @@ public class TokenServiceImpl implements TokenService {
     repository.deleteInvalidTokensByUserId(userId);
   }
 
-
-  private final UserRepository userRepository;
-
   private UserDetails getUserDetailsByEmail(String email) {
     return userRepository
         .findByUserEmail(email)
@@ -87,27 +93,24 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
+  @Transactional
   public boolean isValidToken(String token) {
-    return !isTokenExpiredAndRevoked(token) && tokenNameMatchesRegisteredUsername(token);
-  }
-
-
-
-  public boolean tokenNameMatchesRegisteredUsername(String token) {
     String userEmail = extractUsername(token);
+    return !isTokenExpired(token) &&
+        !isTokenExpiredAndRevoked(userEmail) &&
+        tokenNameMatchesRegisteredUsername(userEmail);
+  }
+
+  public boolean tokenNameMatchesRegisteredUsername(String userEmail) {
     UserDetails userDetails = getUserDetailsByEmail(userEmail);
-    final String username = extractUsername(token);
-    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    return (userEmail.equals(userDetails.getUsername()));
   }
 
-  public boolean isTokenExpiredAndRevoked(String token) {
-    return findByToken(token)
-        .map(t -> !t.isRevoked() && !t.isExpired())
-        .orElse(false);
+  public boolean isTokenExpiredAndRevoked(String userEmail) {
+    Token token = repository.findByUserUserEmail(userEmail).orElseThrow(
+        () -> new UserTokenNotFoundException(userEmail));
+    return token.isExpired() && token.isRevoked();
   }
-
-  @Value("${SECRET_KEY}")
-  private String secretKey;
 
   @Override
   public String extractUsername(String token) {

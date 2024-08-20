@@ -35,6 +35,8 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
   Optional<Token> findByToken(String token);
 
+  Optional<Token> findByUserUserEmail(String user_userEmail);
+
   @Modifying
   @Query(
       "DELETE "

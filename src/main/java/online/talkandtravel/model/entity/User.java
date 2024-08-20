@@ -82,4 +82,11 @@ public class User {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserCountry> countries;
+
+  @Override
+  public String toString() {
+    return "User{" +
+        "id=" + id +
+        '}';
+  }
 }

@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl;
 
 import static java.lang.String.format;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,12 @@ import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.validator.PasswordValidator;
 import online.talkandtravel.util.validator.UserEmailValidator;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,6 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final AvatarService avatarService;
 
 
+
   /**
    * gets User entity that stored in spring security
    */
@@ -91,8 +96,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public boolean isUserAuth() {
-    return SecurityContextHolder.getContext().getAuthentication() == null;
+    log.info(" SecurityContextHolder.getContext().getAuthentication() {}",  SecurityContextHolder.getContext().getAuthentication());
+    return SecurityContextHolder.getContext().getAuthentication() != null;
   }
+
+  /**
+   * authToken.setDetails -  used to populate the token with additional details about the web
+   * authentication request, such as the IP address and session ID
+   *
+   * @param userDetails
+   * @param request
+   */
+  @Override
+  public void authenticateUser(UserDetails userDetails, HttpServletRequest request) {
+    UsernamePasswordAuthenticationToken authToken =
+        new UsernamePasswordAuthenticationToken(
+            userDetails, null, userDetails.getAuthorities());
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    SecurityContextHolder.getContext().setAuthentication(authToken);
+  }
+
 
   @Override
   @Transactional
