@@ -16,6 +16,7 @@ import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.repository.TokenRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
@@ -28,7 +29,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,13 +53,10 @@ import org.springframework.transaction.annotation.Transactional;
  *       exception if credentials are invalid.
  *   <li>{@link #registerNewUser(User)} - Validates and registers a new user, and generates a
  *       default avatar.
- *   <li>{@link #manageUserTokens(User)} - Generates a JWT token, manages token validity, and stores
+ *   <li>{@link #saveOrUpdateUserToken(User)} - Generates a JWT token, manages token validity, and stores
  *       the token.
  *   <li>{@link #validateUserRegistrationData(User)} - Validates registration data and checks for
  *       duplicate emails.
- *   <li>{@link #revokeAllUserTokens(User)} - Marks all existing tokens as expired and revoked for
- *       the user.
- *   <li>{@link #generateStandardAvatar(User)} - Creates and saves a default avatar for a new user.
  *   <li>{@link #checkUserCredentials(String, User)} - Checks if the provided password matches the
  *       stored password.
  *   <li>{@link #checkForDuplicateEmail(Optional<User>)} - Throws an exception if a user with the
@@ -80,10 +80,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final TokenService tokenService;
   private final UserMapper userMapper;
-  private final AvatarService avatarService;
+  private final TokenRepository tokenRepository;
+  private final UserDetailsService userDetailsService;
 
   /**
-   * gets User entity that stored in spring security
+   * Retrieves the authenticated user from the Spring Security context.
+   *
+   * <p>This method extracts the authentication object from the security context
+   * and retrieves the principal. It then attempts to convert the principal
+   * into a {@link User} entity.
+   *
+   * @return The authenticated {@link User} entity.
+   * @throws UserNotAuthenticatedException if the principal is not an instance of {@link CustomUserDetails}.
    */
   @Override
   public User getAuthenticatedUser() {
@@ -92,43 +100,88 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     return getUserFromPrincipal(principal);
   }
 
+  /**
+   * Checks if the user is authenticated by verifying the presence of an authentication object
+   * in the Spring Security context.
+   *
+   * @return {@code true} if an authentication object is present; {@code false} otherwise.
+   */
   @Override
   public boolean isUserAuth() {
     return SecurityContextHolder.getContext().getAuthentication() != null;
   }
 
   /**
-   * authToken.setDetails -  used to populate the token with additional details about the web
-   * authentication request, such as the IP address and session ID
+   * Authenticates the user by setting the authentication object in the Spring Security context.
    *
-   * @param userDetails
-   * @param request
+   * <p>This method creates a {@link UsernamePasswordAuthenticationToken} using the provided
+   * {@link UserDetails}, and populates the token with additional details from the HTTP request,
+   * such as the IP address and session ID.
+   *
+   * @param request The HTTP servlet request containing additional authentication details.
    */
   @Override
-  public void authenticateUser(UserDetails userDetails, HttpServletRequest request) {
-    UsernamePasswordAuthenticationToken authToken =
-        new UsernamePasswordAuthenticationToken(
-            userDetails, null, userDetails.getAuthorities());
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+  public void authenticateUser(String token, HttpServletRequest request) {
+    String email = tokenService.extractUsername(token);
+    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+    WebAuthenticationDetails details = new WebAuthenticationDetailsSource().buildDetails(request);
+
+    var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+        userDetails.getAuthorities());
+
+    // populate the token with additional details from the HTTP request
+    authToken.setDetails(details);
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
 
+  /**
+   * Registers a new user in the system by validating the user data, saving the user,
+   * and generating a JWT token.
+   *
+   * <p>This method is transactional to ensure that user registration and token generation
+   * are performed atomically.
+   *
+   * @param user The {@link User} entity containing registration data.
+   * @return An {@link AuthResponse} containing the generated JWT token and user details.
+   * @throws IOException If an error occurs during user registration.
+   */
   @Override
   @Transactional
   public AuthResponse register(User user) throws IOException {
     var newUser = registerNewUser(user);
-    String jwtToken = manageUserTokens(newUser);
+    String jwtToken = saveOrUpdateUserToken(newUser);
     return createNewAuthResponse(jwtToken, newUser);
   }
 
+
+  /**
+   * Authenticates an existing user by verifying their email and password, and then generates
+   * a JWT token for the authenticated user.
+   *
+   * <p>This method is transactional to ensure that authentication and token generation
+   * are performed atomically.
+   *
+   * @param email The email of the user attempting to log in.
+   * @param password The password of the user attempting to log in.
+   * @return An {@link AuthResponse} containing the generated JWT token and user details.
+   */
   @Override
   @Transactional
   public AuthResponse login(String email, String password) {
     var authenticatedUser = authenticateUser(email, password);
-    String jwtToken = manageUserTokens(authenticatedUser);
+    String jwtToken = saveOrUpdateUserToken(authenticatedUser);
     return createNewAuthResponse(jwtToken, authenticatedUser);
   }
 
+  /**
+   * Authenticates a user by their email and password. If the user is found and the credentials
+   * match, the user is returned.
+   *
+   * @param email The email of the user attempting to log in.
+   * @param password The password of the user attempting to log in.
+   * @return The authenticated {@link User}.
+   * @throws UserNotFoundException if the user is not found or the credentials are incorrect.
+   */
   private User authenticateUser(String email, String password) {
     Optional<User> userOptional = userService.findUserByEmail(email.toLowerCase());
 
@@ -140,18 +193,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     throw new UserNotFoundException("User with email - " + email + " not found", "Bad credentials");
   }
 
+  /**
+   * Registers a new user by validating the user's registration data and saving the user entity.
+   *
+   * @param user The {@link User} entity containing registration data.
+   * @return The saved {@link User} entity.
+   * @throws IOException If an error occurs during user registration.
+   */
   private User registerNewUser(User user) throws IOException {
     validateUserRegistrationData(user);
-    var newUser = userService.save(createNewUser(user));
-    generateStandardAvatar(newUser);
-    return newUser;
+    return userService.save(createNewUser(user));
   }
 
-  private String manageUserTokens(User user) {
+  /**
+   * Saves or updates a JWT token for the specified user. Any existing tokens associated with the user
+   * are deleted, and the new token is saved in the database.
+   *
+   * @param user The {@link User} entity for which the token is being generated.
+   * @return The generated JWT token as a string.
+   */
+  private String saveOrUpdateUserToken(User user) {
     String jwtToken = tokenService.generateToken(user);
     var token = createNewToken(jwtToken, user);
-    revokeAllUserTokens(user);
-    tokenService.deleteInvalidTokensByUserId(user.getId());
+    tokenRepository.deleteAllByUserId(user.getId());
     tokenService.save(token);
     return jwtToken;
   }
@@ -160,36 +224,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     String lowercaseEmail = user.getUserEmail().toLowerCase();
     user.setUserEmail(lowercaseEmail);
     validateEmailAndPassword(user);
-    var userByEmail = userService.findUserByEmail(user.getUserEmail());
+    Optional<User> userByEmail = userService.findUserByEmail(user.getUserEmail());
     checkForDuplicateEmail(userByEmail);
   }
 
-  // todo: clarify an appointment of this method and create documentation
-
-  private void revokeAllUserTokens(User user) {
-    var validUserTokens = tokenService.findAllValidTokensByUserId(user.getId());
-    if (validUserTokens.isEmpty()) {
-      return;
-    }
-    validUserTokens.forEach(
-        token -> {
-          token.setExpired(true);
-          token.setRevoked(true);
-        });
-    tokenService.saveAll(validUserTokens);
-  }
-  private void generateStandardAvatar(User savedUser) throws IOException {
-    log.info("generateStandardAvatar: savedUser - {}", savedUser);
-    var avatar = avatarService.createDefaultAvatar(savedUser.getUserName());
-    avatar.setUser(savedUser);
-    avatarService.save(avatar);
-  }
-
   /**
-   * checks if passed password doesn't match password stored in database - throw an exception
+   * Verifies the provided password against the stored password for the user.
    *
-   * @param password passed password
-   * @param user user
+   * @param password The password provided during login.
+   * @param user The {@link User} entity whose credentials are being verified.
+   * @throws UserAuthenticationException if the provided password does not match the stored password.
    */
   private void checkUserCredentials(String password, User user) {
     if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -239,8 +283,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   /**
-   * In a spring security if a user not auth, principal equals 'anonymousUser' string
-   * This method checks if principal is not {@link CustomUserDetails} class then throw an exception
+   * Retrieves a {@link User} entity from the given principal object. If the principal is not an
+   * instance of {@link CustomUserDetails}, an exception is thrown.
+   *
+   * @param principal The principal object from the security context.
+   * @return The {@link User} entity associated with the principal.
+   * @throws UserNotAuthenticatedException if the principal is not a valid {@link CustomUserDetails}
+   *                                       instance.
    */
   private User getUserFromPrincipal(Object principal) {
     ifPrincipalIsStringThrowException(principal);

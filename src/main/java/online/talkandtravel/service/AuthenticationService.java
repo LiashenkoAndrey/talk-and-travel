@@ -35,5 +35,5 @@ public interface AuthenticationService {
 
   boolean isUserAuth();
 
-  void authenticateUser(UserDetails userDetails, HttpServletRequest request);
+  void authenticateUser(String token, HttpServletRequest request);
 }

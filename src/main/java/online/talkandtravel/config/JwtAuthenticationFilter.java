@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalid;
+import online.talkandtravel.exception.token.InvalidTokenException;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
@@ -20,58 +21,34 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Filter to handle JWT (JSON Web Token) authentication for incoming HTTP requests.
+ * JwtAuthenticationFilter is a Spring security filter that intercepts incoming HTTP requests
+ * and authenticates them using JWT tokens. It ensures that only requests with valid tokens are
+ * processed further in the application.
  *
- * <p>This filter intercepts requests to validate JWT tokens and authenticate users based on the
- * token's validity. It extends {@link org.springframework.web.filter.OncePerRequestFilter} to
- * ensure that the filter is executed once per request.
+ * <p>This filter checks for the presence of an Authorization header, extracts the JWT token,
+ * validates it, and authenticates the user if necessary.
  *
- * <p>Key Components:
- *
- * <ul>
- *   <li><strong>JwtService:</strong> Service for handling JWT operations such as extraction and
- *       validation.
- *   <li><strong>UserDetailsService:</strong> Service to load user details based on the username
- *       extracted from the JWT.
- *   <li><strong>TokenService:</strong> Service for managing and validating tokens stored in the
- *       database.
- * </ul>
- *
- * <p>Methods:
- *
- * <ul>
- *   <li>{@link #doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain)} Handles the
- *       actual filtering of requests. It checks for the presence and validity of the JWT in the
- *       "Authorization" header, validates the token, and sets the authentication context if the
- *       token is valid.
- * </ul>
- *
- * <p>Process:
- *
- * <ol>
- *   <li>Checks for the "Authorization" header and verifies if it starts with "Bearer ". If not, the
- *       request is forwarded to the next filter.
- *   <li>Extracts the JWT from the header and retrieves the username associated with the token.
- *   <li>Loads the user details using the extracted username.
- *   <li>Validates the JWT and checks if the token is valid (not revoked or expired) using the
- *       {@link TokenService}.
- *   <li>If the token is valid, sets the authentication context with a {@link
- *       UsernamePasswordAuthenticationToken}.
- *   <li>Forwards the request to the next filter in the chain.
- * </ol>
- *
- * @see UserDetailsService
- * @see TokenService
+ * <p>If the token is invalid or missing, the filter will respond with an unauthorized error.
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-  private final UserDetailsService userDetailsService;
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
   private final AuthenticationService authenticationService;
 
+  /**
+   * Processes each incoming HTTP request and attempts to authenticate it based on the JWT token
+   * present in the Authorization header. If the token is valid, the request proceeds; otherwise,
+   * an unauthorized error response is returned.
+   *
+   * @param request The incoming HTTP request to be filtered.
+   * @param response The HTTP response object where any errors are sent.
+   * @param filterChain The chain of filters that the request will pass through.
+   *
+   * @throws IOException If an input or output exception occurs.
+   */
   @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,
@@ -82,11 +59,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       authenticateRequestIfNeed(request);
       filterChain.doFilter(request, response);
     } catch (Exception e) {
-      log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage());
+      log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage(), e);
       sendErrorResponse(response);
     }
   }
 
+  /**
+   * Checks if the incoming request contains an Authorization header, and if so, extracts
+   * and validates the JWT token. If the token is valid and the user is not already authenticated,
+   * it proceeds to authenticate the user.
+   *
+   * @param request The HTTP request, which may be used during the authentication process.
+   */
   private void authenticateRequestIfNeed(HttpServletRequest request) {
     final String authHeader = request.getHeader("Authorization");
     if (authHeader == null) return;
@@ -94,12 +78,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     throwIfTokenNotValid(token);
 
     if (!authenticationService.isUserAuth()) {
-      String email = tokenService.extractUsername(token);
-      UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-      authenticationService.authenticateUser(userDetails, request);
+      authenticationService.authenticateUser(token, request);
     }
   }
 
+  /**
+   * Extracts the JWT token from the Authorization header. The header must start with "Bearer ",
+   * otherwise an {@link AuthenticationHeaderIsInvalid} exception is thrown.
+   *
+   * @param authHeader The Authorization header containing the JWT token.
+   * @return The JWT token as a string.
+   *
+   * @throws AuthenticationHeaderIsInvalid If the header does not start with "Bearer ".
+   */
   private String getTokenFromAuthHeader(String authHeader) {
     if (!authHeader.startsWith("Bearer ")) {
       throw new AuthenticationHeaderIsInvalid(authHeader);
@@ -107,13 +98,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return authHeader.substring(7);
   }
 
-
+  /**
+   * Validates the provided JWT token using the {@link TokenService}. If the token is invalid,
+   * a {@link RuntimeException} is thrown.
+   *
+   * @param token The JWT token to be validated.
+   *
+   * @throws RuntimeException If the token is not valid.
+   */
   private void throwIfTokenNotValid(String token) {
     if (!tokenService.isValidToken(token)) {
-      throw new RuntimeException("not valid token or not auth");
+      throw new InvalidTokenException(token);
     }
   }
 
+  /**
+   * Sends an error response to the client with an "Unauthorized" status code (401).
+   * This method is called when authentication fails.
+   *
+   * @param response The HTTP response object where the error message is written.
+   *
+   * @throws IOException If an input or output exception occurs while writing the error response.
+   */
   private void sendErrorResponse(HttpServletResponse response) throws IOException {
     ExceptionResponse exceptionResponse =
         new ExceptionResponse(

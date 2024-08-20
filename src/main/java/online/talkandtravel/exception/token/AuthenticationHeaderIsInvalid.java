@@ -3,6 +3,10 @@ package online.talkandtravel.exception.token;
 import online.talkandtravel.exception.model.HttpException;
 import org.springframework.http.HttpStatus;
 
+/**
+ * Thrown to indicate that the Authorization header in the HTTP request is invalid.
+ * This typically occurs when the header does not start with "Bearer ".
+ */
 public class AuthenticationHeaderIsInvalid extends HttpException {
 
   private static final String MESSAGE = "Authentication header %s is invalid";

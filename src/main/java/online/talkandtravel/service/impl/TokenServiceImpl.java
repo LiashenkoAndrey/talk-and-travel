@@ -65,10 +65,13 @@ public class TokenServiceImpl implements TokenService {
     return repository.save(token);
   }
 
-  @Override
-  public List<Token> findAllValidTokensByUserId(Long userId) {
-    return repository.findAllValidTokensByUserId(userId);
-  }
+  /**
+   * Retrieves all valid (non-expired, non-revoked) tokens associated with a given user ID.
+   *
+   * @param userId The ID of the user whose tokens are to be retrieved.
+   * @return A list of valid tokens for the user.
+   */
+
 
   @Override
   public Optional<Token> findByToken(String token) {
@@ -80,17 +83,7 @@ public class TokenServiceImpl implements TokenService {
     return repository.saveAll(tokens);
   }
 
-  @Override
-  public void deleteInvalidTokensByUserId(Long userId) {
-    repository.deleteInvalidTokensByUserId(userId);
-  }
 
-  private UserDetails getUserDetailsByEmail(String email) {
-    return userRepository
-        .findByUserEmail(email)
-        .map(CustomUserDetails::new)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-  }
 
   @Override
   @Transactional
@@ -99,17 +92,6 @@ public class TokenServiceImpl implements TokenService {
     return !isTokenExpired(token) &&
         !isTokenExpiredAndRevoked(userEmail) &&
         tokenNameMatchesRegisteredUsername(userEmail);
-  }
-
-  public boolean tokenNameMatchesRegisteredUsername(String userEmail) {
-    UserDetails userDetails = getUserDetailsByEmail(userEmail);
-    return (userEmail.equals(userDetails.getUsername()));
-  }
-
-  public boolean isTokenExpiredAndRevoked(String userEmail) {
-    Token token = repository.findByUserUserEmail(userEmail).orElseThrow(
-        () -> new UserTokenNotFoundException(userEmail));
-    return token.isExpired() && token.isRevoked();
   }
 
   @Override
@@ -138,6 +120,24 @@ public class TokenServiceImpl implements TokenService {
         .setExpiration(new Date(System.currentTimeMillis() + 86400000))
         .signWith(SignatureAlgorithm.HS256, getSignInKey())
         .compact();
+  }
+
+  private UserDetails getUserDetailsByEmail(String email) {
+    return userRepository
+        .findByUserEmail(email)
+        .map(CustomUserDetails::new)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+  }
+
+  public boolean tokenNameMatchesRegisteredUsername(String userEmail) {
+    UserDetails userDetails = getUserDetailsByEmail(userEmail);
+    return (userEmail.equals(userDetails.getUsername()));
+  }
+
+  public boolean isTokenExpiredAndRevoked(String userEmail) {
+    Token token = repository.findByUserUserEmail(userEmail).orElseThrow(
+        () -> new UserTokenNotFoundException(userEmail));
+    return token.isExpired() && token.isRevoked();
   }
 
   private boolean isTokenExpired(String token) {

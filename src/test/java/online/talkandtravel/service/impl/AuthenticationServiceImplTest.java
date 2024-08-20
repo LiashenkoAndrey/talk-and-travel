@@ -3,9 +3,13 @@ package online.talkandtravel.service.impl;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 import online.talkandtravel.exception.auth.RegistrationException;
@@ -13,19 +17,29 @@ import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.validator.PasswordValidator;
 import online.talkandtravel.util.validator.UserEmailValidator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceImplTest {
@@ -33,13 +47,15 @@ class AuthenticationServiceImplTest {
   private static final String USER_NAME = "Bob";
   private static final String USER_EMAIL = "bob@mail.com";
   private static final String TEST_TOKEN = "test_token";
+  @Mock private TokenService tokenService;
+  @Mock private UserDetailsService userDetailsService;
+  @Mock private HttpServletRequest request;
   @InjectMocks private AuthenticationServiceImpl authenticationService;
   private static final Long USER_ID = 1L;
   @Mock private PasswordValidator passwordValidator;
   @Mock private UserEmailValidator emailValidator;
   @Mock private UserService userService;
   @Mock private PasswordEncoder passwordEncoder;
-  @Mock private TokenService tokenService;
   @Mock private UserMapper userMapper;
   @Mock private AvatarService avatarService;
   private User user;
@@ -47,6 +63,8 @@ class AuthenticationServiceImplTest {
 
   @BeforeEach
   void setUp() {
+    MockitoAnnotations.openMocks(this);
+    SecurityContextHolder.clearContext();
     userDto = creanteNewUserDtoShort();
     user = createNewUser();
   }
@@ -142,5 +160,56 @@ class AuthenticationServiceImplTest {
 
   private UserDtoShort creanteNewUserDtoShort() {
     return UserDtoShort.builder().id(USER_ID).userEmail(USER_EMAIL).userName(USER_NAME).build();
+  }
+
+  @Test
+  void testGetAuthenticatedUser() {
+    CustomUserDetails userDetails = mock(CustomUserDetails.class);
+    User user = mock(User.class);
+    when(userDetails.getUser()).thenReturn(user);
+    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    User authenticatedUser = authenticationService.getAuthenticatedUser();
+
+    assertEquals(user, authenticatedUser);
+  }
+
+  @Test
+  void testIsUserAuth_Authenticated() {
+    Authentication authentication = mock(Authentication.class);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    boolean isAuthenticated = authenticationService.isUserAuth();
+
+    assertTrue(isAuthenticated);
+  }
+
+  @Test
+  void testIsUserAuth_NotAuthenticated() {
+    SecurityContextHolder.clearContext();
+    boolean isAuthenticated = authenticationService.isUserAuth();
+
+    assertFalse(isAuthenticated);
+  }
+
+  @Test
+  void testAuthenticateUser() {
+    String token = "mockToken";
+    String email = "user@example.com";
+    UserDetails userDetails = mock(UserDetails.class);
+    WebAuthenticationDetails details = mock(WebAuthenticationDetails.class);
+
+    when(tokenService.extractUsername(token)).thenReturn(email);
+    when(userDetailsService.loadUserByUsername(email)).thenReturn(userDetails);
+    when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+    when(request.getSession()).thenReturn(null);
+
+    authenticationService.authenticateUser(token, request);
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    assertNotNull(authentication);
+    assertEquals(userDetails, authentication.getPrincipal());
+    assertEquals(details, authentication.getDetails());
   }
 }
