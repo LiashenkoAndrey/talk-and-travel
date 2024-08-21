@@ -47,7 +47,6 @@ class AuthenticationServiceImplTest {
   private static final String USER_EMAIL = "bob@mail.com";
   private static final String TEST_TOKEN = "test_token";
   @Mock private TokenService tokenService;
-  @Mock private TokenRepository tokenRepository;
   @Mock private UserDetailsService userDetailsService;
   @Mock private HttpServletRequest request;
   private static final Long USER_ID = 1L;
@@ -56,7 +55,6 @@ class AuthenticationServiceImplTest {
   @Mock private UserService userService;
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private UserMapper userMapper;
-  @Mock private AvatarService avatarService;
 
   @InjectMocks AuthenticationServiceImpl authenticationService;
 

@@ -1,6 +1,5 @@
 package online.talkandtravel.controller.websocket;
 
-import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.message.MessageDto;

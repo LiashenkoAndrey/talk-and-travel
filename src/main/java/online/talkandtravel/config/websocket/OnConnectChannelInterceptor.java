@@ -1,16 +1,15 @@
 package online.talkandtravel.config.websocket;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.model.HttpException;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
+import online.talkandtravel.exception.websocket.MessageDeliveryException;
 import online.talkandtravel.service.TokenService;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
