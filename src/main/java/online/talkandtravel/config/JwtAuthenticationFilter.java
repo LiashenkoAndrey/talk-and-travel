@@ -9,8 +9,7 @@ import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
-import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalid;
-import online.talkandtravel.exception.token.InvalidTokenException;
+import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
@@ -73,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     final String authHeader = request.getHeader("Authorization");
     if (authHeader == null) return;
     String token = getTokenFromAuthHeader(authHeader);
-    throwIfTokenNotValid(token);
+    tokenService.validateToken(token);
 
     if (!authenticationService.isUserAuth()) {
       authenticationService.authenticateUser(token, request);
@@ -82,33 +81,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   /**
    * Extracts the JWT token from the Authorization header. The header must start with "Bearer ",
-   * otherwise an {@link AuthenticationHeaderIsInvalid} exception is thrown.
+   * otherwise an {@link AuthenticationHeaderIsInvalidException} exception is thrown.
    *
    * @param authHeader The Authorization header containing the JWT token.
    * @return The JWT token as a string.
    *
-   * @throws AuthenticationHeaderIsInvalid If the header does not start with "Bearer ".
+   * @throws AuthenticationHeaderIsInvalidException If the header does not start with "Bearer ".
    */
   private String getTokenFromAuthHeader(String authHeader) {
     if (!authHeader.startsWith("Bearer ")) {
-      throw new AuthenticationHeaderIsInvalid(authHeader);
+      throw new AuthenticationHeaderIsInvalidException(authHeader);
     }
     return authHeader.substring(7);
   }
 
-  /**
-   * Validates the provided JWT token using the {@link TokenService}. If the token is invalid,
-   * a {@link RuntimeException} is thrown.
-   *
-   * @param token The JWT token to be validated.
-   *
-   * @throws RuntimeException If the token is not valid.
-   */
-  private void throwIfTokenNotValid(String token) {
-    if (!tokenService.isValidToken(token)) {
-      throw new InvalidTokenException(token);
-    }
-  }
+//  /**
+//   * Validates the provided JWT token using the {@link TokenService}. If the token is invalid,
+//   * a {@link RuntimeException} is thrown.
+//   *
+//   * @param token The JWT token to be validated.
+//   *
+//   * @throws RuntimeException If the token is not valid.
+//   */
+//  private void throwIfTokenNotValid(String token) {
+//    if (!tokenService.validateToken(token)) {
+//      throw new InvalidTokenException(token);
+//    }
+//  }
 
   /**
    * Sends an error response to the client with an "Unauthorized" status code (401).

@@ -1,6 +1,7 @@
 package online.talkandtravel.service.impl;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -14,8 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.exception.auth.UserAuthenticationException;
-import online.talkandtravel.exception.user.UserTokenNotFoundException;
+import online.talkandtravel.exception.token.InvalidTokenException;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
@@ -81,14 +81,14 @@ public class TokenServiceImpl implements TokenService {
   }
 
 
-
   @Override
   @Transactional
-  public boolean isValidToken(String token) {
+  public void validateToken(String token) {
+    log.info("validateToken");
     String userEmail = extractUsername(token);
-    return !isTokenExpired(token) &&
-        !isTokenExpiredAndRevoked(userEmail) &&
-        tokenNameMatchesRegisteredUsername(userEmail);
+    verifyProvidedTokenValid(token);
+    verifyStoredTokenPresentAndValid(userEmail);
+    tokenNameMatchesRegisteredUsername(userEmail);
   }
 
   @Override
@@ -126,43 +126,55 @@ public class TokenServiceImpl implements TokenService {
         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
   }
 
-  public boolean tokenNameMatchesRegisteredUsername(String userEmail) {
+  public void tokenNameMatchesRegisteredUsername(String userEmail) {
     UserDetails userDetails = getUserDetailsByEmail(userEmail);
-    return (userEmail.equals(userDetails.getUsername()));
+    if (!userEmail.equals(userDetails.getUsername())) {
+      String errorMessage = String.format("token %s name don't match with registered username",
+          userDetails.getUsername());
+      throw new InvalidTokenException(errorMessage, "Invalid authentication token");
+    }
   }
 
-  public boolean isTokenExpiredAndRevoked(String userEmail) {
+  public void verifyStoredTokenPresentAndValid(String userEmail) {
     Token token = repository.findByUserUserEmail(userEmail).orElseThrow(
-        () -> new UserTokenNotFoundException(userEmail));
-    return token.isExpired() && token.isRevoked();
+        () -> new InvalidTokenException(
+            String.format("token of user with email %s not found", userEmail), "Invalid token"));
+
+    if (token.isExpired() && token.isRevoked()) {
+      String errorMessage = String.format("Token with id:%s is expired or revoked.", token.getId());
+      throw new InvalidTokenException(errorMessage, "Token is expired");
+    }
   }
 
-  private boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
-  }
-
-  private Date extractExpiration(String token) {
-    return extractClaim(token, Claims::getExpiration);
+  public void verifyProvidedTokenValid(String token) {
+    log.info("verifyProvidedTokenValid");
+    parseClaims(token);
   }
 
   private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
-    final Claims claims = extractAllClaims(token);
+    final Claims claims = parseClaims(token);
+
     return claimsResolvers.apply(claims);
   }
 
-  private Claims extractAllClaims(String token) {
-    Claims body;
+  private Claims parseClaims(String token) {
+    Claims claims;
     try {
-      body =
+      claims =
           Jwts.parserBuilder()
               .setSigningKey(getSignInKey())
               .build()
               .parseClaimsJws(token)
               .getBody();
+    } catch (ExpiredJwtException expiredJwtException) {
+      throw new InvalidTokenException(expiredJwtException.getMessage(),
+          "Invalid token. The provided token is expired ");
     } catch (Exception e) {
-      throw new UserAuthenticationException(e.getMessage());
+      log.error(e.getMessage(), e);
+      throw new InvalidTokenException(e.getMessage(),
+          "Invalid token. Error occupied during token processing");
     }
-    return body;
+    return claims;
   }
 
   private Key getSignInKey() {

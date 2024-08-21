@@ -32,7 +32,7 @@ public interface TokenService {
 
   List<Token> saveAll(List<Token> tokens);
 
-  boolean isValidToken(String token);
+  void validateToken(String token);
 
   String extractUsername(String token);
 

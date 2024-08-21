@@ -3,7 +3,8 @@ package online.talkandtravel.config.websocket;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.exception.model.HttpException;
+import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
 import online.talkandtravel.service.TokenService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -12,11 +13,8 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,8 +25,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OnConnectChannelInterceptor implements ChannelInterceptor {
 
-  private final AuthenticationService authenticationService;
   private final TokenService tokenService;
+
+  private static final String AUTH_ERROR_MESSAGE = "Error during connection. Authentication failed. ";
 
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -37,20 +36,30 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
           StompHeaderAccessor.class);
 
       if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-        String authHeader = accessor.getFirstNativeHeader("Authorization");
-        String token = getTokenFromAuthHeader(authHeader);
-        UsernamePasswordAuthenticationToken authenticationToken = auth(token);
-        accessor.setUser(authenticationToken);
+        onConnect(accessor);
       }
       return message;
+    } catch (HttpException httpException) {
+      log.error(httpException.getMessage(), httpException);
+      throw new MessageDeliveryException(message,
+          AUTH_ERROR_MESSAGE + httpException.getMessageToClient(), httpException);
+
     } catch (Exception e) {
-      String errorMessage = "Error during connection. Authentication failed.";
-      throw new MessageDeliveryException(message, errorMessage, e);
+      log.error(e.getMessage(), e);
+      throw new MessageDeliveryException(message, AUTH_ERROR_MESSAGE, e);
     }
   }
 
+  private void onConnect(StompHeaderAccessor accessor) {
+    String authHeader = accessor.getFirstNativeHeader("Authorization");
+    String token = getTokenFromAuthHeader(authHeader);
+    tokenService.validateToken(token);
+    UsernamePasswordAuthenticationToken authenticationToken = auth(token);
+    accessor.setUser(authenticationToken);
+    log.info("Authentication is successful");
+  }
+
   private UsernamePasswordAuthenticationToken auth(String token) {
-    throwIfTokenNotValidOrUserIsAuth(token);
     return new UsernamePasswordAuthenticationToken(
         tokenService.extractUsername(token), null,
         Collections.singleton((GrantedAuthority) () -> "USER")
@@ -64,13 +73,7 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
 
   private void throwIfNotValidAuthenticationHeader(String authHeader) {
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-      throw new RuntimeException("not valid auth header " + authHeader);
-    }
-  }
-
-  private void throwIfTokenNotValidOrUserIsAuth(String token) {
-    if (!tokenService.isValidToken(token) || authenticationService.isUserAuth()) {
-      throw new RuntimeException("not valid token or not auth");
+      throw new AuthenticationHeaderIsInvalidException(authHeader);
     }
   }
 }
