@@ -1,6 +1,10 @@
 package online.talkandtravel.controller.http;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.LoginDto;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
@@ -37,7 +41,7 @@ public class AuthenticationController {
             description = "Register a user."
     )
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody UserDtoWithAvatarAndPassword dto) throws IOException {
+    public AuthResponse register(@RequestBody UserDtoWithAvatarAndPassword dto) {
         log.info("register - {}", dto);
         var user = mapper.mapToModel(dto);
         return authService.register(user);
