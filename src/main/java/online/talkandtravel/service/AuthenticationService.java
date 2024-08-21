@@ -26,7 +26,7 @@ import online.talkandtravel.model.entity.User;
  */
 public interface AuthenticationService {
 
-  AuthResponse register(User user) throws IOException;
+  AuthResponse register(User user);
 
   AuthResponse login(String email, String password);
 

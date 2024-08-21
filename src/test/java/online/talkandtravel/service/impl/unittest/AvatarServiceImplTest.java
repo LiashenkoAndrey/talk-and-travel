@@ -1,4 +1,4 @@
-package online.talkandtravel.service.impl;
+package online.talkandtravel.service.impl.unittest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import online.talkandtravel.exception.avatar.UserAvatarNotFoundException;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.repository.AvatarRepository;
+import online.talkandtravel.service.impl.AvatarServiceImpl;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,8 @@ class AvatarServiceImplTest {
 
   @Mock private AvatarRepository avatarRepository;
 
-  @InjectMocks AvatarServiceImpl underTest;
+  @InjectMocks
+  AvatarServiceImpl underTest;
 
   @Nested
   class FindById {

@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
  * <ul>
  *   <li>{@link #save(Avatar)} - Saves an {@link Avatar} entity to the repository.
  *   <li>{@link #findByUserId(Long)} - Retrieves an avatar associated with a specific user ID.
- *   <li>{@link #createDefaultAvatar(String)} - Creates a default avatar for a user with the given
+ *   <li>{@link AvatarService#createDefaultAvatar(String)} - Creates a default avatar for a user with the given
  *       username.
  *   <li>{@link #uploadAvatar(MultipartFile, Long)} - Uploads and saves a new avatar for a user from
  *       a multipart file.

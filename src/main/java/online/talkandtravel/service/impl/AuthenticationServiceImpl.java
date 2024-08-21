@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <ul>
  *   <li>{@link #getAuthenticatedUser()} - gets the authenticated
  *       user from {@link SecurityContextHolder}
- *   <li>{@link #register(User)} - Registers a new user, creates an authentication token, and
+ *   <li>{@link AuthenticationService#register(User)} - Registers a new user, creates an authentication token, and
  *       generates a default avatar.
  *   <li>{@link #login(String, String)} - Authenticates a user based on email and password, and
  *       returns an authentication token.
@@ -146,7 +146,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   @Override
   @Transactional
-  public AuthResponse register(User user) throws IOException {
+  public AuthResponse register(User user) {
     var newUser = registerNewUser(user);
     String jwtToken = saveOrUpdateUserToken(newUser);
     return createNewAuthResponse(jwtToken, newUser);

@@ -1,4 +1,4 @@
-package online.talkandtravel.service.impl;
+package online.talkandtravel.service.impl.unittest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,6 +24,7 @@ import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
+import online.talkandtravel.service.impl.AuthenticationServiceImpl;
 import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.validator.PasswordValidator;
 import online.talkandtravel.util.validator.UserEmailValidator;
@@ -71,7 +72,7 @@ class AuthenticationServiceImplTest {
   }
 
   @Test
-  void register_shouldSaveUserWithCorrectCredentials() throws IOException {
+  void register_shouldSaveUserWithCorrectCredentials() {
     when(userService.save(any())).thenReturn(user);
     when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.empty());
     when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
@@ -115,7 +116,7 @@ class AuthenticationServiceImplTest {
   }
 
   @Test
-  void register_shouldSaveTokenForNewUser() throws IOException {
+  void register_shouldSaveTokenForNewUser() {
     String expected = TEST_TOKEN;
 
     when(userService.save(any())).thenReturn(user);

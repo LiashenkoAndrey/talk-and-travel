@@ -6,7 +6,6 @@ import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.validator.UserEmailValidator;
-import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Service;
  *
  * <p>The service includes the following functionalities:
  * <ul>
- *   <li>{@link #save(User)} - Encrypts the user's password and saves the user to the repository.</li>
+ *   <li>{@link UserService#save(User)} - Encrypts the user's password and saves the user to the repository.</li>
  *   <li>{@link #update(User)} - Updates an existing user's information, including handling email changes
  *       and preserving security information like the password and role.</li>
  *   <li>{@link #findUserByEmail(String)} - Retrieves a user by their email address, returning an
@@ -59,7 +58,7 @@ public class UserServiceImpl implements UserService {
     private final UserEmailValidator emailValidator;
 
     @Override
-    public User save(User user) throws IOException {
+    public User save(User user) {
         String password = user.getPassword();
         String encodePassword = passwordEncoder.encode(password);
         user.setPassword(encodePassword);
