@@ -36,20 +36,18 @@ public class AuthenticationController {
             description = "Register a user."
     )
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody UserDtoWithAvatarAndPassword dto) throws IOException {
+    public AuthResponse register(@RequestBody UserDtoWithAvatarAndPassword dto) throws IOException {
         log.info("register - {}", dto);
         var user = mapper.mapToModel(dto);
-        var authResponse = authService.register(user);
-        return ResponseEntity.ok(authResponse);
+        return authService.register(user);
     }
 
     @Operation(
             description = "Log in a user."
     )
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginDto loginDto) {
+    public AuthResponse login(@Valid @RequestBody LoginDto loginDto) {
         log.info("Login - {}", loginDto);
-        var authResponse = authService.login(loginDto.getUserEmail(), loginDto.getPassword());
-        return ResponseEntity.ok(authResponse);
+        return authService.login(loginDto.getUserEmail(), loginDto.getPassword());
     }
 }
