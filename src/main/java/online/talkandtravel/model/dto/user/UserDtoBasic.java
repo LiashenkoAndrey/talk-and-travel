@@ -18,10 +18,4 @@ public record UserDtoBasic(
     String about
 ) {
 
-  public UserDtoBasic(Long id, String userName, String userEmail, String about) {
-    this.id = id;
-    this.userName = userName;
-    this.userEmail = userEmail;
-    this.about = about;
-  }
 }

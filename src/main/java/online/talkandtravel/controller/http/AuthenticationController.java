@@ -1,18 +1,20 @@
 package online.talkandtravel.controller.http;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.LoginDto;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserMapper;
-import io.swagger.v3.oas.annotations.Operation;
-import java.io.IOException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 /**
  * Controller class responsible for handling HTTP requests related to user authentication.
  * This includes user registration and login operations.

@@ -4,7 +4,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -12,7 +14,6 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
-import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.service.AvatarService;

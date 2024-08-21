@@ -18,8 +18,4 @@ public record AuthResponse(
     UserDtoBasic userDto
 ) {
 
-  public AuthResponse(String token, UserDtoBasic userDto) {
-    this.token = token;
-    this.userDto = userDto;
-  }
 }
