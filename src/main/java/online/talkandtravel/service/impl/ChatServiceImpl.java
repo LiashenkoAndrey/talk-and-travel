@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl;
 
 import static java.lang.String.format;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -25,6 +26,7 @@ import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
+import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
@@ -161,6 +163,7 @@ public class ChatServiceImpl implements ChatService {
     Optional<Chat> optionalChat =
         country.getChats().stream().filter(chat -> chat.getName().equals(countryName)).findFirst();
     Chat chat = optionalChat.orElseThrow(() -> new MainCountryChatNotFoundException(countryName));
+    chat.getMessages().sort(Comparator.comparing(Message::getCreationDate));
     return chatMapper.toDto(chat);
   }
 

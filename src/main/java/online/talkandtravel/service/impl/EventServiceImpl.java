@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
+import online.talkandtravel.exception.chat.PrivateChatMustContainTwoUsersException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
@@ -14,6 +15,7 @@ import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
@@ -111,6 +113,7 @@ public class EventServiceImpl implements EventService {
   public MessageDto joinChat(EventRequest request) {
     Chat chat = getChat(request);
     User author = getUser(request);
+    checkChatIsNotPrivate(request, chat);
     checkUserAlreadyJoinedChat(request);
 
     saveConnections(chat, author);
@@ -150,6 +153,12 @@ public class EventServiceImpl implements EventService {
     if (userChats.isEmpty()) {
       // if this was the last chat in country for user, we remove connection with Country
       userCountryRepository.delete(userCountry);
+    }
+  }
+
+  private void checkChatIsNotPrivate(EventRequest request, Chat chat) {
+    if(chat.getChatType().equals(ChatType.PRIVATE)){
+      throw new PrivateChatMustContainTwoUsersException(request);
     }
   }
 
