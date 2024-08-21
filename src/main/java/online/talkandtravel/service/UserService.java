@@ -23,15 +23,14 @@ import online.talkandtravel.model.entity.User;
  *   <li>{@link #findUserByEmail(String)} - Retrieves a user by their email address. Returns an
  *       {@link Optional} that contains the user if found, or empty if no user with the specified
  *       email exists.
- *   <li>{@link #findById(Long)} - Finds a user by their unique ID. Throws a {@link
- *       NoSuchElementException} if no user with the specified ID is found.
+ *   <li>{@link #findById(Long)} - Finds a user by their unique ID.
  *   <li>{@link #existsByEmail(String)} - Checks if a user with the specified email address already
  *       exists in the system. Returns true if such a user exists, false otherwise.
  * </ul>
  */
 public interface UserService {
 
-  User save(User user) throws IOException;
+  User save(User user);
 
   User update(User user);
 

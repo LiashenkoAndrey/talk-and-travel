@@ -33,7 +33,7 @@ public interface AvatarService {
 
   Avatar findByUserId(Long userId);
 
-  Avatar createDefaultAvatar(String username) throws IOException;
+  Avatar createDefaultAvatar(String username);
 
   Long uploadAvatar(MultipartFile imageFile, Long userId);
 }

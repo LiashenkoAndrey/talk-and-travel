@@ -2,7 +2,6 @@ package online.talkandtravel.service.impl;
 
 import static java.lang.String.format;
 
-import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -39,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <ul>
  *   <li>{@link #getAuthenticatedUser()} - gets the authenticated
  *       user from {@link SecurityContextHolder}
- *   <li>{@link #register(User)} - Registers a new user, creates an authentication token, and
+ *   <li>{@link AuthenticationService#register(User)} - Registers a new user, creates an authentication token, and
  *       generates a default avatar.
  *   <li>{@link #login(String, String)} - Authenticates a user based on email and password, and
  *       returns an authentication token.
@@ -93,7 +92,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   @Transactional
-  public AuthResponse register(User user) throws IOException {
+  public AuthResponse register(User user) {
     var newUser = registerNewUser(user);
     String jwtToken = manageUserTokens(newUser);
     return createNewAuthResponse(jwtToken, newUser);
@@ -119,7 +118,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     throw new UserNotFoundException("User with email - " + email + " not found", "Bad credentials");
   }
 
-  private User registerNewUser(User user) throws IOException {
+  private User registerNewUser(User user) {
     validateUserRegistrationData(user);
     var newUser = userService.save(createNewUser(user));
     generateStandardAvatar(newUser);
@@ -157,7 +156,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         });
     tokenService.saveAll(validUserTokens);
   }
-  private void generateStandardAvatar(User savedUser) throws IOException {
+  private void generateStandardAvatar(User savedUser)  {
     log.info("generateStandardAvatar: savedUser - {}", savedUser);
     var avatar = avatarService.createDefaultAvatar(savedUser.getUserName());
     avatar.setUser(savedUser);
