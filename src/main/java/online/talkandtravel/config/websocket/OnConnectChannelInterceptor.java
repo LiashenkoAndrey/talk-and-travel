@@ -27,8 +27,6 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
 
   private final TokenService tokenService;
 
-  private static final String AUTH_ERROR_MESSAGE = "Error during connection. Authentication failed. ";
-
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
     try {
@@ -41,12 +39,11 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
       return message;
     } catch (HttpException httpException) {
       log.error(httpException.getMessage(), httpException);
-      throw new MessageDeliveryException(message,
-          AUTH_ERROR_MESSAGE + httpException.getMessageToClient(), httpException);
+      throw new MessageDeliveryException(message, httpException.getMessageToClient(), httpException);
 
     } catch (Exception e) {
       log.error(e.getMessage(), e);
-      throw new MessageDeliveryException(message, AUTH_ERROR_MESSAGE, e);
+      throw new MessageDeliveryException(message, e);
     }
   }
 
