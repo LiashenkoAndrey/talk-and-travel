@@ -33,10 +33,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ExtendWith(MockitoExtension.class)
 @Log4j2
 class AuthenticationServiceImplTest {
-  private static final String USER_PASSWORD = "!123456Aa";
-  private static final String USER_NAME = "Bob";
-  private static final String USER_EMAIL = "bob@mail.com";
-  private static final String TEST_TOKEN = "test_token";
+
+  private static final String
+      USER_PASSWORD = "!123456Aa",
+      USER_NAME = "Bob",
+      USER_EMAIL = "bob@mail.com",
+      USER_ABOUT = "about me",
+      TEST_TOKEN = "test_token";
+
   @InjectMocks private AuthenticationServiceImpl authenticationService;
   private static final Long USER_ID = 1L;
   @Mock private PasswordValidator passwordValidator;
@@ -68,7 +72,7 @@ class AuthenticationServiceImplTest {
     UserDtoBasic expected = creanteNewUserDtoBasic();
 
     AuthResponse authResponse = authenticationService.register(user);
-    UserDtoBasic actual = authResponse.getUserDto();
+    UserDtoBasic actual = authResponse.userDto();
 
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
@@ -114,7 +118,7 @@ class AuthenticationServiceImplTest {
     when(jwtService.generateToken(user)).thenReturn(expected);
 
     AuthResponse authResponse = authenticationService.register(user);
-    String actual = authResponse.getToken();
+    String actual = authResponse.token();
 
     assertEquals(expected, actual);
 
@@ -131,7 +135,7 @@ class AuthenticationServiceImplTest {
     log.info(expected);
     AuthResponse authResponse =
         authenticationService.login(user.getUserEmail(), user.getPassword());
-    UserDtoBasic actual = authResponse.getUserDto();
+    UserDtoBasic actual = authResponse.userDto();
 
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
@@ -146,10 +150,6 @@ class AuthenticationServiceImplTest {
   }
 
   private UserDtoBasic creanteNewUserDtoBasic() {
-    return UserDtoBasic.builder()
-        .id(USER_ID)
-        .userEmail(USER_EMAIL)
-        .userName(USER_NAME)
-        .build();
+    return new UserDtoBasic(USER_ID, USER_NAME, USER_EMAIL, USER_ABOUT);
   }
 }
