@@ -84,7 +84,6 @@ public class TokenServiceImpl implements TokenService {
   @Override
   @Transactional
   public void validateToken(String token) {
-    log.info("validateToken");
     String userEmail = extractUsername(token);
     verifyProvidedTokenValid(token);
     verifyStoredTokenPresentAndValid(userEmail);
@@ -147,7 +146,6 @@ public class TokenServiceImpl implements TokenService {
   }
 
   public void verifyProvidedTokenValid(String token) {
-    log.info("verifyProvidedTokenValid");
     parseClaims(token);
   }
 
