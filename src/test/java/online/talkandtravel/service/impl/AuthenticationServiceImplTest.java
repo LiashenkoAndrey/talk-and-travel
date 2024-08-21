@@ -178,7 +178,7 @@ class AuthenticationServiceImplTest {
     Authentication authentication = mock(Authentication.class);
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    boolean isAuthenticated = authenticationService.isUserAuth();
+    boolean isAuthenticated = authenticationService.isUserAuthenticated();
 
     assertTrue(isAuthenticated);
   }
@@ -186,7 +186,7 @@ class AuthenticationServiceImplTest {
   @Test
   void testIsUserAuth_NotAuthenticated() {
     SecurityContextHolder.clearContext();
-    boolean isAuthenticated = authenticationService.isUserAuth();
+    boolean isAuthenticated = authenticationService.isUserAuthenticated();
 
     assertFalse(isAuthenticated);
   }

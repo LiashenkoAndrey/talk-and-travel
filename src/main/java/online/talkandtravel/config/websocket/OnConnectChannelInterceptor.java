@@ -1,11 +1,13 @@
 package online.talkandtravel.config.websocket;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.model.HttpException;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
 import online.talkandtravel.service.TokenService;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageDeliveryException;
@@ -28,11 +30,12 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
   private final TokenService tokenService;
 
   @Override
-  public Message<?> preSend(Message<?> message, MessageChannel channel) {
+  public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
     try {
       final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message,
           StompHeaderAccessor.class);
 
+      assert accessor != null;
       if (StompCommand.CONNECT.equals(accessor.getCommand())) {
         onConnect(accessor);
       }

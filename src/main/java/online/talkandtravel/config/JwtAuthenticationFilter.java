@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain)
       throws IOException {
     try {
-      authenticateRequestIfNeed(request);
+      authenticateRequest(request);
       filterChain.doFilter(request, response);
     } catch (Exception e) {
       log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage(), e);
@@ -68,13 +68,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    *
    * @param request The HTTP request, which may be used during the authentication process.
    */
-  private void authenticateRequestIfNeed(HttpServletRequest request) {
+  private void authenticateRequest(HttpServletRequest request) {
     final String authHeader = request.getHeader("Authorization");
     if (authHeader == null) return;
     String token = getTokenFromAuthHeader(authHeader);
     tokenService.validateToken(token);
 
-    if (!authenticationService.isUserAuth()) {
+    if (!authenticationService.isUserAuthenticated()) {
       authenticationService.authenticateUser(token, request);
     }
   }

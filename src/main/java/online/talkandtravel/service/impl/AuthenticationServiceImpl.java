@@ -106,7 +106,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    * @return {@code true} if an authentication object is present; {@code false} otherwise.
    */
   @Override
-  public boolean isUserAuth() {
+  public boolean isUserAuthenticated() {
     return SecurityContextHolder.getContext().getAuthentication() != null;
   }
 

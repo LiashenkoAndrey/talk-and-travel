@@ -32,7 +32,7 @@ public interface AuthenticationService {
 
   User getAuthenticatedUser();
 
-  boolean isUserAuth();
+  boolean isUserAuthenticated();
 
   void authenticateUser(String token, HttpServletRequest request);
 }

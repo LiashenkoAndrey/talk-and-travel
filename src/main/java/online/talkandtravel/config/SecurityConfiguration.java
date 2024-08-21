@@ -64,7 +64,6 @@ public class SecurityConfiguration {
     "/swagger-ui/**",
     "/v3/**",
     "/api/users/exists-by-email/**",
-//    "/ws/",
     "/ws/**",
     "/privacy-policy",
     "/public-terms-of-service"
