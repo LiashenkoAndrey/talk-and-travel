@@ -196,9 +196,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    *
    * @param user The {@link User} entity containing registration data.
    * @return The saved {@link User} entity.
-   * @throws IOException If an error occurs during user registration.
    */
-  private User registerNewUser(User user) throws IOException {
+  private User registerNewUser(User user) {
     validateUserRegistrationData(user);
     return userService.save(createNewUser(user));
   }
