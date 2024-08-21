@@ -194,7 +194,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   private AuthResponse createNewAuthResponse(String jwtToken, User user) {
-    var userDto = userMapper.mapToShortDto(user);
+    var userDto = userMapper.mapToBasicDto(user);
     return AuthResponse.builder().token(jwtToken).userDto(userDto).build();
   }
 

@@ -41,6 +41,8 @@ public interface UserMapper {
 
   UserDtoShort mapToShortDto(User user);
 
+  UserDtoBasic mapToBasicDto(User user);
+
   @Mapping(target = "tokens", ignore = true)
   @Mapping(target = "role", ignore = true)
   @Mapping(target = "countries", ignore = true)
