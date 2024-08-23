@@ -34,7 +34,7 @@ public class HttpExceptionHandler {
     return createResponse(e, e.getHttpStatus());
   }
 
-  @ExceptionHandler({IllegalStateException.class})
+  @ExceptionHandler({IllegalStateException.class, HttpMediaTypeNotSupportedException.class })
   public ExceptionResponse handleIllegalStateException(Exception e) {
     log.error(e.getMessage());
     return new ExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
@@ -58,19 +58,11 @@ public class HttpExceptionHandler {
                 "Validation failed", HttpStatus.BAD_REQUEST, ZonedDateTime.now()));
   }
 
-
   @ExceptionHandler({DataIntegrityViolationException.class})
   public ExceptionResponse handleDataIntegrityViolationException(DataIntegrityViolationException e) {
     String message = "Provided data is not valid or can't be processed";
     return new ExceptionResponse(message, HttpStatus.BAD_REQUEST, ZonedDateTime.now());
   }
-
-
-  @ExceptionHandler({HttpMediaTypeNotSupportedException.class})
-  public ExceptionResponse handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
-    return new ExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
-  }
-
 
   @ExceptionHandler({HttpMessageNotReadableException.class})
   public ExceptionResponse handleMessageNotReadableException(HttpMessageNotReadableException e) {
