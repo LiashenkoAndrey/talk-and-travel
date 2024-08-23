@@ -122,7 +122,7 @@ public class TokenServiceImpl implements TokenService {
     return userRepository
         .findByUserEmail(email)
         .map(CustomUserDetails::new)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        .orElseThrow(() -> new UsernameNotFoundException("User not found with email : %s".formatted(email)));
   }
 
   public void tokenNameMatchesRegisteredUsername(String userEmail) {
@@ -168,7 +168,6 @@ public class TokenServiceImpl implements TokenService {
       throw new InvalidTokenException(expiredJwtException.getMessage(),
           "Invalid token. The provided token is expired ");
     } catch (Exception e) {
-      log.debug(e.getMessage(), e);
       throw new InvalidTokenException(e.getMessage(),
           "Invalid token. Error occupied during token processing");
     }

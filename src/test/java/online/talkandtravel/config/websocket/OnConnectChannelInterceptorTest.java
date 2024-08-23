@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import online.talkandtravel.exception.token.InvalidTokenException;
-import online.talkandtravel.exception.websocket.MessageDeliveryException;
 import online.talkandtravel.service.impl.TokenServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
@@ -29,8 +29,6 @@ class OnConnectChannelInterceptorTest {
 
   @Mock MessageChannel messageChannel;
   @InjectMocks OnConnectChannelInterceptor underTest;
-
-  private static final String ERROR_APPENDER = "Error during connection. Authentication failed. ";
 
   @BeforeEach
   public void before() {
@@ -59,11 +57,13 @@ class OnConnectChannelInterceptorTest {
     accessor.setNativeHeader("Authorization", token);
     when(message.getHeaders()).thenReturn(accessor.getMessageHeaders());
 
-    MessageDeliveryException thrown = assertThrows(MessageDeliveryException.class,
-        () -> underTest.preSend(message, messageChannel),
-        "Authentication header Bearer is invalid");
+    MessageDeliveryException thrown =
+        assertThrows(
+            MessageDeliveryException.class,
+            () -> underTest.preSend(message, messageChannel),
+            "Authentication header Bearer is invalid");
 
-    assertMessageEquals(thrown,"Authentication header '%s' is invalid", token);
+    assertMessageEquals(thrown, "Authentication header '%s' is invalid", token);
   }
 
   @Test
@@ -72,17 +72,19 @@ class OnConnectChannelInterceptorTest {
     StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.CONNECT);
     accessor.setNativeHeader("Authorization", token);
     when(message.getHeaders()).thenReturn(accessor.getMessageHeaders());
-    doThrow(new InvalidTokenException(errorMessage, errorMessage)).when(tokenService)
+    doThrow(new InvalidTokenException(errorMessage, errorMessage))
+        .when(tokenService)
         .validateToken(anyString());
 
-    MessageDeliveryException thrown = assertThrows(MessageDeliveryException.class,
-        () -> underTest.preSend(message, messageChannel), "Af");
+    MessageDeliveryException thrown =
+        assertThrows(
+            MessageDeliveryException.class, () -> underTest.preSend(message, messageChannel), "Af");
 
     assertMessageEquals(thrown, errorMessage);
   }
 
-  private void assertMessageEquals(MessageDeliveryException actual, String expected, String... params) {
-    assertEquals(ERROR_APPENDER + String.format(expected , (Object[]) params), actual.getMessage());
+  private void assertMessageEquals(
+      MessageDeliveryException actual, String expected, String... params) {
+    assertEquals(String.format(expected, (Object[]) params), actual.getMessage());
   }
 }
-

@@ -50,6 +50,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         "http://localhost:3000",
         "http://localhost:5500",
         "https://oleksandrprokopenkodev.github.io",
+        "https://splendorous-kringle-40d196.netlify.app",
         "http://localhost:63342",
         "http://localhost:8080",
         "https://reginavarybrus.github.io"
