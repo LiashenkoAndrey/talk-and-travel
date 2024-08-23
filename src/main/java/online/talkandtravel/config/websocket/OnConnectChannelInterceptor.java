@@ -40,11 +40,11 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
       }
       return message;
     } catch (HttpException httpException) {
-      log.error(httpException.getMessage(), httpException);
+      log.debug(httpException.getMessage(), httpException);
       throw new MessageDeliveryException(message, httpException.getMessageToClient(), httpException);
 
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       throw new MessageDeliveryException(message, e);
     }
   }
@@ -55,7 +55,7 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
     tokenService.validateToken(token);
     UsernamePasswordAuthenticationToken authenticationToken = auth(token);
     accessor.setUser(authenticationToken);
-    log.info("Authentication is successful");
+    log.debug("Authentication is successful");
   }
 
   private UsernamePasswordAuthenticationToken auth(String token) {

@@ -168,7 +168,7 @@ public class TokenServiceImpl implements TokenService {
       throw new InvalidTokenException(expiredJwtException.getMessage(),
           "Invalid token. The provided token is expired ");
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       throw new InvalidTokenException(e.getMessage(),
           "Invalid token. Error occupied during token processing");
     }
