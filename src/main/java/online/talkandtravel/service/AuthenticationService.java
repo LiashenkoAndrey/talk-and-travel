@@ -1,5 +1,7 @@
 package online.talkandtravel.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.entity.User;
 
@@ -29,4 +31,8 @@ public interface AuthenticationService {
   AuthResponse login(String email, String password);
 
   User getAuthenticatedUser();
+
+  boolean isUserAuthenticated();
+
+  void authenticateUser(String token, HttpServletRequest request);
 }

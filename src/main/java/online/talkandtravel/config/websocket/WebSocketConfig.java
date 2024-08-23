@@ -1,6 +1,9 @@
-package online.talkandtravel.config;
+package online.talkandtravel.config.websocket;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -35,21 +38,34 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  */
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
+@Log4j2
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+  private final OnConnectChannelInterceptor onConnectChannelInterceptor;
+
   private final String[] ALLOWED_URL =
       new String[] {
         "http://localhost:3001",
         "http://localhost:3000",
         "http://localhost:5500",
         "https://oleksandrprokopenkodev.github.io",
+        "https://splendorous-kringle-40d196.netlify.app",
         "http://localhost:63342",
         "http://localhost:8080",
         "https://reginavarybrus.github.io"
       };
 
   @Override
+  public void configureClientInboundChannel(ChannelRegistration registration) {
+    registration.interceptors(onConnectChannelInterceptor);
+  }
+
+  @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry.addEndpoint("/ws").setAllowedOriginPatterns(ALLOWED_URL).withSockJS();
+    registry.addEndpoint("/ws")
+        .setAllowedOriginPatterns(ALLOWED_URL)
+        .withSockJS();
   }
 
   @Override
