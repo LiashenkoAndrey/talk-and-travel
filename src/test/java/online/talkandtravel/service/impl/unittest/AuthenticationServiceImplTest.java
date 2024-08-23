@@ -49,7 +49,6 @@ class AuthenticationServiceImplTest {
   @Mock private TokenRepository tokenRepository;
   @Mock private UserDetailsService userDetailsService;
   @Mock private HttpServletRequest request;
-
   @Mock private PasswordValidator passwordValidator;
   @Mock private UserEmailValidator emailValidator;
   @Mock private UserService userService;
@@ -83,7 +82,6 @@ class AuthenticationServiceImplTest {
     when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.empty());
     when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
     when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
-    when(avatarService.createDefaultAvatar(USER_NAME)).thenReturn(new Avatar());
     when(userMapper.mapToBasicDto(user)).thenReturn(userDto);
 
     UserDtoBasic expected = creanteNewUserDtoBasic();
