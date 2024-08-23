@@ -3,12 +3,18 @@ package online.talkandtravel.exception.model;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.time.ZonedDateTime;
-import java.util.Set;
+import java.util.*;
+
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.validation.ValidationResult;
+import org.springframework.context.MessageSourceResolvable;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 /** Global api exception handler. */
 @RestControllerAdvice
@@ -21,9 +27,34 @@ public class HttpExceptionHandler {
   }
 
   @ExceptionHandler({IllegalStateException.class})
-  public ExceptionResponse handleValidationExceptions(Exception e) {
+  public ExceptionResponse handleIllegalStateException(Exception e) {
     log.error(e.getMessage());
     return new ExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
+  }
+  @ExceptionHandler({HandlerMethodValidationException.class})
+  public ExceptionResponse handleValidationExceptions(HandlerMethodValidationException e) {
+
+    List<ParameterValidationResult> results = e.getAllValidationResults();
+    for (ParameterValidationResult result : results) {
+      List<MessageSourceResolvable> resolvables = result.getResolvableErrors();
+      List<ValidationResult> validationResults = resolvables.stream()
+              .map(this::toValidationResult)
+              .toList();
+      log.info(validationResults);
+      return new ExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now(), validationResults);
+    }
+    return new ExceptionResponse(e.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
+  }
+
+
+
+  private ValidationResult toValidationResult(MessageSourceResolvable resolvable) {
+    DefaultMessageSourceResolvable arg = (DefaultMessageSourceResolvable) Objects.requireNonNull(resolvable.getArguments())[0];
+    String field = arg.getDefaultMessage();
+
+    String message = resolvable.getDefaultMessage();
+
+    return new ValidationResult(field,  message);
   }
 
   @ExceptionHandler(value = {ConstraintViolationException.class})
