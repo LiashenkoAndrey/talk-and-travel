@@ -95,20 +95,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return authHeader.substring(7);
   }
 
-//  /**
-//   * Validates the provided JWT token using the {@link TokenService}. If the token is invalid,
-//   * a {@link RuntimeException} is thrown.
-//   *
-//   * @param token The JWT token to be validated.
-//   *
-//   * @throws RuntimeException If the token is not valid.
-//   */
-//  private void throwIfTokenNotValid(String token) {
-//    if (!tokenService.validateToken(token)) {
-//      throw new InvalidTokenException(token);
-//    }
-//  }
-
   /**
    * Sends an error response to the client with an "Unauthorized" status code (401).
    * This method is called when authentication fails.

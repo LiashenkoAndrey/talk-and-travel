@@ -13,11 +13,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.model.dto.AuthResponse;
-import online.talkandtravel.model.dto.user.UserDtoShort;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
 import online.talkandtravel.security.CustomUserDetails;
@@ -42,16 +43,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
+@Log4j2
 class AuthenticationServiceImplTest {
-  private static final String USER_PASSWORD = "!123456Aa";
-  private static final String USER_NAME = "Bob";
-  private static final String USER_EMAIL = "bob@mail.com";
-  private static final String TEST_TOKEN = "test_token";
   @Mock private TokenService tokenService;
   @Mock private TokenRepository tokenRepository;
   @Mock private UserDetailsService userDetailsService;
   @Mock private HttpServletRequest request;
-  private static final Long USER_ID = 1L;
   @Mock private PasswordValidator passwordValidator;
   @Mock private UserEmailValidator emailValidator;
   @Mock private UserService userService;
@@ -61,13 +58,21 @@ class AuthenticationServiceImplTest {
 
   @InjectMocks AuthenticationServiceImpl authenticationService;
 
+  private static final String
+      USER_PASSWORD = "!123456Aa",
+  USER_NAME = "Bob",
+  USER_EMAIL = "bob@mail.com",
+  USER_ABOUT = "about me",
+  TEST_TOKEN = "test_token";
+
+  private static final Long USER_ID = 1L;
   private User user;
-  private UserDtoShort userDto;
+  private UserDtoBasic userDto;
 
   @BeforeEach
   void setUp() {
     SecurityContextHolder.clearContext();
-    userDto = creanteNewUserDtoShort();
+    userDto = creanteNewUserDtoBasic();
     user = createNewUser();
   }
 
@@ -77,12 +82,12 @@ class AuthenticationServiceImplTest {
     when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.empty());
     when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
     when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
-    when(userMapper.mapToShortDto(user)).thenReturn(userDto);
+    when(userMapper.mapToBasicDto(user)).thenReturn(userDto);
 
-    UserDtoShort expected = creanteNewUserDtoShort();
+    UserDtoBasic expected = creanteNewUserDtoBasic();
 
     AuthResponse authResponse = authenticationService.register(user);
-    UserDtoShort actual = authResponse.getUserDto();
+    UserDtoBasic actual = authResponse.userDto();
 
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
@@ -126,7 +131,7 @@ class AuthenticationServiceImplTest {
     when(tokenService.generateToken(user)).thenReturn(expected);
 
     AuthResponse authResponse = authenticationService.register(user);
-    String actual = authResponse.getToken();
+    String actual = authResponse.token();
 
     assertEquals(expected, actual);
 
@@ -137,13 +142,13 @@ class AuthenticationServiceImplTest {
   void login_shouldLoginUserWithCorrectCredentials() {
     when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
     when(passwordEncoder.matches(USER_PASSWORD, USER_PASSWORD)).thenReturn(true);
-    when(userMapper.mapToShortDto(user)).thenReturn(userDto);
+    when(userMapper.mapToBasicDto(user)).thenReturn(userDto);
 
-    UserDtoShort expected = creanteNewUserDtoShort();
-
+    UserDtoBasic expected = creanteNewUserDtoBasic();
+    log.info(expected);
     AuthResponse authResponse =
         authenticationService.login(user.getUserEmail(), user.getPassword());
-    UserDtoShort actual = authResponse.getUserDto();
+    UserDtoBasic actual = authResponse.userDto();
 
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
@@ -157,8 +162,8 @@ class AuthenticationServiceImplTest {
         .build();
   }
 
-  private UserDtoShort creanteNewUserDtoShort() {
-    return UserDtoShort.builder().id(USER_ID).userEmail(USER_EMAIL).userName(USER_NAME).build();
+  private UserDtoBasic creanteNewUserDtoBasic() {
+    return new UserDtoBasic(USER_ID, USER_NAME, USER_EMAIL, USER_ABOUT);
   }
 
   @Test

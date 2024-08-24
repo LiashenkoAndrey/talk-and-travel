@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
-import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -20,10 +20,12 @@ import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,13 +38,13 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>{@link #createPrivateChat} - creates private chat between two users
  *   <li>{@link #findAllChats} - Retrieves a paginated list of all available chats.
  *   <li>{@link #findMainChat} - Finds and returns the main chat for a specific country.
- *   <li>{@link #findUserCount} - Returns the number of users in a specific chat,
- *   identified by its ID.
- *   <li>{@link #getChatMessagesOrderedByDate}</li> - gets chat messages ordered by date
- *   <li>{@link #updateLastReadMessage}</li> - updates lastReadMessage of  field that represents
- *   last read message of chat by user
- *   <li>{@link #getReadMessages}</li> - finds messages that the user has already read
- *   <li>{@link #getUnreadMessages}</li> - finds messages that the user has not yet read
+ *   <li>{@link #findUserCount} - Returns the number of users in a specific chat, identified by its
+ *       ID.
+ *   <li>{@link #getChatMessagesOrderedByDate} - gets chat messages ordered by date
+ *   <li>{@link #updateLastReadMessage} - updates lastReadMessage of field that represents last read
+ *       message of chat by user
+ *   <li>{@link #getReadMessages} - finds messages that the user has already read
+ *   <li>{@link #getUnreadMessages} - finds messages that the user has not yet read
  *   <li>{@link #findUserChats} - Retrieves a list of chats associated with a specific user,
  *       identified by their user ID.
  *   <li>{@link #findUsersByChatId} - Provides a list of users participating in a specific chat,
@@ -66,6 +68,7 @@ public class ChatController {
 
   /**
    * creates a private chat between two users
+   *
    * @return chat id
    */
   @PostMapping("/private")
@@ -75,7 +78,7 @@ public class ChatController {
 
   @GetMapping
   public Page<ChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {
-    return chatService.findAllChats(pageable);
+    return chatService.findAllGroupChats(pageable);
   }
 
   @GetMapping("/{chatId}/users")
@@ -96,13 +99,15 @@ public class ChatController {
 
   /**
    * updates id of last read message of chat by user
+   *
    * @param dtoRequest userId and lastReadMessageId
    */
-  @PutMapping("/{chatId}/messages/last-read")
-  public void updateLastReadMessage(
+  @PatchMapping("/{chatId}/messages/last-read")
+  public ResponseEntity<Void> updateLastReadMessage(
       @PathVariable @Positive @NotNull Long chatId,
       @RequestBody @Valid SetLastReadMessageRequest dtoRequest) {
     chatService.setLastReadMessage(chatId, dtoRequest);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   /** finds messages that was before specified last read message (including last read message) */
