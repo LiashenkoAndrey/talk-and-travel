@@ -426,19 +426,30 @@ class ChatServiceImplTest {
 
     @Test
     void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
+      user.setId(1L);
+      userChat.setLastReadMessageId(1L);
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository
+          .findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.ofNullable(userChat));
+
       when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable))
           .thenReturn(page);
       Page<MessageDtoBasic> result =
-          underTest.findReadMessages(chatId, lastReadMessageId, pageable1);
+          underTest.findReadMessages(chatId, pageable1);
       assertEquals(content, result.toList().get(0).content());
     }
 
     @Test
     void findUnreadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
+      user.setId(1L);
+      userChat.setLastReadMessageId(1L);
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository
+          .findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.ofNullable(userChat));
       when(messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable))
           .thenReturn(page);
       Page<MessageDtoBasic> result =
-          underTest.findUnreadMessages(chatId, lastReadMessageId, pageable1);
+          underTest.findUnreadMessages(chatId, pageable1);
       assertEquals(content, result.toList().get(0).content());
     }
   }
