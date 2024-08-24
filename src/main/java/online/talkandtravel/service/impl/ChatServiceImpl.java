@@ -57,9 +57,9 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
- *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user has already
+ *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already
  *       read
- *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user has not
+ *   <li>{@link ChatService#findUnreadMessages(Long, Pageable)} - finds messages that the user has not
  *       yet read
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves all chats with pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
@@ -95,7 +95,7 @@ public class ChatServiceImpl implements ChatService {
   @Transactional
   @Override
   public ChatDto createCountryChat(NewChatDto dto) {
-    User user = authenticationService.getAuthenticatedUser();
+    User user = getAuthenticatedUser();
     Chat chat = createAndSaveChatWithUser(dto, user);
     return chatMapper.toDto(chat);
   }
@@ -141,15 +141,42 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDtoBasic> findReadMessages(
-      Long chatId, Long lastReadMessageId, Pageable pageable) {
+  public Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable) {
+    User user = getAuthenticatedUser();
+
+    UserChat userChat =
+        userChatRepository
+            .findByChatIdAndUserId(chatId, user.getId())
+            .orElseThrow(() -> new UserChatNotFoundException(chatId, user.getId()));
+
+    Long lastReadMessageId = userChat.getLastReadMessageId();
+    if (lastReadMessageId == null) {
+      return messageRepository
+          .findAllByChatId(chatId, pageable)
+          .map(messageMapper::toMessageDtoBasic);
+    }
     return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable);
   }
 
   @Override
   public Page<MessageDtoBasic> findUnreadMessages(
-      Long chatId, Long lastReadMessageId, Pageable pageable) {
+      Long chatId, Pageable pageable) {
+    User user = getAuthenticatedUser();
+
+    UserChat userChat =
+        userChatRepository
+            .findByChatIdAndUserId(chatId, user.getId())
+            .orElseThrow(() -> new UserChatNotFoundException(chatId, user.getId()));
+
+    Long lastReadMessageId = userChat.getLastReadMessageId();
+    if (lastReadMessageId == null) {
+      return Page.empty();
+    }
     return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable);
+  }
+
+  private User getAuthenticatedUser() {
+    return authenticationService.getAuthenticatedUser();
   }
 
   @Override

@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -113,19 +112,15 @@ public class ChatController {
   /** finds messages that was before specified last read message (including last read message) */
   @GetMapping("/{chatId}/messages/read")
   public Page<MessageDtoBasic> getReadMessages(
-      @PathVariable Long chatId,
-      @RequestParam Long lastReadMessageId,
-      @PageableDefault(sort = "creationDate") Pageable pageable) {
-    return chatService.findReadMessages(chatId, lastReadMessageId, pageable);
+      @PathVariable Long chatId, @PageableDefault(sort = "creationDate") Pageable pageable) {
+    return chatService.findReadMessages(chatId, pageable);
   }
 
   /** finds messages that was sent after specified last read message */
   @GetMapping("/{chatId}/messages/unread")
   public Page<MessageDtoBasic> getUnreadMessages(
-      @PathVariable Long chatId,
-      @RequestParam @Positive Long lastReadMessageId,
-      @PageableDefault(sort = "creationDate") Pageable pageable) {
-    return chatService.findUnreadMessages(chatId, lastReadMessageId, pageable);
+      @PathVariable Long chatId, @PageableDefault(sort = "creationDate") Pageable pageable) {
+    return chatService.findUnreadMessages(chatId, pageable);
   }
 
   @GetMapping("/user/{userId}")
