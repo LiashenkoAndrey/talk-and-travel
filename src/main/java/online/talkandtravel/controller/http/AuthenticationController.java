@@ -36,7 +36,7 @@ public class AuthenticationController {
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> register(@RequestBody UserDtoWithAvatarAndPassword dto) {
     log.info("register - {}", dto);
-    var user = mapper.mapToModel(dto);
+    var user = mapper.mapToUser(dto);
     var authResponse = authService.register(user);
     return ResponseEntity.ok(authResponse);
   }

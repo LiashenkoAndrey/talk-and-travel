@@ -1,0 +1,11 @@
+###
+PUT http://localhost:8080/api/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userName" : "new name",
+  "userEmail" : "newq@i.ua",
+  "about" : "123",
+  "id" : 1
+}

@@ -1,6 +1,8 @@
 package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
+import online.talkandtravel.model.dto.user.UpdateUserRequest;
+import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
@@ -25,7 +27,7 @@ import org.mapstruct.Mapping;
  *       enhance security.
  *   <li>{@link #mapToShortDto(User)} - Converts a {@link User} entity to a {@link UserDtoShort}.
  *       This method provides a simplified view of the user data.
- *   <li>{@link #mapToModel(UserDtoWithAvatarAndPassword)} - Converts a {@link
+ *   <li>{@link #mapToUser(UserDtoWithAvatarAndPassword)} - Converts a {@link
  *       UserDtoWithAvatarAndPassword} DTO back to a {@link User} entity. This method excludes
  *       certain fields such as tokens, role, and countries to prevent unnecessary data from being
  *       set in the user model.
@@ -39,12 +41,23 @@ public interface UserMapper {
   @Mapping(target = "password", ignore = true)
   UserDtoWithAvatarAndPassword toUserDtoWithAvatarAndPassword(User user);
 
+  UpdateUserResponse toUpdateUserResponse(User user);
+
+
+  @Mapping(target = "id", source = "id")
+  @Mapping(target = "userName", source = "userName")
+  @Mapping(target = "userEmail", source = "userEmail")
+  @Mapping(target = "about", source = "about")
+  User mapToUser(UpdateUserRequest dto);
+
+
   UserDtoShort mapToShortDto(User user);
 
   @Mapping(target = "tokens", ignore = true)
   @Mapping(target = "role", ignore = true)
   @Mapping(target = "countries", ignore = true)
-  User mapToModel(UserDtoWithAvatarAndPassword dto);
+  User mapToUser(UserDtoWithAvatarAndPassword dto);
+
 
   UserDtoBasic toUserDtoBasic(User user);
 
