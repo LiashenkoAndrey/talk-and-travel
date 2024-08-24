@@ -80,8 +80,9 @@ public class User {
   @Size(min = 10, max = 500, message = "Maximum number of characters for About 500")
   private String about;
 
+  @Builder.Default
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<UserCountry> countries;
+  private List<UserCountry> countries = new ArrayList<>();
 
   @Override
   public String toString() {

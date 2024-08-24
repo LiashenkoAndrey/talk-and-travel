@@ -6,4 +6,5 @@ public final class TestDataConstant {
   private static final String POSTFIX = ".sql";
 
   public static final String USER_COUNTRIES_DATA_SQL = SQL_PATH + "user-countries-test-data" + POSTFIX;
+  public static final String USERS_DATA_SQL = SQL_PATH + "users-test-data" + POSTFIX;
 }
