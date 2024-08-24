@@ -1,10 +1,5 @@
 package online.talkandtravel.model.dto.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
  * Data Transfer Object (DTO) for representing basic user information.
  *
@@ -15,14 +10,12 @@ import lombok.NoArgsConstructor;
  *   <li>{@code about} - Brief description or additional information about the user.
  * </ul>
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserDtoBasic {
 
-  private Long id;
-  private String userName;
-  private String userEmail;
-  private String about;
+public record UserDtoBasic(
+    Long id,
+    String userName,
+    String userEmail,
+    String about
+) {
+
 }

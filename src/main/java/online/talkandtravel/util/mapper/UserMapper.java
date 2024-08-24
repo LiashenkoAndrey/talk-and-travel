@@ -23,8 +23,6 @@ import org.mapstruct.Mapping;
  *   <li>{@link #toUserDtoWithAvatarAndPassword(User)} - Converts a {@link User} entity to a {@link
  *       UserDtoWithAvatarAndPassword}. This method excludes the password field from the DTO to
  *       enhance security.
- *   <li>{@link #mapToShortDto(User)} - Converts a {@link User} entity to a {@link UserDtoShort}.
- *       This method provides a simplified view of the user data.
  *   <li>{@link #mapToModel(UserDtoWithAvatarAndPassword)} - Converts a {@link
  *       UserDtoWithAvatarAndPassword} DTO back to a {@link User} entity. This method excludes
  *       certain fields such as tokens, role, and countries to prevent unnecessary data from being
@@ -39,7 +37,7 @@ public interface UserMapper {
   @Mapping(target = "password", ignore = true)
   UserDtoWithAvatarAndPassword toUserDtoWithAvatarAndPassword(User user);
 
-  UserDtoShort mapToShortDto(User user);
+  UserDtoBasic mapToBasicDto(User user);
 
   @Mapping(target = "tokens", ignore = true)
   @Mapping(target = "role", ignore = true)

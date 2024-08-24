@@ -2,6 +2,7 @@ package online.talkandtravel.controller.http;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.AuthResponse;
@@ -10,6 +11,10 @@ import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,20 +37,22 @@ public class AuthenticationController {
   private final AuthenticationService authService;
   private final UserMapper mapper;
 
-  @Operation(description = "Register a user.")
-  @PostMapping("/register")
-  public ResponseEntity<AuthResponse> register(@RequestBody UserDtoWithAvatarAndPassword dto) {
-    log.info("register - {}", dto);
-    var user = mapper.mapToModel(dto);
-    var authResponse = authService.register(user);
-    return ResponseEntity.ok(authResponse);
-  }
+    @Operation(
+            description = "Register a user."
+    )
+    @PostMapping("/register")
+    public AuthResponse register(@RequestBody UserDtoWithAvatarAndPassword dto) {
+        log.info("register - {}", dto);
+        var user = mapper.mapToModel(dto);
+        return authService.register(user);
+    }
 
-  @Operation(description = "Log in a user.")
-  @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginDto loginDto) {
-    log.info("Login - {}", loginDto);
-    var authResponse = authService.login(loginDto.getUserEmail(), loginDto.getPassword());
-    return ResponseEntity.ok(authResponse);
-  }
+    @Operation(
+            description = "Log in a user."
+    )
+    @PostMapping("/login")
+    public AuthResponse login(@Valid @RequestBody LoginDto loginDto) {
+        log.info("Login - {}", loginDto);
+        return authService.login(loginDto.getUserEmail(), loginDto.getPassword());
+    }
 }
