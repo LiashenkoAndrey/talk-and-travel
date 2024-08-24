@@ -5,6 +5,6 @@ Content-Type: application/json
 
 {
   "userName" : "new alisa name",
-  "userEmail" : "newMail@i.ua",
+  "userEmail" : "234234234@i.ua",
   "about" : "123"
 }
