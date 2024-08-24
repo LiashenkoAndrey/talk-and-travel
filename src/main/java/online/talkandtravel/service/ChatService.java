@@ -4,10 +4,10 @@ import java.util.List;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
-import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
+import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import org.springframework.data.domain.Page;
@@ -24,13 +24,10 @@ import org.springframework.data.domain.Pageable;
  * <ul>
  *   <li>{@link #createPrivateChat(NewPrivateChatDto)} - creates private chat between two users
  *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
- *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} -  updates lastReadMessage
- *   of  field that represents
- *   last read message of chat by user
- *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user
- *   has already read
- *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user
- *   has not yet read
+ *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
+ *       field that represents last read message of chat by user
+ *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already read
+ *   <li>{@link #findUnreadMessages(Long, Pageable)} - finds messages that the user has not yet read
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves a paginated list of all chats. The method
  *       returns a {@link Page} of {@link ChatDto} objects, allowing for efficient querying and
  *       pagination.
@@ -62,9 +59,9 @@ public interface ChatService {
 
   void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
-  Page<MessageDtoBasic> findReadMessages(Long chatId, Long lastReadMessageId, Pageable pageable);
+  Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable);
 
-  Page<MessageDtoBasic> findUnreadMessages(Long chatId, Long lastReadMessageId, Pageable pageable);
+  Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable);
 
   Page<ChatInfoDto> findAllGroupChats(Pageable pageable);
 
