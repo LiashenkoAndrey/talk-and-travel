@@ -18,9 +18,10 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
-import online.talkandtravel.model.entity.Avatar;
+import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.TokenService;
@@ -38,7 +39,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -55,6 +55,7 @@ class AuthenticationServiceImplTest {
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private UserMapper userMapper;
   @Mock private AvatarService avatarService;
+  @Mock private UserRepository userRepository;
 
   @InjectMocks AuthenticationServiceImpl authenticationService;
 
@@ -200,17 +201,19 @@ class AuthenticationServiceImplTest {
   @Test
   void testAuthenticateUser() {
     String token = "mockToken";
-    String email = "user@example.com";
-    UserDetails userDetails = mock(UserDetails.class);
+    Long userId = 1L;
+    User user1 = createNewUser();
+    user1.setRole(Role.USER);
+    CustomUserDetails details = new CustomUserDetails(user1);
 
-    when(tokenService.extractUsername(token)).thenReturn(email);
-    when(userDetailsService.loadUserByUsername(email)).thenReturn(userDetails);
+    when(tokenService.extractId(token)).thenReturn(userId);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
     when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
     authenticationService.authenticateUser(token, request);
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     assertNotNull(authentication);
-    assertEquals(userDetails, authentication.getPrincipal());
+    assertEquals(details, authentication.getPrincipal());
   }
 }

@@ -1,16 +1,21 @@
 package online.talkandtravel.service.impl;
 
-import online.talkandtravel.exception.auth.UserAuthenticationException;
-import online.talkandtravel.exception.auth.RegistrationException;
-import online.talkandtravel.model.entity.User;
-import online.talkandtravel.repository.UserRepository;
-import online.talkandtravel.service.UserService;
-import online.talkandtravel.util.validator.UserEmailValidator;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.model.dto.user.UpdateUserRequest;
+import online.talkandtravel.model.entity.User;
+import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.service.UserService;
+import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Implementation of the {@link UserService} for managing user-related operations such as
  * saving, updating, and retrieving user information.
@@ -22,40 +27,24 @@ import org.springframework.stereotype.Service;
  * <p>The service includes the following functionalities:
  * <ul>
  *   <li>{@link UserService#save(User)} - Encrypts the user's password and saves the user to the repository.</li>
- *   <li>{@link #update(User)} - Updates an existing user's information, including handling email changes
+ *   <li>{@link #update(UpdateUserRequest)} - Updates an existing user's information, including handling email changes
  *       and preserving security information like the password and role.</li>
  *   <li>{@link #findUserByEmail(String)} - Retrieves a user by their email address, returning an
  *       {@code Optional} to handle the case where the user might not exist.</li>
- *   <li>{@link #findById(Long)} - Finds a user by their ID, throwing a {@link NoSuchElementException}
+ *   <li>{@link #findById(Long)} - Finds a user by their ID, throwing a {@link UserNotFoundException}
  *       if the user does not exist.</li>
  *   <li>{@link #existsByEmail(String)} - Checks if a user with the specified email address exists.</li>
  * </ul>
- *
- * <p>Private methods include:
- * <ul>
- *   <li>{@link #findUserById(Long)} - Finds a user by ID and throws a {@link NoSuchElementException}
- *       if the user does not exist.</li>
- *   <li>{@link #updateSecurityInfo(User, User)} - Updates the security information of the user, such
- *       as password and role, based on the existing user information.</li>
- *   <li>{@link #processEmailChange(User, User)} - Handles the process of changing a user's email,
- *       including validation and checking for duplicates.</li>
- *   <li>{@link #checkDuplicateEmail(String)} - Checks for duplicate email addresses and throws
- *       {@link UserAuthenticationException} if an email already exists.</li>
- *   <li>{@link #validateNewEmail(String)} - Validates a new email address by checking for duplicates
- *       and ensuring proper format.</li>
- *   <li>{@link #validateEmailFormat(String)} - Validates the format of an email address using
- *       {@link UserEmailValidator}.</li>
- *   <li>{@link #isEmailChanged(String, String)} - Determines if the user's email has been changed.</li>
- * </ul>
- *
  */
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
-    private final UserEmailValidator emailValidator;
+    private final UserMapper userMapper;
+    private AuthenticationService authenticationService;
 
     @Override
     public User save(User user) {
@@ -65,12 +54,18 @@ public class UserServiceImpl implements UserService {
         return repository.save(user);
     }
 
+    /**
+     * Updates the details of the given user.
+     * @return The updated {@link User} object after being saved to the repository.
+     *         update another user's data without proper permissions.
+     */
     @Override
-    public User update(User user) {
-        var existingUser = findUserById(user.getId());
-        processEmailChange(user,existingUser);
-        updateSecurityInfo(user, existingUser);
-        return repository.save(user);
+    @Transactional
+    public User update(UpdateUserRequest request) {
+        User existingUser = getAutheticatedUser();
+        log.info("update user with id:{}, dto:{}", existingUser.getId(), request);
+        userMapper.updateUser(request, existingUser);
+        return repository.save(existingUser);
     }
 
     @Override
@@ -81,7 +76,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long userId) {
         return repository.findById(userId).orElseThrow(
-                () -> new NoSuchElementException("Can not find user by ID: " + userId)
+                () -> new UserNotFoundException(userId)
         );
     }
 
@@ -90,43 +85,14 @@ public class UserServiceImpl implements UserService {
         return repository.findByUserEmail(email).isPresent();
     }
 
-    private User findUserById(Long userId) {
-        return repository.findById(userId)
-                .orElseThrow(
-                        () -> new NoSuchElementException("Can not find user by ID: " + userId)
-                );
+    private User getAutheticatedUser() {
+        return authenticationService.getAuthenticatedUser();
     }
 
-    private void updateSecurityInfo(User user, User existingUser) {
-        user.setPassword(existingUser.getPassword());
-        user.setRole(existingUser.getRole());
-    }
-
-    private void processEmailChange(User user,User existingUser) {
-        if (isEmailChanged(existingUser.getUserEmail(), user.getUserEmail())) {
-            validateNewEmail(user.getUserEmail());
-        }
-    }
-
-    private void checkDuplicateEmail(String email) {
-        var userByEmail = findUserByEmail(email);
-        if (userByEmail.isPresent()) {
-            throw new UserAuthenticationException("A user with this email already exists");
-        }
-    }
-
-    private void validateNewEmail(String newEmail) {
-        checkDuplicateEmail(newEmail);
-        validateEmailFormat(newEmail);
-    }
-
-    private void validateEmailFormat(String email) {
-        if (!emailValidator.isValid(email)) {
-            throw new RegistrationException("Invalid email address");
-        }
-    }
-
-    public boolean isEmailChanged(String oldEmail, String newEmail) {
-        return newEmail != null && !oldEmail.equals(newEmail);
+    @Autowired
+    @Lazy
+    public void setAuthenticationService(
+        AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 }

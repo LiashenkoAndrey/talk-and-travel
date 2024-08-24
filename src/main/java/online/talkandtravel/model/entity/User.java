@@ -19,7 +19,9 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Entity class representing a user in the application.
@@ -43,6 +45,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
@@ -77,16 +80,21 @@ public class User {
       fetch = FetchType.LAZY)
   private Avatar avatar;
 
-  @Size(min = 10, max = 500, message = "Maximum number of characters for About 500")
+  @Size(max = 500, message = "Maximum number of characters for About 500")
   private String about;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<UserCountry> countries;
 
   @Override
   public String toString() {
     return "User{" +
         "id=" + id +
+        ", userName='" + userName + '\'' +
+        ", userEmail='" + userEmail + '\'' +
+        ", password='" + password + '\'' +
+        ", role=" + role +
+        ", about='" + about + '\'' +
         '}';
   }
 }

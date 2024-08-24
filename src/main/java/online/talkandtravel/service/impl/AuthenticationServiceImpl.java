@@ -17,6 +17,7 @@ import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
@@ -29,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -80,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final TokenService tokenService;
   private final UserMapper userMapper;
   private final TokenRepository tokenRepository;
-  private final UserDetailsService userDetailsService;
+  private final UserRepository userRepository;
 
   /**
    * Retrieves the authenticated user from the Spring Security context.
@@ -121,8 +123,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   @Override
   public void authenticateUser(String token, HttpServletRequest request) {
-    String email = tokenService.extractUsername(token);
-    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+    UserDetails userDetails = getUserDetails(token);
     WebAuthenticationDetails details = new WebAuthenticationDetailsSource().buildDetails(request);
 
     var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
@@ -170,6 +171,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     var authenticatedUser = authenticateUser(email, password);
     String jwtToken = saveOrUpdateUserToken(authenticatedUser);
     return createNewAuthResponse(jwtToken, authenticatedUser);
+  }
+
+  private UserDetails getUserDetails(String token) {
+    Long userId = tokenService.extractId(token);
+    return userRepository
+        .findById(userId)
+        .map(CustomUserDetails::new)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
   }
 
   /**

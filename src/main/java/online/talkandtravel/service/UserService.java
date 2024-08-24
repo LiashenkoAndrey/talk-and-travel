@@ -2,6 +2,7 @@ package online.talkandtravel.service;
 
 import java.io.IOException;
 import java.util.Optional;
+import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.entity.User;
 
 /**
@@ -32,7 +33,7 @@ public interface UserService {
 
   User save(User user);
 
-  User update(User user);
+  User update(UpdateUserRequest request);
 
   Optional<User> findUserByEmail(String email);
 

@@ -34,7 +34,7 @@ public interface TokenService {
 
   void validateToken(String token);
 
-  String extractUsername(String token);
+  Long extractId(String token);
 
   String generateToken(User user);
 

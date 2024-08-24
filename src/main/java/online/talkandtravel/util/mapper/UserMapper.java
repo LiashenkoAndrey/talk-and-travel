@@ -10,6 +10,7 @@ import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  * Mapper interface for converting between {@link User} entities and various {@link User} data
@@ -22,12 +23,7 @@ import org.mapstruct.Mapping;
  * <p>Key methods include:
  *
  * <ul>
- *   <li>{@link #toUserDtoWithAvatarAndPassword(User)} - Converts a {@link User} entity to a {@link
- *       UserDtoWithAvatarAndPassword}. This method excludes the password field from the DTO to
- *       enhance security.
- *   <li>{@link #mapToShortDto(User)} - Converts a {@link User} entity to a {@link UserDtoShort}.
- *       This method provides a simplified view of the user data.
- *   <li>{@link #mapToModel(UserDtoWithAvatarAndPassword)} - Converts a {@link
+ *   <li>{@link #mapToUserWithPassword(UserDtoWithAvatarAndPassword)} - Converts a {@link
  *       UserDtoWithAvatarAndPassword} DTO back to a {@link User} entity. This method excludes
  *       certain fields such as tokens, role, and countries to prevent unnecessary data from being
  *       set in the user model.
@@ -38,27 +34,15 @@ import org.mapstruct.Mapping;
 @Mapper(config = MapperConfig.class)
 public interface UserMapper {
 
-  @Mapping(target = "password", ignore = true)
-  UserDtoWithAvatarAndPassword toUserDtoWithAvatarAndPassword(User user);
-
   UserDtoBasic mapToBasicDto(User user);
   UpdateUserResponse toUpdateUserResponse(User user);
 
-
-  @Mapping(target = "id", source = "id")
-  @Mapping(target = "userName", source = "userName")
-  @Mapping(target = "userEmail", source = "userEmail")
-  @Mapping(target = "about", source = "about")
-  User mapToUser(UpdateUserRequest dto);
-
-
-  UserDtoShort mapToShortDto(User user);
+  void updateUser(UpdateUserRequest source, @MappingTarget User target);
 
   @Mapping(target = "tokens", ignore = true)
   @Mapping(target = "role", ignore = true)
   @Mapping(target = "countries", ignore = true)
-  User mapToUser(UserDtoWithAvatarAndPassword dto);
-
+  User mapToUserWithPassword(UserDtoWithAvatarAndPassword dto);
 
   UserDtoBasic toUserDtoBasic(User user);
 

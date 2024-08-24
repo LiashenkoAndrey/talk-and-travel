@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record UpdateUserRequest(
-    @NotNull @Positive Long id,
     @NotBlank String userName,
     @NotBlank @Email String userEmail,
     @NotNull String about) {

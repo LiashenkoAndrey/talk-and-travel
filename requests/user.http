@@ -4,8 +4,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "userName" : "new name",
-  "userEmail" : "newq@i.ua",
-  "about" : "123",
-  "id" : 1
+  "userName" : "new alisa name",
+  "userEmail" : "newMail@i.ua",
+  "about" : "123"
 }

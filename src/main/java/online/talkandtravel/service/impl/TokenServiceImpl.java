@@ -16,15 +16,17 @@ import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.token.InvalidTokenException;
+import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,20 +57,11 @@ public class TokenServiceImpl implements TokenService {
   private String secretKey;
 
   private final TokenRepository repository;
-  private final UserRepository userRepository;
 
   @Override
   public Token save(Token token) {
     return repository.save(token);
   }
-
-  /**
-   * Retrieves all valid (non-expired, non-revoked) tokens associated with a given user ID.
-   *
-   * @param userId The ID of the user whose tokens are to be retrieved.
-   * @return A list of valid tokens for the user.
-   */
-
 
   @Override
   public Optional<Token> findByToken(String token) {
@@ -84,15 +77,16 @@ public class TokenServiceImpl implements TokenService {
   @Override
   @Transactional
   public void validateToken(String token) {
-    String userEmail = extractUsername(token);
+    Long userId = extractId(token);
     verifyProvidedTokenValid(token);
-    verifyStoredTokenPresentAndValid(userEmail);
-    tokenNameMatchesRegisteredUsername(userEmail);
+    verifyStoredTokenPresentAndValid(userId);
   }
 
   @Override
-  public String extractUsername(String token) {
-    return extractClaim(token, Claims::getSubject);
+  public Long extractId(String token) {
+    String subject = extractClaim(token, Claims::getSubject);
+    validateSubject(subject);
+    return NumberUtils.toLong(subject);
   }
 
   @Override
@@ -102,42 +96,29 @@ public class TokenServiceImpl implements TokenService {
 
   /**
    * 86400000 milliseconds = 24 hours
-   *
-   * @param extraClaims
-   * @param user
-   * @return
    */
   @Override
   public String generateToken(Map<String, Object> extraClaims, User user) {
     return Jwts.builder()
         .setClaims(extraClaims)
-        .setSubject(user.getUserEmail())
+        .setSubject(user.getId().toString())
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(new Date(System.currentTimeMillis() + 86400000))
         .signWith(SignatureAlgorithm.HS256, getSignInKey())
         .compact();
   }
 
-  private UserDetails getUserDetailsByEmail(String email) {
-    return userRepository
-        .findByUserEmail(email)
-        .map(CustomUserDetails::new)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found with email : %s".formatted(email)));
-  }
-
-  public void tokenNameMatchesRegisteredUsername(String userEmail) {
-    UserDetails userDetails = getUserDetailsByEmail(userEmail);
-    if (!userEmail.equals(userDetails.getUsername())) {
-      String errorMessage = String.format("token %s name don't match with registered username",
-          userDetails.getUsername());
-      throw new InvalidTokenException(errorMessage, "Invalid authentication token");
+  private void validateSubject(String subject) {
+    if (!NumberUtils.isCreatable(subject)) {
+      throw new InvalidTokenException("Token subject is not a number",
+          "Invalid authentication token");
     }
   }
 
-  public void verifyStoredTokenPresentAndValid(String userEmail) {
-    Token token = repository.findByUserUserEmail(userEmail).orElseThrow(
+  public void verifyStoredTokenPresentAndValid(Long userId) {
+    Token token = repository.findByUserId(userId).orElseThrow(
         () -> new InvalidTokenException(
-            String.format("token of user with email %s not found", userEmail), "Invalid token"));
+            String.format("token of user with id %s not found", userId), "Invalid token"));
 
     if (token.isExpired() && token.isRevoked()) {
       String errorMessage = String.format("Token with id:%s is expired or revoked.", token.getId());
