@@ -61,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
  *       read
  *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user has not
  *       yet read
- *   <li>{@link #findAllChats(Pageable)} - Retrieves all chats with pagination.
+ *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves all chats with pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
  *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specified chat.
  *   <li>{@link #findUserChats(Long)} - Retrieves a list of chats associated with a specific user.
@@ -153,8 +153,10 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<ChatInfoDto> findAllChats(Pageable pageable) {
-    return chatRepository.findAll(pageable).map(chatMapper::toChatInfoDto);
+  public Page<ChatInfoDto> findAllGroupChats(Pageable pageable) {
+    return chatRepository
+        .findAllByChatType(ChatType.GROUP, pageable)
+        .map(chatMapper::toChatInfoDto);
   }
 
   @Override

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,6 +21,8 @@ import org.springframework.data.jpa.repository.Query;
  * </ul>
  */
 public interface ChatRepository extends JpaRepository<Chat, Long> {
+
+  Page<Chat> findAllByChatType(ChatType chatType, Pageable pageable);
 
   @Query("SELECT COUNT(c) FROM Chat c")
   long countChats();

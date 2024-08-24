@@ -31,7 +31,7 @@ import org.springframework.data.domain.Pageable;
  *   has already read
  *   <li>{@link #findUnreadMessages(Long, Long, Pageable)} - finds messages that the user
  *   has not yet read
- *   <li>{@link #findAllChats(Pageable)} - Retrieves a paginated list of all chats. The method
+ *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves a paginated list of all chats. The method
  *       returns a {@link Page} of {@link ChatDto} objects, allowing for efficient querying and
  *       pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat for a given country. This method
@@ -66,7 +66,7 @@ public interface ChatService {
 
   Page<MessageDtoBasic> findUnreadMessages(Long chatId, Long lastReadMessageId, Pageable pageable);
 
-  Page<ChatInfoDto> findAllChats(Pageable pageable);
+  Page<ChatInfoDto> findAllGroupChats(Pageable pageable);
 
   ChatDto findMainChat(String countryName);
 
