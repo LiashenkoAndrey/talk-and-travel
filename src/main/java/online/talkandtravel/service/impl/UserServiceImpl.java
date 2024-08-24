@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
+import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AuthenticationService;
@@ -61,11 +62,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public User update(UpdateUserRequest request) {
+    public UpdateUserResponse update(UpdateUserRequest request) {
         User existingUser = getAutheticatedUser();
         log.info("update user with id:{}, dto:{}", existingUser.getId(), request);
         userMapper.updateUser(request, existingUser);
-        return repository.save(existingUser);
+        User updated = repository.save(existingUser);
+        return userMapper.toUpdateUserResponse(updated);
     }
 
     @Override

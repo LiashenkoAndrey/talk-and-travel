@@ -43,8 +43,7 @@ public class UserController {
 
   @PutMapping
   public UpdateUserResponse update(@RequestBody @Valid UpdateUserRequest dto) {
-    User updated = userService.update(dto);
-    return userMapper.toUpdateUserResponse(updated);
+    return userService.update(dto);
   }
 
   @GetMapping("/{userId}")
