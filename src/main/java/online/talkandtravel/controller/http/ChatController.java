@@ -75,7 +75,7 @@ public class ChatController {
 
   @GetMapping
   public Page<ChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {
-    return chatService.findAllChats(pageable);
+    return chatService.findAllGroupChats(pageable);
   }
 
   @GetMapping("/{chatId}/users")
