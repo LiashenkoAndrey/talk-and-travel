@@ -69,8 +69,9 @@ public class User {
   @Size(max = 500, message = "Maximum number of characters for About 500")
   private String about;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private List<UserCountry> countries;
+  @Builder.Default
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<UserCountry> countries = new ArrayList<>();
 
   @Override
   public String toString() {
