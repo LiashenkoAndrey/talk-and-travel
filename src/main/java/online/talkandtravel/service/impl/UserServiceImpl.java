@@ -13,9 +13,12 @@ import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import online.talkandtravel.security.CustomUserDetails;
 
 /**
  * Implementation of the {@link UserService} for managing user-related operations such as
@@ -53,6 +56,13 @@ public class UserServiceImpl implements UserService {
         String encodePassword = passwordEncoder.encode(password);
         user.setPassword(encodePassword);
         return repository.save(user);
+    }
+
+    @Override
+    public UserDetails getUserDetails(Long userId) {
+        return repository.findById(userId)
+                .map(CustomUserDetails::new)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     /**

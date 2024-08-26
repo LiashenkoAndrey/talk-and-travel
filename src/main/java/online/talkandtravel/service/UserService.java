@@ -5,6 +5,7 @@ import java.util.Optional;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.entity.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Service interface for managing user entities within the application.
@@ -33,6 +34,8 @@ import online.talkandtravel.model.entity.User;
 public interface UserService {
 
   User save(User user);
+
+  UserDetails getUserDetails(Long userId);
 
   UpdateUserResponse update(UpdateUserRequest request);
 

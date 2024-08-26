@@ -1,10 +1,6 @@
 package online.talkandtravel.service.impl;
 
-import static java.lang.String.format;
-
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.RegistrationException;
@@ -29,13 +25,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.util.Optional;
+
+import static java.lang.String.format;
 
 /**
  * Implementation of the {@link AuthenticationService} for managing user authentication and
@@ -153,7 +152,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     return createNewAuthResponse(jwtToken, newUser);
   }
 
-
   /**
    * Authenticates an existing user by verifying their email and password, and then generates
    * a JWT token for the authenticated user.
@@ -175,10 +173,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   private UserDetails getUserDetails(String token) {
     Long userId = tokenService.extractId(token);
-    return userRepository
-        .findById(userId)
-        .map(CustomUserDetails::new)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    return userService.getUserDetails(userId);
   }
 
   /**
