@@ -202,18 +202,24 @@ class AuthenticationServiceImplTest {
   void testAuthenticateUser() {
     String token = "mockToken";
     Long userId = 1L;
+    String remoteAddress = "127.0.0.1";
     User user1 = createNewUser();
     user1.setRole(Role.USER);
     CustomUserDetails details = new CustomUserDetails(user1);
 
     when(tokenService.extractId(token)).thenReturn(userId);
-    when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
-    when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+    when(userService.getUserDetails(userId)).thenReturn(details);
+    when(request.getRemoteAddr()).thenReturn(remoteAddress);
 
     authenticationService.authenticateUser(token, request);
 
+
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     assertNotNull(authentication);
+    verify(tokenService, times(1)).extractId(token);
+    verify(userService, times(1)).getUserDetails(userId);
+    verify(request, times(1)).getRemoteAddr();
+    assertEquals(remoteAddress ,request.getRemoteAddr());
     assertEquals(details, authentication.getPrincipal());
   }
 }
