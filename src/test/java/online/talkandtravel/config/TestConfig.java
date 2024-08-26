@@ -1,6 +1,7 @@
 package online.talkandtravel.config;
 
 import lombok.extern.slf4j.Slf4j;
+import online.talkandtravel.util.TestAuthenticationService;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -16,7 +17,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @Slf4j
 @TestConfiguration
 @EnableAutoConfiguration
-public class TestContainerConfig {
+public class TestConfig {
 
   @Bean
   @ServiceConnection
@@ -30,5 +31,10 @@ public class TestContainerConfig {
         "PostgreSQL container started on port: {}",
         container.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
     return container;
+  }
+
+  @Bean
+  public TestAuthenticationService testAuthenticationService() {
+    return new TestAuthenticationService();
   }
 }
