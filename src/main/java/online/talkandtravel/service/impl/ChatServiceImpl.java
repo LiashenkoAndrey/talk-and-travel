@@ -14,10 +14,11 @@ import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
-import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -36,7 +37,6 @@ import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
@@ -90,12 +90,12 @@ public class ChatServiceImpl implements ChatService {
   private final UserMapper userMapper;
   private final UserRepository userRepository;
   private final UserChatMapper userChatMapper;
-  private final AuthenticationService authenticationService;
+  private final AuthenticationFacade authFacade;
 
   @Transactional
   @Override
   public ChatDto createCountryChat(NewChatDto dto) {
-    User user = getAuthenticatedUser();
+    User user = authFacade.getAuthenticatedUser();
     Chat chat = createAndSaveChatWithUser(dto, user);
     return chatMapper.toDto(chat);
   }
@@ -142,7 +142,7 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable) {
-    User user = getAuthenticatedUser();
+    User user = authFacade.getAuthenticatedUser();
 
     UserChat userChat =
         userChatRepository
@@ -161,7 +161,7 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public Page<MessageDtoBasic> findUnreadMessages(
       Long chatId, Pageable pageable) {
-    User user = getAuthenticatedUser();
+    User user = authFacade.getAuthenticatedUser();
 
     UserChat userChat =
         userChatRepository
@@ -175,9 +175,6 @@ public class ChatServiceImpl implements ChatService {
     return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable);
   }
 
-  private User getAuthenticatedUser() {
-    return authenticationService.getAuthenticatedUser();
-  }
 
   @Override
   public Page<ChatInfoDto> findAllGroupChats(Pageable pageable) {

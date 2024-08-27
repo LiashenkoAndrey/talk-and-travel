@@ -26,6 +26,8 @@ import online.talkandtravel.model.entity.User;
  */
 public interface TokenService {
 
+  void deleteUserToken(Long userId);
+
   Token save(Token token);
 
   Optional<Token> findByToken(String token);

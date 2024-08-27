@@ -59,6 +59,11 @@ public class TokenServiceImpl implements TokenService {
   private final TokenRepository repository;
 
   @Override
+  public void deleteUserToken(Long userId) {
+    repository.deleteAllByUserId(userId);
+  }
+
+  @Override
   public Token save(Token token) {
     return repository.save(token);
   }

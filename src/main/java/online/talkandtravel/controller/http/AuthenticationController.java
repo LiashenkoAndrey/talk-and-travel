@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.dto.LoginDto;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
@@ -32,15 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Log4j2
 public class AuthenticationController {
-  private final AuthenticationService authService;
-  private final UserMapper mapper;
+  private final AuthenticationFacade authFacade;
 
   @Operation(description = "Register a user.")
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> register(@RequestBody UserDtoWithAvatarAndPassword dto) {
-    log.info("register - {}", dto);
-    var user = mapper.mapToUserWithPassword(dto);
-    var authResponse = authService.register(user);
+    var authResponse = authFacade.register(dto);
     return ResponseEntity.ok(authResponse);
   }
 
@@ -50,6 +48,6 @@ public class AuthenticationController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginDto loginDto) {
         log.info("Login - {}", loginDto);
-        return authService.login(loginDto.getUserEmail(), loginDto.getPassword());
+        return authFacade.login(loginDto.getUserEmail(), loginDto.getPassword());
     }
 }

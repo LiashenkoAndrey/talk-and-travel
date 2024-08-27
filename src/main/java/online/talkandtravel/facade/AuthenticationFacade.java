@@ -1,0 +1,44 @@
+package online.talkandtravel.facade;
+
+import jakarta.servlet.http.HttpServletRequest;
+import online.talkandtravel.model.dto.AuthResponse;
+import online.talkandtravel.model.dto.user.UpdateUserRequest;
+import online.talkandtravel.model.dto.user.UpdateUserResponse;
+import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
+import online.talkandtravel.model.entity.User;
+import org.springframework.security.core.userdetails.UserDetails;
+
+public interface AuthenticationFacade {
+
+  UpdateUserResponse update(UpdateUserRequest request);
+
+  AuthResponse login(String email, String password);
+
+  User getAuthenticatedUser();
+
+  /**
+   * Saves or updates a JWT token for the specified user. Any existing tokens associated with the user
+   * are deleted, and the new token is saved in the database.
+   *
+   * @param user The {@link User} entity for which the token is being generated.
+   * @return The generated JWT token as a string.
+   */
+  String saveOrUpdateUserToken(User user);
+
+  UserDetails getUserDetails(String token);
+
+  /**
+   * Registers a new user by validating the user's registration data and saving the user entity.
+   *
+   * @param user The {@link User} entity containing registration data.
+   * @return The saved {@link User} entity.
+   */
+  User registerUser(User user);
+
+  void validateUserEmailAndPassword(User user);
+
+  AuthResponse register(UserDtoWithAvatarAndPassword request);
+
+  void authenticateUser(String token, HttpServletRequest request);
+
+}

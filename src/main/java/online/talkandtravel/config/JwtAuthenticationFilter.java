@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
+import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
+  private final AuthenticationFacade authFacade;
   private final AuthenticationService authenticationService;
 
   /**
@@ -75,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     tokenService.validateToken(token);
 
     if (!authenticationService.isUserAuthenticated()) {
-      authenticationService.authenticateUser(token, request);
+      authFacade.authenticateUser(token, request);
     }
   }
 

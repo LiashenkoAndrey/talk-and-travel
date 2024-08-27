@@ -1,9 +1,9 @@
 package online.talkandtravel.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import online.talkandtravel.model.dto.AuthResponse;
 import online.talkandtravel.model.entity.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Service interface for handling user authentication and registration operations.
@@ -26,13 +26,14 @@ import online.talkandtravel.model.entity.User;
  */
 public interface AuthenticationService {
 
-  AuthResponse register(User user);
-
-  AuthResponse login(String email, String password);
 
   User getAuthenticatedUser();
 
   boolean isUserAuthenticated();
 
-  void authenticateUser(String token, HttpServletRequest request);
+
+  User checkUserCredentials(String email, String password);
+
+  void authenticateUser(UserDetails userDetails, HttpServletRequest request);
+
 }

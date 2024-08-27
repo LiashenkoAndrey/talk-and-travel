@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
-import online.talkandtravel.model.entity.User;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserMapper;
@@ -40,10 +40,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
   private final UserService userService;
   private final UserMapper userMapper;
+  private final AuthenticationFacade authFacade;
 
   @PutMapping
   public UpdateUserResponse update(@RequestBody @Valid UpdateUserRequest dto) {
-    return userService.update(dto);
+    return authFacade.update(dto);
   }
 
   @GetMapping("/{userId}")
