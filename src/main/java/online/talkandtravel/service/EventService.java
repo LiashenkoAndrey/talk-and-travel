@@ -4,7 +4,6 @@ import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service interface for managing events related to chat interactions.
@@ -31,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface EventService {
 
-  @Transactional
   void deleteChatIfEmpty(EventRequest request);
 
   MessageDto joinChat(EventRequest request);
