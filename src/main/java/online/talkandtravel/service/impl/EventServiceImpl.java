@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatMustContainTwoUsersException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
@@ -62,7 +61,6 @@ import org.springframework.transaction.annotation.Transactional;
  *       ChatNotFoundException} if not found.
  * </ul>
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -99,7 +97,6 @@ public class EventServiceImpl implements EventService {
 
     removeConnections(request, chat, author);
 
-
     Message message =
         Message.builder()
             .content(LEFT_THE_CHAT.formatted(author.getUserName()))
@@ -116,9 +113,8 @@ public class EventServiceImpl implements EventService {
   @Transactional
   public void deleteChatIfEmpty(EventRequest request) {
     Chat chat = getChat(request);
-    log.info("chat is empty : {}", chat.getUsers().isEmpty());
-    if(chat.getChatType().equals(ChatType.PRIVATE)){
-      if (chat.getUsers().isEmpty()){
+    if (chat.getChatType().equals(ChatType.PRIVATE)) {
+      if (chat.getUsers().isEmpty()) {
         chatRepository.delete(chat);
       }
     }
