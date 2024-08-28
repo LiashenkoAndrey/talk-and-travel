@@ -30,8 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>The service includes the following functionalities:
  * <ul>
  *   <li>{@link UserService#save(User)} - Encrypts the user's password and saves the user to the repository.</li>
- *   <li>{@link #update(UpdateUserRequest, User)} - Updates an existing user's information, including handling email changes
- *       and preserving security information like the password and role.</li>
  *   <li>{@link #findUserByEmail(String)} - Retrieves a user by their email address, returning an
  *       {@code Optional} to handle the case where the user might not exist.</li>
  *   <li>{@link #findById(Long)} - Finds a user by their ID, throwing a {@link UserNotFoundException}
@@ -51,16 +49,22 @@ public class UserServiceImpl implements UserService {
   private final AuthenticationService authenticationService;
 
   @Override
-  public User save(User user) {
+  public UserDtoBasic save(User user) {
     encodePassword(user);
-    return userRepository.save(user);
+    User saved = userRepository.save(user);
+    return userMapper.toUserDtoBasic(saved);
+  }
+
+  @Override
+  public User getReferenceById(Long userId) {
+    return userRepository.getReferenceById(userId);
   }
 
   @Override
   public UserDetails getUserDetails(Long userId) {
     return userRepository.findById(userId)
         .map(CustomUserDetails::new)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        .orElseThrow(() -> new UserNotFoundException(userId));
   }
 
   /**

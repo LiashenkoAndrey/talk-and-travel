@@ -16,18 +16,7 @@ public interface AuthenticationFacade {
 
   User getAuthenticatedUser();
 
-  /**
-   * Saves or updates a JWT token for the specified user. Any existing tokens associated with the user
-   * are deleted, and the new token is saved in the database.
-   *
-   * @param user The {@link User} entity for which the token is being generated.
-   * @return The generated JWT token as a string.
-   */
-  String saveOrUpdateUserToken(User user);
-
-  UserDetails getUserDetails(String token);
-
-  void validateUserEmailAndPassword(User user);
+  String saveOrUpdateUserToken(Long userId);
 
   AuthResponse register(RegisterRequest request);
 

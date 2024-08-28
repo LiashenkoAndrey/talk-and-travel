@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface AuthenticationService {
 
-  void validateUserEmailAndPassword(User user);
+  void validateUserEmailAndPassword(String email, String password);
 
   void checkForDuplicateEmail(String userEmail);
 

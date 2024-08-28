@@ -35,17 +35,10 @@ import org.springframework.stereotype.Service;
  * <ul>
  *   <li>{@link #getAuthenticatedUser()} - gets the authenticated
  *       user from {@link SecurityContextHolder}
- *   <li>{@link AuthenticationService#register(User)} - Registers a new user, creates an authentication token, and
- *       generates a default avatar.
- *   <li>{@link #login(String, String)} - Authenticates a user based on email and password, and
- *       returns an authentication token.
  *   <li>{@link #checkUserCredentials(String, String)} - Validates user credentials and throws an
  *       exception if credentials are invalid.
  *   <li>{@link #checkUserCredentials(String, User)} - Checks if the provided password matches the
  *       stored password.
- *   <li>{@link #createNewAuthResponse(String, User)} - Constructs an {@link AuthResponse}
- *       containing the JWT token and user DTO.
- *   <li>{@link #createNewUser(User)} - Builds a new {@link User} object with default settings for
  *       registration.
  * </ul>
  */
@@ -128,11 +121,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public void validateUserEmailAndPassword(User user) {
-    if (!emailValidator.isValid(user.getUserEmail())) {
-      throw new RegistrationException("Email address %s is invalid".formatted(user.getUserEmail()));
+  public void validateUserEmailAndPassword(String email, String password) {
+    if (!emailValidator.isValid(email)) {
+      throw new RegistrationException("Email address %s is invalid".formatted(email));
     }
-    if (!passwordValidator.isValid(user.getPassword())) {
+    if (!passwordValidator.isValid(password)) {
       throw new RegistrationException(
               "Passwords must be 8 to 16 characters long and contain "
                       + "at least one letter, one digit, and one special character.");

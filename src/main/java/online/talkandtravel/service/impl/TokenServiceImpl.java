@@ -95,18 +95,18 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public String generateToken(User user) {
-    return generateToken(new HashMap<>(), user);
+  public String generateToken(Long userId) {
+    return generateToken(new HashMap<>(), userId);
   }
 
   /**
    * 86400000 milliseconds = 24 hours
    */
   @Override
-  public String generateToken(Map<String, Object> extraClaims, User user) {
+  public String generateToken(Map<String, Object> extraClaims, Long userId) {
     return Jwts.builder()
         .setClaims(extraClaims)
-        .setSubject(user.getId().toString())
+        .setSubject(userId.toString())
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(new Date(System.currentTimeMillis() + 86400000))
         .signWith(SignatureAlgorithm.HS256, getSignInKey())

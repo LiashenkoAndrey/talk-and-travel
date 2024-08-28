@@ -38,8 +38,8 @@ public interface TokenService {
 
   Long extractId(String token);
 
-  String generateToken(User user);
+  String generateToken(Long userId);
 
-  String generateToken(Map<String, Object> extraClaims, User user);
+  String generateToken(Map<String, Object> extraClaims, Long userId);
 
 }

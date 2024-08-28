@@ -22,9 +22,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  *   <li>{@link #save(User)} - Saves a new user or updates an existing user's information. The
  *       password of the user is encoded before being saved. Throws {@link IOException} if there is
  *       an error during the saving process.
- *   <li>{@link #update(UpdateUserRequest, User user)} - Updates the details of an existing user. The method performs checks
- *       and updates user information while preserving the existing password and role. Returns the
- *       updated user entity.
  *   <li>{@link #findUserByEmail(String)} - Retrieves a user by their email address. Returns an
  *       {@link Optional} that contains the user if found, or empty if no user with the specified
  *       email exists.
@@ -35,7 +32,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface UserService {
 
-  User save(User user);
+  UserDtoBasic save(User user);
+
+  User getReferenceById(Long userId);
 
   UserDetails getUserDetails(Long userId);
 
