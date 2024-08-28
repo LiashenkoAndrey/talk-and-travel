@@ -9,6 +9,7 @@ import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
@@ -118,10 +119,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User findById(Long userId) {
-    return repository.findById(userId).orElseThrow(
+  public UserDtoBasic findById(Long userId) {
+    User user = repository.findById(userId).orElseThrow(
         () -> new UserNotFoundException(userId)
     );
+    return userMapper.toUserDtoBasic(user);
   }
 
   @Override

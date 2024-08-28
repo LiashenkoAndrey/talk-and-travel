@@ -1,4 +1,4 @@
-package online.talkandtravel.model.dto;
+package online.talkandtravel.model.dto.auth;
 
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoShort;

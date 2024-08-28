@@ -1,17 +1,13 @@
 package online.talkandtravel.controller.http;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.AuthenticationFacade;
-import online.talkandtravel.model.dto.AuthResponse;
-import online.talkandtravel.model.dto.LoginDto;
-import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
-import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.model.dto.auth.AuthResponse;
+import online.talkandtravel.model.dto.auth.LoginRequest;
+import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.util.constants.ApiPathConstants;
-import online.talkandtravel.util.mapper.UserMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,21 +29,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Log4j2
 public class AuthenticationController {
+
   private final AuthenticationFacade authFacade;
 
-  @Operation(description = "Register a user.")
   @PostMapping("/register")
-  public ResponseEntity<AuthResponse> register(@RequestBody UserDtoWithAvatarAndPassword dto) {
-    var authResponse = authFacade.register(dto);
-    return ResponseEntity.ok(authResponse);
+  public AuthResponse register(@RequestBody @Valid RegisterRequest dto) {
+    return authFacade.register(dto);
   }
 
-    @Operation(
-            description = "Log in a user."
-    )
-    @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginDto loginDto) {
-        log.info("Login - {}", loginDto);
-        return authFacade.login(loginDto.getUserEmail(), loginDto.getPassword());
-    }
+  @PostMapping("/login")
+  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
+    return authFacade.login(loginRequest.userEmail(), loginRequest.password());
+  }
 }

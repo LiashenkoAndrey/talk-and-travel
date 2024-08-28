@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Optional;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -48,7 +49,7 @@ public interface UserService {
 
   Optional<User> findUserByEmail(String email);
 
-  User findById(Long userId);
+  UserDtoBasic findById(Long userId);
 
   boolean existsByEmail(String email);
 }

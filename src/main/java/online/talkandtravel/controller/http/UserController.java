@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
   private final UserService userService;
-  private final UserMapper userMapper;
   private final AuthenticationFacade authFacade;
 
   @PutMapping
@@ -49,14 +48,12 @@ public class UserController {
 
   @GetMapping("/{userId}")
   public UserDtoBasic findById(@PathVariable @Positive Long userId) {
-    var user = userService.findById(userId);
-    return userMapper.toUserDtoBasic(user);
+    return userService.findById(userId);
   }
 
   @Operation(description = "Check if email exists.")
   @GetMapping("/exists-by-email/{email}")
-  public ResponseEntity<Boolean> existsByEmail(@PathVariable @Email String email) {
-    boolean exists = userService.existsByEmail(email);
-    return ResponseEntity.ok().body(exists);
+  public Boolean existsByEmail(@PathVariable @Email String email) {
+    return userService.existsByEmail(email);
   }
 }

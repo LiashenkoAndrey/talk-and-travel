@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.RegistrationException;
-import online.talkandtravel.model.dto.AuthResponse;
+import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;

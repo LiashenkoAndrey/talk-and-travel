@@ -1,7 +1,8 @@
 package online.talkandtravel.facade;
 
 import jakarta.servlet.http.HttpServletRequest;
-import online.talkandtravel.model.dto.AuthResponse;
+import online.talkandtravel.model.dto.auth.AuthResponse;
+import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
@@ -27,17 +28,9 @@ public interface AuthenticationFacade {
 
   UserDetails getUserDetails(String token);
 
-  /**
-   * Registers a new user by validating the user's registration data and saving the user entity.
-   *
-   * @param user The {@link User} entity containing registration data.
-   * @return The saved {@link User} entity.
-   */
-  User registerUser(User user);
-
   void validateUserEmailAndPassword(User user);
 
-  AuthResponse register(UserDtoWithAvatarAndPassword request);
+  AuthResponse register(RegisterRequest request);
 
   void authenticateUser(String token, HttpServletRequest request);
 

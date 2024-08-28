@@ -1,7 +1,7 @@
 package online.talkandtravel.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import online.talkandtravel.model.dto.AuthResponse;
+import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
