@@ -71,10 +71,6 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     authenticationService.authenticateUser(userDetails, request);
   }
 
-  private AuthResponse createNewAuthResponse(String jwtToken, UserDtoBasic userDtoBasic) {
-    return new AuthResponse(jwtToken, userDtoBasic);
-  }
-
   private UserDtoBasic createAndSaveNewUser(RegisterRequest request) {
     validateUserRegistrationData(request.userEmail(), request.userPassword());
     User user = userMapper.registerRequestToUser(request);

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AuthenticationService;
@@ -32,6 +33,7 @@ class UserServiceTest {
 
   @Mock private UserRepository userRepository;
   @Mock private PasswordEncoder passwordEncoder;
+  @Mock private AuthenticationService authenticationService;
   @Mock private UserMapper userMapper;
 
   @InjectMocks private UserServiceImpl underTest;
@@ -46,27 +48,24 @@ class UserServiceTest {
   private static final String
       USER_PASSWORD = "!123456Aa",
       USER_NAME = "Bob",
-      USER_EMAIL = "bob@mail.com";
+      USER_EMAIL = "bob@mail.com",
+      USER_ABOUT = "about me";
 
   @Test
   void save_shouldEncodePassword_whenUserIsCorrect() {
     User user = createDefaultUser();
-    String encodedPassword = "encoded";
-    User expected = User.builder()
-        .id(USER_ID)
-        .password(encodedPassword)
-        .userName(USER_NAME)
-        .userEmail(USER_EMAIL)
-        .build();
+    UserDtoBasic expected = new UserDtoBasic(USER_ID, USER_NAME, USER_EMAIL, USER_ABOUT);
 
     when(passwordEncoder.encode(USER_PASSWORD)).thenReturn("encodedPassword");
-    when(userRepository.save(user)).thenReturn(expected);
+    when(userRepository.save(user)).thenReturn(user);
+    when(userMapper.toUserDtoBasic(user)).thenReturn(expected);
 
-    User result = underTest.save(user);
+    UserDtoBasic result = underTest.save(user);
 
     assertEquals(expected, result);
     verify(passwordEncoder, times(1)).encode(USER_PASSWORD);
     verify(userRepository, times(1)).save(user);
+    verify(userMapper, times(1)).toUserDtoBasic(user);
   }
 
   @Test
@@ -74,27 +73,28 @@ class UserServiceTest {
     assertThrows(NullPointerException.class, () -> underTest.save(null));
   }
 
-//  @Test
-//  void update_shouldUpdateUser_whenCorrectRequestData() {
-//    String newName = "new name", newAbout = "new about";
-//    UpdateUserRequest request = new UpdateUserRequest(newName, USER_EMAIL, newAbout);
-//    User existingUser = createDefaultUser();
-//    User user = createUpdatedUser(newName, newAbout);
-//    UpdateUserResponse expectedResult = new UpdateUserResponse(newName, USER_EMAIL, newAbout);
-//
-//    doNothing().when(userMapper).updateUser(request, existingUser);
-//    existingUser.setAbout(newAbout);
-//    existingUser.setUserName(newName);
-//    when(userRepository.save(user)).thenReturn(user);
-//    when(userMapper.toUpdateUserResponse(user)).thenReturn(expectedResult);
-//
-//    UpdateUserResponse result = underTest.update(request, existingUser);
-//
-//    assertEquals(expectedResult, result);
-//    verify(userMapper, times(1)).updateUser(request, existingUser);
-//    verify(userMapper, times(1)).toUpdateUserResponse(user);
-//    verify(userRepository, times(1)).save(user);
-//  }
+  @Test
+  void update_shouldUpdateUser_whenCorrectRequestData() {
+    String newName = "new name", newAbout = "new about";
+    UpdateUserRequest request = new UpdateUserRequest(newName, USER_EMAIL, newAbout);
+    User existingUser = createDefaultUser();
+    User user = createUpdatedUser(newName, newAbout);
+    UpdateUserResponse expectedResult = new UpdateUserResponse(newName, USER_EMAIL, newAbout);
+
+    when(authenticationService.getAuthenticatedUser()).thenReturn(existingUser);
+    doNothing().when(userMapper).updateUser(request, existingUser);
+    existingUser.setAbout(newAbout);
+    existingUser.setUserName(newName);
+    when(userRepository.save(user)).thenReturn(user);
+    when(userMapper.toUpdateUserResponse(user)).thenReturn(expectedResult);
+
+    UpdateUserResponse result = underTest.update(request);
+
+    assertEquals(expectedResult, result);
+    verify(userMapper, times(1)).updateUser(request, existingUser);
+    verify(userMapper, times(1)).toUpdateUserResponse(user);
+    verify(userRepository, times(1)).save(user);
+  }
 
   private User createUpdatedUser(String newName, String newAbout) {
     return User.builder()
