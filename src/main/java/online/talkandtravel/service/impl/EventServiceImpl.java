@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatMustContainTwoUsersException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
@@ -61,6 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
  *       ChatNotFoundException} if not found.
  * </ul>
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -97,6 +99,7 @@ public class EventServiceImpl implements EventService {
 
     removeConnections(request, chat, author);
 
+
     Message message =
         Message.builder()
             .content(LEFT_THE_CHAT.formatted(author.getUserName()))
@@ -105,7 +108,20 @@ public class EventServiceImpl implements EventService {
             .type(MessageType.LEAVE)
             .build();
     message = messageRepository.save(message);
+
     return messageMapper.toMessageDto(message);
+  }
+
+  @Override
+  @Transactional
+  public void deleteChatIfEmpty(EventRequest request) {
+    Chat chat = getChat(request);
+    log.info("chat is empty : {}", chat.getUsers().isEmpty());
+    if(chat.getChatType().equals(ChatType.PRIVATE)){
+      if (chat.getUsers().isEmpty()){
+        chatRepository.delete(chat);
+      }
+    }
   }
 
   @Transactional
@@ -136,28 +152,32 @@ public class EventServiceImpl implements EventService {
       throw new UserNotJoinedTheChatException(request.authorId(), request.chatId());
     }
 
-    UserCountry userCountry =
-        userCountryRepository
-            .findByCountryNameAndUserId(chat.getCountry().getName(), author.getId())
-            .orElseThrow(
-                () ->
-                    new UserCountryNotFoundException(chat.getCountry().getName(), author.getId()));
-
     // remove record from userChats
     userChatRepository.delete(optionalUserChat.get());
 
-    // check if there is no records in UserChats with userId and CountryName,
-    // if true, remove record from userCountries
-    List<UserChat> userChats =
-        userChatRepository.findAllByUserIdAndUserCountryId(request.authorId(), userCountry.getId());
-    if (userChats.isEmpty()) {
-      // if this was the last chat in country for user, we remove connection with Country
-      userCountryRepository.delete(userCountry);
+    if (chat.getCountry() != null) {
+      UserCountry userCountry =
+          userCountryRepository
+              .findByCountryNameAndUserId(chat.getCountry().getName(), author.getId())
+              .orElseThrow(
+                  () ->
+                      new UserCountryNotFoundException(
+                          chat.getCountry().getName(), author.getId()));
+
+      // check if there is no records in UserChats with userId and CountryName,
+      // if true, remove record from userCountries
+      List<UserChat> userChats =
+          userChatRepository.findAllByUserIdAndUserCountryId(
+              request.authorId(), userCountry.getId());
+      if (userChats.isEmpty()) {
+        // if this was the last chat in country for user, we remove connection with Country
+        userCountryRepository.delete(userCountry);
+      }
     }
   }
 
   private void checkChatIsNotPrivate(EventRequest request, Chat chat) {
-    if(chat.getChatType().equals(ChatType.PRIVATE)){
+    if (chat.getChatType().equals(ChatType.PRIVATE)) {
       throw new PrivateChatMustContainTwoUsersException(request);
     }
   }

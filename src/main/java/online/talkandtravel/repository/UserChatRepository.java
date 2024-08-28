@@ -24,4 +24,6 @@ public interface UserChatRepository extends JpaRepository<UserChat, Long> {
   Optional<UserChat> findByChatIdAndUserId(Long chatId, Long userId);
 
   List<UserChat> findAllByUserIdAndUserCountryId(Long userId, Long countryId);
+
+  List<UserChat> findAllByChatId(Long chatId);
 }

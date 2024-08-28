@@ -45,7 +45,7 @@ public class EventController {
   public void leaveChat(@Payload EventRequest request) {
     log.info("create a new LEAVE CHAT event {}", request);
     MessageDto message = eventService.leaveChat(request);
-
+    eventService.deleteChatIfEmpty(request);
     sendResponse(request, message);
   }
 
