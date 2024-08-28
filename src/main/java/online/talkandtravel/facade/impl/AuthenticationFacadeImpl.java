@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.auth.AuthResponse;
+import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
@@ -41,9 +42,9 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   }
 
   @Override
-  public AuthResponse login(String email, String password) {
-    log.info("Login - email {}", email);
-    User authenticatedUser = authenticationService.checkUserCredentials(email, password);
+  public AuthResponse login(LoginRequest request) {
+    log.info("Login - email {}", request.userEmail());
+    User authenticatedUser = authenticationService.checkUserCredentials(request.userEmail(), request.password());
     String jwtToken = saveOrUpdateUserToken(authenticatedUser);
     return createNewAuthResponse(jwtToken, authenticatedUser);
   }
@@ -83,10 +84,9 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     return userService.getUserDetails(userId);
   }
 
-
   @Override
   public void validateUserEmailAndPassword(User user) {
-    userService.validateUserEmailAndPassword(user);
+    authenticationService.validateUserEmailAndPassword(user);
   }
 
   @Override
@@ -126,7 +126,7 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   }
 
   private void validateUserRegistrationData(User user) {
-    userService.validateUserEmailAndPassword(user);
-    userService.checkForDuplicateEmail(user.getUserEmail());
+    authenticationService.validateUserEmailAndPassword(user);
+    authenticationService.checkForDuplicateEmail(user.getUserEmail());
   }
 }

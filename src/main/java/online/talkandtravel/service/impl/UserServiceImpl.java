@@ -3,10 +3,7 @@ package online.talkandtravel.service.impl;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.exception.auth.RegistrationException;
-import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -15,8 +12,6 @@ import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
-import online.talkandtravel.util.validator.PasswordValidator;
-import online.talkandtravel.util.validator.UserEmailValidator;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,35 +46,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 public class UserServiceImpl implements UserService {
 
-  private final UserRepository repository;
+  private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
-  private final PasswordValidator passwordValidator;
-  private final UserEmailValidator emailValidator;
 
   @Override
-  public void checkForDuplicateEmail(String userEmail) {
-    if (repository.existsByUserEmail(userEmail)) {
-      throw new UserAlreadyExistsException(userEmail);
-    }
-  }
-
-  @Override
-  public void validateUserEmailAndPassword(User user) {
-    if (!emailValidator.isValid(user.getUserEmail())) {
-      throw new RegistrationException("Invalid email address");
-    }
-    if (!passwordValidator.isValid(user.getPassword())) {
-      throw new RegistrationException(
-          "Passwords must be 8 to 16 characters long and contain "
-              + "at least one letter, one digit, and one special character.");
-    }
-  }
-
-  @Override
-  public User save(User user) {
+  public UserDtoBasic save(User user) {
     encodePassword(user);
-    return repository.save(user);
+    User saved = userRepository.save(user);
+    return userMapper.toUserDtoBasic(saved);
   }
 
   /**
@@ -93,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDetails getUserDetails(Long userId) {
-    return repository.findById(userId)
+    return userRepository.findById(userId)
         .map(CustomUserDetails::new)
         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
   }
@@ -109,18 +84,18 @@ public class UserServiceImpl implements UserService {
   public UpdateUserResponse update(UpdateUserRequest request, User existingUser) {
     log.info("update user with id:{}, dto:{}", existingUser.getId(), request);
     userMapper.updateUser(request, existingUser);
-    User updated = repository.save(existingUser);
+    User updated = userRepository.save(existingUser);
     return userMapper.toUpdateUserResponse(updated);
   }
 
   @Override
   public Optional<User> findUserByEmail(String email) {
-    return repository.findByUserEmail(email);
+    return userRepository.findByUserEmail(email);
   }
 
   @Override
   public UserDtoBasic findById(Long userId) {
-    User user = repository.findById(userId).orElseThrow(
+    User user = userRepository.findById(userId).orElseThrow(
         () -> new UserNotFoundException(userId)
     );
     return userMapper.toUserDtoBasic(user);
@@ -128,6 +103,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public boolean existsByEmail(String email) {
-    return repository.findByUserEmail(email).isPresent();
+    return userRepository.findByUserEmail(email).isPresent();
   }
 }

@@ -22,8 +22,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  *   <li>{@link #save(User)} - Saves a new user or updates an existing user's information. The
  *       password of the user is encoded before being saved. Throws {@link IOException} if there is
  *       an error during the saving process.
- *   <li>{@link #checkForDuplicateEmail(String userEmail)} - Throws an exception if a user with the
- *       same email already exists.
  *   <li>{@link #update(UpdateUserRequest, User user)} - Updates the details of an existing user. The method performs checks
  *       and updates user information while preserving the existing password and role. Returns the
  *       updated user entity.
@@ -37,11 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface UserService {
 
-  void checkForDuplicateEmail(String userEmail);
-
-  void validateUserEmailAndPassword(User user);
-
-  User save(User user);
+  UserDtoBasic save(User user);
 
   UserDetails getUserDetails(Long userId);
 

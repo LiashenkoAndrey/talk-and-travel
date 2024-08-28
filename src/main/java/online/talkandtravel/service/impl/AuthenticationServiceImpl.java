@@ -5,7 +5,9 @@ import static java.lang.String.format;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.exception.auth.UserAuthenticationException;
+import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.auth.AuthResponse;
@@ -13,6 +15,8 @@ import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.util.validator.PasswordValidator;
+import online.talkandtravel.util.validator.UserEmailValidator;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,6 +55,8 @@ import org.springframework.stereotype.Service;
 public class AuthenticationServiceImpl implements AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
+  private final PasswordValidator passwordValidator;
+  private final UserEmailValidator emailValidator;
 
   /**
    * Retrieves the authenticated user from the Spring Security context.
@@ -119,6 +125,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             () -> new UserAuthenticationException("user with email %s not found".formatted(email)));
     checkUserCredentials(password, user);
     return user;
+  }
+
+  @Override
+  public void validateUserEmailAndPassword(User user) {
+    if (!emailValidator.isValid(user.getUserEmail())) {
+      throw new RegistrationException("Email address %s is invalid".formatted(user.getUserEmail()));
+    }
+    if (!passwordValidator.isValid(user.getPassword())) {
+      throw new RegistrationException(
+              "Passwords must be 8 to 16 characters long and contain "
+                      + "at least one letter, one digit, and one special character.");
+    }
+  }
+
+  @Override
+  public void checkForDuplicateEmail(String userEmail) {
+    if (userRepository.existsByUserEmail(userEmail)) {
+      throw new UserAlreadyExistsException(userEmail);
+    }
   }
 
   /**

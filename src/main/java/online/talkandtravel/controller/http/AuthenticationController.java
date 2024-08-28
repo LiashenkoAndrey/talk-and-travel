@@ -39,6 +39,6 @@ public class AuthenticationController {
 
   @PostMapping("/login")
   public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
-    return authFacade.login(loginRequest.userEmail(), loginRequest.password());
+    return authFacade.login(loginRequest);
   }
 }

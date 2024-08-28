@@ -14,12 +14,7 @@ import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller class responsible for handling HTTP requests related to user operations.
@@ -52,8 +47,8 @@ public class UserController {
   }
 
   @Operation(description = "Check if email exists.")
-  @GetMapping("/exists-by-email/{email}")
-  public Boolean existsByEmail(@PathVariable @Email String email) {
+  @GetMapping("/exists-by-email")
+  public Boolean existsByEmail(@RequestParam @Email String email) {
     return userService.existsByEmail(email);
   }
 }

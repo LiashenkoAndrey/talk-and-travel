@@ -2,6 +2,7 @@ package online.talkandtravel.facade;
 
 import jakarta.servlet.http.HttpServletRequest;
 import online.talkandtravel.model.dto.auth.AuthResponse;
+import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
@@ -13,7 +14,7 @@ public interface AuthenticationFacade {
 
   UpdateUserResponse update(UpdateUserRequest request);
 
-  AuthResponse login(String email, String password);
+  AuthResponse login(LoginRequest request);
 
   User getAuthenticatedUser();
 

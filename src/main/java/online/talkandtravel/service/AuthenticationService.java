@@ -16,21 +16,18 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * <ul>
  *    <li>{@link #getAuthenticatedUser} gets the authenticated user
- *   <li>{@link #register(User)} - Registers a new user with the provided {@link User} details. This
- *       method handles user creation, including password encryption and any necessary setup. It
- *       returns an {@link AuthResponse} containing information about the authentication result.
- *   <li>{@link #login(String, String)} - Authenticates a user using their email and password. If
- *       the credentials are valid, it returns an {@link AuthResponse} containing authentication
  *       details.
  * </ul>
  */
 public interface AuthenticationService {
 
+  void validateUserEmailAndPassword(User user);
+
+  void checkForDuplicateEmail(String userEmail);
 
   User getAuthenticatedUser();
 
   boolean isUserAuthenticated();
-
 
   User checkUserCredentials(String email, String password);
 
