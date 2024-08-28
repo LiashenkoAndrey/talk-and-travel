@@ -37,6 +37,7 @@ import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
@@ -90,12 +91,12 @@ public class ChatServiceImpl implements ChatService {
   private final UserMapper userMapper;
   private final UserRepository userRepository;
   private final UserChatMapper userChatMapper;
-  private final AuthenticationFacade authFacade;
+  private final AuthenticationService authenticationService;
 
   @Transactional
   @Override
   public ChatDto createCountryChat(NewChatDto dto) {
-    User user = authFacade.getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
     Chat chat = createAndSaveChatWithUser(dto, user);
     return chatMapper.toDto(chat);
   }
@@ -142,7 +143,7 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable) {
-    User user = authFacade.getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
         userChatRepository
@@ -161,7 +162,7 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public Page<MessageDtoBasic> findUnreadMessages(
       Long chatId, Pageable pageable) {
-    User user = authFacade.getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
         userChatRepository
