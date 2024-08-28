@@ -34,6 +34,7 @@ public class AuthenticationController {
 
   @PostMapping("/register")
   public AuthResponse register(@RequestBody @Valid RegisterRequest dto) {
+    log.info(dto);
     return authFacade.register(dto);
   }
 

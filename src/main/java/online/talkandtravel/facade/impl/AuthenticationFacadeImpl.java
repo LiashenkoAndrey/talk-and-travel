@@ -37,12 +37,6 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   private final UserMapper userMapper;
 
   @Override
-  public UpdateUserResponse update(UpdateUserRequest request) {
-    User existingUser = getAuthenticatedUser();
-    return userService.update(request, existingUser);
-  }
-
-  @Override
   public AuthResponse login(LoginRequest request) {
     log.info("Login - email {}", request.userEmail());
     User authenticatedUser = authenticationService.checkUserCredentials(request.userEmail(), request.password());

@@ -39,7 +39,7 @@ public interface UserService {
 
   UserDetails getUserDetails(Long userId);
 
-  UpdateUserResponse update(UpdateUserRequest request, User user);
+  UpdateUserResponse update(UpdateUserRequest request);
 
   Optional<User> findUserByEmail(String email);
 

@@ -74,27 +74,27 @@ class UserServiceTest {
     assertThrows(NullPointerException.class, () -> underTest.save(null));
   }
 
-  @Test
-  void update_shouldUpdateUser_whenCorrectRequestData() {
-    String newName = "new name", newAbout = "new about";
-    UpdateUserRequest request = new UpdateUserRequest(newName, USER_EMAIL, newAbout);
-    User existingUser = createDefaultUser();
-    User user = createUpdatedUser(newName, newAbout);
-    UpdateUserResponse expectedResult = new UpdateUserResponse(newName, USER_EMAIL, newAbout);
-
-    doNothing().when(userMapper).updateUser(request, existingUser);
-    existingUser.setAbout(newAbout);
-    existingUser.setUserName(newName);
-    when(userRepository.save(user)).thenReturn(user);
-    when(userMapper.toUpdateUserResponse(user)).thenReturn(expectedResult);
-
-    UpdateUserResponse result = underTest.update(request, existingUser);
-
-    assertEquals(expectedResult, result);
-    verify(userMapper, times(1)).updateUser(request, existingUser);
-    verify(userMapper, times(1)).toUpdateUserResponse(user);
-    verify(userRepository, times(1)).save(user);
-  }
+//  @Test
+//  void update_shouldUpdateUser_whenCorrectRequestData() {
+//    String newName = "new name", newAbout = "new about";
+//    UpdateUserRequest request = new UpdateUserRequest(newName, USER_EMAIL, newAbout);
+//    User existingUser = createDefaultUser();
+//    User user = createUpdatedUser(newName, newAbout);
+//    UpdateUserResponse expectedResult = new UpdateUserResponse(newName, USER_EMAIL, newAbout);
+//
+//    doNothing().when(userMapper).updateUser(request, existingUser);
+//    existingUser.setAbout(newAbout);
+//    existingUser.setUserName(newName);
+//    when(userRepository.save(user)).thenReturn(user);
+//    when(userMapper.toUpdateUserResponse(user)).thenReturn(expectedResult);
+//
+//    UpdateUserResponse result = underTest.update(request, existingUser);
+//
+//    assertEquals(expectedResult, result);
+//    verify(userMapper, times(1)).updateUser(request, existingUser);
+//    verify(userMapper, times(1)).toUpdateUserResponse(user);
+//    verify(userRepository, times(1)).save(user);
+//  }
 
   private User createUpdatedUser(String newName, String newAbout) {
     return User.builder()

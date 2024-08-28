@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthenticationFacade {
 
-  UpdateUserResponse update(UpdateUserRequest request);
-
   AuthResponse login(LoginRequest request);
 
   User getAuthenticatedUser();

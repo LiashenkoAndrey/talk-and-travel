@@ -34,11 +34,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
   private final UserService userService;
-  private final AuthenticationFacade authFacade;
 
   @PutMapping
   public UpdateUserResponse update(@RequestBody @Valid UpdateUserRequest dto) {
-    return authFacade.update(dto);
+    return userService.update(dto);
   }
 
   @GetMapping("/{userId}")

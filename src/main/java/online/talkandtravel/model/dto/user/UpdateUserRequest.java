@@ -7,6 +7,6 @@ import jakarta.validation.constraints.Positive;
 
 public record UpdateUserRequest(
     @NotBlank String userName,
-    @NotBlank @Email String userEmail,
+    @Email String userEmail,
     @NotNull String about) {
 }

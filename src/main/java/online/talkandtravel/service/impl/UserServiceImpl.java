@@ -10,6 +10,7 @@ import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final AuthenticationService authenticationService;
 
   @Override
   public User save(User user) {
@@ -69,7 +71,8 @@ public class UserServiceImpl implements UserService {
    */
   @Override
   @Transactional
-  public UpdateUserResponse update(UpdateUserRequest request, User existingUser) {
+  public UpdateUserResponse update(UpdateUserRequest request) {
+    User existingUser = authenticationService.getAuthenticatedUser();
     log.info("update user with id:{}, dto:{}", existingUser.getId(), request);
     userMapper.updateUser(request, existingUser);
     User updated = userRepository.save(existingUser);
