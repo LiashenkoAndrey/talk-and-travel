@@ -35,7 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface UserService {
 
-  UserDtoBasic save(User user);
+  User save(User user);
 
   UserDetails getUserDetails(Long userId);
 

@@ -9,6 +9,7 @@ import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;

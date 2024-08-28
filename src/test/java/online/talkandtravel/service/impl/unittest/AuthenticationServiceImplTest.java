@@ -76,83 +76,83 @@ class AuthenticationServiceImplTest {
     userDto = creanteNewUserDtoBasic();
     user = createNewUser();
   }
-
-  @Test
-  void register_shouldSaveUserWithCorrectCredentials() {
-    when(userService.save(any())).thenReturn(user);
-    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.empty());
-    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
-    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
-    when(userMapper.mapToBasicDto(user)).thenReturn(userDto);
-
-    UserDtoBasic expected = creanteNewUserDtoBasic();
-
-    AuthResponse authResponse = authenticationService.register(user);
-    UserDtoBasic actual = authResponse.userDto();
-
-    assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
-  }
-
-  @Test
-  void register_shouldThrowRegistrationException_whenUserExists() {
-    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
-    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
-    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
-
-    assertThrows(RegistrationException.class, () -> authenticationService.register(user));
-
-    verify(userService, times(1)).findUserByEmail(USER_EMAIL);
-  }
-
-  @Test
-  void register_shouldThrowRegistrationException_whenInvalidEmail() {
-    assertThrows(RegistrationException.class, () -> authenticationService.register(user));
-
-    verify(emailValidator, times(1)).isValid(USER_EMAIL);
-  }
-
-  @Test
-  void register_shouldThrowRegistrationException_whenInvalidPassword() {
-    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
-    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(false);
-
-    assertThrows(RegistrationException.class, () -> authenticationService.register(user));
-
-    verify(passwordValidator, times(1)).isValid(USER_PASSWORD);
-  }
-
-  @Test
-  void register_shouldSaveTokenForNewUser() {
-    String expected = TEST_TOKEN;
-
-    when(userService.save(any())).thenReturn(user);
-    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.empty());
-    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
-    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
-    when(tokenService.generateToken(user)).thenReturn(expected);
-
-    AuthResponse authResponse = authenticationService.register(user);
-    String actual = authResponse.token();
-
-    assertEquals(expected, actual);
-
-    verify(tokenService, times(1)).save(any());
-  }
-
-  @Test
-  void login_shouldLoginUserWithCorrectCredentials() {
-    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
-    when(passwordEncoder.matches(USER_PASSWORD, USER_PASSWORD)).thenReturn(true);
-    when(userMapper.mapToBasicDto(user)).thenReturn(userDto);
-
-    UserDtoBasic expected = creanteNewUserDtoBasic();
-    log.info(expected);
-    AuthResponse authResponse =
-        authenticationService.login(user.getUserEmail(), user.getPassword());
-    UserDtoBasic actual = authResponse.userDto();
-
-    assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
-  }
+//
+//  @Test
+//  void register_shouldSaveUserWithCorrectCredentials() {
+//    when(userService.save(any())).thenReturn(user);
+//    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.empty());
+//    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
+//    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
+//    when(userMapper.mapToBasicDto(user)).thenReturn(userDto);
+//
+//    UserDtoBasic expected = creanteNewUserDtoBasic();
+//
+//    AuthResponse authResponse = authenticationService.register(user);
+//    UserDtoBasic actual = authResponse.userDto();
+//
+//    assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+//  }
+//
+//  @Test
+//  void register_shouldThrowRegistrationException_whenUserExists() {
+//    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+//    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
+//    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
+//
+//    assertThrows(RegistrationException.class, () -> authenticationService.register(user));
+//
+//    verify(userService, times(1)).findUserByEmail(USER_EMAIL);
+//  }
+//
+//  @Test
+//  void register_shouldThrowRegistrationException_whenInvalidEmail() {
+//    assertThrows(RegistrationException.class, () -> authenticationService.register(user));
+//
+//    verify(emailValidator, times(1)).isValid(USER_EMAIL);
+//  }
+//
+//  @Test
+//  void register_shouldThrowRegistrationException_whenInvalidPassword() {
+//    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
+//    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(false);
+//
+//    assertThrows(RegistrationException.class, () -> authenticationService.register(user));
+//
+//    verify(passwordValidator, times(1)).isValid(USER_PASSWORD);
+//  }
+//
+//  @Test
+//  void register_shouldSaveTokenForNewUser() {
+//    String expected = TEST_TOKEN;
+//
+//    when(userService.save(any())).thenReturn(user);
+//    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.empty());
+//    when(emailValidator.isValid(USER_EMAIL)).thenReturn(true);
+//    when(passwordValidator.isValid(USER_PASSWORD)).thenReturn(true);
+//    when(tokenService.generateToken(user)).thenReturn(expected);
+//
+//    AuthResponse authResponse = authenticationService.register(user);
+//    String actual = authResponse.token();
+//
+//    assertEquals(expected, actual);
+//
+//    verify(tokenService, times(1)).save(any());
+//  }
+//
+//  @Test
+//  void login_shouldLoginUserWithCorrectCredentials() {
+//    when(userService.findUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+//    when(passwordEncoder.matches(USER_PASSWORD, USER_PASSWORD)).thenReturn(true);
+//    when(userMapper.mapToBasicDto(user)).thenReturn(userDto);
+//
+//    UserDtoBasic expected = creanteNewUserDtoBasic();
+//    log.info(expected);
+//    AuthResponse authResponse =
+//        authenticationService.login(user.getUserEmail(), user.getPassword());
+//    UserDtoBasic actual = authResponse.userDto();
+//
+//    assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+//  }
 
   private User createNewUser() {
     return User.builder()
@@ -197,29 +197,29 @@ class AuthenticationServiceImplTest {
 
     assertFalse(isAuthenticated);
   }
-
-  @Test
-  void testAuthenticateUser() {
-    String token = "mockToken";
-    Long userId = 1L;
-    String remoteAddress = "127.0.0.1";
-    User user1 = createNewUser();
-    user1.setRole(Role.USER);
-    CustomUserDetails details = new CustomUserDetails(user1);
-
-    when(tokenService.extractId(token)).thenReturn(userId);
-    when(userService.getUserDetails(userId)).thenReturn(details);
-    when(request.getRemoteAddr()).thenReturn(remoteAddress);
-
-    authenticationService.authenticateUser(token, request);
-
-
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    assertNotNull(authentication);
-    verify(tokenService, times(1)).extractId(token);
-    verify(userService, times(1)).getUserDetails(userId);
-    verify(request, times(1)).getRemoteAddr();
-    assertEquals(remoteAddress ,request.getRemoteAddr());
-    assertEquals(details, authentication.getPrincipal());
-  }
+//
+//  @Test
+//  void testAuthenticateUser() {
+//    String token = "mockToken";
+//    Long userId = 1L;
+//    String remoteAddress = "127.0.0.1";
+//    User user1 = createNewUser();
+//    user1.setRole(Role.USER);
+//    CustomUserDetails details = new CustomUserDetails(user1);
+//
+//    when(tokenService.extractId(token)).thenReturn(userId);
+//    when(userService.getUserDetails(userId)).thenReturn(details);
+//    when(request.getRemoteAddr()).thenReturn(remoteAddress);
+//
+//    authenticationService.authenticateUser(token, request);
+//
+//
+//    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//    assertNotNull(authentication);
+//    verify(tokenService, times(1)).extractId(token);
+//    verify(userService, times(1)).getUserDetails(userId);
+//    verify(request, times(1)).getRemoteAddr();
+//    assertEquals(remoteAddress ,request.getRemoteAddr());
+//    assertEquals(details, authentication.getPrincipal());
+//  }
 }

@@ -28,8 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>The service includes the following functionalities:
  * <ul>
- *   <li>{@link #checkForDuplicateEmail(String userEmail)} - Throws an exception if a user with the
- *       same email already exists.
  *   <li>{@link UserService#save(User)} - Encrypts the user's password and saves the user to the repository.</li>
  *   <li>{@link #update(UpdateUserRequest, User)} - Updates an existing user's information, including handling email changes
  *       and preserving security information like the password and role.</li>
@@ -51,19 +49,9 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
 
   @Override
-  public UserDtoBasic save(User user) {
+  public User save(User user) {
     encodePassword(user);
-    User saved = userRepository.save(user);
-    return userMapper.toUserDtoBasic(saved);
-  }
-
-  /**
-   * encodes a user password stored in a {@link User} object
-   */
-  private void encodePassword(User user) {
-    String password = user.getPassword();
-    String encodePassword = passwordEncoder.encode(password);
-    user.setPassword(encodePassword);
+    return userRepository.save(user);
   }
 
   @Override
@@ -104,5 +92,14 @@ public class UserServiceImpl implements UserService {
   @Override
   public boolean existsByEmail(String email) {
     return userRepository.findByUserEmail(email).isPresent();
+  }
+
+  /**
+   * encodes a user password stored in a {@link User} object
+   */
+  private void encodePassword(User user) {
+    String password = user.getPassword();
+    String encodePassword = passwordEncoder.encode(password);
+    user.setPassword(encodePassword);
   }
 }
