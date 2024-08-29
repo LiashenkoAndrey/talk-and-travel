@@ -1,7 +1,5 @@
 package online.talkandtravel.service.impl;
 
-import static java.lang.String.format;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -10,7 +8,6 @@ import online.talkandtravel.exception.auth.UserAuthenticationException;
 import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
@@ -25,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
+
+import static java.lang.String.format;
 
 /**
  * Implementation of the {@link AuthenticationService} for managing user authentication and
