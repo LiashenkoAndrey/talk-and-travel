@@ -1,39 +1,29 @@
 package online.talkandtravel.service.impl;
 
-import static java.lang.String.format;
-
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.RegistrationException;
 import online.talkandtravel.exception.auth.UserAuthenticationException;
+import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.AuthResponse;
-import online.talkandtravel.model.entity.Role;
-import online.talkandtravel.model.entity.Token;
-import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.repository.TokenRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
-import online.talkandtravel.service.TokenService;
-import online.talkandtravel.service.UserService;
-import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.validator.PasswordValidator;
 import online.talkandtravel.util.validator.UserEmailValidator;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import static java.lang.String.format;
 
 /**
  * Implementation of the {@link AuthenticationService} for managing user authentication and
@@ -44,28 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
  * <ul>
  *   <li>{@link #getAuthenticatedUser()} - gets the authenticated
  *       user from {@link SecurityContextHolder}
- *   <li>{@link AuthenticationService#register(User)} - Registers a new user, creates an authentication token, and
- *       generates a default avatar.
- *   <li>{@link #login(String, String)} - Authenticates a user based on email and password, and
- *       returns an authentication token.
- *   <li>{@link #authenticateUser(String, String)} - Validates user credentials and throws an
+ *   <li>{@link #checkUserCredentials(String, String)} - Validates user credentials and throws an
  *       exception if credentials are invalid.
- *   <li>{@link #registerNewUser(User)} - Validates and registers a new user, and generates a
- *       default avatar.
- *   <li>{@link #saveOrUpdateUserToken(User)} - Generates a JWT token, manages token validity, and stores
- *       the token.
- *   <li>{@link #validateUserRegistrationData(User)} - Validates registration data and checks for
- *       duplicate emails.
  *   <li>{@link #checkUserCredentials(String, User)} - Checks if the provided password matches the
  *       stored password.
- *   <li>{@link #checkForDuplicateEmail(Optional<User>)} - Throws an exception if a user with the
- *       same email already exists.
- *   <li>{@link #validateEmailAndPassword(User)} - Validates email and password formats.
- *   <li>{@link #createNewAuthResponse(String, User)} - Constructs an {@link AuthResponse}
- *       containing the JWT token and user DTO.
- *   <li>{@link #createNewToken(String, User)} - Creates a new {@link Token} object with the given
- *       JWT token and user details.
- *   <li>{@link #createNewUser(User)} - Builds a new {@link User} object with default settings for
  *       registration.
  * </ul>
  */
@@ -73,14 +45,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Log4j2
 public class AuthenticationServiceImpl implements AuthenticationService {
+  private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
   private final PasswordValidator passwordValidator;
   private final UserEmailValidator emailValidator;
-  private final UserService userService;
-  private final PasswordEncoder passwordEncoder;
-  private final TokenService tokenService;
-  private final UserMapper userMapper;
-  private final TokenRepository tokenRepository;
-  private final UserDetailsService userDetailsService;
 
   /**
    * Retrieves the authenticated user from the Spring Security context.
@@ -120,9 +88,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    * @param request The HTTP servlet request containing additional authentication details.
    */
   @Override
-  public void authenticateUser(String token, HttpServletRequest request) {
-    String email = tokenService.extractUsername(token);
-    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+  public void authenticateUser(UserDetails userDetails, HttpServletRequest request) {
     WebAuthenticationDetails details = new WebAuthenticationDetailsSource().buildDetails(request);
 
     var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
@@ -133,44 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
 
-  /**
-   * Registers a new user in the system by validating the user data, saving the user,
-   * and generating a JWT token.
-   *
-   * <p>This method is transactional to ensure that user registration and token generation
-   * are performed atomically.
-   *
-   * @param user The {@link User} entity containing registration data.
-   * @return An {@link AuthResponse} containing the generated JWT token and user details.
-   * @throws IOException If an error occurs during user registration.
-   */
-  @Override
-  @Transactional
-  public AuthResponse register(User user) {
-    var newUser = registerNewUser(user);
-    String jwtToken = saveOrUpdateUserToken(newUser);
-    return createNewAuthResponse(jwtToken, newUser);
-  }
 
-
-  /**
-   * Authenticates an existing user by verifying their email and password, and then generates
-   * a JWT token for the authenticated user.
-   *
-   * <p>This method is transactional to ensure that authentication and token generation
-   * are performed atomically.
-   *
-   * @param email The email of the user attempting to log in.
-   * @param password The password of the user attempting to log in.
-   * @return An {@link AuthResponse} containing the generated JWT token and user details.
-   */
-  @Override
-  @Transactional
-  public AuthResponse login(String email, String password) {
-    var authenticatedUser = authenticateUser(email, password);
-    String jwtToken = saveOrUpdateUserToken(authenticatedUser);
-    return createNewAuthResponse(jwtToken, authenticatedUser);
-  }
 
   /**
    * Authenticates a user by their email and password. If the user is found and the credentials
@@ -181,48 +110,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    * @return The authenticated {@link User}.
    * @throws UserNotFoundException if the user is not found or the credentials are incorrect.
    */
-  private User authenticateUser(String email, String password) {
-    Optional<User> userOptional = userService.findUserByEmail(email.toLowerCase());
-    if (userOptional.isPresent()) {
-      User user = userOptional.get();
-      checkUserCredentials(password, user);
-      return user;
+  @Override
+  public User checkUserCredentials(String email, String password) {
+    User user = userRepository.findByUserEmail(email)
+        .orElseThrow(
+            () -> new UserAuthenticationException("user with email %s not found".formatted(email)));
+    checkUserCredentials(password, user);
+    return user;
+  }
+
+  @Override
+  public void validateUserEmailAndPassword(String email, String password) {
+    if (!emailValidator.isValid(email)) {
+      throw new RegistrationException("Email address %s is invalid".formatted(email));
     }
-    throw new UserNotFoundException("User with email - " + email + " not found", "Bad credentials");
+    if (!passwordValidator.isValid(password)) {
+      throw new RegistrationException(
+              "Passwords must be 8 to 16 characters long and contain "
+                      + "at least one letter, one digit, and one special character.");
+    }
   }
 
-  /**
-   * Registers a new user by validating the user's registration data and saving the user entity.
-   *
-   * @param user The {@link User} entity containing registration data.
-   * @return The saved {@link User} entity.
-   */
-  private User registerNewUser(User user) {
-    validateUserRegistrationData(user);
-    return userService.save(createNewUser(user));
-  }
-
-  /**
-   * Saves or updates a JWT token for the specified user. Any existing tokens associated with the user
-   * are deleted, and the new token is saved in the database.
-   *
-   * @param user The {@link User} entity for which the token is being generated.
-   * @return The generated JWT token as a string.
-   */
-  private String saveOrUpdateUserToken(User user) {
-    String jwtToken = tokenService.generateToken(user);
-    var token = createNewToken(jwtToken, user);
-    tokenRepository.deleteAllByUserId(user.getId());
-    tokenService.save(token);
-    return jwtToken;
-  }
-
-  private void validateUserRegistrationData(User user) {
-    String lowercaseEmail = user.getUserEmail().toLowerCase();
-    user.setUserEmail(lowercaseEmail);
-    validateEmailAndPassword(user);
-    Optional<User> userByEmail = userService.findUserByEmail(user.getUserEmail());
-    checkForDuplicateEmail(userByEmail);
+  @Override
+  public void checkForDuplicateEmail(String userEmail) {
+    if (userRepository.existsByUserEmail(userEmail)) {
+      throw new UserAlreadyExistsException(userEmail);
+    }
   }
 
   /**
@@ -234,49 +147,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   private void checkUserCredentials(String password, User user) {
     if (!passwordEncoder.matches(password, user.getPassword())) {
-      throw new UserAuthenticationException("Incorrect username or password!!!");
+      throw new UserAuthenticationException("Provided password and stored password don't match");
     }
-  }
-
-  private void checkForDuplicateEmail(Optional<User> user) {
-    if (user.isPresent()) {
-      throw new RegistrationException("A user with this email already exists");
-    }
-  }
-
-  private void validateEmailAndPassword(User user) {
-    if (!emailValidator.isValid(user.getUserEmail())) {
-      throw new RegistrationException("Invalid email address");
-    }
-    if (!passwordValidator.isValid(user.getPassword())) {
-      throw new RegistrationException(
-          "Passwords must be 8 to 16 characters long and contain "
-              + "at least one letter, one digit, and one special character.");
-    }
-  }
-
-  private AuthResponse createNewAuthResponse(String jwtToken, User user) {
-    var userDto = userMapper.mapToBasicDto(user);
-    return new AuthResponse(jwtToken, userDto);
-  }
-
-  private Token createNewToken(String jwtToken, User savedUser) {
-    return Token.builder()
-        .user(savedUser)
-        .token(jwtToken)
-        .tokenType(TokenType.BEARER)
-        .expired(false)
-        .revoked(false)
-        .build();
-  }
-
-  private User createNewUser(User user) {
-    return User.builder()
-        .userName(user.getUserName())
-        .userEmail(user.getUserEmail().toLowerCase())
-        .password(user.getPassword())
-        .role(Role.USER)
-        .build();
   }
 
   /**

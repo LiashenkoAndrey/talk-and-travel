@@ -1,22 +1,17 @@
 package online.talkandtravel.controller.http;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.model.dto.AuthResponse;
-import online.talkandtravel.model.dto.LoginDto;
-import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
-import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.facade.AuthenticationFacade;
+import online.talkandtravel.model.dto.auth.AuthResponse;
+import online.talkandtravel.model.dto.auth.LoginRequest;
+import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.util.constants.ApiPathConstants;
-import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller class responsible for handling HTTP requests related to user authentication. This
@@ -34,25 +29,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Log4j2
 public class AuthenticationController {
-  private final AuthenticationService authService;
-  private final UserMapper mapper;
 
-    @Operation(
-            description = "Register a user."
-    )
-    @PostMapping("/register")
-    public AuthResponse register(@RequestBody UserDtoWithAvatarAndPassword dto) {
-        log.info("register - {}", dto);
-        var user = mapper.mapToModel(dto);
-        return authService.register(user);
-    }
+  private final AuthenticationFacade authFacade;
 
-    @Operation(
-            description = "Log in a user."
-    )
-    @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginDto loginDto) {
-        log.info("Login - {}", loginDto);
-        return authService.login(loginDto.getUserEmail(), loginDto.getPassword());
-    }
+  @PostMapping("/register")
+  public AuthResponse register(@RequestBody @Valid RegisterRequest dto) {
+    return authFacade.register(dto);
+  }
+
+  @PostMapping("/login")
+  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
+    return authFacade.login(loginRequest);
+  }
 }

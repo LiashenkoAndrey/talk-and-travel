@@ -1,9 +1,9 @@
 package online.talkandtravel.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import online.talkandtravel.model.dto.AuthResponse;
+import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.entity.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Service interface for handling user authentication and registration operations.
@@ -16,23 +16,21 @@ import online.talkandtravel.model.entity.User;
  *
  * <ul>
  *    <li>{@link #getAuthenticatedUser} gets the authenticated user
- *   <li>{@link #register(User)} - Registers a new user with the provided {@link User} details. This
- *       method handles user creation, including password encryption and any necessary setup. It
- *       returns an {@link AuthResponse} containing information about the authentication result.
- *   <li>{@link #login(String, String)} - Authenticates a user using their email and password. If
- *       the credentials are valid, it returns an {@link AuthResponse} containing authentication
  *       details.
  * </ul>
  */
 public interface AuthenticationService {
 
-  AuthResponse register(User user);
+  void validateUserEmailAndPassword(String email, String password);
 
-  AuthResponse login(String email, String password);
+  void checkForDuplicateEmail(String userEmail);
 
   User getAuthenticatedUser();
 
   boolean isUserAuthenticated();
 
-  void authenticateUser(String token, HttpServletRequest request);
+  User checkUserCredentials(String email, String password);
+
+  void authenticateUser(UserDetails userDetails, HttpServletRequest request);
+
 }

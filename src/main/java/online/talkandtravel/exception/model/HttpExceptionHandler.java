@@ -86,20 +86,12 @@ public class HttpExceptionHandler {
 
   //todo: delete or refactor this method
   @ExceptionHandler(value = {ConstraintViolationException.class})
-  public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException e) {
+  public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException e, ServletWebRequest request) {
     Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-    for (ConstraintViolation<?> violation : violations) {
-      if (violation.getPropertyPath().toString().equals("userName")) {
-        ExceptionResponse exceptionResponse =
-            new ExceptionResponse(
-                violation.getMessage(), HttpStatus.BAD_REQUEST, ZonedDateTime.now());
-        return ResponseEntity.badRequest().body(exceptionResponse);
-      }
-    }
-    return ResponseEntity.badRequest()
-        .body(
-            new ExceptionResponse(
-                "Validation failed", HttpStatus.BAD_REQUEST, ZonedDateTime.now()));
+    String validationResults = violations.stream()
+        .map((violation) -> String.format("'%s' - %s", violation.getPropertyPath(), violation.getMessage()))
+        .collect(Collectors.joining(", "));
+    return createBadRequestResponse(VALIDATION_FAILED_MESSAGE + validationResults, request);
   }
 
   private ResponseEntity<ExceptionResponse> createBadRequestResponse(String message, ServletWebRequest request) {

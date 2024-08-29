@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
+import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
-  private final AuthenticationService authenticationService;
+  private final AuthenticationFacade authFacade;
 
   /**
    * Processes each incoming HTTP request and attempts to authenticate it based on the JWT token
@@ -56,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       authenticateRequest(request);
       filterChain.doFilter(request, response);
     } catch (Exception e) {
-      log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage(), e);
+      log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage());
       sendErrorResponse(response);
     }
   }
@@ -74,8 +75,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String token = getTokenFromAuthHeader(authHeader);
     tokenService.validateToken(token);
 
-    if (!authenticationService.isUserAuthenticated()) {
-      authenticationService.authenticateUser(token, request);
+    if (!authFacade.isUserAuthenticated()) {
+      authFacade.authenticateUser(token, request);
     }
   }
 

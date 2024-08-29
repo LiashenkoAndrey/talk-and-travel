@@ -1,0 +1,50 @@
+
+
+###
+GET http://localhost:8080/api/chats/1/read-messages?
+    lastReadMessageId=4&
+    size=10&
+    page=0
+Authorization: Bearer {{token}}
+
+
+###
+GET {{apiUrl}}/api/chats/1/unread-messages?
+    lastReadMessageId=4&
+    size=10&
+    page=0
+Authorization: Bearer {{token}}
+
+
+###
+PUT http://localhost:8080/api/chats/1/messages/last-read
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": 1,
+  "lastReadMessageId": 6
+}
+
+> {% client.test("is 200", () => client.assert(response.status === 200, "status is not 200")) %}
+
+###
+GET {{apiUrl}}/api/chats/Aruba/main
+Authorization: Bearer {{token}}
+
+###
+GET {{apiUrl}}/api/chats/user/1/private
+Authorization: Bearer {{token}}
+
+
+###
+POST {{apiUrl}}/api/chats
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name":"chat name",
+  "description": "chat description",
+  "countryId": "Aruba"
+}
+

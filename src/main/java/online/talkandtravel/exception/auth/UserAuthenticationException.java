@@ -20,9 +20,15 @@ import org.springframework.http.HttpStatus;
  */
 public class UserAuthenticationException extends HttpException {
 
+  private static final String MESSAGE_TO_CLIENT = "Bad credentials";
+
   private static final HttpStatus STATUS = HttpStatus.UNAUTHORIZED;
 
-  public UserAuthenticationException(String message) {
-    super(message, STATUS);
+  public UserAuthenticationException() {
+    super(MESSAGE_TO_CLIENT, STATUS);
+  }
+
+  public UserAuthenticationException(String internalMessage) {
+    super(internalMessage, MESSAGE_TO_CLIENT, STATUS);
   }
 }

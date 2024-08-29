@@ -14,6 +14,7 @@ import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -94,7 +95,7 @@ public class ChatServiceImpl implements ChatService {
   @Transactional
   @Override
   public ChatDto createCountryChat(NewChatDto dto) {
-    User user = getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
     Chat chat = createAndSaveChatWithUser(dto, user);
     return chatMapper.toDto(chat);
   }
@@ -143,8 +144,6 @@ public class ChatServiceImpl implements ChatService {
         .toList();
   }
 
-
-
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
     log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
@@ -158,7 +157,7 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable) {
-    User user = getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
         userChatRepository
@@ -176,7 +175,7 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable) {
-    User user = getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
         userChatRepository
@@ -190,9 +189,6 @@ public class ChatServiceImpl implements ChatService {
     return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable);
   }
 
-  private User getAuthenticatedUser() {
-    return authenticationService.getAuthenticatedUser();
-  }
 
   @Override
   public Page<ChatInfoDto> findAllGroupChats(Pageable pageable) {

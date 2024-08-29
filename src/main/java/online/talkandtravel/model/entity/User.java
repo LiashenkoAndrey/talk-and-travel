@@ -1,25 +1,14 @@
 package online.talkandtravel.model.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity class representing a user in the application.
@@ -77,7 +66,7 @@ public class User {
       fetch = FetchType.LAZY)
   private Avatar avatar;
 
-  @Size(min = 10, max = 500, message = "Maximum number of characters for About 500")
+  @Size(max = 500, message = "Maximum number of characters for About 500")
   private String about;
 
   @Builder.Default
@@ -88,6 +77,11 @@ public class User {
   public String toString() {
     return "User{" +
         "id=" + id +
+        ", userName='" + userName + '\'' +
+        ", userEmail='" + userEmail + '\'' +
+        ", password='" + password + '\'' +
+        ", role=" + role +
+        ", about='" + about + '\'' +
         '}';
   }
 }

@@ -1,4 +1,4 @@
-package online.talkandtravel.controller.http;
+package online.talkandtravel.controller.http.integrationtest;
 
 import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.IntegrationTest;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.entity.User;
@@ -19,6 +20,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 @Sql(USERS_DATA_SQL)
+@Log4j2
 class ChatControllerIntegrationTest extends IntegrationTest {
 
   @Autowired private MockMvc mockMvc;
@@ -37,6 +39,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     String token =
         authenticationService.loginAndGetToken(alice.getUserEmail(), alice.getPassword());
 
+    log.info("token {}", token);
     // Act & Assert
     mockMvc
         .perform(

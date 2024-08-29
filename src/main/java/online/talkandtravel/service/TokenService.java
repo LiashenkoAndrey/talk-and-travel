@@ -26,6 +26,8 @@ import online.talkandtravel.model.entity.User;
  */
 public interface TokenService {
 
+  void deleteUserToken(Long userId);
+
   Token save(Token token);
 
   Optional<Token> findByToken(String token);
@@ -34,10 +36,10 @@ public interface TokenService {
 
   void validateToken(String token);
 
-  String extractUsername(String token);
+  Long extractId(String token);
 
-  String generateToken(User user);
+  String generateToken(Long userId);
 
-  String generateToken(Map<String, Object> extraClaims, User user);
+  String generateToken(Map<String, Object> extraClaims, Long userId);
 
 }

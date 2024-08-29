@@ -53,7 +53,7 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
 
   private UsernamePasswordAuthenticationToken auth(String token) {
     return new UsernamePasswordAuthenticationToken(
-        tokenService.extractUsername(token),
+        tokenService.extractId(token),
         null,
         Collections.singleton((GrantedAuthority) () -> "USER"));
   }
