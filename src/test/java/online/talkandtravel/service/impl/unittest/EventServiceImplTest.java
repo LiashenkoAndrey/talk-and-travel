@@ -1,4 +1,4 @@
-package online.talkandtravel.service.impl;
+package online.talkandtravel.service.impl.unittest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,6 +28,7 @@ import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.service.impl.EventServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -264,11 +265,15 @@ class EventServiceImplTest {
     }
 
     @Test
-    void joinChat_shouldThrowPrivateChatException_whenChatIsPrivate() {
+    void joinChat_shouldThrowPrivateChatException_whenChatIsPrivateAndFull() {
       chat.setChatType(ChatType.PRIVATE);
+      User companion = new User();
+      companion.setId(2L);
+      companion.setUserName("User2");
+      chat.getUsers().add(companion);
+      chat.getUsers().add(user);
       when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
       when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
 
       assertThrows(WebSocketException.class, () -> underTest.joinChat(eventRequest));
       verify(chatRepository, times(1)).findById(1L);
@@ -310,7 +315,7 @@ class EventServiceImplTest {
       assertEqualsExcludingTime(eventDtoBasic, result);
       verify(chatRepository, times(1)).findById(chatId);
       verify(userRepository, times(1)).findById(userId);
-      verify(userChatRepository, times(1)).findByChatIdAndUserId(chatId, userId);
+      verify(userChatRepository, times(2)).findByChatIdAndUserId(chatId, userId);
       verify(userCountryRepository, times(1))
           .findByCountryNameAndUserId(chat.getCountry().getName(), userId);
       verify(userChatRepository, times(1)).delete(any(UserChat.class));

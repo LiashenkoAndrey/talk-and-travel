@@ -74,4 +74,6 @@ public interface ChatService {
   List<UserDtoBasic> findAllUsersByChatId(Long chatId);
 
   Page<MessageDtoBasic> findAllMessagesInChatOrdered(Long chatId, Pageable pageable);
+
+  ChatDto findChatById(Long chatId);
 }

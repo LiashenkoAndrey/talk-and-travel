@@ -133,6 +133,11 @@ public class ChatController {
     return chatService.findAllUsersPrivateChats(userId);
   }
 
+  @GetMapping("/{chatId}")
+  public ChatDto findChatById(@PathVariable Long chatId){
+    return chatService.findChatById(chatId);
+  }
+
   @GetMapping("/{country}/main")
   public ChatDto findMainChat(@PathVariable String country) {
     return chatService.findMainChat(country);

@@ -16,8 +16,8 @@ import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
-import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
@@ -57,10 +57,9 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
- *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already
- *       read
- *   <li>{@link ChatService#findUnreadMessages(Long, Pageable)} - finds messages that the user has not
- *       yet read
+ *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already read
+ *   <li>{@link ChatService#findUnreadMessages(Long, Pageable)} - finds messages that the user has
+ *       not yet read
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves all chats with pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
  *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specified chat.
@@ -120,14 +119,31 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
+  public ChatDto findChatById(Long chatId) {
+    Chat chat = getChat(chatId);
+    return chatMapper.toDto(chat);
+  }
+
+  @Override
   public List<PrivateChatDto> findAllUsersPrivateChats(Long userId) {
     List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
     return userChats.stream()
         .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
+        .map(
+            userChat -> {
+              Chat chat = userChat.getChat();
+              List<UserChat> userChatList = userChatRepository.findAllByChatId(chat.getId());
+              return userChatList.stream()
+                  .filter(userChat1 -> !userChat1.getUser().getId().equals(userId))
+                  .findFirst()
+                  .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
+            })
         .map(userChatMapper::toPrivateChatDto)
         .map(chatNameToCompanionName())
         .toList();
   }
+
+
 
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
@@ -159,8 +175,7 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDtoBasic> findUnreadMessages(
-      Long chatId, Pageable pageable) {
+  public Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable) {
     User user = getAuthenticatedUser();
 
     UserChat userChat =
@@ -313,5 +328,14 @@ public class ChatServiceImpl implements ChatService {
 
     // save connection user with country
     userCountryRepository.save(userCountry);
+  }
+
+  private User getRemovedUser() {
+    return User.builder()
+        .id(null)
+        .userName("user left the chat")
+        .about("user left the chat")
+        .userEmail("undefined")
+        .build();
   }
 }
