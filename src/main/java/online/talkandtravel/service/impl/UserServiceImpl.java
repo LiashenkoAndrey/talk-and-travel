@@ -1,6 +1,5 @@
 package online.talkandtravel.service.impl;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -14,10 +13,11 @@ import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 /**
  * Implementation of the {@link UserService} for managing user-related operations such as saving,
@@ -106,7 +106,6 @@ public class UserServiceImpl implements UserService {
    */
   private void encodePassword(User user) {
     String password = user.getPassword();
-    log.info("pass before encode {}", password);
     String encodePassword = passwordEncoder.encode(password);
     user.setPassword(encodePassword);
   }

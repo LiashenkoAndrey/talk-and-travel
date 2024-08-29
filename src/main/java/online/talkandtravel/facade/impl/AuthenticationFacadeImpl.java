@@ -39,15 +39,15 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
 
   @Override
   public AuthResponse register(RegisterRequest request) {
-    log.info("register user - {}", request);
+    log.info("register user - name: {}, email: {}", request.userName(), request.userEmail());
     UserDtoBasic newUser = createAndSaveNewUser(request);
     String jwtToken = saveOrUpdateUserToken(newUser.id());
     return new AuthResponse(jwtToken, newUser);
   }
 
   @Override
-  public User getAuthenticatedUser() {
-    return authenticationService.getAuthenticatedUser();
+  public boolean isUserAuthenticated() {
+    return authenticationService.isUserAuthenticated();
   }
 
   /**
@@ -73,9 +73,7 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
 
   private UserDtoBasic createAndSaveNewUser(RegisterRequest request) {
     validateUserRegistrationData(request.userEmail(), request.password());
-    log.info("request {}", request);
     User user = userMapper.registerRequestToUser(request);
-    log.info("after registerRequestToUser {}", user);
     user.setRole(Role.USER);
     return userService.save(user);
   }

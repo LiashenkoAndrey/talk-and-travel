@@ -43,11 +43,8 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
+  "name":"chat name",
   "description": "chat description",
   "countryId": "Aruba"
 }
 
-
-###
-GET http://localhost:8080/api/chats
-Authorization: Bearer {{token}}

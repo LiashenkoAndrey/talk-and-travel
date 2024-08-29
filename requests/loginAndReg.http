@@ -18,7 +18,19 @@ Content-Type: application/json
 {
   "userName": "{{username}}",
   "password": "{{userPassword}}",
-  "userEmail": "{{userEmail}}"
+  "userEmail": "{{userEmail}}",
+  "about": "sdf"
+}
+
+###
+POST {{apiUrl}}/api/authentication/register
+Content-Type: application/json
+
+{
+  "userName": "testing",
+  "userPassword": "V66M:c6%wQkK6]u",
+  "userEmail": "testing@i.ua",
+  "about": "sdf"
 }
 
 ###
