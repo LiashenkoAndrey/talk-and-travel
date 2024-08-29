@@ -28,25 +28,25 @@ import org.springframework.web.bind.annotation.*;
  * encapsulated in DTOs to ensure a consistent and structured format for the API clients.
  */
 @RestController
-@RequestMapping(ApiPathConstants.API_BASE_PATH + "/countries")
+@RequestMapping(ApiPathConstants.API_BASE_PATH)
 @RequiredArgsConstructor
 @Log4j2
 public class CountryController {
 
   private final CountryService countryService;
 
-  @GetMapping("/info")
+  @GetMapping("/countries/info")
   public List<CountryInfoDto> getAllCountriesInfo() {
     return countryService.getAllCountriesInfo();
   }
 
-  @GetMapping("/{country}")
+  @GetMapping("/countries/{country}")
   public CountryDto findCountryById(@PathVariable String country) {
     return countryService.findCountryByName(country);
   }
 
-  @GetMapping("/user/{userId}")
-  public List<CountryInfoDto> getAllCountriesByUserId(@PathVariable Long userId) {
-    return countryService.findAllCountriesByUserId(userId);
+  @GetMapping({"/countries/user/{}", "/v2/user/countries"})
+  public List<CountryInfoDto> getAllCountriesByUserId() {
+    return countryService.findAllCountriesByUserId();
   }
 }

@@ -53,14 +53,14 @@ import org.springframework.web.bind.annotation.RestController;
  * </ul>
  */
 @RestController
-@RequestMapping(ApiPathConstants.API_BASE_PATH + "/chats")
+@RequestMapping(ApiPathConstants.API_BASE_PATH )
 @RequiredArgsConstructor
 @Log4j2
 public class ChatController {
 
   private final ChatService chatService;
 
-  @PostMapping
+  @PostMapping("/chats")
   public ChatDto createCountryChat(@RequestBody @Valid NewChatDto dto) {
     return chatService.createCountryChat(dto);
   }
@@ -70,27 +70,27 @@ public class ChatController {
    *
    * @return chat id
    */
-  @PostMapping("/private")
+  @PostMapping("/chats/private")
   public Long createPrivateChat(@Valid @RequestBody NewPrivateChatDto dto) {
     return chatService.createPrivateChat(dto);
   }
 
-  @GetMapping
+  @GetMapping("/chats")
   public Page<ChatInfoDto> findAllChats(@PageableDefault Pageable pageable) {
     return chatService.findAllGroupChats(pageable);
   }
 
-  @GetMapping("/{chatId}/users")
+  @GetMapping("/chats/{chatId}/users")
   public List<UserDtoBasic> findUsersByChatId(@PathVariable Long chatId) {
     return chatService.findAllUsersByChatId(chatId);
   }
 
-  @GetMapping("/{chatId}/user-count")
+  @GetMapping("/chats/{chatId}/user-count")
   public Long findUserCount(@PathVariable Long chatId) {
     return chatService.countUsersInChat(chatId);
   }
 
-  @GetMapping("/{chatId}/messages")
+  @GetMapping("/chats/{chatId}/messages")
   public Page<MessageDtoBasic> getChatMessagesOrderedByDate(
       @PathVariable Long chatId,
       @PageableDefault Pageable pageable) {
@@ -102,7 +102,7 @@ public class ChatController {
    *
    * @param dtoRequest userId and lastReadMessageId
    */
-  @PatchMapping("/{chatId}/messages/last-read")
+  @PatchMapping("/chats/{chatId}/messages/last-read")
   public ResponseEntity<Void> updateLastReadMessage(
       @PathVariable @Positive @NotNull Long chatId,
       @RequestBody @Valid SetLastReadMessageRequest dtoRequest) {
@@ -111,7 +111,7 @@ public class ChatController {
   }
 
   /** finds messages that was before specified last read message (including last read message) */
-  @GetMapping("/{chatId}/messages/read")
+  @GetMapping("/chats/{chatId}/messages/read")
   public Page<MessageDtoBasic> getReadMessages(
       @PathVariable Long chatId,
       @PageableDefault(sort = "creationDate") Pageable pageable) {
@@ -119,30 +119,30 @@ public class ChatController {
   }
 
   /** finds messages that was sent after specified last read message */
-  @GetMapping("/{chatId}/messages/unread")
+  @GetMapping("/chats/{chatId}/messages/unread")
   public Page<MessageDtoBasic> getUnreadMessages(
       @PathVariable Long chatId,
       @PageableDefault(sort = "creationDate") Pageable pageable) {
     return chatService.findUnreadMessages(chatId, pageable);
   }
 
-  @GetMapping("/user/{userId}")
-  public List<PrivateChatInfoDto> findUserChats(@PathVariable Long userId) {
-    return chatService.findUserChats(userId);
+  @GetMapping({"/chats/user/{}", "/v2/user/chats"})
+  public List<PrivateChatInfoDto> findUserChats() {
+    return chatService.findUserChats();
   }
 
-  @GetMapping("/user/{userId}/private")
-  public List<PrivateChatDto> getPrivateChats(@PathVariable Long userId) {
-    return chatService.findAllUsersPrivateChats(userId);
+  @GetMapping({"/chats/user/{}/private", "/v2/user/private-chats"})
+  public List<PrivateChatDto> getUserPrivateChats() {
+    return chatService.findAllUsersPrivateChats();
   }
 
-  @GetMapping("/{chatId}")
+  @GetMapping("/chats/{chatId}")
   public ChatDto findChatById(@PathVariable Long chatId){
     return chatService.findChatById(chatId);
   }
 
-  @GetMapping("/{country}/main")
-  public ChatDto findMainChat(@PathVariable String country) {
-    return chatService.findMainChat(country);
+  @GetMapping({"/chats/{countryName}/main", "/v2/country/{countryName}/main-chat"})
+  public ChatDto findMainChat(@PathVariable String countryName) {
+    return chatService.findMainChat(countryName);
   }
 }

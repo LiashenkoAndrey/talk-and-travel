@@ -55,7 +55,7 @@ public interface ChatService {
 
   Long createPrivateChat(NewPrivateChatDto dto);
 
-  List<PrivateChatDto> findAllUsersPrivateChats(Long userId);
+  List<PrivateChatDto> findAllUsersPrivateChats();
 
   void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
@@ -69,7 +69,7 @@ public interface ChatService {
 
   Long countUsersInChat(Long chatId);
 
-  List<PrivateChatInfoDto> findUserChats(Long userId);
+  List<PrivateChatInfoDto> findUserChats();
 
   List<UserDtoBasic> findAllUsersByChatId(Long chatId);
 

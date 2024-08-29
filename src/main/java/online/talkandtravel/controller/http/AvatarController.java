@@ -6,9 +6,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.model.entity.Avatar;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.util.constants.ApiPathConstants;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,8 +45,9 @@ public class AvatarController {
   }
 
   @Operation(description = "Update avatar.")
-  @PostMapping("/avatars/user/{userID}")
-  public Long uploadImage(@RequestParam("image") MultipartFile image, @PathVariable Long userID) {
-    return avatarService.uploadAvatar(image, userID);
+  @PostMapping("/user/avatar")
+  public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile image) {
+    avatarService.saveOrUpdateUserAvatar(image);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

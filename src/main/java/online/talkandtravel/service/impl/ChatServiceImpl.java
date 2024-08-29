@@ -126,8 +126,9 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<PrivateChatDto> findAllUsersPrivateChats(Long userId) {
-    List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
+  public List<PrivateChatDto> findAllUsersPrivateChats() {
+    User user = authenticationService.getAuthenticatedUser();
+    List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
     return userChats.stream()
         .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
         .map(
@@ -135,7 +136,7 @@ public class ChatServiceImpl implements ChatService {
               Chat chat = userChat.getChat();
               List<UserChat> userChatList = userChatRepository.findAllByChatId(chat.getId());
               return userChatList.stream()
-                  .filter(userChat1 -> !userChat1.getUser().getId().equals(userId))
+                  .filter(userChat1 -> !userChat1.getUser().getId().equals(user.getId()))
                   .findFirst()
                   .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
             })
@@ -215,8 +216,9 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<PrivateChatInfoDto> findUserChats(Long userId) {
-    List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
+  public List<PrivateChatInfoDto> findUserChats() {
+    User user = authenticationService.getAuthenticatedUser();
+    List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
     return userChats.stream().map(chatMapper::userChatToPrivateChatInfoDto).toList();
   }
 

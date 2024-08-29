@@ -18,7 +18,7 @@ import online.talkandtravel.model.dto.country.CountryInfoDto;
  *       information about a country.
  *   <li>{@link #findCountryByName(String)} - Finds a country based on its name. The method returns
  *       a {@link CountryDto} representing the country associated with the specified name.
- *   <li>{@link #findAllCountriesByUserId(Long)} - Retrieves a list of country information
+ *   <li>{@link #findAllCountriesByUserId()} - Retrieves a list of country information
  *       associated with a specific user. The method returns a {@link List} of {@link
  *       CountryInfoDto} objects representing countries that are related to the user identified by
  *       the provided user ID.
@@ -30,5 +30,5 @@ public interface CountryService {
 
   CountryDto findCountryByName(String countryName);
 
-  List<CountryInfoDto> findAllCountriesByUserId(Long userId);
+  List<CountryInfoDto> findAllCountriesByUserId();
 }

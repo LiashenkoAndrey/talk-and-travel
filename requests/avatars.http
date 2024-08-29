@@ -2,10 +2,10 @@
 GET http://localhost:8080/api/avatars/user/1
 
 ###
-GET http://localhost:8080/api/v2/user/1/avatar
+GET http://localhost:8080/api/v2/user/8/avatar
 
 ###
-POST http://localhost:8080/api/user/{{userID}}
+POST http://localhost:8080/api/user/avatar
 Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=boundary
 
@@ -13,4 +13,4 @@ Content-Type: multipart/form-data; boundary=boundary
 Content-Disposition: form-data; name="image"; filename="input.jpg"
 
 // The 'input.txt' file will be uploaded
-< ./../images/T&T.jpg
+< ./../docs/architecture/class-diagram/core-class-diagram_v3.png
