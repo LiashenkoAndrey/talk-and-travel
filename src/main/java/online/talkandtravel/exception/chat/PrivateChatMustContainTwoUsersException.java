@@ -16,7 +16,7 @@ public class PrivateChatMustContainTwoUsersException extends WebSocketException 
   private static final String MESSAGE = "Chat with id %s is PRIVATE. It must contain two users.";
   private static final HttpStatus STATUS = HttpStatus.BAD_REQUEST;
 
-  public PrivateChatMustContainTwoUsersException(EventRequest request) {
-    super(MESSAGE.formatted(request.chatId()), STATUS, request.authorId());
+  public PrivateChatMustContainTwoUsersException(EventRequest request, Long authorId) {
+    super(MESSAGE.formatted(request.chatId()), STATUS, authorId);
   }
 }

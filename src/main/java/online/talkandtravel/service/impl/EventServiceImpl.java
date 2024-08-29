@@ -117,7 +117,7 @@ public class EventServiceImpl implements EventService {
   public MessageDto joinChat(EventRequest request) {
     User author = authenticationService.getAuthenticatedUser();
     Chat chat = getChat(request, author.getId());
-    checkChatIsNotPrivate(request, chat);
+    checkChatIsNotPrivate(request, chat, author.getId());
     checkUserAlreadyJoinedChat(request, author.getId());
 
     saveConnections(chat, author);
@@ -179,10 +179,10 @@ public class EventServiceImpl implements EventService {
     userCountryRepository.delete(userCountry);
   }
 
-  private void checkChatIsNotPrivate(EventRequest request, Chat chat) {
+  private void checkChatIsNotPrivate(EventRequest request, Chat chat, Long authorId) {
     if (chat.getChatType().equals(ChatType.PRIVATE)
         && chat.getUsers().size() >= MAX_USERS_IN_PRIVATE_CHAT) {
-      throw new PrivateChatMustContainTwoUsersException(request);
+      throw new PrivateChatMustContainTwoUsersException(request, authorId);
     }
   }
 
