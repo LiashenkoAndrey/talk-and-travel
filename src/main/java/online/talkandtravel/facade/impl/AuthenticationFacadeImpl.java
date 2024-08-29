@@ -72,8 +72,10 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   }
 
   private UserDtoBasic createAndSaveNewUser(RegisterRequest request) {
-    validateUserRegistrationData(request.userEmail(), request.userPassword());
+    validateUserRegistrationData(request.userEmail(), request.password());
+    log.info("request {}", request);
     User user = userMapper.registerRequestToUser(request);
+    log.info("after registerRequestToUser {}", user);
     user.setRole(Role.USER);
     return userService.save(user);
   }

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 @Sql(scripts = {USER_COUNTRIES_DATA_SQL})
-public class CountryServiceImplIt extends IntegrationTest {
+public class CountryServiceIntegrationTest extends IntegrationTest {
 
   @Autowired
   private CountryService underTest;

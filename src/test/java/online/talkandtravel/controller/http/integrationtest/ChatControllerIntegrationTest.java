@@ -1,4 +1,4 @@
-package online.talkandtravel.controller.http;
+package online.talkandtravel.controller.http.integrationtest;
 
 import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
