@@ -67,6 +67,7 @@ public class EventServiceImpl implements EventService {
 
   public static final String JOINED_THE_CHAT = "%s joined the chat";
   public static final String LEFT_THE_CHAT = "%s left the chat";
+  public static final int MAX_USERS_IN_PRIVATE_CHAT = 2;
   private final ChatRepository chatRepository;
   private final UserRepository userRepository;
   private final UserChatRepository userChatRepository;
@@ -113,10 +114,8 @@ public class EventServiceImpl implements EventService {
   @Transactional
   public void deleteChatIfEmpty(EventRequest request) {
     Chat chat = getChat(request);
-    if (chat.getChatType().equals(ChatType.PRIVATE)) {
-      if (chat.getUsers().isEmpty()) {
-        chatRepository.delete(chat);
-      }
+    if (chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty()) {
+      chatRepository.delete(chat);
     }
   }
 
@@ -142,57 +141,94 @@ public class EventServiceImpl implements EventService {
   }
 
   private void removeConnections(EventRequest request, Chat chat, User author) {
+    validateUserChatMembership(request);
+    removeUserFromChat(request);
+    handleUserCountryAssociation(request, chat, author);
+  }
+
+  private void validateUserChatMembership(EventRequest request) {
     Optional<UserChat> optionalUserChat =
         userChatRepository.findByChatIdAndUserId(request.chatId(), request.authorId());
     if (optionalUserChat.isEmpty()) {
       throw new UserNotJoinedTheChatException(request.authorId(), request.chatId());
     }
+  }
 
-    // remove record from userChats
-    userChatRepository.delete(optionalUserChat.get());
+  private void removeUserFromChat(EventRequest request) {
+    userChatRepository
+        .findByChatIdAndUserId(request.chatId(), request.authorId())
+        .ifPresent(userChatRepository::delete);
+  }
 
+  private void handleUserCountryAssociation(EventRequest request, Chat chat, User author) {
     if (chat.getCountry() != null) {
-      UserCountry userCountry =
-          userCountryRepository
-              .findByCountryNameAndUserId(chat.getCountry().getName(), author.getId())
-              .orElseThrow(
-                  () ->
-                      new UserCountryNotFoundException(
-                          chat.getCountry().getName(), author.getId()));
-
-      // check if there is no records in UserChats with userId and CountryName,
-      // if true, remove record from userCountries
-      List<UserChat> userChats =
-          userChatRepository.findAllByUserIdAndUserCountryId(
-              request.authorId(), userCountry.getId());
-      if (userChats.isEmpty()) {
-        // if this was the last chat in country for user, we remove connection with Country
-        userCountryRepository.delete(userCountry);
+      UserCountry userCountry = findUserCountry(chat, author);
+      if (isLastChatInCountry(request, userCountry)) {
+        removeUserCountryAssociation(userCountry);
       }
     }
   }
 
+  private UserCountry findUserCountry(Chat chat, User author) {
+    return userCountryRepository
+        .findByCountryNameAndUserId(chat.getCountry().getName(), author.getId())
+        .orElseThrow(
+            () -> new UserCountryNotFoundException(chat.getCountry().getName(), author.getId()));
+  }
+
+  private boolean isLastChatInCountry(EventRequest request, UserCountry userCountry) {
+    List<UserChat> userChats =
+        userChatRepository.findAllByUserIdAndUserCountryId(request.authorId(), userCountry.getId());
+    return userChats.isEmpty();
+  }
+
+  private void removeUserCountryAssociation(UserCountry userCountry) {
+    userCountryRepository.delete(userCountry);
+  }
+
   private void checkChatIsNotPrivate(EventRequest request, Chat chat) {
-    if (chat.getChatType().equals(ChatType.PRIVATE)) {
+    if (chat.getChatType().equals(ChatType.PRIVATE)
+        && chat.getUsers().size() >= MAX_USERS_IN_PRIVATE_CHAT) {
       throw new PrivateChatMustContainTwoUsersException(request);
     }
   }
 
   private void saveConnections(Chat chat, User author) {
-    Optional<UserCountry> userCountryOptional =
-        userCountryRepository.findByCountryNameAndUserId(
-            chat.getCountry().getName(), author.getId());
+    UserCountry userCountry = null;
+    if (chat.getCountry() != null) {
+      userCountry = findOrCreateUserCountry(chat, author);
+    }
+    saveUserChat(chat, author, userCountry);
+  }
 
-    UserCountry userCountry =
-        userCountryOptional.orElseGet(
-            () -> UserCountry.builder().country(chat.getCountry()).user(author).build());
+  /**
+   * Finds the UserCountry associated with the chat's country and user. If it doesn't exist, creates
+   * a new one.
+   */
+  private UserCountry findOrCreateUserCountry(Chat chat, User author) {
+    return userCountryRepository
+        .findByCountryNameAndUserId(chat.getCountry().getName(), author.getId())
+        .orElseGet(() -> createUserCountry(chat, author));
+  }
 
+  /** Creates a new UserCountry entity and associates it with the given user and chat's country. */
+  private UserCountry createUserCountry(Chat chat, User author) {
+    UserCountry userCountry = UserCountry.builder().country(chat.getCountry()).user(author).build();
+    return userCountryRepository.save(userCountry);
+  }
+
+  /** Creates and saves a UserChat entity that associates the user with the chat and userCountry. */
+  private void saveUserChat(Chat chat, User author, UserCountry userCountry) {
     UserChat userChat = UserChat.builder().chat(chat).user(author).userCountry(userCountry).build();
+    if (userCountry != null) {
+      // Add the chat to the UserCountry's list of chats
+      userCountry.getChats().add(userChat);
 
-    userCountry.getChats().add(userChat);
-
-    // save connection user with chat
-    userCountryRepository.save(userCountry);
+      // Save the updated UserCountry
+      userCountryRepository.save(userCountry);
+    } else {
+      userChatRepository.save(userChat);
+    }
   }
 
   private void checkUserAlreadyJoinedChat(EventRequest request) {
