@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl;
 
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatMustContainTwoUsersException;
@@ -15,10 +16,12 @@ import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.EventService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,26 +69,25 @@ public class EventServiceImpl implements EventService {
   private final MessageRepository messageRepository;
   private final MessageMapper messageMapper;
   private final UserMapper userMapper;
-  private final AuthenticationService authenticationService;
 
   @Override
-  public EventResponse startTyping(EventRequest request) {
-    User user = authenticationService.getAuthenticatedUser();
+  public EventResponse startTyping(EventRequest request, Principal principal) {
+    User user = getUser(principal);
     throwIfChatNotExists(request, user.getId());
     return createChatTransientEvent(user, MessageType.START_TYPING);
   }
 
   @Override
-  public EventResponse stopTyping(EventRequest request) {
-    User user = authenticationService.getAuthenticatedUser();
+  public EventResponse stopTyping(EventRequest request, Principal principal) {
+    User user = getUser(principal);
     throwIfChatNotExists(request, user.getId());
     return createChatTransientEvent(user, MessageType.STOP_TYPING);
   }
 
   @Transactional
   @Override
-  public MessageDto leaveChat(EventRequest request) {
-    User author = authenticationService.getAuthenticatedUser();
+  public MessageDto leaveChat(EventRequest request, Principal principal) {
+    User author = getUser(principal);
     Chat chat = getChat(request, author.getId());
 
     removeConnections(request, chat, author);
@@ -104,8 +106,8 @@ public class EventServiceImpl implements EventService {
 
   @Override
   @Transactional
-  public void deleteChatIfEmpty(EventRequest request) {
-    User user = authenticationService.getAuthenticatedUser();
+  public void deleteChatIfEmpty(EventRequest request, Principal principal) {
+    User user = getUser(principal);
     Chat chat = getChat(request, user.getId());
     if (chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty()) {
       chatRepository.delete(chat);
@@ -114,8 +116,8 @@ public class EventServiceImpl implements EventService {
 
   @Transactional
   @Override
-  public MessageDto joinChat(EventRequest request) {
-    User author = authenticationService.getAuthenticatedUser();
+  public MessageDto joinChat(EventRequest request, Principal principal) {
+    User author = getUser(principal);
     Chat chat = getChat(request, author.getId());
     checkChatIsNotPrivate(request, chat, author.getId());
     checkUserAlreadyJoinedChat(request, author.getId());
@@ -131,6 +133,11 @@ public class EventServiceImpl implements EventService {
             .build();
     message = messageRepository.save(message);
     return messageMapper.toMessageDto(message);
+  }
+
+  private User getUser(Principal principal) {
+    CustomUserDetails customUserDetails = (CustomUserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+    return customUserDetails.getUser();
   }
 
   private void removeConnections(EventRequest request, Chat chat, User author) {

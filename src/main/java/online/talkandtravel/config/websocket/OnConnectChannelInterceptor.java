@@ -4,6 +4,7 @@ import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
+import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.service.TokenService;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
@@ -15,6 +16,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /** class that handles a connection of websocket */
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class OnConnectChannelInterceptor implements ChannelInterceptor {
 
   private final TokenService tokenService;
+  private final AuthenticationFacade authenticationFacade;
 
   @Override
   public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
@@ -46,17 +49,14 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
     String authHeader = accessor.getFirstNativeHeader("Authorization");
     String token = getTokenFromAuthHeader(authHeader);
     tokenService.validateToken(token);
-    UsernamePasswordAuthenticationToken authenticationToken = auth(token);
+
+    UsernamePasswordAuthenticationToken authenticationToken =
+        authenticationFacade.createUsernamePasswordAuthenticationToken(token);
+
     accessor.setUser(authenticationToken);
-    log.info("Authentication is successful for {}", authenticationToken.getPrincipal());
+    log.info("Authentication is successful");
   }
 
-  private UsernamePasswordAuthenticationToken auth(String token) {
-    return new UsernamePasswordAuthenticationToken(
-        tokenService.extractId(token),
-        null,
-        Collections.singleton((GrantedAuthority) () -> "USER"));
-  }
 
   private String getTokenFromAuthHeader(String authHeader) {
     throwIfNotValidAuthenticationHeader(authHeader);
