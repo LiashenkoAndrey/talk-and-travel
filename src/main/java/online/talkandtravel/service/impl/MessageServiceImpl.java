@@ -1,24 +1,21 @@
 package online.talkandtravel.service.impl;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.model.WebSocketException;
-import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
-import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.MessageService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import org.springframework.stereotype.Service;
@@ -46,19 +43,16 @@ public class MessageServiceImpl implements MessageService {
 
   private final MessageRepository messageRepository;
   private final ChatRepository chatRepository;
-  private final UserRepository userRepository;
   private final UserChatRepository userChatRepository;
   private final MessageMapper messageMapper;
+  private final AuthenticationService authenticationService;
 
   @Override
   public MessageDto saveMessage(SendMessageRequest request) {
-    checkUserJoinedTheChat(request);
-
-    Chat chat = getChat(request);
-
-    Message repliedMessage = getMessage(request);
-
-    User sender = getUser(request);
+    User sender = authenticationService.getAuthenticatedUser();
+    checkUserJoinedTheChat(request, sender.getId());
+    Chat chat = getChat(request, sender.getId());
+    Message repliedMessage = getMessage(request, sender.getId());
 
     Message message =
         Message.builder()
@@ -75,36 +69,23 @@ public class MessageServiceImpl implements MessageService {
     return messageMapper.toMessageDto(message);
   }
 
-  private void checkUserJoinedTheChat(SendMessageRequest request) {
-    Optional<UserChat> optionalUserChat = userChatRepository.findByChatIdAndUserId(request.chatId(),
-        request.senderId());
-    if(optionalUserChat.isEmpty()){
-      throw new UserNotJoinedTheChatException(request.senderId(), request.chatId());
-    }
+  private void checkUserJoinedTheChat(SendMessageRequest request, Long senderId) {
+    userChatRepository.findByChatIdAndUserId(request.chatId(), senderId)
+            .orElseThrow(() -> new UserNotJoinedTheChatException(senderId, request.chatId()));
   }
 
-  private Chat getChat(SendMessageRequest request) {
+  private Chat getChat(SendMessageRequest request,  Long senderId) {
     try {
       return chatRepository
           .findById(request.chatId())
           .orElseThrow(() -> new ChatNotFoundException(request.chatId()));
     } catch (ChatNotFoundException e) {
       log.error("chat not found caught");
-      throw new WebSocketException(e, request.senderId());
+      throw new WebSocketException(e, senderId);
     }
   }
 
-  private User getUser(SendMessageRequest request) {
-    try {
-      return userRepository
-          .findById(request.senderId())
-          .orElseThrow(() -> new UserNotFoundException(request.senderId()));
-    } catch (UserNotFoundException e) {
-      throw new WebSocketException(e, request.senderId());
-    }
-  }
-
-  private Message getMessage(SendMessageRequest request) {
+  private Message getMessage(SendMessageRequest request,  Long senderId) {
     Long messageId = request.repliedMessageId();
     if (messageId == null) {
       return null;
@@ -114,7 +95,7 @@ public class MessageServiceImpl implements MessageService {
           .findById(messageId)
           .orElseThrow(() -> new MessageNotFoundException(messageId));
     } catch (MessageNotFoundException e) {
-      throw new WebSocketException(e, request.senderId());
+      throw new WebSocketException(e, senderId);
     }
   }
 }

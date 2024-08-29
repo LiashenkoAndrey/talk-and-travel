@@ -1,5 +1,7 @@
 package online.talkandtravel.model.dto.event;
 
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Data Transfer Object (DTO) for representing a request for an event.
  *
@@ -9,4 +11,5 @@ package online.talkandtravel.model.dto.event;
  * </ul>
  */
 
-public record EventRequest(Long authorId, Long chatId) {}
+public record EventRequest(
+        @NotNull Long chatId) {}

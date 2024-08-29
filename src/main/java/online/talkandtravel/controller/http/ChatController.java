@@ -92,7 +92,8 @@ public class ChatController {
 
   @GetMapping("/{chatId}/messages")
   public Page<MessageDtoBasic> getChatMessagesOrderedByDate(
-      @PathVariable Long chatId, @PageableDefault Pageable pageable) {
+      @PathVariable Long chatId,
+      @PageableDefault Pageable pageable) {
     return chatService.findAllMessagesInChatOrdered(chatId, pageable);
   }
 
@@ -112,14 +113,16 @@ public class ChatController {
   /** finds messages that was before specified last read message (including last read message) */
   @GetMapping("/{chatId}/messages/read")
   public Page<MessageDtoBasic> getReadMessages(
-      @PathVariable Long chatId, @PageableDefault(sort = "creationDate") Pageable pageable) {
+      @PathVariable Long chatId,
+      @PageableDefault(sort = "creationDate") Pageable pageable) {
     return chatService.findReadMessages(chatId, pageable);
   }
 
   /** finds messages that was sent after specified last read message */
   @GetMapping("/{chatId}/messages/unread")
   public Page<MessageDtoBasic> getUnreadMessages(
-      @PathVariable Long chatId, @PageableDefault(sort = "creationDate") Pageable pageable) {
+      @PathVariable Long chatId,
+      @PageableDefault(sort = "creationDate") Pageable pageable) {
     return chatService.findUnreadMessages(chatId, pageable);
   }
 

@@ -109,7 +109,7 @@ public class ChatServiceImpl implements ChatService {
   @Override
   @Transactional
   public Long createPrivateChat(NewPrivateChatDto dto) {
-    User user = getUser(dto.userId());
+    User user = authenticationService.getAuthenticatedUser();
     User companion = getUser(dto.companionId());
 
     checkIfChatExists(user, companion);
@@ -147,10 +147,11 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
     log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
+    User user = authenticationService.getAuthenticatedUser();
     UserChat userChat =
         userChatRepository
-            .findByChatIdAndUserId(chatId, dtoRequest.userId())
-            .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
+            .findByChatIdAndUserId(chatId, user.getId())
+            .orElseThrow(() -> new UserChatNotFoundException(chatId, user.getId()));
     userChat.setLastReadMessageId(dtoRequest.lastReadMessageId());
     userChatRepository.save(userChat);
   }
