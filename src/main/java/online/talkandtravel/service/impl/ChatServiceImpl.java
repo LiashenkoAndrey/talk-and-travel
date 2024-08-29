@@ -175,7 +175,7 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable) {
-    User user = getAuthenticatedUser();
+    User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
         userChatRepository
