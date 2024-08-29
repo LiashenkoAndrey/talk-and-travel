@@ -36,7 +36,7 @@ public class AvatarController {
   private final AvatarService avatarService;
 
   @Operation(description = "Get Avatar by User ID.")
-  @GetMapping("/avatars/user/{userID}")
+  @GetMapping({"/avatars/user/{userID}", "/v2/user/{userID}/avatar"})
   private ResponseEntity<byte[]> getByUserId(@PathVariable @Positive Long userID) {
     Avatar avatar = avatarService.findByUserId(userID);
     return ResponseEntity.ok()
