@@ -3,7 +3,10 @@ package online.talkandtravel.controller.http;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import online.talkandtravel.model.entity.Avatar;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.http.MediaType;
@@ -27,15 +30,15 @@ import org.springframework.web.multipart.MultipartFile;
  * </ul>
  */
 @RestController
-@RequestMapping(ApiPathConstants.API_BASE_PATH + "/avatars")
+@RequestMapping(ApiPathConstants.API_BASE_PATH)
 @RequiredArgsConstructor
 public class AvatarController {
   private final AvatarService avatarService;
 
   @Operation(description = "Get Avatar by User ID.")
-  @GetMapping("/user/{userID}")
-  private ResponseEntity<byte[]> getByUserId(@PathVariable Long userID) {
-    var avatar = avatarService.findByUserId(userID);
+  @GetMapping("/avatars/user/{userID}")
+  private ResponseEntity<byte[]> getByUserId(@PathVariable @Positive Long userID) {
+    Avatar avatar = avatarService.findByUserId(userID);
     return ResponseEntity.ok()
         .contentType(MediaType.valueOf(IMAGE_PNG_VALUE))
         .body(avatar.getContent());

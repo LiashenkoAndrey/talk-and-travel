@@ -10,6 +10,7 @@ import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.UnsupportedFormatException;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.repository.AvatarRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.ImageService;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,7 @@ public class AvatarServiceImpl implements AvatarService {
   private static final int MAX_SIZE_AVATAR = 4 * 1024 * 1024; // Size in bytes (4MB)
   private final AvatarRepository avatarRepository;
   private final ImageService imageService;
+  private final UserRepository userRepository;
 
   @Override
   public Avatar save(Avatar avatar) {
@@ -64,22 +66,17 @@ public class AvatarServiceImpl implements AvatarService {
   }
 
   @Override
-  public Avatar createDefaultAvatar(String username) {
-    log.info("createDefaultAvatar: username - {}", username);
-    byte[] defaultAvatar = imageService.generateImage(username);
-    return createNewAvatar(defaultAvatar);
-  }
-
-  @Override
   @Transactional
   public Long uploadAvatar(MultipartFile file, Long userId) {
-    log.info("uploadAvatar: username - {}", userId);
     String filename = file.getOriginalFilename();
     validateImage(file, filename);
     byte[] image = extractImageData(file);
-    var existingAvatar = getAvatar(userId);
-    existingAvatar.setContent(image);
-    return avatarRepository.save(existingAvatar).getId();
+    avatarRepository
+        .findByUserId(userId)
+        .ifPresentOrElse(
+            (avatar) -> avatar.setContent(image),
+            () -> avatarRepository.save(createNewAvatar(image, userId)));
+    return userId;
   }
 
   private void validateImage(MultipartFile imageFile, String originalFilename) {
@@ -109,12 +106,14 @@ public class AvatarServiceImpl implements AvatarService {
   }
 
   private boolean isSupportedFormat(String fileName) {
-    var fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+    String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
     return Arrays.asList(SUPPORTED_FORMAT_AVATAR).contains(fileExtension);
   }
 
-  private Avatar createNewAvatar(byte[] standardAvatar) {
-    return Avatar.builder().content(standardAvatar).build();
+  private Avatar createNewAvatar(byte[] standardAvatar, Long userId) {
+    return Avatar.builder().content(standardAvatar)
+        .user(userRepository.getReferenceById(userId))
+        .build();
   }
 
 
