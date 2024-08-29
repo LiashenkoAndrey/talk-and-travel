@@ -1,5 +1,6 @@
 package online.talkandtravel.controller.websocket;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.event.EventRequest;
@@ -34,7 +35,7 @@ public class EventController {
   private final SimpMessagingTemplate messagingTemplate;
 
   @MessageMapping("/events.joinChat")
-  public void joinChat(@Payload EventRequest request) {
+  public void joinChat(@Payload @Valid EventRequest request) {
     log.info("create a new JOIN CHAT event {}", request);
     MessageDto message = eventService.joinChat(request);
 

@@ -45,7 +45,7 @@ public class AvatarController {
   }
 
   @Operation(description = "Update avatar.")
-  @PostMapping("/user/{userID}")
+  @PostMapping("/avatars/user/{userID}")
   public Long uploadImage(@RequestParam("image") MultipartFile image, @PathVariable Long userID) {
     return avatarService.uploadAvatar(image, userID);
   }
