@@ -122,7 +122,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public void validateUserEmailAndPassword(String email, String password) {
-    log.info("validateUserEmailAndPassword {} {}", email, password);
     if (!emailValidator.isValid(email)) {
       throw new RegistrationException("Email address %s is invalid".formatted(email));
     }

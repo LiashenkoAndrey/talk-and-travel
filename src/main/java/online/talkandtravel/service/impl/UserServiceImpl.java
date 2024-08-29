@@ -106,7 +106,6 @@ public class UserServiceImpl implements UserService {
    */
   private void encodePassword(User user) {
     String password = user.getPassword();
-    log.info("pass before encode {}", password);
     String encodePassword = passwordEncoder.encode(password);
     user.setPassword(encodePassword);
   }

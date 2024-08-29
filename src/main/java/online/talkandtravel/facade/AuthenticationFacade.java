@@ -14,11 +14,11 @@ public interface AuthenticationFacade {
 
   AuthResponse login(LoginRequest request);
 
-  User getAuthenticatedUser();
-
   String saveOrUpdateUserToken(Long userId);
 
   AuthResponse register(RegisterRequest request);
+
+  boolean isUserAuthenticated();
 
   void authenticateUser(String token, HttpServletRequest request);
 
