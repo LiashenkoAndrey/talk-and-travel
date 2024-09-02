@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import online.talkandtravel.model.enums.MessageType;
 import org.hibernate.annotations.CreationTimestamp;
 
 /**

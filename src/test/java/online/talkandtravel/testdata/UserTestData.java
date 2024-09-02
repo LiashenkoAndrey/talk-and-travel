@@ -1,6 +1,6 @@
 package online.talkandtravel.testdata;
 
-import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.model.enums.Role;
 import online.talkandtravel.model.entity.User;
 
 public final class UserTestData {

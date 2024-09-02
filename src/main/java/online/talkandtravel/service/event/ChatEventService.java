@@ -1,4 +1,4 @@
-package online.talkandtravel.service;
+package online.talkandtravel.service.event;
 
 import java.security.Principal;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
@@ -29,15 +29,15 @@ import online.talkandtravel.model.dto.message.MessageDto;
  *       occurred, including details about the chat and user.
  * </ul>
  */
-public interface EventService {
+public interface ChatEventService extends EventService {
 
   void deleteChatIfEmpty(EventRequest request, Principal principal);
 
-  MessageDto joinChat(EventRequest request, Principal principal);
+  void joinChat(EventRequest request, Principal principal);
 
-  MessageDto leaveChat(EventRequest request, Principal principal);
+  void leaveChat(EventRequest request, Principal principal);
 
-  EventResponse startTyping(EventRequest request, Principal principal);
+  void startTyping(EventRequest request, Principal principal);
 
-  EventResponse stopTyping(EventRequest request, Principal principal);
+  void stopTyping(EventRequest request, Principal principal);
 }

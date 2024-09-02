@@ -14,7 +14,6 @@ import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -25,7 +24,7 @@ import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.entity.ChatType;
+import online.talkandtravel.model.enums.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
@@ -55,7 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <ul>
  *   <li>{@link #createPrivateChat(NewPrivateChatDto)} - creates private chat between two users
- *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
+ *   <li>{@link #findAllUsersPrivateChats()} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
  *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already read
@@ -64,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves all chats with pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
  *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specified chat.
- *   <li>{@link #findUserChats(Long)} - Retrieves a list of chats associated with a specific user.
+ *   <li>{@link #findUserChats()} - Retrieves a list of chats associated with a specific user.
  *   <li>{@link #findAllUsersByChatId(Long)} - Retrieves a list of basic user details for all users
  *       in a specified chat.
  *   <li>{@link #findAllMessagesInChatOrdered(Long, Pageable)} - Retrieves all messages in a

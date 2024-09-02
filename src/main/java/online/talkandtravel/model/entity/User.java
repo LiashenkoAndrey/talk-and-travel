@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import online.talkandtravel.model.enums.Role;
 
 /**
  * Entity class representing a user in the application.

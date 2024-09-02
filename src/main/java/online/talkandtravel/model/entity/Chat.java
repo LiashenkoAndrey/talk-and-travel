@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import online.talkandtravel.model.enums.ChatType;
 import org.hibernate.annotations.CreationTimestamp;
 
 /**

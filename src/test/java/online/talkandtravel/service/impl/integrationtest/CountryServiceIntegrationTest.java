@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import online.talkandtravel.config.IntegrationTest;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.model.enums.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;

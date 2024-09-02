@@ -7,7 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
-import online.talkandtravel.service.EventService;
+import online.talkandtravel.service.event.ChatEventService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -30,48 +30,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-public class EventController {
+public class ChatEventController {
 
-  private final EventService eventService;
-  private final SimpMessagingTemplate messagingTemplate;
+  private final ChatEventService chatEventService;
 
   @MessageMapping("/events.joinChat")
   public void joinChat(@Payload @Valid EventRequest request, Principal principal) {
-    log.info("create a new JOIN CHAT event {}, {}", request, principal);
-    MessageDto message = eventService.joinChat(request, principal);
-
-    sendResponse(request, message);
+    chatEventService.joinChat(request, principal);
   }
 
   @MessageMapping("/events.leaveChat")
   public void leaveChat(@Payload EventRequest request, Principal principal) {
-    log.info("create a new LEAVE CHAT event {}", request);
-    MessageDto message = eventService.leaveChat(request, principal);
-    eventService.deleteChatIfEmpty(request, principal);
-    sendResponse(request, message);
+    chatEventService.leaveChat(request, principal);
   }
 
   @MessageMapping("/events.startTyping")
   public void startTyping(@Payload EventRequest request, Principal principal) {
-    log.info("create a new START TYPING event {}", request);
-    EventResponse message = eventService.startTyping(request, principal);
-
-    sendResponse(request, message);
+    chatEventService.startTyping(request, principal);
   }
 
   @MessageMapping("/events.stopTyping")
   public void stopTyping(@Payload EventRequest request, Principal principal) {
-    log.info("create a new STOP TYPING event {}", request);
-    EventResponse message = eventService.stopTyping(request, principal);
-
-    sendResponse(request, message);
-  }
-
-  private void sendResponse(EventRequest request, MessageDto message) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
-  }
-
-  private void sendResponse(EventRequest request, EventResponse message) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
+    chatEventService.stopTyping(request, principal);
   }
 }

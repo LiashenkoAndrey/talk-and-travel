@@ -17,11 +17,11 @@ import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.entity.ChatType;
+import online.talkandtravel.model.enums.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
-import online.talkandtravel.model.entity.MessageType;
-import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.model.enums.MessageType;
+import online.talkandtravel.model.enums.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
@@ -32,7 +32,7 @@ import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
-import online.talkandtravel.service.impl.EventServiceImpl;
+import online.talkandtravel.service.impl.ChatEventServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 
 @ExtendWith(MockitoExtension.class)
-class EventServiceImplTest {
+class ChatEventServiceImplTest {
 
   @Mock private ChatRepository chatRepository;
   @Mock private MessageRepository messageRepository;
@@ -57,7 +57,7 @@ class EventServiceImplTest {
   @Mock private UserCountryRepository userCountryRepository;
   @Mock private AuthenticationService authenticationService;
 
-  @InjectMocks private EventServiceImpl underTest;
+  @InjectMocks private ChatEventServiceImpl underTest;
 
   private Chat chat;
   private User user;
