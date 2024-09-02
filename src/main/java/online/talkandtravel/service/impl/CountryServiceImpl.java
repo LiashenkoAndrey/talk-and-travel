@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
  *   <li>{@link #getAllCountriesInfo()} - Retrieves information about all countries.
  *   <li>{@link #findCountryByName(String)} - Finds a country by its name and returns its detailed
  *       information.
- *   <li>{@link #findAllCountriesByUserId()} - Retrieves a list of country information for a
+ *   <li>{@link #findAllUserCountries()} - Retrieves a list of country information for a
  *       specific user based on their associated countries.
  *   <li>{@link #getCountry(String)} - Retrieves a country entity by its name, or throws a {@link
  *       CountryNotFoundException} if not found.
@@ -53,7 +53,7 @@ public class CountryServiceImpl implements CountryService {
   }
 
   @Override
-  public List<CountryInfoDto> findAllCountriesByUserId() {
+  public List<CountryInfoDto> findAllUserCountries() {
     User user = authenticationService.getAuthenticatedUser();
     List<UserCountry> userCountries = userCountryRepository.findByUserId(user.getId());
     return userCountries.stream()

@@ -46,7 +46,7 @@ public class CountryController {
   }
 
   @GetMapping({"/countries/user/{}", "/v2/user/countries"})
-  public List<CountryInfoDto> getAllCountriesByUserId() {
-    return countryService.findAllCountriesByUserId();
+  public List<CountryInfoDto> getAllUserCountries() {
+    return countryService.findAllUserCountries();
   }
 }

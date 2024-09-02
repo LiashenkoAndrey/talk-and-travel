@@ -3,7 +3,9 @@ package online.talkandtravel.service.impl.unittest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -20,7 +22,7 @@ import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
-import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.impl.MessageServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
 import org.junit.jupiter.api.Test;
@@ -38,25 +40,25 @@ public class MessageServiceImplTest {
 
   @Mock private ChatRepository chatRepository;
 
-  @Mock private UserRepository userRepository;
-
   @Mock private UserChatRepository userChatRepository;
 
   @Mock private MessageMapper messageMapper;
 
+  @Mock private AuthenticationService authenticationService;
+
   private final Long chatId = 1L;
   private final Long userId = 1L;
+
+  private static final User authUser = User.builder().id(1L).build();
 
 
   @Test
   void saveMessage_shouldReturnMessageDtoBasic_whenUserJoinedChatAndMessageExists() {
-    // Arrange
 
     Long repliedMessageId = 2L;
     String content = "Hello, World!";
-    SendMessageRequest request = new SendMessageRequest(content, chatId, userId, repliedMessageId);
+    SendMessageRequest request = new SendMessageRequest(content, chatId, repliedMessageId);
     Chat chat = new Chat();
-    User user = new User();
     Message repliedMessage = new Message();
     Message message = new Message();
     chat.getMessages().add(message);
@@ -72,43 +74,40 @@ public class MessageServiceImplTest {
                     null
                 );
 
+    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
     when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.of(repliedMessage));
-    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
     when(chatRepository.save(any(Chat.class))).thenReturn(chat);
     when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
 
-    // Act
     MessageDto result = underTest.saveMessage(request);
 
-    // Assert
     assertEquals(messageDto, result);
     verify(userChatRepository, times(1)).findByChatIdAndUserId(chatId, userId);
     verify(chatRepository, times(1)).findById(chatId);
     verify(messageRepository, times(1)).findById(repliedMessageId);
-    verify(userRepository, times(1)).findById(userId);
     verify(chatRepository, times(1)).save(chat);
     verify(messageMapper, times(1)).toMessageDto(any(Message.class));
   }
 
   @Test
   void saveMessage_shouldThrowUserNotJoinedTheChatException_whenUserNotInChat() {
-    // Arrange
-    SendMessageRequest request = new SendMessageRequest("Hello", chatId, userId, null);
+    SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
 
+    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.empty());
 
-    // Act & Assert
     assertThrows(UserNotJoinedTheChatException.class, () -> underTest.saveMessage(request));
   }
 
   @Test
   void saveMessage_shouldThrowChatNotFoundException_whenChatNotFound() {
     // Arrange
-    SendMessageRequest request = new SendMessageRequest("Hello", chatId, userId, null);
+    SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
 
+    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
     when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
@@ -118,33 +117,17 @@ public class MessageServiceImplTest {
   }
 
   @Test
-  void saveMessage_shouldThrowUserNotFoundException_whenUserNotFound() {
-    // Arrange
-    SendMessageRequest request = new SendMessageRequest("Hello", chatId, userId, null);
-    Chat chat = new Chat();
-
-    when(userChatRepository.findByChatIdAndUserId(chatId, userId))
-        .thenReturn(Optional.of(new UserChat()));
-    when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
-    when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-    // Act & Assert
-    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request));
-  }
-
-  @Test
   void saveMessage_shouldThrowMessageNotFoundException_whenRepliedMessageNotFound() {
-    // Arrange
     Long repliedMessageId = 2L;
-    SendMessageRequest request = new SendMessageRequest("Hello", chatId, userId, repliedMessageId);
+    SendMessageRequest request = new SendMessageRequest("Hello", chatId, repliedMessageId);
     Chat chat = new Chat();
 
+    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
     when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.empty());
 
-    // Act & Assert
     assertThrows(WebSocketException.class, () -> underTest.saveMessage(request));
   }
 }

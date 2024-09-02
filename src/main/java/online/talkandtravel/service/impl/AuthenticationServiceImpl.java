@@ -89,13 +89,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   @Override
   public void authenticateUser(UserDetails userDetails, HttpServletRequest request) {
-    WebAuthenticationDetails details = new WebAuthenticationDetailsSource().buildDetails(request);
-
     var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
         userDetails.getAuthorities());
 
-    // populate the token with additional details from the HTTP request
-    authToken.setDetails(details);
+    if (request != null) {
+      // populate the token with additional details from the HTTP request
+      WebAuthenticationDetails details = new WebAuthenticationDetailsSource().buildDetails(request);
+      authToken.setDetails(details);
+    }
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
 

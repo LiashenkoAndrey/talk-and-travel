@@ -1,6 +1,9 @@
 package online.talkandtravel.service.impl;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatMustContainTwoUsersException;
@@ -11,13 +14,18 @@ import online.talkandtravel.exception.user.UserCountryNotFoundException;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
-import online.talkandtravel.model.entity.*;
+import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.ChatType;
+import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.MessageType;
+import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserChat;
+import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.security.CustomUserDetails;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.EventService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
@@ -25,21 +33,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Implementation of the {@link EventService} for managing chat-related events.
  *
  * <p>This service provides methods for handling various events in a chat, including:
  *
  * <ul>
- *   <li>{@link #startTyping(EventRequest)} - Logs an event when a user starts typing in a chat.
- *   <li>{@link #stopTyping(EventRequest)} - Logs an event when a user stops typing in a chat.
- *   <li>{@link #leaveChat(EventRequest)} - Manages the user's departure from a chat and records the
+ *   <li>{@link #startTyping(EventRequest, Principal)} - Logs an event when a user starts typing in a chat.
+ *   <li>{@link #stopTyping(EventRequest, Principal)} - Logs an event when a user stops typing in a chat.
+ *   <li>{@link #leaveChat(EventRequest, Principal)} - Manages the user's departure from a chat and records the
  *       event.
- *   <li>{@link #joinChat(EventRequest)} - Handles the user's entry into a chat and records the
+ *   <li>{@link #joinChat(EventRequest, Principal)} - Handles the user's entry into a chat and records the
  *       event.
  * </ul>
  *

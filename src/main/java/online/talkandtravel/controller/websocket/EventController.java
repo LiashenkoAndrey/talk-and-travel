@@ -7,13 +7,10 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
-import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.EventService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 /**

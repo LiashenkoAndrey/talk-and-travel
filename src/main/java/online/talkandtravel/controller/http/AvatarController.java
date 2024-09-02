@@ -45,7 +45,7 @@ public class AvatarController {
   }
 
   @Operation(description = "Update avatar.")
-  @PostMapping("/user/avatar")
+  @PostMapping({"/avatars/user/{}","/v2/user/avatar"})
   public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile image) {
     avatarService.saveOrUpdateUserAvatar(image);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
