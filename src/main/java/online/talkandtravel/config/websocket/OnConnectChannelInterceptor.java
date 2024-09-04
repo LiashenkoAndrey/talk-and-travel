@@ -45,13 +45,13 @@ public class OnConnectChannelInterceptor implements ChannelInterceptor {
   private void onConnect(StompHeaderAccessor accessor) {
     String authHeader = accessor.getFirstNativeHeader("Authorization");
     String token = getTokenFromAuthHeader(authHeader);
-    tokenService.validateToken(token);
+    Long userId = tokenService.validateTokenAndGetUserId(token);
 
     UsernamePasswordAuthenticationToken authenticationToken =
         authenticationFacade.createUsernamePasswordAuthenticationToken(token);
 
     accessor.setUser(authenticationToken);
-    log.info("Authentication is successful");
+    log.info("Authentication is successful for user with id {}" , userId);
   }
 
 

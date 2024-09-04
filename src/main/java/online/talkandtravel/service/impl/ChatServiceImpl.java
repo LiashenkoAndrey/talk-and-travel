@@ -14,7 +14,6 @@ import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -216,10 +215,10 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<PrivateChatInfoDto> findUserChats() {
+  public List<ChatInfoDto> findUserChats() {
     User user = authenticationService.getAuthenticatedUser();
     List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
-    return userChats.stream().map(chatMapper::userChatToPrivateChatInfoDto).toList();
+    return userChats.stream().map(chatMapper::userChatToChatInfoDto).toList();
   }
 
   @Override

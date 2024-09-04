@@ -21,11 +21,7 @@ import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.dto.chat.NewChatDto;
-import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
-import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
+import online.talkandtravel.model.dto.chat.*;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -81,7 +77,7 @@ class ChatServiceImplTest {
   private Chat chat;
   private UserChat userChat;
   private User user;
-  private PrivateChatInfoDto privateChatInfoDto;
+  private ChatInfoDto chatInfoDto;
   private UserDtoBasic userDtoBasic;
   private Message message;
   private MessageDtoBasic messageDtoBasic;
@@ -102,8 +98,8 @@ class ChatServiceImplTest {
         .id(USER_ID)
         .build();
 
-    privateChatInfoDto =
-        new PrivateChatInfoDto(
+    chatInfoDto =
+        new ChatInfoDto(
             1L,
             "TestCountry",
             "Test Chat Description",
@@ -175,7 +171,7 @@ class ChatServiceImplTest {
     when(userChatRepository.findAllByUserId(USER_ID)).thenReturn(List.of());
     when(authenticationService.getAuthenticatedUser()).thenReturn(user);
 
-    List<PrivateChatInfoDto> result = underTest.findUserChats();
+    List<ChatInfoDto> result = underTest.findUserChats();
 
     assertTrue(result.isEmpty());
     verify(userChatRepository, times(1)).findAllByUserId(USER_ID);
@@ -186,14 +182,14 @@ class ChatServiceImplTest {
   void findUserChats_shouldReturnChatList_whenChatsFound() {
     when(authenticationService.getAuthenticatedUser()).thenReturn(user);
     when(userChatRepository.findAllByUserId(USER_ID)).thenReturn(List.of(userChat));
-    when(chatMapper.userChatToPrivateChatInfoDto(userChat)).thenReturn(privateChatInfoDto);
+    when(chatMapper.userChatToChatInfoDto(userChat)).thenReturn(chatInfoDto);
 
-    List<PrivateChatInfoDto> result = underTest.findUserChats();
+    List<ChatInfoDto> result = underTest.findUserChats();
 
     assertEquals(1, result.size());
-    assertEquals(privateChatInfoDto, result.get(0));
+    assertEquals(chatInfoDto, result.get(0));
     verify(userChatRepository, times(1)).findAllByUserId(USER_ID);
-    verify(chatMapper, times(1)).userChatToPrivateChatInfoDto(userChat);
+    verify(chatMapper, times(1)).userChatToChatInfoDto(userChat);
   }
 
   @Test
