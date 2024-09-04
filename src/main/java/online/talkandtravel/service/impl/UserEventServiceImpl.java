@@ -1,15 +1,10 @@
 package online.talkandtravel.service.impl;
 
-import static online.talkandtravel.util.service.EventServiceUtil.getUserFromPrincipal;
-
-import java.security.Principal;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.event.EventRequest;
-import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.enums.UserOnlineStatus;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.event.UserEventService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
