@@ -37,8 +37,8 @@ public class UserEventServiceImpl implements UserEventService {
   }
 
   @Override
-  public void publishEvent(UserOnlineStatus userInlineStatus, Object... args) {
-    log.info("publishEvent: payload: {}", userInlineStatus);
-    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(args), userInlineStatus.isOnline());
+  public void publishEvent(UserOnlineStatus isOnline, Long userId) {
+    log.info("publishEvent: payload: {}", isOnline.isOnline());
+    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(userId), isOnline.isOnline());
   }
 }

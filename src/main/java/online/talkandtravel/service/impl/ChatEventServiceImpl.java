@@ -31,6 +31,7 @@ import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.event.ChatEventService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
+import online.talkandtravel.util.service.EventDestination;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -70,8 +71,9 @@ public class ChatEventServiceImpl implements ChatEventService {
 
   private static final String JOINED_THE_CHAT = "%s joined the chat";
   private static final String LEFT_THE_CHAT = "%s left the chat";
-  private static final String PUBLISH_EVENT_DESTINATION = "/countries/%s/messages";
+  private static final String PUBLISH_EVENT_DESTINATION = EventDestination.CHAT_MESSAGE_DESTINATION;
   private static final int MAX_USERS_IN_PRIVATE_CHAT = 2;
+
   private final ChatRepository chatRepository;
   private final UserChatRepository userChatRepository;
   private final UserCountryRepository userCountryRepository;
@@ -81,28 +83,8 @@ public class ChatEventServiceImpl implements ChatEventService {
   private final SimpMessagingTemplate messagingTemplate;
 
   @Override
-  public void publishEvent(EventPayload payload, Object... args) {
-    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(args), payload);
-  }
-
-  @Override
-  public void startTyping(EventRequest request, Principal principal) {
-    log.info("create a new START TYPING event {}", request);
-    User user = getUser(principal);
-    throwIfChatNotExists(request, user.getId());
-
-    EventResponse eventResponse = createChatTransientEvent(user, MessageType.START_TYPING);
-    publishEvent(eventResponse, request.chatId());
-  }
-
-  @Override
-  public void stopTyping(EventRequest request, Principal principal) {
-    log.info("create a new STOP TYPING event {}", request);
-    User user = getUser(principal);
-    throwIfChatNotExists(request, user.getId());
-
-    EventResponse eventResponse = createChatTransientEvent(user, MessageType.STOP_TYPING);
-    publishEvent(eventResponse, request.chatId());
+  public void publishEvent(EventPayload payload, Long chatId) {
+    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(chatId), payload);
   }
 
   @Transactional
@@ -121,16 +103,6 @@ public class ChatEventServiceImpl implements ChatEventService {
   }
 
 
-  @Override
-  @Transactional
-  public void deleteChatIfEmpty(EventRequest request, Principal principal) {
-    User user = getUser(principal);
-    Chat chat = getChat(request, user.getId());
-    if (chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty()) {
-      chatRepository.delete(chat);
-    }
-  }
-
   @Transactional
   @Override
   public void joinChat(EventRequest request, Principal principal) {
@@ -147,6 +119,34 @@ public class ChatEventServiceImpl implements ChatEventService {
 
     MessageDto messageDto = messageMapper.toMessageDto(message);
     publishEvent(messageDto, request.chatId());
+  }
+
+  @Override
+  @Transactional
+  public void deleteChatIfEmpty(EventRequest request, Principal principal) {
+    User user = getUser(principal);
+    Chat chat = getChat(request, user.getId());
+    if (chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty()) {
+      chatRepository.delete(chat);
+    }
+  }
+
+  @Override
+  public void startTyping(EventRequest request, Principal principal) {
+    handleTypingEvent(request, principal, MessageType.START_TYPING);
+  }
+
+  @Override
+  public void stopTyping(EventRequest request, Principal principal) {
+    handleTypingEvent(request, principal, MessageType.STOP_TYPING);
+  }
+
+  private void handleTypingEvent(EventRequest request, Principal principal, MessageType messageType) {
+    User user = getUser(principal);
+    throwIfChatNotExists(request, user.getId());
+
+    EventResponse eventResponse = createChatTransientEvent(user, messageType);
+    publishEvent(eventResponse, request.chatId());
   }
 
   private Message createAndSaveMessage(String content, User author, Chat chat, MessageType leave) {

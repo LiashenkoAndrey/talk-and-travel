@@ -10,6 +10,10 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * This class handles events triggered when a key expires. Upon expiration, it publishes an event
+ * indicating that the user's online status has been updated to {@code UserOnlineStatus.OFFLINE}.
+ */
 @Component
 @Log4j2
 @RequiredArgsConstructor
@@ -20,7 +24,6 @@ public class ExpiredValueRedisListener implements MessageListener {
   @Override
   public void onMessage(Message message, byte[] pattern) {
     String key = new String(message.getBody());
-    log.info("expired key: {}", key);
     Long userId = getUserIdFromRedisKey(key);
     userEventService.publishEvent(UserOnlineStatus.OFFLINE, userId);
   }
