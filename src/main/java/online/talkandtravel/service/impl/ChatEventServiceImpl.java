@@ -1,5 +1,7 @@
 package online.talkandtravel.service.impl;
 
+import static online.talkandtravel.util.service.EventDestination.CHAT_MESSAGE_DESTINATION;
+
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +34,7 @@ import online.talkandtravel.service.event.ChatEventService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.service.EventDestination;
+import online.talkandtravel.util.service.EventPublisherUtil;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -71,7 +74,6 @@ public class ChatEventServiceImpl implements ChatEventService {
 
   private static final String JOINED_THE_CHAT = "%s joined the chat";
   private static final String LEFT_THE_CHAT = "%s left the chat";
-  private static final String PUBLISH_EVENT_DESTINATION = EventDestination.CHAT_MESSAGE_DESTINATION;
   private static final int MAX_USERS_IN_PRIVATE_CHAT = 2;
 
   private final ChatRepository chatRepository;
@@ -80,11 +82,12 @@ public class ChatEventServiceImpl implements ChatEventService {
   private final MessageRepository messageRepository;
   private final MessageMapper messageMapper;
   private final UserMapper userMapper;
-  private final SimpMessagingTemplate messagingTemplate;
+  private final EventPublisherUtil publisherUtil;
 
   @Override
   public void publishEvent(EventPayload payload, Long chatId) {
-    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(chatId), payload);
+    String dest = CHAT_MESSAGE_DESTINATION.formatted(chatId);
+    publisherUtil.publishEvent(dest, payload);
   }
 
   @Transactional
