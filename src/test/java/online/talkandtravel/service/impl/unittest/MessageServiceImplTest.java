@@ -1,35 +1,34 @@
 package online.talkandtravel.service.impl.unittest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.dto.user.UserNameDto;
-import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.entity.Message;
-import online.talkandtravel.model.entity.MessageType;
-import online.talkandtravel.model.entity.User;
-import online.talkandtravel.model.entity.UserChat;
+import online.talkandtravel.model.entity.*;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
-import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.impl.MessageServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceImplTest {
@@ -44,13 +43,25 @@ public class MessageServiceImplTest {
 
   @Mock private MessageMapper messageMapper;
 
-  @Mock private AuthenticationService authenticationService;
-
   private final Long chatId = 1L;
   private final Long userId = 1L;
-
   private static final User authUser = User.builder().id(1L).build();
+  private Principal principal;
 
+  @BeforeEach
+  void setup() {
+    User user = User.builder()
+            .id(1L)
+            .role(Role.USER)
+            .userName("User1")
+            .build();
+    UserDetails userDetails = new CustomUserDetails(user);
+    principal = new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+    );
+  }
 
   @Test
   void saveMessage_shouldReturnMessageDtoBasic_whenUserJoinedChatAndMessageExists() {
@@ -74,7 +85,6 @@ public class MessageServiceImplTest {
                     null
                 );
 
-    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
@@ -82,7 +92,7 @@ public class MessageServiceImplTest {
     when(chatRepository.save(any(Chat.class))).thenReturn(chat);
     when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
 
-    MessageDto result = underTest.saveMessage(request);
+    MessageDto result = underTest.saveMessage(request, principal);
 
     assertEquals(messageDto, result);
     verify(userChatRepository, times(1)).findByChatIdAndUserId(chatId, userId);
@@ -96,10 +106,9 @@ public class MessageServiceImplTest {
   void saveMessage_shouldThrowUserNotJoinedTheChatException_whenUserNotInChat() {
     SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
 
-    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.empty());
 
-    assertThrows(UserNotJoinedTheChatException.class, () -> underTest.saveMessage(request));
+    assertThrows(UserNotJoinedTheChatException.class, () -> underTest.saveMessage(request, principal));
   }
 
   @Test
@@ -107,13 +116,12 @@ public class MessageServiceImplTest {
     // Arrange
     SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
 
-    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
     when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
 
     // Act & Assert
-    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request));
+    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
   }
 
   @Test
@@ -122,12 +130,11 @@ public class MessageServiceImplTest {
     SendMessageRequest request = new SendMessageRequest("Hello", chatId, repliedMessageId);
     Chat chat = new Chat();
 
-    when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
     when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
     when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.empty());
 
-    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request));
+    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
   }
 }

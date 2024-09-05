@@ -15,11 +15,15 @@ import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.MessageService;
 import online.talkandtravel.util.mapper.MessageMapper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.Principal;
 
 /**
  * Implementation of the {@link MessageService} for handling message operations within chats.
@@ -48,8 +52,8 @@ public class MessageServiceImpl implements MessageService {
   private final AuthenticationService authenticationService;
 
   @Override
-  public MessageDto saveMessage(SendMessageRequest request) {
-    User sender = authenticationService.getAuthenticatedUser();
+  public MessageDto saveMessage(SendMessageRequest request, Principal principal) {
+    User sender = getUser(principal);
     checkUserJoinedTheChat(request, sender.getId());
     Chat chat = getChat(request, sender.getId());
     Message repliedMessage = getMessage(request, sender.getId());
@@ -67,6 +71,11 @@ public class MessageServiceImpl implements MessageService {
     message = chat.getMessages().get(chat.getMessages().size() - 1);
     message.setChat(chat);
     return messageMapper.toMessageDto(message);
+  }
+
+  private User getUser(Principal principal) {
+    CustomUserDetails customUserDetails = (CustomUserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+    return customUserDetails.getUser();
   }
 
   private void checkUserJoinedTheChat(SendMessageRequest request, Long senderId) {

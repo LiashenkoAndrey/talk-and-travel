@@ -10,6 +10,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 /**
  * Controller class responsible for handling WebSocket messages related to chat functionalities.
  *
@@ -27,9 +29,9 @@ public class MessageController {
   private final MessageService messageService;
 
   @MessageMapping("/messages")
-  public void sendMessage(@Payload SendMessageRequest request) {
+  public void sendMessage(@Payload SendMessageRequest request, Principal principal) {
     log.debug("create a new message {}", request);
-    MessageDto message = messageService.saveMessage(request);
+    MessageDto message = messageService.saveMessage(request, principal);
     messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
   }
 }

@@ -215,10 +215,10 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<PrivateChatInfoDto> findUserChats() {
+  public List<ChatInfoDto> findUserChats() {
     User user = authenticationService.getAuthenticatedUser();
     List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
-    return userChats.stream().map(chatMapper::userChatToPrivateChatInfoDto).toList();
+    return userChats.stream().map(chatMapper::userChatToChatInfoDto).toList();
   }
 
   @Override

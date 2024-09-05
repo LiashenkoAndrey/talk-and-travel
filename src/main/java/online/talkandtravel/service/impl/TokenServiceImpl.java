@@ -80,12 +80,17 @@ public class TokenServiceImpl implements TokenService {
   }
 
 
+  /**
+   * @param token Authentication token from header
+   * @return ID of authenticated user
+   */
   @Override
   @Transactional
-  public void validateToken(String token) {
+  public Long validateTokenAndGetUserId(String token) {
     Long userId = extractId(token);
     verifyProvidedTokenValid(token);
     verifyStoredTokenPresentAndValid(userId);
+    return userId;
   }
 
   @Override

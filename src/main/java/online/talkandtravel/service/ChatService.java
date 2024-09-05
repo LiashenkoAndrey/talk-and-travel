@@ -69,7 +69,7 @@ public interface ChatService {
 
   Long countUsersInChat(Long chatId);
 
-  List<PrivateChatInfoDto> findUserChats();
+  List<ChatInfoDto> findUserChats();
 
   List<UserDtoBasic> findAllUsersByChatId(Long chatId);
 
