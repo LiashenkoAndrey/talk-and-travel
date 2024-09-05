@@ -49,6 +49,11 @@ public class UserServiceImpl implements UserService {
   private final AuthenticationService authenticationService;
 
   @Override
+  public void updateUserOnlineStatus(Boolean isOnline) {
+
+  }
+
+  @Override
   public UserDtoBasic save(User user) {
     encodePassword(user);
     User saved = userRepository.save(user);

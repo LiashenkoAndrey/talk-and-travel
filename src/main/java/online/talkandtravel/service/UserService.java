@@ -32,6 +32,8 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface UserService {
 
+  void updateUserOnlineStatus(Boolean isOnline);
+
   UserDtoBasic save(User user);
 
   User getReferenceById(Long userId);

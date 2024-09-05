@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatMustContainTwoUsersException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
@@ -26,15 +27,16 @@ import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.security.CustomUserDetails;
-import online.talkandtravel.service.EventService;
+import online.talkandtravel.service.event.ChatEventService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Implementation of the {@link EventService} for managing chat-related events.
+ * Implementation of the {@link ChatEventService} for managing chat-related events.
  *
  * <p>This service provides methods for handling various events in a chat, including:
  *
@@ -61,52 +63,62 @@ import org.springframework.transaction.annotation.Transactional;
  * </ul>
  */
 @Service
+@Log4j2
 @RequiredArgsConstructor
-public class EventServiceImpl implements EventService {
+public class ChatEventServiceImpl implements ChatEventService {
 
-  public static final String JOINED_THE_CHAT = "%s joined the chat";
-  public static final String LEFT_THE_CHAT = "%s left the chat";
-  public static final int MAX_USERS_IN_PRIVATE_CHAT = 2;
+  private static final String JOINED_THE_CHAT = "%s joined the chat";
+  private static final String LEFT_THE_CHAT = "%s left the chat";
+  private static final String PUBLISH_EVENT_DESTINATION = "/countries/%s/messages";
+  private static final int MAX_USERS_IN_PRIVATE_CHAT = 2;
   private final ChatRepository chatRepository;
   private final UserChatRepository userChatRepository;
   private final UserCountryRepository userCountryRepository;
   private final MessageRepository messageRepository;
   private final MessageMapper messageMapper;
   private final UserMapper userMapper;
+  private final SimpMessagingTemplate messagingTemplate;
 
   @Override
-  public EventResponse startTyping(EventRequest request, Principal principal) {
-    User user = getUser(principal);
-    throwIfChatNotExists(request, user.getId());
-    return createChatTransientEvent(user, MessageType.START_TYPING);
+  public void publishEvent(EventRequest request, Object payload) {
+    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(request.chatId()), payload);
   }
 
   @Override
-  public EventResponse stopTyping(EventRequest request, Principal principal) {
+  public void startTyping(EventRequest request, Principal principal) {
+    log.info("create a new START TYPING event {}", request);
     User user = getUser(principal);
     throwIfChatNotExists(request, user.getId());
-    return createChatTransientEvent(user, MessageType.STOP_TYPING);
+
+    EventResponse eventResponse = createChatTransientEvent(user, MessageType.START_TYPING);
+    publishEvent(request, eventResponse);
+  }
+
+  @Override
+  public void stopTyping(EventRequest request, Principal principal) {
+    log.info("create a new STOP TYPING event {}", request);
+    User user = getUser(principal);
+    throwIfChatNotExists(request, user.getId());
+
+    EventResponse eventResponse = createChatTransientEvent(user, MessageType.STOP_TYPING);
+    publishEvent(request, eventResponse);
   }
 
   @Transactional
   @Override
-  public MessageDto leaveChat(EventRequest request, Principal principal) {
+  public void leaveChat(EventRequest request, Principal principal) {
+    log.info("create a new LEAVE CHAT event {}", request);
     User author = getUser(principal);
     Chat chat = getChat(request, author.getId());
 
     removeConnections(request, chat, author);
+    Message message = createAndSaveMessage(LEFT_THE_CHAT, author, chat, MessageType.LEAVE);
+    deleteChatIfEmpty(request, principal);
 
-    Message message =
-        Message.builder()
-            .content(LEFT_THE_CHAT.formatted(author.getUserName()))
-            .chat(chat)
-            .sender(author)
-            .type(MessageType.LEAVE)
-            .build();
-    message = messageRepository.save(message);
-
-    return messageMapper.toMessageDto(message);
+    MessageDto messageDto = messageMapper.toMessageDto(message);
+    publishEvent(request, messageDto);
   }
+
 
   @Override
   @Transactional
@@ -120,7 +132,9 @@ public class EventServiceImpl implements EventService {
 
   @Transactional
   @Override
-  public MessageDto joinChat(EventRequest request, Principal principal) {
+  public void joinChat(EventRequest request, Principal principal) {
+    log.info("create a new JOIN CHAT event {}, {}", request, principal);
+
     User author = getUser(principal);
     Chat chat = getChat(request, author.getId());
     checkChatIsNotPrivate(request, chat, author.getId());
@@ -128,15 +142,22 @@ public class EventServiceImpl implements EventService {
 
     saveConnections(chat, author);
 
+    Message message = createAndSaveMessage(JOINED_THE_CHAT, author, chat, MessageType.JOIN);
+
+    MessageDto messageDto = messageMapper.toMessageDto(message);
+    publishEvent(request, messageDto);
+  }
+
+  private Message createAndSaveMessage(String content, User author, Chat chat, MessageType leave) {
     Message message =
         Message.builder()
-            .content(JOINED_THE_CHAT.formatted(author.getUserName()))
+            .content(content.formatted(author.getUserName()))
             .chat(chat)
             .sender(author)
-            .type(MessageType.JOIN)
+            .type(leave)
             .build();
     message = messageRepository.save(message);
-    return messageMapper.toMessageDto(message);
+    return message;
   }
 
   private User getUser(Principal principal) {

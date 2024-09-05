@@ -32,7 +32,7 @@ import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
-import online.talkandtravel.service.impl.EventServiceImpl;
+import online.talkandtravel.service.impl.ChatEventServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 
 @ExtendWith(MockitoExtension.class)
-class EventServiceImplTest {
+class ChatEventServiceImplTest {
 
   @Mock private ChatRepository chatRepository;
   @Mock private MessageRepository messageRepository;
@@ -57,7 +57,7 @@ class EventServiceImplTest {
   @Mock private UserCountryRepository userCountryRepository;
   @Mock private AuthenticationService authenticationService;
 
-  @InjectMocks private EventServiceImpl underTest;
+  @InjectMocks private ChatEventServiceImpl underTest;
 
   private Chat chat;
   private User user;

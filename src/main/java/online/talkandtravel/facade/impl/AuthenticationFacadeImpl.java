@@ -12,9 +12,11 @@ import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserOnlineStatus;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
+import online.talkandtravel.service.event.UserEventService;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,12 +31,15 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   private final TokenService tokenService;
   private final AuthenticationService authenticationService;
   private final UserMapper userMapper;
+  private final UserEventService userEventService;
 
   @Override
   public AuthResponse login(LoginRequest request) {
     log.info("Login - email {}", request.userEmail());
     User authenticatedUser = authenticationService.checkUserCredentials(request.userEmail(), request.password());
     String jwtToken = saveOrUpdateUserToken(authenticatedUser.getId());
+
+    userEventService.updateUserOnlineStatus(UserOnlineStatus.ONLINE, authenticatedUser.getId());
     return new AuthResponse(jwtToken, userMapper.toUserDtoBasic(authenticatedUser));
   }
 
@@ -43,6 +48,8 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     log.info("register user - name: {}, email: {}", request.userName(), request.userEmail());
     UserDtoBasic newUser = createAndSaveNewUser(request);
     String jwtToken = saveOrUpdateUserToken(newUser.id());
+
+    userEventService.updateUserOnlineStatus(UserOnlineStatus.ONLINE, newUser.id());
     return new AuthResponse(jwtToken, newUser);
   }
 
