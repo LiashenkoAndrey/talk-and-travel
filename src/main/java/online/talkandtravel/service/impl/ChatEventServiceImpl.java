@@ -12,6 +12,7 @@ import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserCountryNotFoundException;
+import online.talkandtravel.model.dto.event.EventPayload;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
@@ -80,7 +81,7 @@ public class ChatEventServiceImpl implements ChatEventService {
   private final SimpMessagingTemplate messagingTemplate;
 
   @Override
-  public void publishEvent(EventResponse payload, Object... args) {
+  public void publishEvent(EventPayload payload, Object... args) {
     messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(args), payload);
   }
 
@@ -145,7 +146,7 @@ public class ChatEventServiceImpl implements ChatEventService {
     Message message = createAndSaveMessage(JOINED_THE_CHAT, author, chat, MessageType.JOIN);
 
     MessageDto messageDto = messageMapper.toMessageDto(message);
-    publishEvent(request, messageDto);
+    publishEvent(messageDto, request.chatId());
   }
 
   private Message createAndSaveMessage(String content, User author, Chat chat, MessageType leave) {
