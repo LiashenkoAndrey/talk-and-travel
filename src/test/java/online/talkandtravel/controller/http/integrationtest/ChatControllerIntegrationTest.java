@@ -34,7 +34,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     User alice = getAlice();
     User bob = getBob();
 
-    NewPrivateChatDto newPrivateChatDto = new NewPrivateChatDto(alice.getId(), bob.getId());
+    NewPrivateChatDto newPrivateChatDto = new NewPrivateChatDto(bob.getId());
 
     String token =
         authenticationService.loginAndGetToken(alice.getUserEmail(), alice.getPassword());

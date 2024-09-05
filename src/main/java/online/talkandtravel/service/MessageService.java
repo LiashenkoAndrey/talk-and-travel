@@ -4,6 +4,8 @@ import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 
+import java.security.Principal;
+
 /**
  * Service interface for handling message operations within the application.
  *
@@ -26,5 +28,5 @@ import online.talkandtravel.model.dto.message.SendMessageRequest;
  */
 public interface MessageService {
 
-  MessageDto saveMessage(SendMessageRequest sendMessageRequest);
+  MessageDto saveMessage(SendMessageRequest sendMessageRequest, Principal principal);
 }

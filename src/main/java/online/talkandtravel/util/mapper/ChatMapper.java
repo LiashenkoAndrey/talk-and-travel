@@ -23,7 +23,7 @@ import org.mapstruct.Mapping;
  *   <li>{@link #toDto(Chat)} - Converts a {@link Chat} entity to a {@link ChatDto}. This method
  *       maps the properties of the {@link Chat} entity to the DTO, including nested collections
  *       like users and messages.
- *   <li>{@link #userChatToPrivateChatInfoDto(UserChat)} - Converts a {@link UserChat} entity to a {@link
+ *   <li>{@link #userChatToChatInfoDto(UserChat)} - Converts a {@link UserChat} entity to a {@link
  *       PrivateChatInfoDto}. This method handles the mapping of properties from {@link UserChat} to {@link
  *       PrivateChatInfoDto}, including fields such as name, description, and creation date.
  * </ul>
@@ -60,5 +60,5 @@ public interface ChatMapper {
   @Mapping(target = "creationDate", source = "chat.creationDate")
   @Mapping(target = "chatType", source = "chat.chatType")
   @Mapping(target = "name", source = "chat.name")
-  PrivateChatInfoDto userChatToPrivateChatInfoDto(UserChat userChat);
+  ChatInfoDto userChatToChatInfoDto(UserChat userChat);
 }

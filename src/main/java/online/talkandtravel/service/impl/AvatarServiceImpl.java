@@ -9,7 +9,10 @@ import online.talkandtravel.exception.file.FileSizeExceededException;
 import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.UnsupportedFormatException;
 import online.talkandtravel.model.entity.Avatar;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.AvatarRepository;
+import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.service.ImageService;
 import org.springframework.stereotype.Service;
@@ -50,12 +53,7 @@ public class AvatarServiceImpl implements AvatarService {
   private static final String[] SUPPORTED_FORMAT_AVATAR = {"jpeg", "jpg", "png"};
   private static final int MAX_SIZE_AVATAR = 4 * 1024 * 1024; // Size in bytes (4MB)
   private final AvatarRepository avatarRepository;
-  private final ImageService imageService;
-
-  @Override
-  public Avatar save(Avatar avatar) {
-    return avatarRepository.save(avatar);
-  }
+  private final AuthenticationService authenticationService;
 
   @Transactional
   @Override
@@ -64,22 +62,20 @@ public class AvatarServiceImpl implements AvatarService {
   }
 
   @Override
-  public Avatar createDefaultAvatar(String username) {
-    log.info("createDefaultAvatar: username - {}", username);
-    byte[] defaultAvatar = imageService.generateImage(username);
-    return createNewAvatar(defaultAvatar);
+  @Transactional
+  public void saveOrUpdateUserAvatar(MultipartFile file) {
+    validateImage(file, file.getOriginalFilename());
+    saveOrUpdateAvatar(file);
   }
 
-  @Override
-  @Transactional
-  public Long uploadAvatar(MultipartFile file, Long userId) {
-    log.info("uploadAvatar: username - {}", userId);
-    String filename = file.getOriginalFilename();
-    validateImage(file, filename);
+  private void saveOrUpdateAvatar(MultipartFile file) {
+    User user = authenticationService.getAuthenticatedUser();
     byte[] image = extractImageData(file);
-    var existingAvatar = getAvatar(userId);
-    existingAvatar.setContent(image);
-    return avatarRepository.save(existingAvatar).getId();
+    avatarRepository
+        .findByUserId(user.getId())
+        .ifPresentOrElse(
+            (avatar) -> avatar.setContent(image),
+            () -> avatarRepository.save(createNewAvatar(image, user)));
   }
 
   private void validateImage(MultipartFile imageFile, String originalFilename) {
@@ -109,12 +105,14 @@ public class AvatarServiceImpl implements AvatarService {
   }
 
   private boolean isSupportedFormat(String fileName) {
-    var fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+    String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
     return Arrays.asList(SUPPORTED_FORMAT_AVATAR).contains(fileExtension);
   }
 
-  private Avatar createNewAvatar(byte[] standardAvatar) {
-    return Avatar.builder().content(standardAvatar).build();
+  private Avatar createNewAvatar(byte[] standardAvatar, User user) {
+    return Avatar.builder().content(standardAvatar)
+        .user(user)
+        .build();
   }
 
 

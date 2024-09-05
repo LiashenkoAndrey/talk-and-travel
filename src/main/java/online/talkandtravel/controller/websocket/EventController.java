@@ -1,5 +1,7 @@
 package online.talkandtravel.controller.websocket;
 
+import jakarta.validation.Valid;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.event.EventRequest;
@@ -34,33 +36,33 @@ public class EventController {
   private final SimpMessagingTemplate messagingTemplate;
 
   @MessageMapping("/events.joinChat")
-  public void joinChat(@Payload EventRequest request) {
-    log.info("create a new JOIN CHAT event {}", request);
-    MessageDto message = eventService.joinChat(request);
+  public void joinChat(@Payload @Valid EventRequest request, Principal principal) {
+    log.info("create a new JOIN CHAT event {}, {}", request, principal);
+    MessageDto message = eventService.joinChat(request, principal);
 
     sendResponse(request, message);
   }
 
   @MessageMapping("/events.leaveChat")
-  public void leaveChat(@Payload EventRequest request) {
+  public void leaveChat(@Payload EventRequest request, Principal principal) {
     log.info("create a new LEAVE CHAT event {}", request);
-    MessageDto message = eventService.leaveChat(request);
-    eventService.deleteChatIfEmpty(request);
+    MessageDto message = eventService.leaveChat(request, principal);
+    eventService.deleteChatIfEmpty(request, principal);
     sendResponse(request, message);
   }
 
   @MessageMapping("/events.startTyping")
-  public void startTyping(@Payload EventRequest request) {
+  public void startTyping(@Payload EventRequest request, Principal principal) {
     log.info("create a new START TYPING event {}", request);
-    EventResponse message = eventService.startTyping(request);
+    EventResponse message = eventService.startTyping(request, principal);
 
     sendResponse(request, message);
   }
 
   @MessageMapping("/events.stopTyping")
-  public void stopTyping(@Payload EventRequest request) {
+  public void stopTyping(@Payload EventRequest request, Principal principal) {
     log.info("create a new STOP TYPING event {}", request);
-    EventResponse message = eventService.stopTyping(request);
+    EventResponse message = eventService.stopTyping(request, principal);
 
     sendResponse(request, message);
   }

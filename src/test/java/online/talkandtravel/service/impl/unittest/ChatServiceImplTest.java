@@ -21,11 +21,7 @@ import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.chat.ChatDto;
-import online.talkandtravel.model.dto.chat.NewChatDto;
-import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
-import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
-import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
+import online.talkandtravel.model.dto.chat.*;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -81,11 +77,14 @@ class ChatServiceImplTest {
   private Chat chat;
   private UserChat userChat;
   private User user;
-  private PrivateChatInfoDto privateChatInfoDto;
+  private ChatInfoDto chatInfoDto;
   private UserDtoBasic userDtoBasic;
   private Message message;
   private MessageDtoBasic messageDtoBasic;
   private Pageable pageable;
+
+  private static final Long USER_ID = 1L;
+
 
   @BeforeEach
   void setUp() {
@@ -95,10 +94,12 @@ class ChatServiceImplTest {
 
     userChat = new UserChat();
     userChat.setChat(chat);
-    user = new User();
+    user = User.builder()
+        .id(USER_ID)
+        .build();
 
-    privateChatInfoDto =
-        new PrivateChatInfoDto(
+    chatInfoDto =
+        new ChatInfoDto(
             1L,
             "TestCountry",
             "Test Chat Description",
@@ -167,29 +168,28 @@ class ChatServiceImplTest {
 
   @Test
   void findUserChats_shouldReturnEmptyList_whenNoChatsFound() {
-    Long userId = 1L;
-    when(userChatRepository.findAllByUserId(userId)).thenReturn(List.of());
+    when(userChatRepository.findAllByUserId(USER_ID)).thenReturn(List.of());
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
 
-    List<PrivateChatInfoDto> result = underTest.findUserChats(userId);
+    List<ChatInfoDto> result = underTest.findUserChats();
 
     assertTrue(result.isEmpty());
-    verify(userChatRepository, times(1)).findAllByUserId(userId);
+    verify(userChatRepository, times(1)).findAllByUserId(USER_ID);
     verifyNoInteractions(chatMapper); // Ensure chatMapper is not called
   }
 
   @Test
   void findUserChats_shouldReturnChatList_whenChatsFound() {
-    Long userId = 1L;
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+    when(userChatRepository.findAllByUserId(USER_ID)).thenReturn(List.of(userChat));
+    when(chatMapper.userChatToChatInfoDto(userChat)).thenReturn(chatInfoDto);
 
-    when(userChatRepository.findAllByUserId(userId)).thenReturn(List.of(userChat));
-    when(chatMapper.userChatToPrivateChatInfoDto(userChat)).thenReturn(privateChatInfoDto);
-
-    List<PrivateChatInfoDto> result = underTest.findUserChats(userId);
+    List<ChatInfoDto> result = underTest.findUserChats();
 
     assertEquals(1, result.size());
-    assertEquals(privateChatInfoDto, result.get(0));
-    verify(userChatRepository, times(1)).findAllByUserId(userId);
-    verify(chatMapper, times(1)).userChatToPrivateChatInfoDto(userChat);
+    assertEquals(chatInfoDto, result.get(0));
+    verify(userChatRepository, times(1)).findAllByUserId(USER_ID);
+    verify(chatMapper, times(1)).userChatToChatInfoDto(userChat);
   }
 
   @Test
@@ -333,43 +333,44 @@ class ChatServiceImplTest {
   @Nested
   class PrivateChat {
     private final Long userId = 1L, companionId = 2L;
-    private final NewPrivateChatDto dto = new NewPrivateChatDto(userId, companionId);
+    private final NewPrivateChatDto dto = new NewPrivateChatDto(companionId);
     private final List<Long> participantIds = List.of(userId, companionId);
 
     @Test
     void createPrivateChat_shouldReturnChatId_whenUserAndCompanionExist() {
-      User user1 = createUserWithId(userId);
       User companion = createUserWithId(companionId);
 
-      whenUserRepoFindById(userId, Optional.of(user1));
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       whenUserRepoFindById(companionId, Optional.of(companion));
       whenChatRepoFindPrivateChatByParticipants(participantIds, Optional.empty());
       when(chatRepository.save(any(Chat.class))).thenReturn(chat);
 
       Long result = underTest.createPrivateChat(dto);
       assertEquals(1, result);
-      verifyCallsUserRepoFindById(1, userId);
       verifyCallsUserRepoFindById(1, companionId);
     }
 
     @Test
     void createPrivateChat_shouldThrow_whenNoCompanionFound() {
-      whenUserRepoFindById(userId, Optional.empty());
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+
       assertThrows(UserNotFoundException.class, () -> underTest.createPrivateChat(dto));
     }
 
     @Test
     void createPrivateChat_shouldThrow_whenNoUserFound() {
-      whenUserRepoFindById(userId, Optional.of(user));
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       whenUserRepoFindById(companionId, Optional.empty());
+
       assertThrows(UserNotFoundException.class, () -> underTest.createPrivateChat(dto));
     }
 
     @Test
     void createPrivateChat_shouldThrow_whenChatAlreadyExists() {
-      whenUserRepoFindById(userId, Optional.of(createUserWithId(1L)));
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       whenUserRepoFindById(companionId, Optional.of(createUserWithId(2L)));
       whenChatRepoFindPrivateChatByParticipants(participantIds, Optional.of(chat));
+
       assertThrows(PrivateChatAlreadyExistsException.class, () -> underTest.createPrivateChat(dto));
     }
   }
@@ -397,20 +398,24 @@ class ChatServiceImplTest {
     private final Long chatId = 1L, userId = 1L, lastReadMessageId = 2L;
     private final UserChat userChat1 = new UserChat();
     private final SetLastReadMessageRequest requestDto =
-        new SetLastReadMessageRequest(userId, lastReadMessageId);
+        new SetLastReadMessageRequest(lastReadMessageId);
 
     @Test
     void setLastReadMessage_shouldUpdateField_whenUserChatFound() {
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(userChatRepository.findByChatIdAndUserId(chatId, userId))
           .thenReturn(Optional.of(userChat1));
+
       underTest.setLastReadMessage(chatId, requestDto);
-      userChat1.setLastReadMessageId(lastReadMessageId);
+
       verify(userChatRepository, times(1)).save(userChat1);
     }
 
     @Test
     void setLastReadMessage_shouldThrow_whenNoUserChatFound() {
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.empty());
+
       assertThrows(
           UserChatNotFoundException.class, () -> underTest.setLastReadMessage(chatId, requestDto));
     }

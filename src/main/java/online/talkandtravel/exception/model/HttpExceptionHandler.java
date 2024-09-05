@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.file.ImageProcessingException;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,6 +23,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import java.time.ZonedDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /** Global api exception handler. */
 @RestControllerAdvice
@@ -35,17 +37,17 @@ public class HttpExceptionHandler {
     return createResponse(e, e.getHttpStatus());
   }
 
-  @ExceptionHandler({IllegalStateException.class})
-  public ResponseEntity<ExceptionResponse> handleIllegalStateException(Exception e, ServletWebRequest request) {
+  @ExceptionHandler({
+      MissingServletRequestPartException.class,
+      HttpMediaTypeNotSupportedException.class,
+      IllegalStateException.class
+  })
+  ResponseEntity<ExceptionResponse> handleMissingServletRequestPartException(
+      Exception e, ServletWebRequest request) {
     return createBadRequestResponse(e.getMessage(), request);
   }
 
-  @ExceptionHandler({HttpMediaTypeNotSupportedException.class })
-  public ResponseEntity<ExceptionResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e, ServletWebRequest request) {
-    return createBadRequestResponse(e.getMessage(), request);
-  }
-
-  @ExceptionHandler({DataIntegrityViolationException.class})
+  @ExceptionHandler({DataIntegrityViolationException.class, ImageProcessingException.class})
   public ResponseEntity<ExceptionResponse> handleDataIntegrityViolationException(ServletWebRequest request) {
     String message = "Provided data is not valid or can't be processed";
     return createBadRequestResponse(message, request);

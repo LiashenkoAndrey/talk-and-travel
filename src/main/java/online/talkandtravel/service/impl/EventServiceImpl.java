@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +11,6 @@ import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserCountryNotFoundException;
-import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
@@ -25,10 +25,11 @@ import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
-import online.talkandtravel.repository.UserRepository;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.EventService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,11 +39,11 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>This service provides methods for handling various events in a chat, including:
  *
  * <ul>
- *   <li>{@link #startTyping(EventRequest)} - Logs an event when a user starts typing in a chat.
- *   <li>{@link #stopTyping(EventRequest)} - Logs an event when a user stops typing in a chat.
- *   <li>{@link #leaveChat(EventRequest)} - Manages the user's departure from a chat and records the
+ *   <li>{@link #startTyping(EventRequest, Principal)} - Logs an event when a user starts typing in a chat.
+ *   <li>{@link #stopTyping(EventRequest, Principal)} - Logs an event when a user stops typing in a chat.
+ *   <li>{@link #leaveChat(EventRequest, Principal)} - Manages the user's departure from a chat and records the
  *       event.
- *   <li>{@link #joinChat(EventRequest)} - Handles the user's entry into a chat and records the
+ *   <li>{@link #joinChat(EventRequest, Principal)} - Handles the user's entry into a chat and records the
  *       event.
  * </ul>
  *
@@ -53,11 +54,9 @@ import org.springframework.transaction.annotation.Transactional;
  *       records when a user leaves a chat.
  *   <li>{@link #saveConnections(Chat, User)} - Creates and saves connections between a user and a
  *       chat, and updates user-country relationships.
- *   <li>{@link #checkUserAlreadyJoinedChat(EventRequest)} - Checks if a user is already part of the
+ *   <li>{@link #checkUserAlreadyJoinedChat(EventRequest, Long)} - Checks if a user is already part of the
  *       chat to prevent duplicate entries.
- *   <li>{@link #getUser(EventRequest)} - Retrieves a user entity by ID, or throws a {@link
- *       UserNotFoundException} if not found.
- *   <li>{@link #getChat(EventRequest)} - Retrieves a chat entity by ID, or throws a {@link
+ *   <li>{@link #getChat(EventRequest, Long)} - Retrieves a chat entity by ID, or throws a {@link
  *       ChatNotFoundException} if not found.
  * </ul>
  */
@@ -69,7 +68,6 @@ public class EventServiceImpl implements EventService {
   public static final String LEFT_THE_CHAT = "%s left the chat";
   public static final int MAX_USERS_IN_PRIVATE_CHAT = 2;
   private final ChatRepository chatRepository;
-  private final UserRepository userRepository;
   private final UserChatRepository userChatRepository;
   private final UserCountryRepository userCountryRepository;
   private final MessageRepository messageRepository;
@@ -77,24 +75,24 @@ public class EventServiceImpl implements EventService {
   private final UserMapper userMapper;
 
   @Override
-  public EventResponse startTyping(EventRequest request) {
-    User user = getUser(request);
-    throwIfChatNotExists(request);
+  public EventResponse startTyping(EventRequest request, Principal principal) {
+    User user = getUser(principal);
+    throwIfChatNotExists(request, user.getId());
     return createChatTransientEvent(user, MessageType.START_TYPING);
   }
 
   @Override
-  public EventResponse stopTyping(EventRequest request) {
-    User user = getUser(request);
-    throwIfChatNotExists(request);
+  public EventResponse stopTyping(EventRequest request, Principal principal) {
+    User user = getUser(principal);
+    throwIfChatNotExists(request, user.getId());
     return createChatTransientEvent(user, MessageType.STOP_TYPING);
   }
 
   @Transactional
   @Override
-  public MessageDto leaveChat(EventRequest request) {
-    Chat chat = getChat(request);
-    User author = getUser(request);
+  public MessageDto leaveChat(EventRequest request, Principal principal) {
+    User author = getUser(principal);
+    Chat chat = getChat(request, author.getId());
 
     removeConnections(request, chat, author);
 
@@ -112,8 +110,9 @@ public class EventServiceImpl implements EventService {
 
   @Override
   @Transactional
-  public void deleteChatIfEmpty(EventRequest request) {
-    Chat chat = getChat(request);
+  public void deleteChatIfEmpty(EventRequest request, Principal principal) {
+    User user = getUser(principal);
+    Chat chat = getChat(request, user.getId());
     if (chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty()) {
       chatRepository.delete(chat);
     }
@@ -121,11 +120,11 @@ public class EventServiceImpl implements EventService {
 
   @Transactional
   @Override
-  public MessageDto joinChat(EventRequest request) {
-    Chat chat = getChat(request);
-    User author = getUser(request);
-    checkChatIsNotPrivate(request, chat);
-    checkUserAlreadyJoinedChat(request);
+  public MessageDto joinChat(EventRequest request, Principal principal) {
+    User author = getUser(principal);
+    Chat chat = getChat(request, author.getId());
+    checkChatIsNotPrivate(request, chat, author.getId());
+    checkUserAlreadyJoinedChat(request, author.getId());
 
     saveConnections(chat, author);
 
@@ -140,30 +139,35 @@ public class EventServiceImpl implements EventService {
     return messageMapper.toMessageDto(message);
   }
 
-  private void removeConnections(EventRequest request, Chat chat, User author) {
-    validateUserChatMembership(request);
-    removeUserFromChat(request);
-    handleUserCountryAssociation(request, chat, author);
+  private User getUser(Principal principal) {
+    CustomUserDetails customUserDetails = (CustomUserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+    return customUserDetails.getUser();
   }
 
-  private void validateUserChatMembership(EventRequest request) {
+  private void removeConnections(EventRequest request, Chat chat, User author) {
+    validateUserChatMembership(request, author.getId());
+    removeUserFromChat(request, author.getId());
+    handleUserCountryAssociation(chat, author);
+  }
+
+  private void validateUserChatMembership(EventRequest request, Long authorId) {
     Optional<UserChat> optionalUserChat =
-        userChatRepository.findByChatIdAndUserId(request.chatId(), request.authorId());
+        userChatRepository.findByChatIdAndUserId(request.chatId(), authorId);
     if (optionalUserChat.isEmpty()) {
-      throw new UserNotJoinedTheChatException(request.authorId(), request.chatId());
+      throw new UserNotJoinedTheChatException(authorId, request.chatId());
     }
   }
 
-  private void removeUserFromChat(EventRequest request) {
+  private void removeUserFromChat(EventRequest request, Long authorId) {
     userChatRepository
-        .findByChatIdAndUserId(request.chatId(), request.authorId())
+        .findByChatIdAndUserId(request.chatId(), authorId)
         .ifPresent(userChatRepository::delete);
   }
 
-  private void handleUserCountryAssociation(EventRequest request, Chat chat, User author) {
+  private void handleUserCountryAssociation(Chat chat, User author) {
     if (chat.getCountry() != null) {
       UserCountry userCountry = findUserCountry(chat, author);
-      if (isLastChatInCountry(request, userCountry)) {
+      if (isLastChatInCountry(author.getId(), userCountry.getId())) {
         removeUserCountryAssociation(userCountry);
       }
     }
@@ -176,9 +180,9 @@ public class EventServiceImpl implements EventService {
             () -> new UserCountryNotFoundException(chat.getCountry().getName(), author.getId()));
   }
 
-  private boolean isLastChatInCountry(EventRequest request, UserCountry userCountry) {
+  private boolean isLastChatInCountry(Long authorId, Long countryId) {
     List<UserChat> userChats =
-        userChatRepository.findAllByUserIdAndUserCountryId(request.authorId(), userCountry.getId());
+        userChatRepository.findAllByUserIdAndUserCountryId(authorId, countryId);
     return userChats.isEmpty();
   }
 
@@ -186,10 +190,10 @@ public class EventServiceImpl implements EventService {
     userCountryRepository.delete(userCountry);
   }
 
-  private void checkChatIsNotPrivate(EventRequest request, Chat chat) {
+  private void checkChatIsNotPrivate(EventRequest request, Chat chat, Long authorId) {
     if (chat.getChatType().equals(ChatType.PRIVATE)
         && chat.getUsers().size() >= MAX_USERS_IN_PRIVATE_CHAT) {
-      throw new PrivateChatMustContainTwoUsersException(request);
+      throw new PrivateChatMustContainTwoUsersException(request, authorId);
     }
   }
 
@@ -231,40 +235,30 @@ public class EventServiceImpl implements EventService {
     }
   }
 
-  private void checkUserAlreadyJoinedChat(EventRequest request) {
+  private void checkUserAlreadyJoinedChat(EventRequest request, Long authorId) {
     Optional<UserChat> userChats =
-        userChatRepository.findByChatIdAndUserId(request.chatId(), request.authorId());
+        userChatRepository.findByChatIdAndUserId(request.chatId(), authorId);
     if (userChats.isPresent()) {
-      throw new UserAlreadyJoinTheChatException(request.authorId(), request.chatId());
+      throw new UserAlreadyJoinTheChatException(authorId, request.chatId());
     }
   }
 
-  private User getUser(EventRequest request) {
-    try {
-      return userRepository
-          .findById(request.authorId())
-          .orElseThrow(() -> new UserNotFoundException(request.authorId()));
-    } catch (UserNotFoundException e) {
-      throw new WebSocketException(e, request.authorId());
-    }
-  }
-
-  private Chat getChat(EventRequest request) {
+  private Chat getChat(EventRequest request, Long authorId) {
     try {
       return chatRepository
           .findById(request.chatId())
           .orElseThrow(() -> new ChatNotFoundException(request.chatId()));
     } catch (ChatNotFoundException e) {
-      throw new WebSocketException(e, request.authorId());
+      throw new WebSocketException(e, authorId);
     }
   }
 
-  private void throwIfChatNotExists(EventRequest request) {
+  private void throwIfChatNotExists(EventRequest request, Long authorId) {
     if (!chatRepository.existsById(request.chatId())) {
       try {
         throw new ChatNotFoundException(request.chatId());
       } catch (ChatNotFoundException e) {
-        throw new WebSocketException(e, request.authorId());
+        throw new WebSocketException(e, authorId);
       }
     }
   }

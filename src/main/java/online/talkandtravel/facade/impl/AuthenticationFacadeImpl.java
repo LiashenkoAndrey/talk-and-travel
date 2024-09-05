@@ -16,6 +16,7 @@ import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -69,6 +70,13 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   public void authenticateUser(String token, HttpServletRequest request) {
     UserDetails userDetails = getUserDetails(token);
     authenticationService.authenticateUser(userDetails, request);
+  }
+
+  @Override
+  public UsernamePasswordAuthenticationToken createUsernamePasswordAuthenticationToken(
+      String token) {
+    UserDetails userDetails = getUserDetails(token);
+    return authenticationService.createUsernamePasswordAuthenticationToken(userDetails);
   }
 
   private UserDtoBasic createAndSaveNewUser(RegisterRequest request) {

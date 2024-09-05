@@ -1,5 +1,6 @@
 package online.talkandtravel.service;
 
+import java.security.Principal;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
@@ -14,29 +15,29 @@ import online.talkandtravel.model.dto.message.MessageDto;
  * <p>Methods:
  *
  * <ul>
- *   <li>{@link #joinChat(EventRequest)} - Processes a request for a user to join a chat. The method
+ *   <li>{@link #joinChat(EventRequest, Principal)} - Processes a request for a user to join a chat. The method
  *       returns an {@link EventDtoBasic} representing the event that occurred, including details
  *       about the chat and user.
- *   <li>{@link #leaveChat(EventRequest)} - Processes a request for a user to leave a chat. The
+ *   <li>{@link #leaveChat(EventRequest, Principal)} - Processes a request for a user to leave a chat. The
  *       method returns an {@link EventDtoBasic} representing the event that occurred, including
  *       details about the chat and user.
- *   <li>{@link #startTyping(EventRequest)} - Processes a request indicating that a user has started
+ *   <li>{@link #startTyping(EventRequest, Principal)} - Processes a request indicating that a user has started
  *       typing in a chat. The method returns an {@link EventDtoBasic} representing the event that
  *       occurred, including details about the chat and user.
- *   <li>{@link #stopTyping(EventRequest)} - Processes a request indicating that a user has stopped
+ *   <li>{@link #stopTyping(EventRequest, Principal)} - Processes a request indicating that a user has stopped
  *       typing in a chat. The method returns an {@link EventDtoBasic} representing the event that
  *       occurred, including details about the chat and user.
  * </ul>
  */
 public interface EventService {
 
-  void deleteChatIfEmpty(EventRequest request);
+  void deleteChatIfEmpty(EventRequest request, Principal principal);
 
-  MessageDto joinChat(EventRequest request);
+  MessageDto joinChat(EventRequest request, Principal principal);
 
-  MessageDto leaveChat(EventRequest request);
+  MessageDto leaveChat(EventRequest request, Principal principal);
 
-  EventResponse startTyping(EventRequest request);
+  EventResponse startTyping(EventRequest request, Principal principal);
 
-  EventResponse stopTyping(EventRequest request);
+  EventResponse stopTyping(EventRequest request, Principal principal);
 }

@@ -14,9 +14,11 @@ import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.entity.Country;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.UserCountryRepository;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.impl.CountryServiceImpl;
 import online.talkandtravel.util.mapper.CountryMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,8 @@ class CountryServiceImplTest {
   @Mock private UserCountryRepository userCountryRepository;
   @Mock private CountryMapper countryMapper;
 
+  @Mock private AuthenticationService authenticationService;
+
   @InjectMocks private CountryServiceImpl underTest;
 
   private Country country1;
@@ -43,8 +47,11 @@ class CountryServiceImplTest {
   private List<UserCountry> userCountries;
   private List<CountryInfoDto> countryInfoDtos;
 
+  private User user;
+
   @BeforeEach
   void setUp() {
+    user = User.builder().id(1L).build();
     country1 = new Country();
     country1.setName("Country1");
 
@@ -123,13 +130,14 @@ class CountryServiceImplTest {
 
   @Test
   void findAllCountriesByUserId_shouldReturnCountryInfoDtos_whenUserCountriesExist() {
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
     when(userCountryRepository.findByUserId(1L)).thenReturn(userCountries);
     when(countryMapper.userCountryToCountryInfoDto(userCountries.get(0)))
         .thenReturn(countryInfoDtos.get(0));
     when(countryMapper.userCountryToCountryInfoDto(userCountries.get(1)))
         .thenReturn(countryInfoDtos.get(1));
 
-    List<CountryInfoDto> result = underTest.findAllCountriesByUserId(1L);
+    List<CountryInfoDto> result = underTest.findAllUserCountries();
 
     assertEquals(countryInfoDtos, result);
     verify(userCountryRepository, times(1)).findByUserId(1L);
@@ -139,12 +147,11 @@ class CountryServiceImplTest {
 
   @Test
   void findAllCountriesByUserId_shouldReturnEmptyList_whenNoUserCountriesExist() {
-    when(userCountryRepository.findByUserId(2L)).thenReturn(List.of());
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
 
-    List<CountryInfoDto> result = underTest.findAllCountriesByUserId(2L);
+    List<CountryInfoDto> result = underTest.findAllUserCountries();
 
     assertEquals(List.of(), result);
-    verify(userCountryRepository, times(1)).findByUserId(2L);
     verifyNoInteractions(countryMapper);
   }
 

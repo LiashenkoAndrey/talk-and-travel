@@ -1,5 +1,7 @@
 package online.talkandtravel.service.impl;
 
+import static java.lang.String.format;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,8 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
-
-import static java.lang.String.format;
 
 /**
  * Implementation of the {@link AuthenticationService} for managing user authentication and
@@ -89,17 +89,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   @Override
   public void authenticateUser(UserDetails userDetails, HttpServletRequest request) {
-    WebAuthenticationDetails details = new WebAuthenticationDetailsSource().buildDetails(request);
-
     var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
         userDetails.getAuthorities());
 
-    // populate the token with additional details from the HTTP request
-    authToken.setDetails(details);
+    if (request != null) {
+      // populate the token with additional details from the HTTP request
+      WebAuthenticationDetails details = new WebAuthenticationDetailsSource().buildDetails(request);
+      authToken.setDetails(details);
+    }
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
 
-
+  @Override
+  public UsernamePasswordAuthenticationToken createUsernamePasswordAuthenticationToken(
+      UserDetails userDetails) {
+    return new UsernamePasswordAuthenticationToken(
+        userDetails,
+        null,
+        userDetails.getAuthorities()
+    );
+  }
 
   /**
    * Authenticates a user by their email and password. If the user is found and the credentials

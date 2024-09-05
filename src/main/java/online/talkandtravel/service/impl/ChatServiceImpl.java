@@ -14,7 +14,6 @@ import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -109,7 +108,7 @@ public class ChatServiceImpl implements ChatService {
   @Override
   @Transactional
   public Long createPrivateChat(NewPrivateChatDto dto) {
-    User user = getUser(dto.userId());
+    User user = authenticationService.getAuthenticatedUser();
     User companion = getUser(dto.companionId());
 
     checkIfChatExists(user, companion);
@@ -126,8 +125,9 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<PrivateChatDto> findAllUsersPrivateChats(Long userId) {
-    List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
+  public List<PrivateChatDto> findAllUsersPrivateChats() {
+    User user = authenticationService.getAuthenticatedUser();
+    List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
     return userChats.stream()
         .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
         .map(
@@ -135,7 +135,7 @@ public class ChatServiceImpl implements ChatService {
               Chat chat = userChat.getChat();
               List<UserChat> userChatList = userChatRepository.findAllByChatId(chat.getId());
               return userChatList.stream()
-                  .filter(userChat1 -> !userChat1.getUser().getId().equals(userId))
+                  .filter(userChat1 -> !userChat1.getUser().getId().equals(user.getId()))
                   .findFirst()
                   .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
             })
@@ -147,10 +147,11 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
     log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
+    User user = authenticationService.getAuthenticatedUser();
     UserChat userChat =
         userChatRepository
-            .findByChatIdAndUserId(chatId, dtoRequest.userId())
-            .orElseThrow(() -> new UserChatNotFoundException(chatId, dtoRequest.userId()));
+            .findByChatIdAndUserId(chatId, user.getId())
+            .orElseThrow(() -> new UserChatNotFoundException(chatId, user.getId()));
     userChat.setLastReadMessageId(dtoRequest.lastReadMessageId());
     userChatRepository.save(userChat);
   }
@@ -214,9 +215,10 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public List<PrivateChatInfoDto> findUserChats(Long userId) {
-    List<UserChat> userChats = userChatRepository.findAllByUserId(userId);
-    return userChats.stream().map(chatMapper::userChatToPrivateChatInfoDto).toList();
+  public List<ChatInfoDto> findUserChats() {
+    User user = authenticationService.getAuthenticatedUser();
+    List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
+    return userChats.stream().map(chatMapper::userChatToChatInfoDto).toList();
   }
 
   @Override

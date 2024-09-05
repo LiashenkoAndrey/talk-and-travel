@@ -74,7 +74,7 @@ class OnConnectChannelInterceptorTest {
     when(message.getHeaders()).thenReturn(accessor.getMessageHeaders());
     doThrow(new InvalidTokenException(errorMessage, errorMessage))
         .when(tokenService)
-        .validateToken(anyString());
+        .validateTokenAndGetUserId(anyString());
 
     MessageDeliveryException thrown =
         assertThrows(

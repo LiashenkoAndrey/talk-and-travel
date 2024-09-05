@@ -1,5 +1,8 @@
 package online.talkandtravel.model.dto.message;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 /**
  * Data Transfer Object (DTO) for representing a request to send a message.
  *
@@ -11,4 +14,8 @@ package online.talkandtravel.model.dto.message;
  * </ul>
  */
 
-public record SendMessageRequest(String content, Long chatId, Long senderId, Long repliedMessageId) {}
+public record SendMessageRequest(
+        @NotNull String content,
+        @NotNull @Positive Long chatId,
+        Long repliedMessageId
+) {}
