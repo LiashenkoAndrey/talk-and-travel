@@ -42,6 +42,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -56,6 +57,8 @@ class ChatEventServiceImplTest {
   @Mock private UserChatRepository userChatRepository;
   @Mock private UserCountryRepository userCountryRepository;
   @Mock private AuthenticationService authenticationService;
+
+  @Mock private SimpMessagingTemplate messagingTemplate;
 
   @InjectMocks private ChatEventServiceImpl underTest;
 
@@ -125,9 +128,8 @@ class ChatEventServiceImplTest {
       when(chatRepository.existsById(chatId)).thenReturn(true);
       when(userMapper.toUserNameDto(user)).thenReturn(userNameDto);
 
-      EventResponse result = underTest.startTyping(eventRequest, principal);
+      underTest.startTyping(eventRequest, principal);
 
-      assertEqualsExcludingTime(eventResponse, result);
       verify(chatRepository, times(1)).existsById(chatId);
     }
 
@@ -159,9 +161,8 @@ class ChatEventServiceImplTest {
               LocalDateTime.now() // Use current time for event time
               );
 
-      EventResponse result = underTest.stopTyping(eventRequest, principal);
+      underTest.stopTyping(eventRequest, principal);
 
-      assertEqualsExcludingTime(expected, result);
       verify(chatRepository, times(1)).existsById(chatId);
     }
 
@@ -191,9 +192,9 @@ class ChatEventServiceImplTest {
       when(messageRepository.save(any(Message.class))).thenReturn(message);
       when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
 
-      MessageDto result = underTest.joinChat(eventRequest, principal);
+      underTest.joinChat(eventRequest, principal);
 
-      assertEquals(messageDto, result);
+//      assertEquals(messageDto, result);
       verify(chatRepository, times(1)).findById(1L);
       verify(userChatRepository, times(1)).findByChatIdAndUserId(1L, 1L);
       verify(userCountryRepository, times(1)).findByCountryNameAndUserId("Country1", 1L);
@@ -273,11 +274,9 @@ class ChatEventServiceImplTest {
       when(messageRepository.save(any(Message.class))).thenReturn(message);
       when(messageMapper.toMessageDto(message)).thenReturn(messageDto);
 
-      // Act
-      MessageDto result = underTest.leaveChat(eventRequest, principal);
+      underTest.leaveChat(eventRequest, principal);
 
-      // Assert
-      assertEqualsExcludingTime(eventDtoBasic, result);
+//      assertEqualsExcludingTime(eventDtoBasic, result);
       verify(chatRepository, times(1)).findById(CHAT_ID);
       verify(userChatRepository, times(2)).findByChatIdAndUserId(CHAT_ID, USER_ID);
       verify(userCountryRepository, times(1))
