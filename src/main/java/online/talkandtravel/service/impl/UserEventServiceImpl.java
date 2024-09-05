@@ -20,19 +20,25 @@ public class UserEventServiceImpl implements UserEventService {
   private final RedisTemplate<String, String> redisTemplate;
 
   private static final String USER_STATUS_KEY = "user:%s:isOnline";
-  private static final Duration ONLINE_STATUS_EXPIRATION = Duration.ofMinutes(5);
+  private static final Duration ONLINE_STATUS_EXPIRATION = Duration.ofSeconds(5);
+  private static final String PUBLISH_EVENT_DESTINATION = "/user/%s/onlineStatus";
 
-
-  private static final String PUBLISH_EVENT_DESTINATION = "/countries/%s/messages";
 
   @Override
   public void updateUserOnlineStatus(UserOnlineStatus userOnlineStatus, Long userId) {
-    String key = String.format(USER_STATUS_KEY, userId);
-    redisTemplate.opsForValue().set(key, userOnlineStatus.isOnline(), ONLINE_STATUS_EXPIRATION);
+    log.info("update user online status with id:{}, isOnline:{}", userId, userOnlineStatus.isOnline());
+    try {
+      String key = String.format(USER_STATUS_KEY, userId);
+      redisTemplate.opsForValue().set(key, userOnlineStatus.isOnline().toString(), ONLINE_STATUS_EXPIRATION);
+      publishEvent(userOnlineStatus, userId);
+    } catch (Exception e) {
+      log.error("updateUserOnlineStatus: " + e.getMessage());
+    }
   }
 
   @Override
-  public void publishEvent(EventRequest request, Object payload) {
-    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(request.chatId()), payload);
+  public void publishEvent(UserOnlineStatus userInlineStatus, Object... args) {
+    log.info("publishEvent: payload: {}", userInlineStatus);
+    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(args), userInlineStatus.isOnline());
   }
 }

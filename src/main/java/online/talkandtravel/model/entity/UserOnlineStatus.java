@@ -6,8 +6,8 @@ public enum UserOnlineStatus {
 
   private final Boolean isOnline;
 
-  public String isOnline() {
-    return isOnline.toString();
+  public Boolean isOnline() {
+    return isOnline;
   }
 
   UserOnlineStatus(Boolean isOnline) {

@@ -1,9 +1,7 @@
 package online.talkandtravel.service.event;
 
-import online.talkandtravel.model.dto.event.EventRequest;
+public interface EventService<T> {
 
-public interface EventService {
-
-  void publishEvent(EventRequest request, Object payload);
+  void publishEvent(T payload, Object... args);
 
 }

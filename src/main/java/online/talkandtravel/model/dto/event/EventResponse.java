@@ -13,4 +13,9 @@ import online.talkandtravel.model.entity.MessageType;
  *   <li>{@code creationDate} - Date and time when the event occurred.
  * </ul>
  */
-public record EventResponse(UserNameDto user, MessageType type, LocalDateTime creationDate) {}
+public record EventResponse(
+    UserNameDto user,
+    MessageType type,
+    LocalDateTime creationDate)  implements EventPayload
+
+{}

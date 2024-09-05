@@ -29,7 +29,7 @@ import online.talkandtravel.model.dto.message.MessageDto;
  *       occurred, including details about the chat and user.
  * </ul>
  */
-public interface ChatEventService extends EventService {
+public interface ChatEventService extends EventService<EventResponse> {
 
   void deleteChatIfEmpty(EventRequest request, Principal principal);
 

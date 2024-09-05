@@ -1,6 +1,7 @@
 package online.talkandtravel.model.dto.message;
 
 import java.time.LocalDateTime;
+import online.talkandtravel.model.dto.event.EventPayload;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.MessageType;
 
@@ -21,4 +22,4 @@ public record MessageDto(
     LocalDateTime creationDate,
     UserNameDto user,
     Long chatId,
-    Long repliedMessageId) {}
+    Long repliedMessageId) implements EventPayload {}

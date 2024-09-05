@@ -80,8 +80,8 @@ public class ChatEventServiceImpl implements ChatEventService {
   private final SimpMessagingTemplate messagingTemplate;
 
   @Override
-  public void publishEvent(EventRequest request, Object payload) {
-    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(request.chatId()), payload);
+  public void publishEvent(EventResponse payload, Object... args) {
+    messagingTemplate.convertAndSend(PUBLISH_EVENT_DESTINATION.formatted(args), payload);
   }
 
   @Override
@@ -91,7 +91,7 @@ public class ChatEventServiceImpl implements ChatEventService {
     throwIfChatNotExists(request, user.getId());
 
     EventResponse eventResponse = createChatTransientEvent(user, MessageType.START_TYPING);
-    publishEvent(request, eventResponse);
+    publishEvent(eventResponse, request.chatId());
   }
 
   @Override
@@ -101,7 +101,7 @@ public class ChatEventServiceImpl implements ChatEventService {
     throwIfChatNotExists(request, user.getId());
 
     EventResponse eventResponse = createChatTransientEvent(user, MessageType.STOP_TYPING);
-    publishEvent(request, eventResponse);
+    publishEvent(eventResponse, request.chatId());
   }
 
   @Transactional
@@ -116,7 +116,7 @@ public class ChatEventServiceImpl implements ChatEventService {
     deleteChatIfEmpty(request, principal);
 
     MessageDto messageDto = messageMapper.toMessageDto(message);
-    publishEvent(request, messageDto);
+    publishEvent(messageDto, request.chatId());
   }
 
 
