@@ -1,4 +1,4 @@
-package online.talkandtravel.model.enums;
+package online.talkandtravel.model.entity;
 
 /**
  * Enum representing the type of tokens used in the application.

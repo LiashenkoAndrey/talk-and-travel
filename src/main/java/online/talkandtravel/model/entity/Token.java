@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import online.talkandtravel.model.enums.TokenType;
 
 /**
  * Entity class representing an authentication or authorization token.

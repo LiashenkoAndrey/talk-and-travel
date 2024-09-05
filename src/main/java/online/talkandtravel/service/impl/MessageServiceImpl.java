@@ -10,7 +10,7 @@ import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
-import online.talkandtravel.model.enums.MessageType;
+import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;

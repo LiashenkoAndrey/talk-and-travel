@@ -31,7 +31,7 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   private final TokenService tokenService;
   private final AuthenticationService authenticationService;
   private final UserMapper userMapper;
-  private final UserEventService userEventService;
+
 
   @Override
   public AuthResponse login(LoginRequest request) {
@@ -39,7 +39,6 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     User authenticatedUser = authenticationService.checkUserCredentials(request.userEmail(), request.password());
     String jwtToken = saveOrUpdateUserToken(authenticatedUser.getId());
 
-    userEventService.updateUserOnlineStatus(UserOnlineStatus.ONLINE, authenticatedUser.getId());
     return new AuthResponse(jwtToken, userMapper.toUserDtoBasic(authenticatedUser));
   }
 
@@ -49,7 +48,6 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     UserDtoBasic newUser = createAndSaveNewUser(request);
     String jwtToken = saveOrUpdateUserToken(newUser.id());
 
-    userEventService.updateUserOnlineStatus(UserOnlineStatus.ONLINE, newUser.id());
     return new AuthResponse(jwtToken, newUser);
   }
 

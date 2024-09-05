@@ -1,4 +1,4 @@
-package online.talkandtravel.model.enums;
+package online.talkandtravel.model.entity;
 
 /**
  * Enumeration representing the types of events that can occur in the chat application.

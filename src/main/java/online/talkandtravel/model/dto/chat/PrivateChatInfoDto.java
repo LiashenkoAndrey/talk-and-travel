@@ -1,7 +1,7 @@
 package online.talkandtravel.model.dto.chat;
 
 import java.time.LocalDateTime;
-import online.talkandtravel.model.enums.ChatType;
+import online.talkandtravel.model.entity.ChatType;
 
 /**
  * Data Transfer Object (DTO) for representing a chat.

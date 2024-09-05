@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDto;
-import online.talkandtravel.model.enums.ChatType;
+import online.talkandtravel.model.entity.ChatType;
 
 /**
  * Data Transfer Object (DTO) for representing a chat.

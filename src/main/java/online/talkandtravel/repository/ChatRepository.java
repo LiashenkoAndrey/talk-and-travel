@@ -3,7 +3,7 @@ package online.talkandtravel.repository;
 import java.util.List;
 import java.util.Optional;
 import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.enums.ChatType;
+import online.talkandtravel.model.entity.ChatType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

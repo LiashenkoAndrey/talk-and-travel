@@ -30,7 +30,7 @@ import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
-import online.talkandtravel.model.enums.ChatType;
+import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;

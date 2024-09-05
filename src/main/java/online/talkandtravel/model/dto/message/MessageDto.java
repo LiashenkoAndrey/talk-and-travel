@@ -2,7 +2,7 @@ package online.talkandtravel.model.dto.message;
 
 import java.time.LocalDateTime;
 import online.talkandtravel.model.dto.user.UserNameDto;
-import online.talkandtravel.model.enums.MessageType;
+import online.talkandtravel.model.entity.MessageType;
 
 /**
  * Data transfer object representing a message.

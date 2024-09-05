@@ -1,4 +1,4 @@
-package online.talkandtravel.model.enums;
+package online.talkandtravel.model.entity;
 
 /**
  * Enum representing different roles a user can have in the application.

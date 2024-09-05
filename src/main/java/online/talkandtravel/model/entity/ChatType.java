@@ -1,4 +1,4 @@
-package online.talkandtravel.model.enums;
+package online.talkandtravel.model.entity;
 
 /**
  * Enumeration representing the different types of chats within the application.

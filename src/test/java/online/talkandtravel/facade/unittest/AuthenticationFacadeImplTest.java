@@ -17,7 +17,7 @@ import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
-import online.talkandtravel.model.enums.Role;
+import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
