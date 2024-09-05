@@ -1,6 +1,6 @@
 package online.talkandtravel.service.event;
 
-import online.talkandtravel.model.enums.UserOnlineStatus;
+import online.talkandtravel.model.entity.UserOnlineStatus;
 
 public interface UserEventService extends EventService {
 
