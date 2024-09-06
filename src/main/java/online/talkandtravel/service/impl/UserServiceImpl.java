@@ -6,18 +6,24 @@ import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserOnlineStatusDto;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static online.talkandtravel.util.service.EventDestination.USER_STATUS_KEY;
+import static online.talkandtravel.util.service.EventDestination.getUserStatusKey;
+
 
 /**
  * Implementation of the {@link UserService} for managing user-related operations such as saving,
@@ -46,7 +52,14 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final RedisTemplate<String, String> redisTemplate;
   private final AuthenticationService authenticationService;
+
+  @Override
+  public UserOnlineStatusDto getUserOnlineStatus(Long userId) {
+    String isOnline = redisTemplate.opsForValue().get(getUserStatusKey(userId));
+    return new UserOnlineStatusDto(userId, Boolean.getBoolean(isOnline));
+  }
 
   @Override
   public void updateUserOnlineStatus(Boolean isOnline) {

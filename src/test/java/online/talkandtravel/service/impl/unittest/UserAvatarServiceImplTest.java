@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import online.talkandtravel.exception.avatar.UserAvatarNotFoundException;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.repository.AvatarRepository;
-import online.talkandtravel.service.impl.AvatarServiceImpl;
+import online.talkandtravel.service.impl.UserAvatarServiceImpl;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,12 +23,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class AvatarServiceImplTest {
+class UserAvatarServiceImplTest {
 
   @Mock private AvatarRepository avatarRepository;
 
   @InjectMocks
-  AvatarServiceImpl underTest;
+  UserAvatarServiceImpl underTest;
 
   @Nested
   class FindById {

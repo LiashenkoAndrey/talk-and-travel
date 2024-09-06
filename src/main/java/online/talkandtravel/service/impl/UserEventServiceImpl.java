@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl;
 
 
 import static online.talkandtravel.util.service.EventDestination.USER_ONLINE_STATUS_DESTINATION;
+import static online.talkandtravel.util.service.EventDestination.USER_STATUS_KEY;
 
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,6 @@ public class UserEventServiceImpl implements UserEventService {
 
   private final RedisTemplate<String, String> redisTemplate;
 
-  private static final String USER_STATUS_KEY = "user:%s:isOnline";
   private static final Duration ONLINE_STATUS_EXPIRATION = Duration.ofSeconds(5);
   private final EventPublisherUtil publisherUtil;
 
@@ -40,7 +40,7 @@ public class UserEventServiceImpl implements UserEventService {
   @Override
   public void publishEvent(UserOnlineStatus isOnline, Long userId) {
     log.info("publishEvent: payload: {}", isOnline.isOnline());
-    String dest = USER_ONLINE_STATUS_DESTINATION.formatted(userId);
+    String dest = "/chat/user/%s/onlineStatus".formatted(userId);
     publisherUtil.publishEvent(dest, isOnline);
   }
 }

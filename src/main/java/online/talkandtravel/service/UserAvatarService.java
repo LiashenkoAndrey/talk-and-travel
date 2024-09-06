@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
  *       user's avatar. Returns the newly created {@link Avatar} object.
  * </ul>
  */
-public interface AvatarService {
+public interface UserAvatarService {
 
   Avatar findByUserId(Long userId);
 

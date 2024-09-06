@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.model.entity.Avatar;
-import online.talkandtravel.service.AvatarService;
+import online.talkandtravel.service.UserAvatarService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,12 +33,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping(ApiPathConstants.API_BASE_PATH)
 @RequiredArgsConstructor
 public class AvatarController {
-  private final AvatarService avatarService;
+  private final UserAvatarService userAvatarService;
 
   @Operation(description = "Get Avatar by User ID.")
   @GetMapping({"/avatars/user/{userID}", "/v2/user/{userID}/avatar"})
   private ResponseEntity<byte[]> getByUserId(@PathVariable @Positive Long userID) {
-    Avatar avatar = avatarService.findByUserId(userID);
+    Avatar avatar = userAvatarService.findByUserId(userID);
     return ResponseEntity.ok()
         .contentType(MediaType.valueOf(IMAGE_PNG_VALUE))
         .body(avatar.getContent());
@@ -47,7 +47,7 @@ public class AvatarController {
   @Operation(description = "Update avatar.")
   @PostMapping({"/avatars/user/{}","/v2/user/avatar"})
   public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile image) {
-    avatarService.saveOrUpdateUserAvatar(image);
+    userAvatarService.saveOrUpdateUserAvatar(image);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

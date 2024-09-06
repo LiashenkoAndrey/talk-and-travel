@@ -11,23 +11,21 @@ import online.talkandtravel.exception.file.UnsupportedFormatException;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.AvatarRepository;
-import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AuthenticationService;
-import online.talkandtravel.service.AvatarService;
-import online.talkandtravel.service.ImageService;
+import online.talkandtravel.service.UserAvatarService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Implementation of the {@link AvatarService} for managing user avatars.
+ * Implementation of the {@link UserAvatarService} for managing user avatars.
  *
  * <p>This service handles the following operations related to avatars:
  *
  * <ul>
  *   <li>{@link #save(Avatar)} - Saves an {@link Avatar} entity to the repository.
  *   <li>{@link #findByUserId(Long)} - Retrieves an avatar associated with a specific user ID.
- *   <li>{@link AvatarService#createDefaultAvatar(String)} - Creates a default avatar for a user with the given
+ *   <li>{@link UserAvatarService#createDefaultAvatar(String)} - Creates a default avatar for a user with the given
  *       username.
  *   <li>{@link #uploadAvatar(MultipartFile, Long)} - Uploads and saves a new avatar for a user from
  *       a multipart file.
@@ -49,7 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class AvatarServiceImpl implements AvatarService {
+public class UserAvatarServiceImpl implements UserAvatarService {
   private static final String[] SUPPORTED_FORMAT_AVATAR = {"jpeg", "jpg", "png"};
   private static final int MAX_SIZE_AVATAR = 4 * 1024 * 1024; // Size in bytes (4MB)
   private final AvatarRepository avatarRepository;
