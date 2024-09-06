@@ -25,7 +25,7 @@ public class UserEventServiceImpl implements UserEventService {
 
 
   @Override
-  public void updateUserOnlineStatus(UserOnlineStatus userOnlineStatus, Long userId) {
+  public void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus, Long userId) {
     log.info("update user online status with id:{}, isOnline:{}", userId, userOnlineStatus.isOnline());
     try {
       String key = String.format(USER_STATUS_KEY, userId);

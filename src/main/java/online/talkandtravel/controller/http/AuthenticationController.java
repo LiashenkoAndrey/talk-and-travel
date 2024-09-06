@@ -38,14 +38,14 @@ public class AuthenticationController {
   @PostMapping("/register")
   public AuthResponse register(@RequestBody @Valid RegisterRequest dto) {
     AuthResponse response = authFacade.register(dto);
-    userEventService.updateUserOnlineStatus(UserOnlineStatus.ONLINE, response.userDto().id());
+    userEventService.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE, response.userDto().id());
     return response;
   }
 
   @PostMapping("/login")
   public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
     AuthResponse response = authFacade.login(loginRequest);
-    userEventService.updateUserOnlineStatus(UserOnlineStatus.ONLINE, response.userDto().id());
+    userEventService.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE, response.userDto().id());
     return response;
   }
 }

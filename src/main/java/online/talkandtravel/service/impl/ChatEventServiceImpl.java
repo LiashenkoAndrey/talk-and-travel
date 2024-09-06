@@ -35,6 +35,7 @@ import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import online.talkandtravel.util.service.EventDestination;
 import online.talkandtravel.util.service.EventPublisherUtil;
+import online.talkandtravel.util.service.EventServiceUtil;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -84,8 +85,7 @@ public class ChatEventServiceImpl implements ChatEventService {
   private final UserMapper userMapper;
   private final EventPublisherUtil publisherUtil;
 
-  @Override
-  public void publishEvent(EventPayload payload, Long chatId) {
+  private void publishEvent(EventPayload payload, Long chatId) {
     String dest = CHAT_MESSAGE_DESTINATION.formatted(chatId);
     publisherUtil.publishEvent(dest, payload);
   }
@@ -165,8 +165,7 @@ public class ChatEventServiceImpl implements ChatEventService {
   }
 
   private User getUser(Principal principal) {
-    CustomUserDetails customUserDetails = (CustomUserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-    return customUserDetails.getUser();
+      return EventServiceUtil.getUserFromPrincipal(principal);
   }
 
   private void removeConnections(EventRequest request, Chat chat, User author) {
