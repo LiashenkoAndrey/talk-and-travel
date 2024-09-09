@@ -1,5 +1,6 @@
 package online.talkandtravel.controller.http;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -44,8 +45,9 @@ public class AuthenticationController {
   }
 
   @PostMapping("/login")
-  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
-    AuthResponse response = authFacade.login(loginRequest);
+  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest, HttpServletRequest httpServletRequest) {
+    AuthResponse response = authFacade.login(loginRequest, httpServletRequest);
+    log.info(response);
     userFacade.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE, response.userDto().id());
     return response;
   }

@@ -8,7 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 
 public interface AuthenticationFacade {
 
-  AuthResponse login(LoginRequest request);
+  AuthResponse login(LoginRequest request, HttpServletRequest httpServletRequest);
 
   String saveOrUpdateUserToken(Long userId);
 

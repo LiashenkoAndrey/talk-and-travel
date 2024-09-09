@@ -9,7 +9,7 @@
         <version>3.3.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.gmail.smaglenko</groupId>
+    <groupId>online.talk-and-travel</groupId>
     <artifactId>talk-and-travel</artifactId>
     <version>0.0.1</version>
     <name>talk-and-travel</name>

@@ -63,7 +63,6 @@ class UserServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    underTest.setPublisherUtil(publisherUtil);
     user = createDefaultUser();
     SecurityContextHolder.clearContext();
   }

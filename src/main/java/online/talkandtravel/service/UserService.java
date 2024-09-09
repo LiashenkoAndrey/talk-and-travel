@@ -40,7 +40,7 @@ public interface UserService {
 
   void updateUserOnlineStatus(UserOnlineStatus isOnline);
 
-  UserDtoBasic save(User user) throws IOException;
+  UserDtoBasic save(User user);
 
   User getReferenceById(Long userId);
 

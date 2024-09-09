@@ -118,7 +118,7 @@ class AuthenticationFacadeImplTest {
     stubbingSaveOrUpdateUserTokenMethod(authenticatedUser);
     when(userMapper.toUserDtoBasic(authenticatedUser)).thenReturn(expected);
 
-    AuthResponse authResponse = underTest.login(loginRequest);
+    AuthResponse authResponse = underTest.login(loginRequest, null);
     UserDtoBasic actual = authResponse.userDto();
 
     assertEquals(expected, actual);

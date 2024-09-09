@@ -1,7 +1,6 @@
 package online.talkandtravel.service.impl;
 
 import java.time.Duration;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
@@ -49,7 +48,6 @@ import static online.talkandtravel.util.service.EventDestination.getUserStatusKe
  */
 
 @Service
-@RequiredArgsConstructor
 @Log4j2
 public class UserServiceImpl implements UserService {
 
@@ -59,7 +57,18 @@ public class UserServiceImpl implements UserService {
   private final RedisTemplate<String, String> redisTemplate;
   private final AuthenticationService authenticationService;
 
-  private EventPublisherUtil publisherUtil;
+  private final EventPublisherUtil publisherUtil;
+
+  public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+      UserMapper userMapper, RedisTemplate<String, String> redisTemplate,
+      AuthenticationService authenticationService, @Lazy EventPublisherUtil publisherUtil) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.userMapper = userMapper;
+    this.redisTemplate = redisTemplate;
+    this.authenticationService = authenticationService;
+    this.publisherUtil = publisherUtil;
+  }
 
   @Override
   public UserOnlineStatusDto getUserOnlineStatus(Long userId) {
@@ -143,8 +152,4 @@ public class UserServiceImpl implements UserService {
     user.setPassword(encodePassword);
   }
 
-  @Lazy
-  public void setPublisherUtil(EventPublisherUtil publisherUtil) {
-    this.publisherUtil = publisherUtil;
-  }
 }

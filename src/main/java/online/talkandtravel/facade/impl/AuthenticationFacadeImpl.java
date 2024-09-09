@@ -13,6 +13,7 @@ import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserOnlineStatus;
+import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
@@ -32,11 +33,14 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   private final AuthenticationService authenticationService;
   private final UserMapper userMapper;
 
-
   @Override
-  public AuthResponse login(LoginRequest request) {
+  public AuthResponse login(LoginRequest request, HttpServletRequest httpServletRequest) {
     log.info("Login - email {}", request.userEmail());
     User authenticatedUser = authenticationService.checkUserCredentials(request.userEmail(), request.password());
+
+    CustomUserDetails details = new CustomUserDetails(authenticatedUser);
+    authenticationService.authenticateUser(details, httpServletRequest);
+
     String jwtToken = saveOrUpdateUserToken(authenticatedUser.getId());
 
     return new AuthResponse(jwtToken, userMapper.toUserDtoBasic(authenticatedUser));
