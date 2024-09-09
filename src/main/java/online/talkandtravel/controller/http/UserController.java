@@ -50,10 +50,4 @@ public class UserController {
   public Boolean existsByEmail(@RequestParam @Email String email) {
     return userService.existsByEmail(email);
   }
-
-  @SubscribeMapping("/user/{userId}/onlineStatus")
-  private UserOnlineStatusDto sendActualUserOnlineStatus(@DestinationVariable("userId") Long userId) {
-    log.info("Send actual user online status to user {}", userId);
-    return userService.getUserOnlineStatus(userId);
-  }
 }
