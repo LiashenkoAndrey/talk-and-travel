@@ -23,10 +23,10 @@ public class UserFacadeImpl implements UserFacade {
    *
    * @param userOnlineStatus the current online status of the user, represented by
    *                         {@link online.talkandtravel.model.entity.UserOnlineStatus}
-   * @param userId           the ID of the user whose online status is being updated
    */
   @Override
-  public void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus, Long userId) {
+  public void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus) {
+    UserFacade
     log.info("update user online status with id:{}, isOnline:{}", userId,
         userOnlineStatus.isOnline());
     userService.updateUserOnlineStatus(userOnlineStatus);

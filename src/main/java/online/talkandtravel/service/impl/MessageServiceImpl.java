@@ -1,5 +1,7 @@
 package online.talkandtravel.service.impl;
 
+import static online.talkandtravel.util.service.EventServiceUtil.getUserFromPrincipal;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
@@ -49,11 +51,10 @@ public class MessageServiceImpl implements MessageService {
   private final ChatRepository chatRepository;
   private final UserChatRepository userChatRepository;
   private final MessageMapper messageMapper;
-  private final AuthenticationService authenticationService;
 
   @Override
   public MessageDto saveMessage(SendMessageRequest request, Principal principal) {
-    User sender = getUser(principal);
+    User sender = getUserFromPrincipal(principal);
     checkUserJoinedTheChat(request, sender.getId());
     Chat chat = getChat(request, sender.getId());
     Message repliedMessage = getMessage(request, sender.getId());
@@ -71,11 +72,6 @@ public class MessageServiceImpl implements MessageService {
     message = chat.getMessages().get(chat.getMessages().size() - 1);
     message.setChat(chat);
     return messageMapper.toMessageDto(message);
-  }
-
-  private User getUser(Principal principal) {
-    CustomUserDetails customUserDetails = (CustomUserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-    return customUserDetails.getUser();
   }
 
   private void checkUserJoinedTheChat(SendMessageRequest request, Long senderId) {

@@ -39,7 +39,7 @@ public class AuthenticationController {
   @PostMapping("/register")
   public AuthResponse register(@RequestBody @Valid RegisterRequest dto) {
     AuthResponse response = authFacade.register(dto);
-    userFacade.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE, response.userDto().id());
+    userFacade.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE);
     return response;
   }
 
@@ -47,7 +47,7 @@ public class AuthenticationController {
   public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest,
       HttpServletRequest httpServletRequest) {
     AuthResponse response = authFacade.login(loginRequest, httpServletRequest);
-    userFacade.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE, response.userDto().id());
+    userFacade.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE);
     return response;
   }
 }

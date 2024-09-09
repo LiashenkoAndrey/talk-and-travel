@@ -15,8 +15,7 @@ public interface UserFacade {
    *
    * @param userOnlineStatus the current online status of the user, represented by
    *                         {@link online.talkandtravel.model.entity.UserOnlineStatus}
-   * @param userId           the ID of the user whose online status is being updated
    */
-  void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus, Long userId);
+  void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus);
 
 }
