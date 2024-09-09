@@ -18,7 +18,7 @@ public class EventPublisherUtil {
   private Long userOnlineStatusExpirationDuration;
 
   public Duration getUserOnlineStatusExpirationDuration() {
-    return Duration.ofMinutes(userOnlineStatusExpirationDuration);
+    return Duration.ofSeconds(userOnlineStatusExpirationDuration);
   }
 
   public void publishEvent(String destination, Object payload) {

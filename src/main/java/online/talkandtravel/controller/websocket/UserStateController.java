@@ -7,7 +7,6 @@ import online.talkandtravel.model.entity.UserOnlineStatus;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.service.event.UserEventService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,16 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 public class UserStateController {
 
-  private final UserService userService;
   private final UserEventService userEventService;
-  private final SimpMessagingTemplate simpMessagingTemplate;
+  private final UserService userService;
 
-  @SubscribeMapping("/userOnlineStatus/user/{userId}/onlineStatus")
+  @SubscribeMapping("/{userId}")
   private void sendActualUserOnlineStatus(@DestinationVariable("userId") Long userId) {
     log.info("Send actual user online status to user {}", userId);
-    simpMessagingTemplate.convertAndSend("/chat/userOnlineStatus/user/8/onlineStatus", true);
-    simpMessagingTemplate.convertAndSend("/userOnlineStatus/user/8/onlineStatus", true);
-//    UserOnlineStatusDto dto = userService.getUserOnlineStatus(userId);
-    userEventService.publishEvent(UserOnlineStatus.ONLINE, userId);
+    UserOnlineStatusDto onlineStatus = userService.getUserOnlineStatus(userId);
+    userEventService.publishEvent(UserOnlineStatus.ofStatus(onlineStatus.isOnline()), userId);
   }
 }

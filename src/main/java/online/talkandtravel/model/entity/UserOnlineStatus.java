@@ -10,6 +10,11 @@ public enum UserOnlineStatus {
     return isOnline;
   }
 
+  public static UserOnlineStatus ofStatus(Boolean b) {
+    if (b) return UserOnlineStatus.ONLINE;
+    return UserOnlineStatus.OFFLINE;
+  }
+
   UserOnlineStatus(Boolean isOnline) {
     this.isOnline = isOnline;
   }
