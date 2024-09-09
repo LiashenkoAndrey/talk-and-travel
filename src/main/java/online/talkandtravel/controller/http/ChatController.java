@@ -11,9 +11,8 @@ import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
-import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.constants.ApiPathConstants;
@@ -91,7 +90,7 @@ public class ChatController {
   }
 
   @GetMapping("/chats/{chatId}/messages")
-  public Page<MessageDtoBasic> getChatMessagesOrderedByDate(
+  public Page<MessageDto> getChatMessagesOrderedByDate(
       @PathVariable Long chatId,
       @PageableDefault Pageable pageable) {
     return chatService.findAllMessagesInChatOrdered(chatId, pageable);
@@ -112,7 +111,7 @@ public class ChatController {
 
   /** finds messages that was before specified last read message (including last read message) */
   @GetMapping("/chats/{chatId}/messages/read")
-  public Page<MessageDtoBasic> getReadMessages(
+  public Page<MessageDto> getReadMessages(
       @PathVariable Long chatId,
       @PageableDefault(sort = "creationDate") Pageable pageable) {
     return chatService.findReadMessages(chatId, pageable);
@@ -120,7 +119,7 @@ public class ChatController {
 
   /** finds messages that was sent after specified last read message */
   @GetMapping("/chats/{chatId}/messages/unread")
-  public Page<MessageDtoBasic> getUnreadMessages(
+  public Page<MessageDto> getUnreadMessages(
       @PathVariable Long chatId,
       @PageableDefault(sort = "creationDate") Pageable pageable) {
     return chatService.findUnreadMessages(chatId, pageable);

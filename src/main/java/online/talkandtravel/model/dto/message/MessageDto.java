@@ -21,4 +21,9 @@ public record MessageDto(
     LocalDateTime creationDate,
     UserNameDto user,
     Long chatId,
-    Long repliedMessageId) {}
+    Long repliedMessageId) {
+
+  public MessageDto(String content) {
+    this(null, null, content, null, null, null, null);
+  }
+}
