@@ -21,7 +21,7 @@ import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
@@ -54,7 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <ul>
  *   <li>{@link #createPrivateChat(NewPrivateChatDto)} - creates private chat between two users
- *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
+ *   <li>{@link #findAllUsersPrivateChats()} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
  *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already read
@@ -63,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves all chats with pagination.
  *   <li>{@link #findMainChat(String)} - Finds the main chat associated with a given country name.
  *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specified chat.
- *   <li>{@link #findUserChats(Long)} - Retrieves a list of chats associated with a specific user.
+ *   <li>{@link #findUserChats()} - Retrieves a list of chats associated with a specific user.
  *   <li>{@link #findAllUsersByChatId(Long)} - Retrieves a list of basic user details for all users
  *       in a specified chat.
  *   <li>{@link #findAllMessagesInChatOrdered(Long, Pageable)} - Retrieves all messages in a
@@ -157,7 +157,7 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable) {
+  public Page<MessageDto> findReadMessages(Long chatId, Pageable pageable) {
     User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
@@ -169,13 +169,13 @@ public class ChatServiceImpl implements ChatService {
     if (lastReadMessageId == null) {
       return messageRepository
           .findAllByChatId(chatId, pageable)
-          .map(messageMapper::toMessageDtoBasic);
+          .map(messageMapper::toMessageDto);
     }
     return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable);
   }
 
   @Override
-  public Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable) {
+  public Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable) {
     User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
@@ -228,10 +228,10 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDtoBasic> findAllMessagesInChatOrdered(Long chatId, Pageable pageable) {
+  public Page<MessageDto> findAllMessagesInChatOrdered(Long chatId, Pageable pageable) {
     return messageRepository
         .findAllByChatId(chatId, pageable)
-        .map(messageMapper::toMessageDtoBasic);
+        .map(messageMapper::toMessageDto);
   }
 
   private Chat getChat(Long chatId) {

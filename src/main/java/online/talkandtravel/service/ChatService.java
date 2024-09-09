@@ -6,8 +6,8 @@ import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
-import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ import org.springframework.data.domain.Pageable;
  *
  * <ul>
  *   <li>{@link #createPrivateChat(NewPrivateChatDto)} - creates private chat between two users
- *   <li>{@link #findAllUsersPrivateChats(Long)} - finds all private chats of a user
+ *   <li>{@link #findAllUsersPrivateChats()} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
  *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already read
@@ -37,7 +37,7 @@ import org.springframework.data.domain.Pageable;
  *   <li>{@link #countUsersInChat(Long)} - Counts the number of users in a specific chat. The method
  *       returns the total number of users associated with the chat identified by the provided chat
  *       ID.
- *   <li>{@link #findUserChats(Long)} - Retrieves a list of chats associated with a specific user.
+ *   <li>{@link #findUserChats()} - Retrieves a list of chats associated with a specific user.
  *       This method returns a list of {@link ChatDto} objects representing all chats that the user
  *       with the specified user ID is a part of.
  *   <li>{@link #findAllUsersByChatId(Long)} - Finds all users participating in a specified chat.
@@ -59,9 +59,9 @@ public interface ChatService {
 
   void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
-  Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable);
+  Page<MessageDto> findReadMessages(Long chatId, Pageable pageable);
 
-  Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable);
+  Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable);
 
   Page<ChatInfoDto> findAllGroupChats(Pageable pageable);
 
@@ -73,7 +73,7 @@ public interface ChatService {
 
   List<UserDtoBasic> findAllUsersByChatId(Long chatId);
 
-  Page<MessageDtoBasic> findAllMessagesInChatOrdered(Long chatId, Pageable pageable);
+  Page<MessageDto> findAllMessagesInChatOrdered(Long chatId, Pageable pageable);
 
   ChatDto findChatById(Long chatId);
 }
