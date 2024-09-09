@@ -126,12 +126,12 @@ public class ChatController {
     return chatService.findUnreadMessages(chatId, pageable);
   }
 
-  @GetMapping({"/chats/user/{}", "/v2/user/chats"})
+  @GetMapping({"/chats/user/{userId}", "/v2/user/chats"})
   public List<ChatInfoDto> findUserChats() {
     return chatService.findUserChats();
   }
 
-  @GetMapping({"/chats/user/{}/private", "/v2/user/private-chats"})
+  @GetMapping({"/chats/user/{userId}/private", "/v2/user/private-chats"})
   public List<PrivateChatDto> getUserPrivateChats() {
     return chatService.findAllUsersPrivateChats();
   }
