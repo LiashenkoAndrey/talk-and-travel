@@ -21,14 +21,20 @@ import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
-import online.talkandtravel.model.dto.chat.*;
+import online.talkandtravel.model.dto.chat.ChatDto;
+import online.talkandtravel.model.dto.chat.ChatInfoDto;
+import online.talkandtravel.model.dto.chat.NewChatDto;
+import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
+import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
@@ -80,10 +86,12 @@ class ChatServiceImplTest {
   private ChatInfoDto chatInfoDto;
   private UserDtoBasic userDtoBasic;
   private Message message;
-  private MessageDtoBasic messageDtoBasic;
+  private MessageDto messageDto;
   private Pageable pageable;
+  private UserNameDto userNameDto;
 
   private static final Long USER_ID = 1L;
+  private static final String USER_NAME = "Tomas";
 
 
   @BeforeEach
@@ -118,7 +126,8 @@ class ChatServiceImplTest {
     message.setId(1L);
     message.setContent("Test message");
 
-    messageDtoBasic = new MessageDtoBasic(1L, "Test message", LocalDateTime.now(), 1L, 1L, null);
+    userNameDto = new UserNameDto(USER_ID, USER_NAME);
+    messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", LocalDateTime.now(), userNameDto, 1L, null);
 
     pageable = PageRequest.of(0, 10);
   }
@@ -233,7 +242,7 @@ class ChatServiceImplTest {
     Long chatId = 1L;
     when(messageRepository.findAllByChatId(chatId, pageable)).thenReturn(Page.empty());
 
-    Page<MessageDtoBasic> result = underTest.findAllMessagesInChatOrdered(chatId, pageable);
+    Page<MessageDto> result = underTest.findAllMessagesInChatOrdered(chatId, pageable);
 
     assertTrue(result.isEmpty());
     verify(messageRepository, times(1)).findAllByChatId(chatId, pageable);
@@ -245,14 +254,14 @@ class ChatServiceImplTest {
     Long chatId = 1L;
     Page<Message> messagePage = new PageImpl<>(List.of(message), pageable, 1);
     when(messageRepository.findAllByChatId(chatId, pageable)).thenReturn(messagePage);
-    when(messageMapper.toMessageDtoBasic(message)).thenReturn(messageDtoBasic);
+    when(messageMapper.toMessageDto(message)).thenReturn(messageDto);
 
-    Page<MessageDtoBasic> result = underTest.findAllMessagesInChatOrdered(chatId, pageable);
+    Page<MessageDto> result = underTest.findAllMessagesInChatOrdered(chatId, pageable);
 
     assertEquals(1, result.getTotalElements());
-    assertEquals(messageDtoBasic, result.getContent().get(0));
+    assertEquals(messageDto, result.getContent().get(0));
     verify(messageRepository, times(1)).findAllByChatId(chatId, pageable);
-    verify(messageMapper, times(1)).toMessageDtoBasic(message);
+    verify(messageMapper, times(1)).toMessageDto(message);
   }
 
   @Nested
@@ -426,8 +435,8 @@ class ChatServiceImplTest {
     private final Long chatId = 1L, lastReadMessageId = 1L;
     private final Pageable pageable1 = PageRequest.of(0, 10);
     private final String content = "test";
-    private final Page<MessageDtoBasic> page =
-        new PageImpl<>(List.of(new MessageDtoBasic(content)));
+    private final Page<MessageDto> page =
+        new PageImpl<>(List.of(new MessageDto(content)));
 
     @Test
     void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
@@ -439,7 +448,7 @@ class ChatServiceImplTest {
 
       when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable))
           .thenReturn(page);
-      Page<MessageDtoBasic> result =
+      Page<MessageDto> result =
           underTest.findReadMessages(chatId, pageable1);
       assertEquals(content, result.toList().get(0).content());
     }
@@ -453,7 +462,7 @@ class ChatServiceImplTest {
           .findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.ofNullable(userChat));
       when(messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable))
           .thenReturn(page);
-      Page<MessageDtoBasic> result =
+      Page<MessageDto> result =
           underTest.findUnreadMessages(chatId, pageable1);
       assertEquals(content, result.toList().get(0).content());
     }

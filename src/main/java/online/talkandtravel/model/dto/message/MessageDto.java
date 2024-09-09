@@ -22,4 +22,9 @@ public record MessageDto(
     LocalDateTime creationDate,
     UserNameDto user,
     Long chatId,
-    Long repliedMessageId) implements EventPayload {}
+    Long repliedMessageId) implements EventPayload {
+
+  public MessageDto(String content) {
+    this(null, null, content, null, null, null, null);
+  }
+}

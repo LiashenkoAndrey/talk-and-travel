@@ -21,7 +21,7 @@ import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
@@ -157,7 +157,7 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable) {
+  public Page<MessageDto> findReadMessages(Long chatId, Pageable pageable) {
     User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
@@ -169,13 +169,13 @@ public class ChatServiceImpl implements ChatService {
     if (lastReadMessageId == null) {
       return messageRepository
           .findAllByChatId(chatId, pageable)
-          .map(messageMapper::toMessageDtoBasic);
+          .map(messageMapper::toMessageDto);
     }
     return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable);
   }
 
   @Override
-  public Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable) {
+  public Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable) {
     User user = authenticationService.getAuthenticatedUser();
 
     UserChat userChat =
@@ -228,10 +228,10 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDtoBasic> findAllMessagesInChatOrdered(Long chatId, Pageable pageable) {
+  public Page<MessageDto> findAllMessagesInChatOrdered(Long chatId, Pageable pageable) {
     return messageRepository
         .findAllByChatId(chatId, pageable)
-        .map(messageMapper::toMessageDtoBasic);
+        .map(messageMapper::toMessageDto);
   }
 
   private Chat getChat(Long chatId) {

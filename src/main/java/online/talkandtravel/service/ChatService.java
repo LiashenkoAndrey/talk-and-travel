@@ -6,8 +6,8 @@ import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
-import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
+import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import org.springframework.data.domain.Page;
@@ -59,9 +59,9 @@ public interface ChatService {
 
   void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
-  Page<MessageDtoBasic> findReadMessages(Long chatId, Pageable pageable);
+  Page<MessageDto> findReadMessages(Long chatId, Pageable pageable);
 
-  Page<MessageDtoBasic> findUnreadMessages(Long chatId, Pageable pageable);
+  Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable);
 
   Page<ChatInfoDto> findAllGroupChats(Pageable pageable);
 
@@ -73,7 +73,7 @@ public interface ChatService {
 
   List<UserDtoBasic> findAllUsersByChatId(Long chatId);
 
-  Page<MessageDtoBasic> findAllMessagesInChatOrdered(Long chatId, Pageable pageable);
+  Page<MessageDto> findAllMessagesInChatOrdered(Long chatId, Pageable pageable);
 
   ChatDto findChatById(Long chatId);
 }
