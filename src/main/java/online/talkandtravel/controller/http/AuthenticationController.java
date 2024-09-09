@@ -47,7 +47,6 @@ public class AuthenticationController {
   public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest,
       HttpServletRequest httpServletRequest) {
     AuthResponse response = authFacade.login(loginRequest, httpServletRequest);
-    log.info(response);
     userFacade.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE, response.userDto().id());
     return response;
   }

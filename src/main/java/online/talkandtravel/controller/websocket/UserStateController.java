@@ -18,7 +18,7 @@ public class UserStateController {
   private final UserEventService userEventService;
   private final UserService userService;
 
-  @SubscribeMapping("/{userId}")
+  @SubscribeMapping("/{userId}/onlineStatus")
   private void sendActualUserOnlineStatus(@DestinationVariable("userId") Long userId) {
     log.info("Send actual user online status to user {}", userId);
     UserOnlineStatusDto onlineStatus = userService.getUserOnlineStatus(userId);

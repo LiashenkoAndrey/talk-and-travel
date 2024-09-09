@@ -84,7 +84,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
     // Prefixes for messages that are routed to message-handling methods
-    registry.setApplicationDestinationPrefixes("/chat", "/userOnlineStatus");
+    registry.setApplicationDestinationPrefixes("/chat", "/users");
 
     // Enables a simple broker for broadcasting messages to subscribers on the specified destinations
     registry.enableSimpleBroker("/chats", "/user");
