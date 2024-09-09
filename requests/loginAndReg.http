@@ -44,3 +44,5 @@ Content-Type: application/json
 
 > {% client.global.set("token", response.body.token) %}
 
+###
+GET {{apiUrl}}/api/authentication/logout

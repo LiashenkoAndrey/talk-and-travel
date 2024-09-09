@@ -7,13 +7,6 @@ import online.talkandtravel.model.entity.UserOnlineStatus;
  */
 public interface UserEventService {
 
-  /**
-   * Updates user online status, and notifies all subscribed users.
-   * Subscribe pattern - see doc {@link online.talkandtravel.service.event.UserEventService#publishEvent}
-   * @param userOnlineStatus {@link online.talkandtravel.model.entity.UserOnlineStatus}
-   * @param userId user id
-   */
-  void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus, Long userId);
 
   /**
    * Notifies all subscribed users
@@ -21,5 +14,5 @@ public interface UserEventService {
    * @param userOnlineStatus {@link online.talkandtravel.model.entity.UserOnlineStatus}
    * @param userId user id
    */
-  void publishEvent(UserOnlineStatus userOnlineStatus, Long userId);
+  void publishUserOnlineStatusEvent(UserOnlineStatus userOnlineStatus, Long userId);
 }

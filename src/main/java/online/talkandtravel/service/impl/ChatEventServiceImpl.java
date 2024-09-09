@@ -29,15 +29,11 @@ import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
-import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.event.ChatEventService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
-import online.talkandtravel.util.service.EventDestination;
 import online.talkandtravel.util.service.EventPublisherUtil;
 import online.talkandtravel.util.service.EventServiceUtil;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

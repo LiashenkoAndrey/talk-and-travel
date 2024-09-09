@@ -8,6 +8,7 @@ import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserOnlineStatusDto;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserOnlineStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -35,7 +36,7 @@ public interface UserService {
 
   UserOnlineStatusDto getUserOnlineStatus(Long userId);
 
-  void updateUserOnlineStatus(Boolean isOnline);
+  void updateUserOnlineStatus(UserOnlineStatus isOnline);
 
   UserDtoBasic save(User user);
 

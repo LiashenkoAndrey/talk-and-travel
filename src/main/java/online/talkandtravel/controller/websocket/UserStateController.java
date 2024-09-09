@@ -22,6 +22,6 @@ public class UserStateController {
   private void sendActualUserOnlineStatus(@DestinationVariable("userId") Long userId) {
     log.info("Send actual user online status to user {}", userId);
     UserOnlineStatusDto onlineStatus = userService.getUserOnlineStatus(userId);
-    userEventService.publishEvent(UserOnlineStatus.ofStatus(onlineStatus.isOnline()), userId);
+    userEventService.publishUserOnlineStatusEvent(UserOnlineStatus.ofStatus(onlineStatus.isOnline()), userId);
   }
 }

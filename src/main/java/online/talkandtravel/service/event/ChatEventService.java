@@ -2,10 +2,7 @@ package online.talkandtravel.service.event;
 
 import java.security.Principal;
 import online.talkandtravel.model.dto.event.EventDtoBasic;
-import online.talkandtravel.model.dto.event.EventPayload;
 import online.talkandtravel.model.dto.event.EventRequest;
-import online.talkandtravel.model.dto.event.EventResponse;
-import online.talkandtravel.model.dto.message.MessageDto;
 
 /**
  * Service interface for managing events related to chat interactions.

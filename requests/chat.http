@@ -1,15 +1,16 @@
 
 
 ###
-GET http://localhost:8080/api/chats/1/read-messages?
+GET {{apiUrl}}/api/chats/1/messages/unread?
     lastReadMessageId=4&
     size=10&
     page=0
 Authorization: Bearer {{token}}
 
 
+
 ###
-GET {{apiUrl}}/api/chats/1/unread-messages?
+GET {{apiUrl}}/api/chats/1/messages/read?
     lastReadMessageId=4&
     size=10&
     page=0

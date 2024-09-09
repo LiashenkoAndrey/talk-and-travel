@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl;
 
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -8,11 +9,14 @@ import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserOnlineStatusDto;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserOnlineStatus;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
+import online.talkandtravel.util.service.EventPublisherUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,6 +59,8 @@ public class UserServiceImpl implements UserService {
   private final RedisTemplate<String, String> redisTemplate;
   private final AuthenticationService authenticationService;
 
+  private EventPublisherUtil publisherUtil;
+
   @Override
   public UserOnlineStatusDto getUserOnlineStatus(Long userId) {
     String isOnline = redisTemplate.opsForValue().get(getUserStatusKey(userId));
@@ -62,8 +68,17 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void updateUserOnlineStatus(Boolean isOnline) {
+  public void updateUserOnlineStatus(UserOnlineStatus isOnline) {
+    try {
+      User existingUser = authenticationService.getAuthenticatedUser();
+      log.info("update user online status with id:{}, isOnline:{}", existingUser.getId(), isOnline.toString());
+      String key = String.format(USER_STATUS_KEY, existingUser.getId());
+      Duration expirationDuration = publisherUtil.getUserOnlineStatusExpirationDuration();
 
+      redisTemplate.opsForValue().set(key, isOnline.toString(), expirationDuration);
+    } catch (Exception e) {
+      log.error("updateUserOnlineStatus: " + e.getMessage());
+    }
   }
 
   @Override
@@ -126,5 +141,10 @@ public class UserServiceImpl implements UserService {
     String password = user.getPassword();
     String encodePassword = passwordEncoder.encode(password);
     user.setPassword(encodePassword);
+  }
+
+  @Lazy
+  public void setPublisherUtil(EventPublisherUtil publisherUtil) {
+    this.publisherUtil = publisherUtil;
   }
 }

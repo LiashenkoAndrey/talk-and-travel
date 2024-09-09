@@ -25,7 +25,7 @@ public class ExpiredValueRedisListener implements MessageListener {
   public void onMessage(Message message, byte[] pattern) {
     String key = new String(message.getBody());
     Long userId = getUserIdFromRedisKey(key);
-    userEventService.publishEvent(UserOnlineStatus.OFFLINE, userId);
+    userEventService.publishUserOnlineStatusEvent(UserOnlineStatus.OFFLINE, userId);
   }
 
   /**
