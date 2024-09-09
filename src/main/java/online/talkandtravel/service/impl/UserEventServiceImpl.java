@@ -18,10 +18,20 @@ public class UserEventServiceImpl implements UserEventService {
 
   private final EventPublisherUtil publisherUtil;
 
+  /**
+   * Publishes an event notifying all subscribed users about the online status of a specific user.
+   * This follows the publish-subscribe pattern, where subscribers receive updates when a user's
+   * online status changes.
+   *
+   * @param userOnlineStatus the current online status of the user, represented by
+   *                         {@link online.talkandtravel.model.entity.UserOnlineStatus}
+   * @param userId           the ID of the user whose online status has changed
+   */
   @Override
-  public void publishUserOnlineStatusEvent(UserOnlineStatus isOnline, Long userId) {
+  public void publishUserOnlineStatusEvent(UserOnlineStatus userOnlineStatus, Long userId) {
     String dest = USER_ONLINE_STATUS_DESTINATION.formatted(userId);
-    log.info("publishEvent: payload: {}, userId: {}, dest: {}", isOnline.isOnline(), userId, dest);
-    publisherUtil.publishEvent(dest, new UserOnlineStatusDto(userId, isOnline.isOnline()));
+    log.info("publishEvent: payload: {}, userId: {}, dest: {}", userOnlineStatus.isOnline(),
+        userId, dest);
+    publisherUtil.publishEvent(dest, new UserOnlineStatusDto(userId, userOnlineStatus.isOnline()));
   }
 }

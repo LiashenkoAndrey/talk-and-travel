@@ -95,7 +95,7 @@ public class ChatEventServiceImpl implements ChatEventService {
 
     removeConnections(request, chat, author);
     Message message = createAndSaveMessage(LEFT_THE_CHAT, author, chat, MessageType.LEAVE);
-    deleteChatIfEmpty(request, principal);
+    deleteChatIfEmpty(chat);
 
     MessageDto messageDto = messageMapper.toMessageDto(message);
     publishEvent(messageDto, request.chatId());
@@ -120,11 +120,8 @@ public class ChatEventServiceImpl implements ChatEventService {
     publishEvent(messageDto, request.chatId());
   }
 
-  @Override
   @Transactional
-  public void deleteChatIfEmpty(EventRequest request, Principal principal) {
-    User user = getUser(principal);
-    Chat chat = getChat(request, user.getId());
+  public void deleteChatIfEmpty(Chat chat) {
     if (chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty()) {
       chatRepository.delete(chat);
     }

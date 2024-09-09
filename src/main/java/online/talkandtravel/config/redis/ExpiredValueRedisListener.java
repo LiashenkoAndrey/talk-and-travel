@@ -21,6 +21,13 @@ public class ExpiredValueRedisListener implements MessageListener {
 
   private final UserEventService userEventService;
 
+  /**
+   * Invoked when a Redis key expires. This method processes the expired key
+   * and updates the user's online status to OFFLINE by publishing an event.
+   *
+   * @param message the message containing the expired key details
+   * @param pattern the pattern used for key expiration events (not used in this method)
+   */
   @Override
   public void onMessage(Message message, byte[] pattern) {
     String key = new String(message.getBody());
@@ -29,9 +36,12 @@ public class ExpiredValueRedisListener implements MessageListener {
   }
 
   /**
-   * parses redis key
-   * user online status key pattern -- user:{userId}:isOnline
-   * @return userId
+   * Extracts the user ID from the Redis key following the pattern:
+   * "user:{userId}:isOnline".
+   *
+   * @param messageBody the body of the Redis key message
+   * @return the extracted user ID as a Long
+   * @throws StringParseException if the user ID cannot be parsed as a long value
    */
   private Long getUserIdFromRedisKey(String messageBody) {
     String[] array = messageBody.split(":");

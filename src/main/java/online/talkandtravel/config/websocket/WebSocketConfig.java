@@ -56,6 +56,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         "https://reginavarybrus.github.io"
       };
 
+  /**
+   * Configures the client inbound channel to intercept incoming WebSocket messages.
+   * This allows the application to add custom logic, such as authentication
+   * when a client connects.
+   *
+   * @param registration the {@link ChannelRegistration} for configuring channel interceptors.
+   */
   @Override
   public void configureClientInboundChannel(ChannelRegistration registration) {
     registration.interceptors(onConnectChannelInterceptor);
@@ -68,9 +75,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         .withSockJS();
   }
 
+  /**
+   * Configures the message broker for WebSocket communication. Defines the application destination
+   * prefixes and the topics to be managed by the simple broker.
+   *
+   * @param registry the {@link MessageBrokerRegistry} used to configure the message broker.
+   */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
+    // Prefixes for messages that are routed to message-handling methods
     registry.setApplicationDestinationPrefixes("/chat", "/userOnlineStatus");
-    registry.enableSimpleBroker("/countries", "/user");
+
+    // Enables a simple broker for broadcasting messages to subscribers on the specified destinations
+    registry.enableSimpleBroker("/chats", "/user");
   }
 }

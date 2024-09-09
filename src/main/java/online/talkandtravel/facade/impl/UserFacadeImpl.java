@@ -17,11 +17,13 @@ public class UserFacadeImpl implements UserFacade {
   private final UserService userService;
 
   /**
-   * Updates user online status, and notifies all subscribed users. Subscribe pattern - see doc
-   * {@link UserEventService#publishUserOnlineStatusEvent}
+   * Updates the online status of a user and notifies all subscribed users about the change. This
+   * follows the publish-subscribe pattern, where users subscribed to updates will be notified when
+   * the online status changes.
    *
-   * @param userOnlineStatus {@link UserOnlineStatus}
-   * @param userId           user id
+   * @param userOnlineStatus the current online status of the user, represented by
+   *                         {@link online.talkandtravel.model.entity.UserOnlineStatus}
+   * @param userId           the ID of the user whose online status is being updated
    */
   @Override
   public void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus, Long userId) {

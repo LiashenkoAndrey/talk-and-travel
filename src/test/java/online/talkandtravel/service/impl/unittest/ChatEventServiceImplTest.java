@@ -35,6 +35,7 @@ import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.impl.ChatEventServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
+import online.talkandtravel.util.service.EventPublisherUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,8 @@ class ChatEventServiceImplTest {
   @Mock private AuthenticationService authenticationService;
 
   @Mock private SimpMessagingTemplate messagingTemplate;
+
+  @Mock private EventPublisherUtil publisherUtil;
 
   @InjectMocks private ChatEventServiceImpl underTest;
 
@@ -142,7 +145,6 @@ class ChatEventServiceImplTest {
       verify(messageRepository, never()).save(any(Message.class));
       verify(messageMapper, never()).toMessageDto(any(Message.class));
     }
-
   }
 
   @Nested
@@ -154,12 +156,6 @@ class ChatEventServiceImplTest {
     void stopTyping_shouldReturnEventResponse_whenChatAndUserExist() {
       when(chatRepository.existsById(chatId)).thenReturn(true);
       when(userMapper.toUserNameDto(user)).thenReturn(userNameDto);
-      EventResponse expected =
-          new EventResponse(
-              userNameDto,
-              MessageType.STOP_TYPING,
-              LocalDateTime.now() // Use current time for event time
-              );
 
       underTest.stopTyping(eventRequest, principal);
 
@@ -175,7 +171,6 @@ class ChatEventServiceImplTest {
       verify(messageRepository, never()).save(any(Message.class));
       verify(messageMapper, never()).toMessageDto(any(Message.class));
     }
-
   }
 
   @Nested
@@ -194,7 +189,6 @@ class ChatEventServiceImplTest {
 
       underTest.joinChat(eventRequest, principal);
 
-//      assertEquals(messageDto, result);
       verify(chatRepository, times(1)).findById(1L);
       verify(userChatRepository, times(1)).findByChatIdAndUserId(1L, 1L);
       verify(userCountryRepository, times(1)).findByCountryNameAndUserId("Country1", 1L);
@@ -258,11 +252,7 @@ class ChatEventServiceImplTest {
   class LeaveChat {
     @Test
     void leaveChat_shouldReturnEventDtoBasic_whenUserAndChatExist_andUserHasConnections() {
-      // Arrange
       chat.setCountry(new Country("Country1", "co"));
-      MessageDto eventDtoBasic =
-          new MessageDto(
-              null, MessageType.START_TYPING, "", LocalDateTime.now(), userNameDto, CHAT_ID, null);
 
       when(chatRepository.findById(CHAT_ID)).thenReturn(Optional.of(chat));
       when(userChatRepository.findByChatIdAndUserId(CHAT_ID, USER_ID))
@@ -276,7 +266,6 @@ class ChatEventServiceImplTest {
 
       underTest.leaveChat(eventRequest, principal);
 
-//      assertEqualsExcludingTime(eventDtoBasic, result);
       verify(chatRepository, times(1)).findById(CHAT_ID);
       verify(userChatRepository, times(2)).findByChatIdAndUserId(CHAT_ID, USER_ID);
       verify(userCountryRepository, times(1))
@@ -289,17 +278,14 @@ class ChatEventServiceImplTest {
 
     @Test
     void leaveChat_shouldThrowUserNotJoinedTheChatException_whenUserNotInChat() {
-      // Arrange
       when(chatRepository.findById(CHAT_ID)).thenReturn(Optional.of(new Chat()));
       when(userChatRepository.findByChatIdAndUserId(CHAT_ID, USER_ID)).thenReturn(Optional.empty());
 
-      // Act & Assert
       assertThrows(UserNotJoinedTheChatException.class, () -> underTest.leaveChat(eventRequest, principal));
     }
 
     @Test
     void leaveChat_shouldThrowUserCountryNotFoundException_whenUserCountryNotFound() {
-      // Arrange
       chat.setCountry(new Country("Country1", "co"));
       when(chatRepository.findById(CHAT_ID)).thenReturn(Optional.of(chat));
       when(userChatRepository.findByChatIdAndUserId(CHAT_ID, USER_ID))
@@ -307,22 +293,7 @@ class ChatEventServiceImplTest {
       when(userCountryRepository.findByCountryNameAndUserId(chat.getCountry().getName(), USER_ID))
           .thenReturn(Optional.empty());
 
-      // Act & Assert
       assertThrows(UserCountryNotFoundException.class, () -> underTest.leaveChat(eventRequest, principal));
     }
-  }
-
-  public void assertEqualsExcludingTime(MessageDto expected, MessageDto actual) {
-    assertEquals(expected.type(), actual.type());
-    assertEquals(expected.content(), actual.content());
-    assertEquals(expected.repliedMessageId(), actual.repliedMessageId());
-    assertEquals(expected.id(), actual.id());
-    assertEquals(expected.chatId(), actual.chatId());
-    assertEquals(expected.user(), actual.user());
-  }
-
-  public void assertEqualsExcludingTime(EventResponse expected, EventResponse actual) {
-    assertEquals(expected.user(), actual.user());
-    assertEquals(expected.type(), actual.type());
   }
 }
