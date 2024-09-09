@@ -10,7 +10,6 @@ import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.entity.UserOnlineStatus;
-import online.talkandtravel.service.event.UserEventService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,7 +44,8 @@ public class AuthenticationController {
   }
 
   @PostMapping("/login")
-  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest, HttpServletRequest httpServletRequest) {
+  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest,
+      HttpServletRequest httpServletRequest) {
     AuthResponse response = authFacade.login(loginRequest, httpServletRequest);
     log.info(response);
     userFacade.updateUserOnlineStatusAndNotifyAll(UserOnlineStatus.ONLINE, response.userDto().id());
