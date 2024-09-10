@@ -79,7 +79,7 @@ class UserServiceImplTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     doNothing().when(valueOperations).set(key, status.toString(), duration);
 
-    underTest.updateUserOnlineStatus(status);
+    underTest.updateUserOnlineStatus(status, user);
 
     verify(authenticationService, times(1)).getAuthenticatedUser();
     verify(publisherUtil, times(1)).getUserOnlineStatusExpirationDuration();

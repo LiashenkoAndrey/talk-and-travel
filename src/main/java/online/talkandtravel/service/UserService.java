@@ -38,7 +38,7 @@ public interface UserService {
 
   UserOnlineStatusDto getUserOnlineStatus(Long userId);
 
-  void updateUserOnlineStatus(UserOnlineStatus isOnline);
+  void updateUserOnlineStatus(UserOnlineStatus isOnline, User user);
 
   UserDtoBasic save(User user);
 

@@ -10,6 +10,8 @@ import online.talkandtravel.facade.UserFacade;
 import online.talkandtravel.model.dto.user.UserOnlineStatusDto;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserOnlineStatus;
+import online.talkandtravel.security.CustomUserDetails;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.service.event.UserEventService;
 import org.springframework.messaging.converter.MessageConversionException;
@@ -28,14 +30,17 @@ public class UserStateController {
   private final UserEventService userEventService;
   private final UserService userService;
   private final UserFacade userFacade;
+  private final AuthenticationService authenticationService;
 
-  @MessageMapping("/{userId}/events.updateOnlineStatus")
-  private void handle(@DestinationVariable("userId") Long userId, @Payload Boolean isOnline, Principal principal) {
-    log.info("update status, user id: {}, payload: {}", userId, isOnline);
-    UserOnlineStatus onlineStatus = UserOnlineStatus.ofStatus(isOnline);
+  @MessageMapping("/events.updateOnlineStatus")
+  private void handle(@Payload Boolean isOnline, Principal principal) {
     User user = getUserFromPrincipal(principal);
-    userService.updateUserOnlineStatus(onlineStatus);
-    userEventService.publishUserOnlineStatusEvent(onlineStatus, userId);
+    CustomUserDetails details = new CustomUserDetails(user);
+    authenticationService.authenticateUser(details, null);
+
+    log.info("update online status, user id: {}, payload: {}", user.getId(), isOnline);
+
+    UserOnlineStatus onlineStatus = UserOnlineStatus.ofStatus(isOnline);
     userFacade.updateUserOnlineStatusAndNotifyAll(onlineStatus);
   }
 

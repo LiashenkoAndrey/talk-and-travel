@@ -36,8 +36,8 @@ public class WebSocketExceptionHandler {
   }
 
   @MessageExceptionHandler(MessageConversionException.class)
-  public void handleMessageConversionException(Principal principal) {
-    log.info("handleMessageConversionException, principal {}", principal);
+  public void handleMessageConversionException(Principal principal, MessageConversionException exception) {
+    log.info("handleMessageConversionException, exception message: {}, principal {}", exception.getMessage(), principal);
     User user = getUserFromPrincipal(principal);
     String message = "Could not read JSON";
     ExceptionResponse errorMessage =

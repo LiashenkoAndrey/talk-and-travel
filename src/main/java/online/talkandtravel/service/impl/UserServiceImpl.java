@@ -77,16 +77,36 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void updateUserOnlineStatus(UserOnlineStatus isOnline) {
+  public void updateUserOnlineStatus(UserOnlineStatus onlineStatus, User existingUser) {
     try {
-      User existingUser = authenticationService.getAuthenticatedUser();
-      log.info("update user online status with id:{}, isOnline:{}", existingUser.getId(), isOnline.toString());
-      String key = String.format(USER_STATUS_KEY, existingUser.getId());
-      Duration expirationDuration = publisherUtil.getUserOnlineStatusExpirationDuration();
+      log.info("update user online status with id:{}, isOnline:{}",
+              existingUser.getId(), onlineStatus.toString());
 
-      redisTemplate.opsForValue().set(key, isOnline.toString(), expirationDuration);
+      updateUserOnlineStatus(onlineStatus.isOnline(), existingUser.getId());
     } catch (Exception e) {
-      log.error("updateUserOnlineStatus: " + e.getMessage());
+      log.error("updateUserOnlineStatus: {} ", e.getMessage());
+    }
+  }
+
+  /**
+   * Updates the online status of a user by their user ID.
+   * This method stores the user's online status in Redis and sets an expiration duration
+   * based on the provided status.
+   * <ul>
+   *    <li>If the user is online (`isOnline` is true), an expiration duration is set for the key.
+   *    <li>If the user is offline (`isOnline` is false), the key will be set without an expiration.
+   * </ul>
+   *
+   * @param isOnline The online status of the user (true if online, false if offline).
+   * @param userId The unique ID of the user whose status is being updated.
+   */
+  private void updateUserOnlineStatus(Boolean isOnline, Long userId) {
+    String key = String.format(USER_STATUS_KEY, userId);
+    if (isOnline) {
+      Duration expirationDuration = publisherUtil.getUserOnlineStatusExpirationDuration();
+      redisTemplate.opsForValue().set(key, isOnline.toString(), expirationDuration);
+    } else {
+      redisTemplate.opsForValue().set(key, isOnline.toString());
     }
   }
 

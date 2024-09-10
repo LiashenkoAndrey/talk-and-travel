@@ -1,5 +1,6 @@
 package online.talkandtravel.facade.unittest;
 
+import static online.talkandtravel.util.UserUtils.createDefaultUser;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.impl.UserFacadeImpl;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserOnlineStatus;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.service.event.UserEventService;
@@ -30,6 +32,7 @@ class UserFacadeImplTest {
   private UserFacadeImpl underTest;
 
   private static final Long USER_ID = 1L;
+  private final User user = createDefaultUser();
 
   @ParameterizedTest
   @MethodSource("updateUserOnlineStatusTestArgs")
@@ -45,12 +48,12 @@ class UserFacadeImplTest {
   }
 
   private void updateUserOnlineStatusAndNotifyAllTest(UserOnlineStatus status) {
-    doNothing().when(userService).updateUserOnlineStatus(status);
+    doNothing().when(userService).updateUserOnlineStatus(status, user);
     doNothing().when(userEventService).publishUserOnlineStatusEvent(status, USER_ID);
 
-    underTest.updateUserOnlineStatusAndNotifyAll(status, USER_ID);
+    underTest.updateUserOnlineStatusAndNotifyAll(status);
 
-    verify(userService, times(1)).updateUserOnlineStatus(status);
+    verify(userService, times(1)).updateUserOnlineStatus(status, user);
     verify(userEventService, times(1)).publishUserOnlineStatusEvent(status, USER_ID);
   }
 }
