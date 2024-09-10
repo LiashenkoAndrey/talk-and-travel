@@ -6,6 +6,7 @@ import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoShort;
+import online.talkandtravel.model.dto.user.UserDtoShortWithOnline;
 import online.talkandtravel.model.dto.user.UserDtoWithAvatarAndPassword;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.User;
@@ -34,6 +35,8 @@ public interface UserMapper {
   User registerRequestToUser(RegisterRequest request);
 
   UserDtoBasic toUserDtoBasic(User user);
+
+  UserDtoShortWithOnline toUserDtoShortWithOnline(User user);
 
   UserNameDto toUserNameDto(User user);
 }

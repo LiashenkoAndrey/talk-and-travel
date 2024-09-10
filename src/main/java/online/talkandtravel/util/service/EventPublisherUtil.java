@@ -28,7 +28,7 @@ public class EventPublisherUtil {
    * @return the expiration duration as a {@link Duration}
    */
   public Duration getUserOnlineStatusExpirationDuration() {
-    return Duration.ofSeconds(userOnlineStatusExpirationDuration);
+    return Duration.ofMinutes(userOnlineStatusExpirationDuration);
   }
 
   /**
@@ -41,6 +41,7 @@ public class EventPublisherUtil {
   public void publishEvent(String destination, Object payload) {
     try {
       messagingTemplate.convertAndSend(destination, payload);
+
     } catch (Exception e) {
       // Handle potential errors in event publishing (e.g., WebSocket failures)
       log.error("Error while publishing event to {}: {}", destination, e.getMessage());

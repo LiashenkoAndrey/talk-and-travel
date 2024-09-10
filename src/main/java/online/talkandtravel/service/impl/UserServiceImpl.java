@@ -73,7 +73,8 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserOnlineStatusDto getUserOnlineStatus(Long userId) {
     String isOnline = redisTemplate.opsForValue().get(getUserStatusKey(userId));
-    return new UserOnlineStatusDto(userId, Boolean.getBoolean(isOnline));
+    log.info("getUserOnlineStatus user: {}, isOnline: {}, 2: {}", userId, isOnline, Boolean.parseBoolean(isOnline));
+    return new UserOnlineStatusDto(userId, Boolean.parseBoolean(isOnline));
   }
 
   @Override

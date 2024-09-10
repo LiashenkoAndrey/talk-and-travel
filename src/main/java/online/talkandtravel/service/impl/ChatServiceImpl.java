@@ -23,6 +23,8 @@ import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserDtoShortWithOnline;
+import online.talkandtravel.model.dto.user.UserOnlineStatusDto;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
@@ -30,6 +32,7 @@ import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
+import online.talkandtravel.model.entity.UserOnlineStatus;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
@@ -38,6 +41,7 @@ import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
+import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserChatMapper;
@@ -90,6 +94,7 @@ public class ChatServiceImpl implements ChatService {
   private final UserRepository userRepository;
   private final UserChatMapper userChatMapper;
   private final AuthenticationService authenticationService;
+  private final UserService userService;
 
   @Transactional
   @Override
@@ -139,9 +144,18 @@ public class ChatServiceImpl implements ChatService {
                   .findFirst()
                   .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
             })
-        .map(userChatMapper::toPrivateChatDto)
+        .map((userChat -> {
+          PrivateChatInfoDto privateChatInfoDto = chatMapper.chatToPrivateChatInfoDto(userChat.getChat());
+          UserDtoShortWithOnline userDtoShortWithOnline = toUserDtoShortWithOnline(userChat.getUser());
+          return new PrivateChatDto(privateChatInfoDto,userDtoShortWithOnline , userChat.getLastReadMessageId());
+        }))
         .map(chatNameToCompanionName())
         .toList();
+  }
+
+  private UserDtoShortWithOnline toUserDtoShortWithOnline(User companion) {
+    UserOnlineStatusDto onlineStatus = userService.getUserOnlineStatus(companion.getId());
+    return new UserDtoShortWithOnline(companion.getId(), companion.getUserName(), companion.getUserEmail(), onlineStatus.isOnline());
   }
 
   @Override
@@ -291,7 +305,7 @@ public class ChatServiceImpl implements ChatService {
   private PrivateChatInfoDto renameChat(PrivateChatDto oldChat) {
     return new PrivateChatInfoDto(
         oldChat.chat().id(),
-        oldChat.companion().getUserName(),
+        oldChat.companion().userName(),
         oldChat.chat().description(),
         oldChat.chat().chatType(),
         oldChat.chat().creationDate(),
