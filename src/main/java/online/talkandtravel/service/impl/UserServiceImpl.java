@@ -77,12 +77,12 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void updateUserOnlineStatus(UserOnlineStatus onlineStatus, User existingUser) {
+  public void updateUserOnlineStatus(UserOnlineStatus onlineStatus, Long userId) {
     try {
       log.info("update user online status with id:{}, isOnline:{}",
-              existingUser.getId(), onlineStatus.toString());
+              userId, onlineStatus.toString());
 
-      updateUserOnlineStatus(onlineStatus.isOnline(), existingUser.getId());
+      updateUserOnlineStatus(onlineStatus.isOnline(), userId);
     } catch (Exception e) {
       log.error("updateUserOnlineStatus: {} ", e.getMessage());
     }

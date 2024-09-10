@@ -2,6 +2,8 @@ package online.talkandtravel.facade;
 
 import online.talkandtravel.model.entity.UserOnlineStatus;
 
+import java.security.Principal;
+
 /**
  * Facade interface for handling user-related operations and interactions. This facade provides
  * methods to manage user states and to notify other users about changes.
@@ -17,5 +19,7 @@ public interface UserFacade {
    *                         {@link online.talkandtravel.model.entity.UserOnlineStatus}
    */
   void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus);
+
+  void updateUserOnlineStatusAndNotifyAll(UserOnlineStatus userOnlineStatus, Principal principal);
 
 }

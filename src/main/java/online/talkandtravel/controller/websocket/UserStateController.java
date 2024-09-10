@@ -30,19 +30,11 @@ public class UserStateController {
   private final UserEventService userEventService;
   private final UserService userService;
   private final UserFacade userFacade;
-  private final AuthenticationService authenticationService;
 
   @MessageMapping("/events.updateOnlineStatus")
   private void handle(@Payload Boolean isOnline, Principal principal) {
-    log.info("/events.updateOnlineStatus");
-    User user = getUserFromPrincipal(principal);
-    CustomUserDetails details = new CustomUserDetails(user);
-    authenticationService.authenticateUser(details, null);
-
-    log.info("update online status, user id: {}, payload: {}", user.getId(), isOnline);
-
     UserOnlineStatus onlineStatus = UserOnlineStatus.ofStatus(isOnline);
-    userFacade.updateUserOnlineStatusAndNotifyAll(onlineStatus);
+    userFacade.updateUserOnlineStatusAndNotifyAll(onlineStatus, principal);
   }
 
   @SubscribeMapping("/{userId}/onlineStatus")
