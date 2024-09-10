@@ -22,7 +22,7 @@ POST http://localhost:8080/api/chats/private
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
-{"companionId": 9}
+{"companionId": 7}
 
 ###
 PUT http://localhost:8080/api/chats/1/messages/last-read

@@ -104,12 +104,10 @@ public class UserServiceImpl implements UserService {
   private void updateUserOnlineStatus(Boolean isOnline, Long userId) {
     String key = String.format(USER_STATUS_KEY, userId);
     if (isOnline) {
-      log.info("is online, set duration");
       Duration expirationDuration = publisherUtil.getUserOnlineStatusExpirationDuration();
       redisTemplate.opsForValue().set(key, isOnline.toString(), expirationDuration);
     } else {
-      log.info("is offline, don't set duration");
-      redisTemplate.opsForValue().set(key, isOnline.toString());
+      redisTemplate.delete(key);
     }
   }
 

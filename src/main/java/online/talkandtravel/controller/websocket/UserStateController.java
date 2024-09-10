@@ -3,14 +3,9 @@ package online.talkandtravel.controller.websocket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.UserFacade;
-import online.talkandtravel.model.dto.user.UserOnlineStatusDto;
 import online.talkandtravel.model.entity.UserOnlineStatus;
-import online.talkandtravel.service.UserService;
-import online.talkandtravel.service.event.UserEventService;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
