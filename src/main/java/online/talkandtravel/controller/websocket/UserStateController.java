@@ -34,6 +34,7 @@ public class UserStateController {
 
   @MessageMapping("/events.updateOnlineStatus")
   private void handle(@Payload Boolean isOnline, Principal principal) {
+    log.info("/events.updateOnlineStatus");
     User user = getUserFromPrincipal(principal);
     CustomUserDetails details = new CustomUserDetails(user);
     authenticationService.authenticateUser(details, null);
