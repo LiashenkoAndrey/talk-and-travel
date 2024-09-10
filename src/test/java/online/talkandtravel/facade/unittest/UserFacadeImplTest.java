@@ -1,15 +1,14 @@
 package online.talkandtravel.facade.unittest;
 
 import static online.talkandtravel.util.UserUtils.createDefaultUser;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.impl.UserFacadeImpl;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserOnlineStatus;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.service.event.UserEventService;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +26,7 @@ class UserFacadeImplTest {
   @Mock private UserEventService userEventService;
 
   @Mock private UserService userService;
+  @Mock private AuthenticationService authenticationService;
 
   @InjectMocks
   private UserFacadeImpl underTest;
@@ -48,6 +48,7 @@ class UserFacadeImplTest {
   }
 
   private void updateUserOnlineStatusAndNotifyAllTest(UserOnlineStatus status) {
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
     doNothing().when(userService).updateUserOnlineStatus(status, user);
     doNothing().when(userEventService).publishUserOnlineStatusEvent(status, USER_ID);
 

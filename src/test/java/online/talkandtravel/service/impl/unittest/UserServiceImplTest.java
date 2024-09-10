@@ -65,26 +65,37 @@ class UserServiceImplTest {
     SecurityContextHolder.clearContext();
   }
 
-  @ParameterizedTest
-  @MethodSource("updateUserOnlineStatusTestArgs")
-  void updateUserOnlineStatusAndNotifyAllTest_shouldUpdate(
-      UserOnlineStatus status) {
-
+  @Test
+  void updateUserOnlineStatus_shouldUpdate_whenStatusIfOnline() {
+    UserOnlineStatus status = UserOnlineStatus.ONLINE;
     Duration duration = Duration.ofSeconds(1);
     ValueOperations<String, String> valueOperations = Mockito.mock(ValueOperations.class);
     String key = USER_STATUS_KEY.formatted(USER_ID);
 
-    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
     when(publisherUtil.getUserOnlineStatusExpirationDuration()).thenReturn(duration);
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-    doNothing().when(valueOperations).set(key, status.toString(), duration);
+    doNothing().when(valueOperations).set(key, status.isOnline().toString(), duration);
 
     underTest.updateUserOnlineStatus(status, user);
 
-    verify(authenticationService, times(1)).getAuthenticatedUser();
     verify(publisherUtil, times(1)).getUserOnlineStatusExpirationDuration();
     verify(redisTemplate, times(1)).opsForValue();
-    verify(valueOperations, times(1)).set(key, status.toString(), duration);
+    verify(valueOperations, times(1)).set(key, status.isOnline().toString(), duration);
+  }
+
+  @Test
+  void updateUserOnlineStatus_shouldUpdate_whenStatusIfOffline() {
+    UserOnlineStatus status = UserOnlineStatus.OFFLINE;
+    ValueOperations<String, String> valueOperations = Mockito.mock(ValueOperations.class);
+    String key = USER_STATUS_KEY.formatted(USER_ID);
+
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    doNothing().when(valueOperations).set(key, status.isOnline().toString());
+
+    underTest.updateUserOnlineStatus(status, user);
+
+    verify(redisTemplate, times(1)).opsForValue();
+    verify(valueOperations, times(1)).set(key, status.isOnline().toString());
   }
 
   @Test
