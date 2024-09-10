@@ -49,12 +49,12 @@ class UserFacadeImplTest {
 
   private void updateUserOnlineStatusAndNotifyAllTest(UserOnlineStatus status) {
     when(authenticationService.getAuthenticatedUser()).thenReturn(user);
-    doNothing().when(userService).updateUserOnlineStatus(status, user);
+    doNothing().when(userService).updateUserOnlineStatus(status, USER_ID);
     doNothing().when(userEventService).publishUserOnlineStatusEvent(status, USER_ID);
 
     underTest.updateUserOnlineStatusAndNotifyAll(status);
 
-    verify(userService, times(1)).updateUserOnlineStatus(status, user);
+    verify(userService, times(1)).updateUserOnlineStatus(status, USER_ID);
     verify(userEventService, times(1)).publishUserOnlineStatusEvent(status, USER_ID);
   }
 }
