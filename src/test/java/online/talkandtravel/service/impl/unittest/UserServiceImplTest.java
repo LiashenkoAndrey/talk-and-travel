@@ -76,7 +76,7 @@ class UserServiceImplTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     doNothing().when(valueOperations).set(key, status.isOnline().toString(), duration);
 
-    underTest.updateUserOnlineStatus(status, user);
+    underTest.updateUserOnlineStatus(status, USER_ID);
 
     verify(publisherUtil, times(1)).getUserOnlineStatusExpirationDuration();
     verify(redisTemplate, times(1)).opsForValue();
@@ -92,7 +92,7 @@ class UserServiceImplTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     doNothing().when(valueOperations).set(key, status.isOnline().toString());
 
-    underTest.updateUserOnlineStatus(status, user);
+    underTest.updateUserOnlineStatus(status, USER_ID);
 
     verify(redisTemplate, times(1)).opsForValue();
     verify(valueOperations, times(1)).set(key, status.isOnline().toString());
