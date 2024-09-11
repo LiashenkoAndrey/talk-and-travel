@@ -1,0 +1,37 @@
+@startuml
+actor Frontend
+participant "Backend" as Backend
+participant "OnlineService" as OnlineService
+participant "Redis" as Redis
+participant "WebSocket Controller" as WebSocketController
+
+== Fetching User Statuses ==
+Frontend -> Backend : Send HTTP Request
+alt Request for getAllUsersOnlineStatuses()
+    Backend -> OnlineService : Fetch All User Statuses
+    OnlineService -> Redis : Get All User Statuses
+    Redis -> OnlineService : Return Map<Long, Boolean>
+    OnlineService -> Backend : Return Map<Long, Boolean>
+    Backend -> Frontend : Return Map<Long, Boolean>
+else Request for getUsersOnlineStatusByUserId(Long userId)
+    Backend -> OnlineService : Fetch Status for User
+    OnlineService -> Redis : Get Status for User
+    Redis -> OnlineService : Return boolean
+    OnlineService -> Backend : Return boolean
+    Backend -> Frontend : Return boolean
+else Request for getAllUsersOnlineStatusesForUsersList(List<Long> userIds)
+    Backend -> OnlineService : Fetch Statuses for User List
+    OnlineService -> Redis : Get Statuses for User List
+    Redis -> OnlineService : Return Map<Long, Boolean>
+    OnlineService -> Backend : Return Map<Long, Boolean>
+    Backend -> Frontend : Return Map<Long, Boolean>
+end
+
+Frontend -> Frontend : Store Initial User Statuses
+Frontend -> WebSocketController : Subscribe to /users/onlineStatus
+
+== Updating User Statuses ==
+WebSocketController -> Frontend : Broadcast Status Updates
+Frontend -> Frontend : Update Status on WebSocket Event
+
+@enduml

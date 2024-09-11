@@ -10,28 +10,29 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
 /**
- * Configuration class for setting up Redis integration.
- * Enables Redis keyspace notifications for expired keys and configures
- * a listener container to handle key expiration events.
+ * Configuration class for setting up Redis integration. Enables Redis keyspace notifications for
+ * expired keys and configures a listener container to handle key expiration events.
  */
 @Configuration
 @Log4j2
-@EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
+@EnableRedisRepositories(
+    enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 public class RedisConfig {
 
   private static final String KEY_EVENT_EXPIRED = "__keyevent@*__:expired";
 
   /**
    * Configures a {@link RedisMessageListenerContainer} to listen for Redis key expiration events.
-   * The listener is triggered when any key expires in the Redis database, and a specific action
-   * is performed based on the expired key.
+   * The listener is triggered when any key expires in the Redis database, and a specific action is
+   * performed based on the expired key.
    *
    * @param connectionFactory the Redis connection factory
    * @param expirationListener the listener that handles key expiration events
    * @return the configured {@link RedisMessageListenerContainer}
    */
   @Bean
-  RedisMessageListenerContainer keyExpirationListenerContainer(RedisConnectionFactory connectionFactory, ExpiredValueRedisListener expirationListener) {
+  RedisMessageListenerContainer keyExpirationListenerContainer(
+      RedisConnectionFactory connectionFactory, ExpiredValueRedisListener expirationListener) {
     PatternTopic pattern = new PatternTopic(KEY_EVENT_EXPIRED);
     RedisMessageListenerContainer listenerContainer = new RedisMessageListenerContainer();
     listenerContainer.setConnectionFactory(connectionFactory);
@@ -39,7 +40,8 @@ public class RedisConfig {
     // Adds the custom listener to handle key expiration events for the specified pattern
     listenerContainer.addMessageListener(expirationListener, pattern);
 
-    listenerContainer.setErrorHandler(e -> log.error("Error in Redis key expiration listener container: {}", e.getMessage()));
+    listenerContainer.setErrorHandler(
+        e -> log.error("Error in Redis key expiration listener container: {}", e.getMessage()));
     return listenerContainer;
   }
 }
