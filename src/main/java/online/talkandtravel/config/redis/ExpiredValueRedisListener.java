@@ -1,11 +1,13 @@
 package online.talkandtravel.config.redis;
 
+import static online.talkandtravel.util.RedisUtils.getUserIdFromRedisKey;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.exception.util.StringParseException;
-import org.apache.commons.lang3.math.NumberUtils;
+import online.talkandtravel.service.OnlineService;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ExpiredValueRedisListener implements MessageListener {
 
+    private final OnlineService onlineService;
+
     /**
      * Invoked when a Redis key expires. This method processes the expired key
      * and updates the user's online status to OFFLINE by publishing an event.
@@ -25,31 +29,14 @@ public class ExpiredValueRedisListener implements MessageListener {
      * @param pattern the pattern used for key expiration events (not used in this method)
      */
     @Override
-    public void onMessage(Message message, byte[] pattern) {
+    public void onMessage(@NonNull Message message, byte[] pattern) {
         try {
             String key = new String(message.getBody());
             Long userId = getUserIdFromRedisKey(key);
-            //   todo: update
-            //    userEventService.publishUserOnlineStatusEvent(UserOnlineStatus.OFFLINE, userId);
+            onlineService.notifyUserOnlineStatusUpdated(userId, false);
         } catch (Exception e) {
             log.error("onMessage:{}", e.getMessage());
         }
     }
 
-    /**
-     * Extracts the user ID from the Redis key following the pattern:
-     * "user:{userId}:isOnline".
-     *
-     * @param messageBody the body of the Redis key message
-     * @return the extracted user ID as a Long
-     * @throws StringParseException if the user ID cannot be parsed as a long value
-     */
-    private Long getUserIdFromRedisKey(String messageBody) {
-        String[] array = messageBody.split(":");
-        String userId = array[1]; //see pattern in java doc
-        if (NumberUtils.isParsable(userId)) {
-            return NumberUtils.toLong(userId);
-        }
-        throw new StringParseException(userId, "Can't parse a long value");
-    }
 }

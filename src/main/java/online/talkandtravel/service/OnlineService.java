@@ -1,9 +1,18 @@
 package online.talkandtravel.service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 public interface OnlineService {
+
+    void updateUserOnlineStatus(Principal principal, Boolean isOnline);
+
+    /**
+     * Notifies subscribed users that specific user updates their online status
+     */
+    void notifyUserOnlineStatusUpdated(Long userId, Boolean isOnline);
+
 
     /**
      * Provides an initial snapshot of all user's online statuses
