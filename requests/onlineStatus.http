@@ -1,6 +1,6 @@
 ###
 GET http://localhost:8080/api/v2/users/online?
-    usersIdList=1,2,3,4
+    usersIdList=1,99,3,4,9,5,5,5,5,5,5,5,55
 Authorization: Bearer {{token}}
 
 ###
@@ -8,5 +8,5 @@ GET http://localhost:8080/api/v2/users/online
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8080/api/v2/users/1/online
+GET http://localhost:8080/api/v2/users/3/online
 Authorization: Bearer {{token}}

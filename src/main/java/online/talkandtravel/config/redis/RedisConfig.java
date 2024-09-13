@@ -22,13 +22,6 @@ public class RedisConfig {
 
     private static final String KEY_EVENT_EXPIRED = "__keyevent@*__:expired";
 
-    @Bean
-    public RedisTemplate<String, Boolean> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Boolean> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        return template;
-    }
-
     /**
      * Configures a {@link RedisMessageListenerContainer} to listen for Redis key expiration events.
      * The listener is triggered when any key expires in the Redis database, and a specific action is
