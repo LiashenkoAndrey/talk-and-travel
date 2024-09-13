@@ -7,7 +7,6 @@ import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.service.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 public class WebSocketExceptionHandler {
 
   private final SimpMessagingTemplate messagingTemplate;
-  private final AuthenticationService authenticationService;
 
   @MessageExceptionHandler(WebSocketException.class)
   public void handleWebSocketException(WebSocketException e) {
