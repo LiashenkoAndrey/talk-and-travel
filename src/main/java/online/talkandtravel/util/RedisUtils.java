@@ -3,7 +3,13 @@ package online.talkandtravel.util;
 import online.talkandtravel.exception.util.StringParseException;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.util.List;
+import java.util.Set;
+
 public class RedisUtils {
+
+  public static final String USER_STATUS_KEY = "user:%s:isOnline";
+  public static final String USER_STATUS_KEY_PATTERN = "user:*:isOnline";
 
   /**
    * Extracts the user ID from the Redis key following the pattern:
@@ -22,4 +28,19 @@ public class RedisUtils {
     throw new StringParseException(userId, "Can't parse a long value");
   }
 
+  public static List<Long> getUserIdFromKeys(Set<String> keys) {
+    return keys.stream()
+            .map(RedisUtils::getUserIdFromRedisKey)
+            .toList();
+  }
+
+  public static String getRedisKey(Long userId) {
+    return String.format(USER_STATUS_KEY, userId);
+  }
+
+  public static List<String> getRedisKeys(List<Long> usersIdList) {
+    return usersIdList.stream()
+            .map(RedisUtils::getRedisKey)
+            .toList();
+  }
 }

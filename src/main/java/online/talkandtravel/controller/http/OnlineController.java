@@ -25,9 +25,7 @@ public class OnlineController {
      */
     @GetMapping("/users/online")
     public Map<Long, Boolean> getAllUsersOnlineStatuses(@RequestParam(required = false) List<Long> usersIdList) {
-        return (usersIdList != null && !usersIdList.isEmpty())
-                ? onlineService.getAllUsersOnlineStatusesForUsersList(usersIdList)
-                : onlineService.getAllUsersOnlineStatuses();
+        return onlineService.getAllUsersOnlineStatuses(usersIdList);
     }
 
     /**

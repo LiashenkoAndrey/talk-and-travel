@@ -1,14 +1,16 @@
 package online.talkandtravel.config.redis;
 
-import static online.talkandtravel.util.RedisUtils.getUserIdFromRedisKey;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.service.OnlineService;
+import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.lang.NonNull;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+
+import static online.talkandtravel.service.impl.OnlineServiceImpl.USERS_ONLINE_STATUS_ENDPOINT;
+import static online.talkandtravel.util.RedisUtils.getUserIdFromRedisKey;
 
 /**
  * This class handles events triggered when a key expires. Upon expiration, it publishes an event
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ExpiredValueRedisListener implements MessageListener {
 
-    private final OnlineService onlineService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * Invoked when a Redis key expires. This method processes the expired key
@@ -33,10 +35,16 @@ public class ExpiredValueRedisListener implements MessageListener {
         try {
             String key = new String(message.getBody());
             Long userId = getUserIdFromRedisKey(key);
-            onlineService.notifyUserOnlineStatusUpdated(userId, false);
+            log.info("user with id: {} is offline, redis key is expired", userId);
+
+            notifyAllUserIsOffline(userId);
         } catch (Exception e) {
             log.error("onMessage:{}", e.getMessage());
         }
     }
 
+    private void notifyAllUserIsOffline(Long userId) {
+        OnlineStatusDto statusDto = new OnlineStatusDto(userId, false);
+        messagingTemplate.convertAndSend(USERS_ONLINE_STATUS_ENDPOINT, statusDto);
+    }
 }

@@ -1,12 +1,16 @@
 package online.talkandtravel.service;
 
+import online.talkandtravel.model.dto.user.OnlineStatusDto;
+
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 public interface OnlineService {
 
-    void updateUserOnlineStatus(Principal principal, Boolean isOnline);
+    OnlineStatusDto updateUserOnlineStatus(Principal principal, Boolean isOnline);
+
+    OnlineStatusDto updateUserOnlineStatus(Long userId, Boolean isOnline);
 
     /**
      * Notifies subscribed users that specific user updates their online status
@@ -20,7 +24,7 @@ public interface OnlineService {
      * @return a map where the key is the user ID and the value is a boolean indicating
      * whether the user is online (true) or offline (false)
      */
-    Map<Long, Boolean> getAllUsersOnlineStatuses();
+    Map<Long, Boolean> getAllUsersOnlineStatuses(List<Long> usersIdList);
 
     /**
      * Provides a current online status of a specific user
@@ -31,12 +35,4 @@ public interface OnlineService {
      */
     Boolean getUserOnlineStatusById(Long userId);
 
-    /**
-     * Retrieves the current online statuses of a specified list of users.
-     *
-     * @param userIds the list of user IDs for which to fetch online statuses
-     * @return a map where the key is the user ID and the value is a boolean indicating
-     * whether the user is online (true) or offline (false)
-     */
-    Map<Long, Boolean> getAllUsersOnlineStatusesForUsersList(List<Long> userIds);
 }
