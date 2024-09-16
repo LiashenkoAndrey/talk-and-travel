@@ -103,13 +103,17 @@ public class OnlineServiceImpl implements OnlineService {
 
     private Map<Long, Boolean> getAllUsersOnlineStatuses() {
         log.info("getAllUsersOnlineStatuses");
-
         Set<String> keys = Optional.ofNullable(redisTemplate.keys(USER_STATUS_KEY_PATTERN))
                 .orElse(Set.of());
         List<Long> userIdList = getUserIdFromKeys(keys);
         List<Boolean> values = getValuesFromKeys(keys);
 
-        return mapKeysAndValuesToMap(userIdList, values);
+        List<User> users = userRepository.findAll();
+        Map<Long, Boolean> mapFromRedis = mapKeysAndValuesToMap(userIdList, values);
+        Map<Long, Boolean> allUsersMap = new HashMap<>(users.size());
+
+        users.forEach(user -> allUsersMap.put(user.getId(), mapFromRedis.getOrDefault(user.getId(), false)));
+        return allUsersMap;
     }
 
     /**
