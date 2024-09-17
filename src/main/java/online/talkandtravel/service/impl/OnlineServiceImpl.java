@@ -9,7 +9,6 @@ import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.OnlineService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -26,10 +25,7 @@ import static online.talkandtravel.util.RedisUtils.*;
 public class OnlineServiceImpl implements OnlineService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
-
-    public static final String USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
 
     @Value("${USER_ONLINE_STATUS_EXPIRATION_DURATION_IN_MIN}")
     public Long KEY_EXPIRATION_DURATION_IN_MIN;
@@ -85,12 +81,6 @@ public class OnlineServiceImpl implements OnlineService {
 
         log.info("getUserOnlineStatusById: {}, isOnline={}", userId, isOnline);
         return isOnline;
-    }
-
-    @Override
-    public void notifyUserOnlineStatusUpdated(Long userId, Boolean isOnline) {
-        OnlineStatusDto dto = new OnlineStatusDto(userId, isOnline);
-        messagingTemplate.convertAndSend(USERS_ONLINE_STATUS_ENDPOINT, dto);
     }
 
     private void checkUserExists(Long userId) {

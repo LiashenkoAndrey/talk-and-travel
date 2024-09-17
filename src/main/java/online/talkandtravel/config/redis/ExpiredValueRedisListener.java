@@ -9,7 +9,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import static online.talkandtravel.service.impl.OnlineServiceImpl.USERS_ONLINE_STATUS_ENDPOINT;
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 import static online.talkandtravel.util.RedisUtils.getUserIdFromRedisKey;
 
 /**

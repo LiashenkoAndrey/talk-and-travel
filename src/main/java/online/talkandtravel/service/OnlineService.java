@@ -13,12 +13,6 @@ public interface OnlineService {
     OnlineStatusDto updateUserOnlineStatus(Long userId, Boolean isOnline);
 
     /**
-     * Notifies subscribed users that specific user updates their online status
-     */
-    void notifyUserOnlineStatusUpdated(Long userId, Boolean isOnline);
-
-
-    /**
      * Provides an initial snapshot of all user's online statuses
      *
      * @return a map where the key is the user ID and the value is a boolean indicating
@@ -34,5 +28,4 @@ public interface OnlineService {
      * whether the user is online (true) or offline (false)
      */
     Boolean getUserOnlineStatusById(Long userId);
-
 }

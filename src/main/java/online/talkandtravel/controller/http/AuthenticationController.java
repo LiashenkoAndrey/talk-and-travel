@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static online.talkandtravel.service.impl.OnlineServiceImpl.USERS_ONLINE_STATUS_ENDPOINT;
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
+
 
 /**
  * Controller class responsible for handling HTTP requests related to user authentication. This

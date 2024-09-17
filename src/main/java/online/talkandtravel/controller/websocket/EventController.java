@@ -16,7 +16,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
-import static online.talkandtravel.service.impl.OnlineServiceImpl.USERS_ONLINE_STATUS_ENDPOINT;
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 /**
  * Controller class responsible for handling WebSocket events related to chat interactions.
