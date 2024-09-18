@@ -9,6 +9,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,3 +31,10 @@ jobs:
 
       - name: Install dependencies and test with Maven
         run: mvn clean test
+
+      - name: Wait for Redis to be ready
+        run: |
+          while ! nc -z localhost 6379; do
+            echo "Waiting for Redis..."
+            sleep 1
+          done
