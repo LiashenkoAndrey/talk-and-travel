@@ -1,5 +1,19 @@
 package online.talkandtravel.service.impl;
 
+import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
+import static online.talkandtravel.util.RedisUtils.USER_STATUS_KEY_PATTERN;
+import static online.talkandtravel.util.RedisUtils.getRedisKey;
+import static online.talkandtravel.util.RedisUtils.getRedisKeys;
+import static online.talkandtravel.util.RedisUtils.getUserIdFromKeys;
+
+import java.security.Principal;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -10,14 +24,6 @@ import online.talkandtravel.service.OnlineService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.security.Principal;
-import java.time.Duration;
-import java.util.*;
-import java.util.stream.IntStream;
-
-import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
-import static online.talkandtravel.util.RedisUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -92,9 +98,9 @@ public class OnlineServiceImpl implements OnlineService {
     }
 
     private Map<Long, Boolean> getAllUsersOnlineStatuses() {
-        log.info("getAllUsersOnlineStatuses");
-        Set<String> keys = Optional.ofNullable(redisTemplate.keys(USER_STATUS_KEY_PATTERN))
+        Set<String> keysSet = Optional.ofNullable(redisTemplate.keys(USER_STATUS_KEY_PATTERN))
                 .orElse(Set.of());
+        List<String> keys = List.copyOf(keysSet);
         List<Long> userIdList = getUserIdFromKeys(keys);
         List<Boolean> values = getValuesFromKeys(keys);
 
@@ -102,7 +108,7 @@ public class OnlineServiceImpl implements OnlineService {
         Map<Long, Boolean> mapFromRedis = mapKeysAndValuesToMap(userIdList, values);
         Map<Long, Boolean> allUsersMap = new HashMap<>(users.size());
 
-        users.forEach(user -> allUsersMap.put(user.getId(), mapFromRedis.getOrDefault(user.getId(), false)));
+        users.forEach((user) -> allUsersMap.put(user.getId(), mapFromRedis.getOrDefault(user.getId(), false)));
         return allUsersMap;
     }
 
@@ -113,7 +119,7 @@ public class OnlineServiceImpl implements OnlineService {
      * @return a map where the key is the user ID and the value is a boolean indicating
      * whether the user is online (true) or offline (false)
      */
-    private Map<Long, Boolean> getAllUsersOnlineStatusesForUsersList(List<Long> userIds) {
+    public Map<Long, Boolean> getAllUsersOnlineStatusesForUsersList(List<Long> userIds) {
         List<Long> realUsersIds = userRepository.findAllById(userIds)
                 .stream()
                 .map(User::getId)
@@ -124,7 +130,7 @@ public class OnlineServiceImpl implements OnlineService {
         return mapKeysAndValuesToMap(realUsersIds, values);
     }
 
-    private List<Boolean> getValuesFromKeys(Collection<String> keys) {
+    private List<Boolean> getValuesFromKeys(List<String> keys) {
         List<String> stringValues = Optional.ofNullable(redisTemplate.opsForValue().multiGet(keys))
                 .orElse(List.of());
         return stringValues.stream()

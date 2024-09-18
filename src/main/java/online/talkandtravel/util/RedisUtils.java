@@ -1,10 +1,8 @@
 package online.talkandtravel.util;
 
+import java.util.List;
 import online.talkandtravel.exception.util.StringParseException;
 import org.apache.commons.lang3.math.NumberUtils;
-
-import java.util.List;
-import java.util.Set;
 
 public class RedisUtils {
 
@@ -28,7 +26,7 @@ public class RedisUtils {
     throw new StringParseException(userId, "Can't parse a long value");
   }
 
-  public static List<Long> getUserIdFromKeys(Set<String> keys) {
+  public static List<Long> getUserIdFromKeys(List<String> keys) {
     return keys.stream()
             .map(RedisUtils::getUserIdFromRedisKey)
             .toList();
