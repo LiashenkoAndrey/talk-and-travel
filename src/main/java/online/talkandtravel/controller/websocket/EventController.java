@@ -7,11 +7,16 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
+import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import online.talkandtravel.service.EventService;
+import online.talkandtravel.service.OnlineService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
+
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 /**
  * Controller class responsible for handling WebSocket events related to chat interactions.
@@ -34,6 +39,13 @@ public class EventController {
 
   private final EventService eventService;
   private final SimpMessagingTemplate messagingTemplate;
+  private final OnlineService onlineService;
+
+  @MessageMapping("/events.updateOnlineStatus")
+  @SendTo(USERS_ONLINE_STATUS_ENDPOINT)
+  public OnlineStatusDto updateUserOnlineStatus(@Payload Boolean isOnline, Principal principal) {
+    return onlineService.updateUserOnlineStatus(principal, isOnline);
+  }
 
   @MessageMapping("/events.joinChat")
   public void joinChat(@Payload @Valid EventRequest request, Principal principal) {

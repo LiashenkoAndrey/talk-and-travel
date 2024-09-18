@@ -1,5 +1,6 @@
 package online.talkandtravel.util.constants;
 
+
 /**
  * This interface defines constants for API paths used throughout the application.
  *
@@ -17,4 +18,5 @@ package online.talkandtravel.util.constants;
  */
 public interface ApiPathConstants {
   String API_BASE_PATH = "/api";
+  String USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
 }
