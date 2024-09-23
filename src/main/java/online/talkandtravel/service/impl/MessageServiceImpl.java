@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl;
 
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
@@ -16,14 +17,11 @@ import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.security.CustomUserDetails;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.MessageService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.security.Principal;
 
 /**
  * Implementation of the {@link MessageService} for handling message operations within chats.
@@ -34,7 +32,7 @@ import java.security.Principal;
  * <p>The service includes the following functionalities:
  *
  * <ul>
- *   <li>{@link #saveMessage(SendMessageRequest)} - Saves a new message to a specified chat. It
+ *   <li>{@link #saveMessage(SendMessageRequest, Principal)} - Saves a new message to a specified chat. It
  *       handles adding the message to the chat, associating it with a user, and linking it to a
  *       replied message if provided.
  * </ul>
@@ -49,14 +47,14 @@ public class MessageServiceImpl implements MessageService {
   private final ChatRepository chatRepository;
   private final UserChatRepository userChatRepository;
   private final MessageMapper messageMapper;
-  private final AuthenticationService authenticationService;
 
   @Override
+  @Transactional
   public MessageDto saveMessage(SendMessageRequest request, Principal principal) {
     User sender = getUser(principal);
     checkUserJoinedTheChat(request, sender.getId());
     Chat chat = getChat(request, sender.getId());
-    Message repliedMessage = getMessage(request, sender.getId());
+    Message repliedMessage = getMessage(request, sender.getId(), chat.getId());
 
     Message message =
         Message.builder()
@@ -80,7 +78,7 @@ public class MessageServiceImpl implements MessageService {
 
   private void checkUserJoinedTheChat(SendMessageRequest request, Long senderId) {
     userChatRepository.findByChatIdAndUserId(request.chatId(), senderId)
-            .orElseThrow(() -> new UserNotJoinedTheChatException(senderId, request.chatId()));
+        .orElseThrow(() -> new UserNotJoinedTheChatException(senderId, request.chatId()));
   }
 
   private Chat getChat(SendMessageRequest request,  Long senderId) {
@@ -94,15 +92,19 @@ public class MessageServiceImpl implements MessageService {
     }
   }
 
-  private Message getMessage(SendMessageRequest request,  Long senderId) {
+  private Message getMessage(SendMessageRequest request, Long senderId, Long chatId) {
     Long messageId = request.repliedMessageId();
     if (messageId == null) {
       return null;
     }
     try {
-      return messageRepository
+      Message message = messageRepository
           .findById(messageId)
           .orElseThrow(() -> new MessageNotFoundException(messageId));
+      if (!message.getChat().getId().equals(chatId)) {
+        throw new IllegalArgumentException("You can't reply to a message from an another chat. Message id: %s".formatted(messageId));
+      }
+      return message;
     } catch (MessageNotFoundException e) {
       throw new WebSocketException(e, senderId);
     }

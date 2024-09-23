@@ -65,12 +65,13 @@ public class MessageServiceImplTest {
 
   @Test
   void saveMessage_shouldReturnMessageDtoBasic_whenUserJoinedChatAndMessageExists() {
-
     Long repliedMessageId = 2L;
     String content = "Hello, World!";
     SendMessageRequest request = new SendMessageRequest(content, chatId, repliedMessageId);
-    Chat chat = new Chat();
-    Message repliedMessage = new Message();
+    Chat chat = Chat.builder().id(1L).build();
+    Message repliedMessage = Message.builder()
+        .chat(Chat.builder().id(1L).build())
+        .build();
     Message message = new Message();
     chat.getMessages().add(message);
     UserNameDto userNameDto = new UserNameDto(1L, "userName");

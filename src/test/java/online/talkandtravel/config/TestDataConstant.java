@@ -18,4 +18,7 @@ public final class TestDataConstant {
   public static final String CHAT_MESSAGES_DATA_SQL =
       SQL_PATH + "chat-messages-test-data" + POSTFIX;
 
+
+  public static final String CHAT_DATA_SQL =
+      SQL_PATH + "chat-test-data" + POSTFIX;
 }

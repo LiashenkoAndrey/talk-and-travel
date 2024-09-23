@@ -34,6 +34,7 @@ public class Message {
     this.content = content;
   }
 
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

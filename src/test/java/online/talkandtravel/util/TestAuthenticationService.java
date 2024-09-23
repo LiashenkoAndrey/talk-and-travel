@@ -4,9 +4,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.security.Principal;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
-import online.talkandtravel.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,11 +22,12 @@ public class TestAuthenticationService {
 
   @Autowired private ObjectMapper objectMapper;
 
-  public void authenticateUser(User user) {
+  public Principal authenticateUser(User user) {
     CustomUserDetails userDetails = new CustomUserDetails(user);
     var authData = new UsernamePasswordAuthenticationToken(userDetails, null,
         userDetails.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(authData);
+    return authData;
   }
 
   public String loginAndGetToken(String userEmail, String password) throws Exception {

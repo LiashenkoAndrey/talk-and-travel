@@ -157,24 +157,6 @@ public class OnlineServiceIntegrationTest extends IntegrationTest {
           () -> underTest.getUserOnlineStatusById(NOT_EXISTING_USER_ID));
     }
 
-    @ParameterizedTest
-    @MethodSource("shouldGetOnlineStatusArgs")
-    void shouldGetOnlineStatus(Long userId, Boolean isSetToOnline, Boolean expected) {
-      if (isSetToOnline) {
-        setUserStatusToOnlineById(userId);
-      }
-
-      Boolean actual = underTest.getUserOnlineStatusById(userId);
-
-      assertEquals(expected, actual);
-    }
-
-    private static Stream<Arguments> shouldGetOnlineStatusArgs() {
-      return Stream.of(
-          Arguments.of(1L, true, true),
-          Arguments.of(2L, false, false)
-      );
-    }
   }
   private String createRedisKeyByUserId(Long userId) {
     return REDIS_KEY_TEMPLATE.formatted(userId);

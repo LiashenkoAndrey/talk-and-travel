@@ -442,29 +442,48 @@ class ChatServiceImplTest {
     void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
       user.setId(1L);
       userChat.setLastReadMessageId(1L);
-      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
-      when(userChatRepository
-          .findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.ofNullable(userChat));
 
-      when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable))
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository.findByChatIdAndUserId(chatId, user.getId()))
+          .thenReturn(Optional.ofNullable(userChat));
+
+      List<Message> messages = List.of(new Message( "Read message content"));
+      Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
+
+      when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, userChat.getLastReadMessageId(), pageable1))
           .thenReturn(page);
-      Page<MessageDto> result =
-          underTest.findReadMessages(chatId, pageable1);
-      assertEquals(content, result.toList().get(0).content());
+
+      MessageDto messageDto = new MessageDto("Read message content");
+      when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
+
+      Page<MessageDto> result = underTest.findReadMessages(chatId, pageable1);
+
+      assertEquals("Read message content", result.toList().get(0).content());
     }
+
 
     @Test
     void findUnreadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
       user.setId(1L);
       userChat.setLastReadMessageId(1L);
+
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
-      when(userChatRepository
-          .findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.ofNullable(userChat));
-      when(messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable))
+      when(userChatRepository.findByChatIdAndUserId(chatId, user.getId()))
+          .thenReturn(Optional.ofNullable(userChat));
+
+      List<Message> messages = List.of(new Message("Test content"));
+      Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
+
+      when(messageRepository.findAllByChatIdAndIdAfter(chatId, userChat.getLastReadMessageId(), pageable1))
           .thenReturn(page);
-      Page<MessageDto> result =
-          underTest.findUnreadMessages(chatId, pageable1);
-      assertEquals(content, result.toList().get(0).content());
+
+      MessageDto messageDto = new MessageDto("Test content");
+      when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
+
+      Page<MessageDto> result = underTest.findUnreadMessages(chatId, pageable1);
+
+      assertEquals("Test content", result.toList().get(0).content());
     }
+
   }
 }
