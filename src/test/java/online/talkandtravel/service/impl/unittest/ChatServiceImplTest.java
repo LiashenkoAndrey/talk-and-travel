@@ -435,8 +435,8 @@ class ChatServiceImplTest {
     private final Long chatId = 1L, lastReadMessageId = 1L;
     private final Pageable pageable1 = PageRequest.of(0, 10);
     private final String content = "test";
-    private final Page<MessageDto> page =
-        new PageImpl<>(List.of(new MessageDto(content)));
+    private final Page<Message> page =
+        new PageImpl<>(List.of(new Message(content)));
 
     @Test
     void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {

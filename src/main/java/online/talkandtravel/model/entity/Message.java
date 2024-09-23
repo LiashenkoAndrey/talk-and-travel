@@ -30,6 +30,10 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(name = "messages")
 public class Message {
 
+  public Message(String content) {
+    this.content = content;
+  }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

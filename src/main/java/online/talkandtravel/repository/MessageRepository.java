@@ -20,9 +20,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-  Page<MessageDto> findAllByChatIdAndIdLessThanEqual(Long chatId, Long id, Pageable pageable);
+  Page<Message> findAllByChatIdAndIdLessThanEqual(Long chatId, Long id, Pageable pageable);
 
-  Page<MessageDto> findAllByChatIdAndIdAfter(Long chatId, Long id, Pageable pageable);
+  Page<Message> findAllByChatIdAndIdAfter(Long chatId, Long id, Pageable pageable);
 
   Page<Message> findAllByChatId(Long chatId, Pageable pageable);
 }

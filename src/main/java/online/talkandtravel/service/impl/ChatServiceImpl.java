@@ -112,6 +112,7 @@ public class ChatServiceImpl implements ChatService {
     User companion = getUser(dto.companionId());
 
     checkIfChatExists(user, companion);
+    checkIsDifferentUsers(user, companion);
     Chat privateChat = createAndSavePrivateChat(user, companion);
     saveUserChat(privateChat, user);
     saveUserChat(privateChat, companion);
@@ -171,7 +172,8 @@ public class ChatServiceImpl implements ChatService {
           .findAllByChatId(chatId, pageable)
           .map(messageMapper::toMessageDto);
     }
-    return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable);
+    return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable)
+        .map(messageMapper::toMessageDto);
   }
 
   @Override
@@ -187,7 +189,8 @@ public class ChatServiceImpl implements ChatService {
     if (lastReadMessageId == null) {
       return Page.empty();
     }
-    return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable);
+    return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable)
+        .map(messageMapper::toMessageDto);
   }
 
 
@@ -305,6 +308,12 @@ public class ChatServiceImpl implements ChatService {
         chatRepository.findChatByUsersAndChatType(participantIds, ChatType.PRIVATE);
     if (optionalChat.isPresent()) {
       throw new PrivateChatAlreadyExistsException(participantIds);
+    }
+  }
+
+  private void checkIsDifferentUsers(User user, User companion) {
+    if (user.getId().equals(companion.getId())) {
+      throw new IllegalArgumentException("Creation a chat with the same user. User id: %s".formatted(user.getId())) ;
     }
   }
 
