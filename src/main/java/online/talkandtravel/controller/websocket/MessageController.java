@@ -1,5 +1,6 @@
 package online.talkandtravel.controller.websocket;
 
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.message.MessageDto;
@@ -9,8 +10,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
 
 /**
  * Controller class responsible for handling WebSocket messages related to chat functionalities.
@@ -34,4 +33,6 @@ public class MessageController {
     MessageDto message = messageService.saveMessage(request, principal);
     messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
   }
+
+
 }
