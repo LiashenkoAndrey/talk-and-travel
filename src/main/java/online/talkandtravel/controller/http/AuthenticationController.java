@@ -49,6 +49,7 @@ public class AuthenticationController {
 
   @PostMapping("/login")
   public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
+    log.info("login controller: {}", loginRequest);
     AuthResponse response = authFacade.login(loginRequest);
     notifyAllUserIsOnline(response);
     return response;

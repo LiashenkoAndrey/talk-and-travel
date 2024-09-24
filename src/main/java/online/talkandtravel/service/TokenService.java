@@ -40,5 +40,4 @@ public interface TokenService {
   String generateToken(Long userId);
 
   String generateToken(Map<String, Object> extraClaims, Long userId);
-
 }
