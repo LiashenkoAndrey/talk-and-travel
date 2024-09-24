@@ -2,6 +2,11 @@ package online.talkandtravel.service.impl.integrationtest;
 
 import static online.talkandtravel.config.TestDataConstant.CHAT_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
+import static online.talkandtravel.testdata.ChatTestData.ANGOLA_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.EXISTING_MESSAGE_ID_OF_ARUBA_CHAT;
+import static online.talkandtravel.testdata.ChatTestData.NOT_EXISTING_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.REPLIED_MESSAGE_ID;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.security.Principal;
 import java.util.stream.Stream;
-import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.IntegrationTest;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
@@ -28,7 +32,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
-@Log4j2
 @Sql({USERS_DATA_SQL, CHAT_DATA_SQL})
 public class MessageServiceIntegrationTest extends IntegrationTest {
 
@@ -40,8 +43,6 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
 
   private User bob, alise;
 
-  private static final Long arubaChatId = 1L, existingMessageIdOfArubaChat = 1001L;
-
   @BeforeEach
   void init() {
     bob = getBob();
@@ -51,8 +52,7 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
   @Test
   void saveMessage_shouldThrow_whenUserNotJoinedInChat() {
     Principal principal = testAuthenticationService.authenticateUser(bob);
-
-    SendMessageRequest request = new SendMessageRequest("content", arubaChatId, null);
+    SendMessageRequest request = new SendMessageRequest("content", ARUBA_CHAT_ID, null);
 
     assertThrows(UserNotJoinedTheChatException.class, () -> underTest.saveMessage(request, principal));
   }
@@ -60,8 +60,7 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
   @Test
   void saveMessage_shouldThrow_whenChatNotFound() {
     Principal principal = testAuthenticationService.authenticateUser(bob);
-    Long notExistingChatId = 777L;
-    SendMessageRequest request = new SendMessageRequest("content", notExistingChatId, null);
+    SendMessageRequest request = new SendMessageRequest("content", NOT_EXISTING_CHAT_ID, null);
 
     assertThrows(UserNotJoinedTheChatException.class, () -> underTest.saveMessage(request, principal));
   }
@@ -69,8 +68,7 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
   @Test
   void saveMessage_shouldThrow_whenRepliedMessageNotFound() {
     Principal principal = testAuthenticationService.authenticateUser(bob);
-    Long repliedMessageId = 1000L;
-    SendMessageRequest request = new SendMessageRequest("content", arubaChatId, repliedMessageId);
+    SendMessageRequest request = new SendMessageRequest("content", ARUBA_CHAT_ID, REPLIED_MESSAGE_ID);
 
     assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
   }
@@ -78,18 +76,9 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
   @Test
   void saveMessage_shouldThrow_whenRepliedMessageFromAnotherChat() {
     Principal principal = testAuthenticationService.authenticateUser(bob);
-    Long angolaChatId = 3L;
-    SendMessageRequest request = new SendMessageRequest("content", angolaChatId, existingMessageIdOfArubaChat);
+    SendMessageRequest request = new SendMessageRequest("content", ANGOLA_CHAT_ID, EXISTING_MESSAGE_ID_OF_ARUBA_CHAT);
 
     assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
-  }
-
-
-  private static Stream<Arguments> saveMessageArgs() {
-    return Stream.of(
-        Arguments.of(getAlice(), 1L, null),
-        Arguments.of(getAlice(), 2L, existingMessageIdOfArubaChat)
-    );
   }
 
   @ParameterizedTest
@@ -97,7 +86,7 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
   void saveMessage_shouldSave(User authUser, Long messageId, Long repliedMessageId) {
     Principal principal = testAuthenticationService.authenticateUser(authUser);
     String content = "content";
-    SendMessageRequest request = new SendMessageRequest(content, arubaChatId, repliedMessageId);
+    SendMessageRequest request = new SendMessageRequest(content, ARUBA_CHAT_ID, repliedMessageId);
 
     MessageDto actual = underTest.saveMessage(request, principal);
 
@@ -108,5 +97,12 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
 
     assertEquals(repliedMessageId, actual.repliedMessageId());
     assertNotNull(actual.creationDate());
+  }
+
+  private static Stream<Arguments> saveMessageArgs() {
+    return Stream.of(
+        Arguments.of(getAlice(), 1L, null),
+        Arguments.of(getAlice(), 2L, EXISTING_MESSAGE_ID_OF_ARUBA_CHAT)
+    );
   }
 }
