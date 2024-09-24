@@ -23,6 +23,7 @@ import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.util.TestAuthenticationService;
+import online.talkandtravel.util.TestChatService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,9 +44,9 @@ class ChatControllerIntegrationTest extends IntegrationTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @Autowired private UserChatRepository userChatRepository;
-
   @Autowired private TestAuthenticationService authenticationService;
+
+  @Autowired private TestChatService testChatService;
 
   private static final String TOKEN_PREFIX = "Bearer ";
 
@@ -189,7 +190,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     @Test
     void getUnreadMessages_shouldGetFourLastMessages() throws Exception {
       Long expectedLength = 4L;
-      setLastRead(CHAT_ID, alice.getId(), 6L);
+      testChatService.setLastReadMessageId(CHAT_ID, alice.getId(), 6L);
 
       mockMvc.perform(
               get(GET_UNREAD_MESSAGES_PATH.formatted(CHAT_ID))
@@ -208,14 +209,6 @@ class ChatControllerIntegrationTest extends IntegrationTest {
       );
     }
 
-    private void setLastRead(Long chatId, Long userId, Long lastReadMessageId) {
-      UserChat userChat =
-              userChatRepository
-                      .findByChatIdAndUserId(chatId, userId)
-                      .orElseThrow(() -> new UserChatNotFoundException(chatId, userId));
-      userChat.setLastReadMessageId(lastReadMessageId);
-      userChatRepository.save(userChat);
-    }
   }
 
   private HttpHeaders getAuthHeader(String token) {
