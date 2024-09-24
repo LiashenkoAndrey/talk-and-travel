@@ -1,12 +1,10 @@
 package online.talkandtravel.config;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.security.CustomLogoutHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,10 +13,10 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
@@ -59,50 +57,42 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
+
   private static final String[] WHITE_LIST_URL = {
-    "/api/authentication/**",
+    "/api/authentication/login",
+    "/api/authentication/register",
     "/swagger-ui/**",
     "/v3/**",
     "/api/users/exists-by-email/**",
     "/ws/**",
     "/privacy-policy",
     "/public-terms-of-service",
-      "/api/avatars/user/{userID}",
-      "/api/v2/user/{userID}/avatar"
+    "/api/avatars/user/{userID}",
+    "/api/v2/user/{userID}/avatar"
   };
+  private static final String LOGOUT_URL = "/api/authentication/logout";
+
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;
   private final CorsConfigurationSource corsConfigurationSource;
-  private final LogoutHandler logoutHandler;
+  private final CustomLogoutHandler customLogoutHandler;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource))
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
-            req ->
-                req.requestMatchers(WHITE_LIST_URL)
-                    .permitAll()
-                    .requestMatchers(
-                        POST, "/api/countries/", "/api/avatars", "/api/group-messages/", "/api/user/avatar")
-                    .hasAnyAuthority(Role.USER.name())
-                    .requestMatchers(PUT, "/api/users/", "/api/countries/", "/api/participants/")
-                    .hasAnyAuthority(Role.USER.name())
-                    .requestMatchers(GET, "/api/users/", "/api/countries/", "/api/group-messages/")
-                    .hasAnyAuthority(Role.USER.name())
-                    .anyRequest()
-                    .authenticated())
+            req -> req.requestMatchers(WHITE_LIST_URL).permitAll().anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .logout(
             logout ->
                 logout
-                    .logoutUrl("/api/authentication/logout")
-                    .addLogoutHandler(logoutHandler)
-                    .logoutSuccessHandler(
-                        (request, response, authentication) ->
-                            SecurityContextHolder.clearContext()));
+                    .logoutUrl(LOGOUT_URL)
+                    .addLogoutHandler(customLogoutHandler)
+                    .logoutSuccessHandler(getLogoutSuccessHandler())
+                    .permitAll());
     return http.build();
   }
 
@@ -110,5 +100,13 @@ public class SecurityConfiguration {
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
       throws Exception {
     return config.getAuthenticationManager();
+  }
+
+  private LogoutSuccessHandler getLogoutSuccessHandler() {
+    return (request, response, authentication) -> {
+      if (response.getStatus() != 400) {
+        response.setStatus(HttpServletResponse.SC_OK);
+      }
+    };
   }
 }
