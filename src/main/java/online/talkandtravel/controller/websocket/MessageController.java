@@ -33,4 +33,6 @@ public class MessageController {
     MessageDto message = messageService.saveMessage(request, principal);
     messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
   }
+
+
 }

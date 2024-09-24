@@ -95,31 +95,29 @@ class Attachment {
   - id: Long
   - fileName: String
   - fileUrl: String
-  - thumbnailUrl: String
   - size: long
   - mimeType: String
+}
+
+class Image {
+  - thumbnailUrl: String
+}
+
+class Audio {
   - duration: Long
 }
 
-class ImageAttachment {
-  - resolution: String
-}
-
-class AudioAttachment {
+class Video {
+  - thumbnailUrl: String
   - duration: Long
 }
 
-class VideoAttachment {
-  - duration: Long
-  - resolution: String
-}
+class File {}
 
-class FileAttachment {}
-
-Attachment <|-- ImageAttachment
-Attachment <|-- AudioAttachment
-Attachment <|-- VideoAttachment
-Attachment <|-- FileAttachment
+Attachment <|-- Image
+Attachment <|-- Audio
+Attachment <|-- Video
+Attachment <|-- File
 
 'Associations
 Message --> Attachment : "1"
