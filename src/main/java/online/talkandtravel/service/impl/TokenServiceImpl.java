@@ -16,17 +16,11 @@ import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.token.InvalidTokenException;
-import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.entity.Token;
-import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
-import online.talkandtravel.repository.UserRepository;
-import online.talkandtravel.security.CustomUserDetails;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,12 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>The service includes the following functionalities:
  *
  * <ul>
- *   <li>{@link #save(Token)} - Saves a single token to the repository.
- *       with a specific user.
+ *   <li>{@link #save(Token)} - Saves a single token to the repository. with a specific user.
  *   <li>{@link #findByToken(String)} - Finds a token by its value, returning an {@code Optional} to
  *       handle the case where the token might not exist.
- *   <li>{@link #saveAll(List)} - Saves a batch of tokens to the repository.
- *       specific user.
+ *   <li>{@link #saveAll(List)} - Saves a batch of tokens to the repository. specific user.
  * </ul>
  */
 @Service
@@ -53,32 +45,33 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
 
+  public static final String TOKEN_NOT_FOUND = "Token for user with id %s is not found";
+
   @Value("${SECRET_KEY}")
   private String secretKey;
 
-  private final TokenRepository repository;
+  private final TokenRepository tokenRepository;
 
   @Override
   @Transactional
   public void deleteUserToken(Long userId) {
-    repository.deleteAllByUserId(userId);
+    tokenRepository.deleteAllByUserId(userId);
   }
 
   @Override
   public Token save(Token token) {
-    return repository.save(token);
+    return tokenRepository.save(token);
   }
 
   @Override
   public Optional<Token> findByToken(String token) {
-    return repository.findByToken(token);
+    return tokenRepository.findByToken(token);
   }
 
   @Override
   public List<Token> saveAll(List<Token> tokens) {
-    return repository.saveAll(tokens);
+    return tokenRepository.saveAll(tokens);
   }
-
 
   /**
    * @param token Authentication token from header
@@ -105,9 +98,7 @@ public class TokenServiceImpl implements TokenService {
     return generateToken(new HashMap<>(), userId);
   }
 
-  /**
-   * 86400000 milliseconds = 24 hours
-   */
+  /** 86400000 milliseconds = 24 hours */
   @Override
   public String generateToken(Map<String, Object> extraClaims, Long userId) {
     return Jwts.builder()
@@ -121,15 +112,19 @@ public class TokenServiceImpl implements TokenService {
 
   private void validateSubject(String subject) {
     if (!NumberUtils.isCreatable(subject)) {
-      throw new InvalidTokenException("Token subject is not a number",
-          "Invalid authentication token");
+      throw new InvalidTokenException(
+          "Token subject is not a number", "Invalid authentication token");
     }
   }
 
-  public void verifyStoredTokenPresentAndValid(Long userId) {
-    Token token = repository.findByUserId(userId).orElseThrow(
-        () -> new InvalidTokenException(
-            String.format("token of user with id %s not found", userId), "Invalid token"));
+  private void verifyStoredTokenPresentAndValid(Long userId) {
+    Token token =
+        tokenRepository.findAllByUserId(userId).stream()
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new InvalidTokenException(
+                        String.format(TOKEN_NOT_FOUND, userId), "Invalid token"));
 
     if (token.isExpired() && token.isRevoked()) {
       String errorMessage = String.format("Token with id:%s is expired or revoked.", token.getId());
@@ -137,7 +132,7 @@ public class TokenServiceImpl implements TokenService {
     }
   }
 
-  public void verifyProvidedTokenValid(String token) {
+  private void verifyProvidedTokenValid(String token) {
     parseClaims(token);
   }
 
@@ -157,11 +152,11 @@ public class TokenServiceImpl implements TokenService {
               .parseClaimsJws(token)
               .getBody();
     } catch (ExpiredJwtException expiredJwtException) {
-      throw new InvalidTokenException(expiredJwtException.getMessage(),
-          "Invalid token. The provided token is expired ");
+      throw new InvalidTokenException(
+          expiredJwtException.getMessage(), "Invalid token. The provided token is expired ");
     } catch (Exception e) {
-      throw new InvalidTokenException(e.getMessage(),
-          "Invalid token. Error occupied during token processing");
+      throw new InvalidTokenException(
+          e.getMessage(), "Invalid token. Error occupied during token processing");
     }
     return claims;
   }
