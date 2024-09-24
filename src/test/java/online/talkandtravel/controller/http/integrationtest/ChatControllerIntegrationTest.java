@@ -1,6 +1,7 @@
 package online.talkandtravel.controller.http.integrationtest;
 
 import static online.talkandtravel.config.TestDataConstant.CHAT_MESSAGES_DATA_SQL;
+import static online.talkandtravel.config.TestDataConstant.PRIVATE_CHATS_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
@@ -32,7 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
-@Sql({USERS_DATA_SQL, CHAT_MESSAGES_DATA_SQL})
+@Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL})
 @Log4j2
 class ChatControllerIntegrationTest extends IntegrationTest {
 
@@ -155,15 +156,15 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     void getUnreadMessages_shouldGetTenMessages() throws Exception {
       NewPrivateChatDto newPrivateChatDto = new NewPrivateChatDto(alice.getId());
       String token = authenticateUser(alice);
-      Long chatId = 1L;
+      Long chatId = 10000L, expectedLength = 10L;
 
       mockMvc.perform(
                       get("/api/chats/%s/messages/unread".formatted(chatId))
                               .headers(getAuthHeader(token))
                               .contentType(APPLICATION_JSON)
                               .content(toJson(newPrivateChatDto)))
-              .andExpect(jsonPath("$").isArray());
-              .andExpect(jsonPath("$").);
+              .andExpect(jsonPath("$.content").isArray())
+              .andExpect(jsonPath("$.content.length()").value(expectedLength));
     }
 
     private static Stream<Arguments> getUnreadMessages_shouldThrowArgs() {
