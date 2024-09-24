@@ -4,8 +4,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.security.Principal;
+import online.talkandtravel.model.entity.User;
+import online.talkandtravel.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -16,6 +21,14 @@ public class TestAuthenticationService {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ObjectMapper objectMapper;
+
+  public Principal authenticateUser(User user) {
+    CustomUserDetails userDetails = new CustomUserDetails(user);
+    var authData = new UsernamePasswordAuthenticationToken(userDetails, null,
+        userDetails.getAuthorities());
+    SecurityContextHolder.getContext().setAuthentication(authData);
+    return authData;
+  }
 
   public String loginAndGetToken(String userEmail, String password) throws Exception {
     String jsonContent =

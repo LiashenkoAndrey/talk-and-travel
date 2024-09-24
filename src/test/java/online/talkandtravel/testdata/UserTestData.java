@@ -39,4 +39,19 @@ public final class UserTestData {
         .avatar(null)
         .build();
   }
+
+  /**
+   * Tomas doesn't have private chats
+   */
+  public static User getTomas(){
+    return User.builder()
+        .id(4L)
+        .userName("Tomas")
+        .password("!123456Bb")
+        .userEmail("tomas@gmail.com")
+        .about("I am Tomas!")
+        .role(Role.USER)
+        .avatar(null)
+        .build();
+  }
 }

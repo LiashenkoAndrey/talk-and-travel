@@ -9,13 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-        options: --entrypoint redis-server
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,14 +21,6 @@ jobs:
 
       - name: Check Docker version
         run: docker --version
-
-      - name: Wait for Redis to be ready
-        run: |
-          echo "Waiting for Redis to start..."
-          while ! nc -z localhost 6379; do
-            sleep 1
-          done
-          echo "Redis is ready!"
 
       - name: Install dependencies and test with Maven
         run: mvn clean test

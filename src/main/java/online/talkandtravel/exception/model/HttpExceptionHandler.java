@@ -40,7 +40,8 @@ public class HttpExceptionHandler {
   @ExceptionHandler({
       MissingServletRequestPartException.class,
       HttpMediaTypeNotSupportedException.class,
-      IllegalStateException.class
+      IllegalStateException.class,
+      IllegalArgumentException.class
   })
   ResponseEntity<ExceptionResponse> handleMissingServletRequestPartException(
       Exception e, ServletWebRequest request) {
