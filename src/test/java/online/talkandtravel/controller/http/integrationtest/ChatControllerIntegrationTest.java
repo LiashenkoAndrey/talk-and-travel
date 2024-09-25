@@ -17,11 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.IntegrationTest;
-import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.model.entity.UserChat;
-import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.util.TestAuthenticationService;
 import online.talkandtravel.util.TestChatService;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +86,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
 
       mockMvc.perform(
               post(CREATE_PRIVATE_CHAT_PATH)
-                  .headers(getAuthHeader(aliceToken))
+                  .headers(createAuthHeader(aliceToken))
                   .contentType(APPLICATION_JSON)
                   .content(toJson(content)))
           .andExpectAll(matcher);
@@ -116,7 +113,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     void findMainChat_shouldFindChat(String name, String id) throws Exception {
       mockMvc.perform(
               get(FIND_MAIN_CHAT_PATH.formatted(name))
-                  .headers(getAuthHeader(token))
+                  .headers(createAuthHeader(token))
                   .contentType(APPLICATION_JSON)
                   .content(toJson(newPrivateChatDto)))
           .andExpect(status().isOk())
@@ -125,18 +122,18 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     }
 
     @ParameterizedTest
-    @MethodSource("findMainChat_shouldThrowArgs")
-    void findMainChat_shouldThrow(String countryName) throws Exception {
+    @MethodSource("findMainChat_shouldReturnNotFoundArgs")
+    void findMainChat_shouldReturnNotFound(String countryName) throws Exception {
       mockMvc.perform(
               get(FIND_MAIN_CHAT_PATH.formatted(countryName))
-                  .headers(getAuthHeader(token))
+                  .headers(createAuthHeader(token))
                   .contentType(APPLICATION_JSON)
                   .content(toJson(newPrivateChatDto)))
           .andExpect(status().isNotFound())
           .andExpect(jsonPath("message").value("Country [%s] not found".formatted(countryName)));
     }
 
-    private static Stream<Arguments> findMainChat_shouldThrowArgs() {
+    private static Stream<Arguments> findMainChat_shouldReturnNotFoundArgs() {
       return Stream.of(
           Arguments.of("Incorrect"),
           Arguments.of(" ")
@@ -165,22 +162,22 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getUnreadMessages_shouldThrowArgs")
-    void getUnreadMessages_shouldThrow(String chatId, Integer status) throws Exception {
+    @MethodSource("getUnreadMessages_shouldReturnBadRequestArgs")
+    void getUnreadMessages_shouldReturnBadRequest(String chatId, Integer status) throws Exception {
       mockMvc.perform(
               get(GET_UNREAD_MESSAGES_PATH.formatted(chatId))
-                  .headers(getAuthHeader(token))
+                  .headers(createAuthHeader(token))
                   .contentType(APPLICATION_JSON)
                   .content(toJson(newPrivateChatDto)))
           .andExpect(status().is(status));
     }
 
     @Test
-    void getUnreadMessages_shouldGetZeroMessages() throws Exception {
+    void getUnreadMessages_shouldReturnEmptyPage() throws Exception {
       Long expectedLength = 0L;
       mockMvc.perform(
               get(GET_UNREAD_MESSAGES_PATH.formatted(CHAT_ID))
-                  .headers(getAuthHeader(token))
+                  .headers(createAuthHeader(token))
                   .contentType(APPLICATION_JSON)
                   .content(toJson(newPrivateChatDto)))
           .andExpect(jsonPath("$.content").isArray())
@@ -188,20 +185,20 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    void getUnreadMessages_shouldGetFourLastMessages() throws Exception {
+    void getUnreadMessages_shouldGetLastMessages() throws Exception {
       Long expectedLength = 4L;
       testChatService.setLastReadMessageId(CHAT_ID, alice.getId(), 6L);
 
       mockMvc.perform(
               get(GET_UNREAD_MESSAGES_PATH.formatted(CHAT_ID))
-                  .headers(getAuthHeader(token))
+                  .headers(createAuthHeader(token))
                   .contentType(APPLICATION_JSON)
                   .content(toJson(newPrivateChatDto)))
           .andExpect(jsonPath("$.content").isArray())
           .andExpect(jsonPath("$.content.length()").value(expectedLength));
     }
 
-    private static Stream<Arguments> getUnreadMessages_shouldThrowArgs() {
+    private static Stream<Arguments> getUnreadMessages_shouldReturnBadRequestArgs() {
       return Stream.of(
               Arguments.of("Incorrect", 400),
               Arguments.of(" ", 400),
@@ -211,7 +208,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
 
   }
 
-  private HttpHeaders getAuthHeader(String token) {
+  private HttpHeaders createAuthHeader(String token) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Authorization", TOKEN_PREFIX + token);
     return headers;
