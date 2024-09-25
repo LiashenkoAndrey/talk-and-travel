@@ -15,5 +15,9 @@ public enum MessageType {
   JOIN,
   LEAVE,
   START_TYPING,
-  STOP_TYPING
+  STOP_TYPING,
+  IMAGE,
+  VIDEO,
+  AUDIO,
+  FILE
 }
