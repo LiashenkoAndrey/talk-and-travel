@@ -30,6 +30,10 @@ public class TestAuthenticationService {
     return authData;
   }
 
+  public String loginAndGetToken(User user) throws Exception {
+    return loginAndGetToken(user.getUserEmail(), user.getPassword());
+  }
+
   public String loginAndGetToken(String userEmail, String password) throws Exception {
     String jsonContent =
         """

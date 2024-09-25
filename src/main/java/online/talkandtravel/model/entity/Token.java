@@ -47,6 +47,7 @@ public class Token {
   public String toString() {
     return "Token{" +
         "id=" + id +
+        "user=" + user.getId() +
         '}';
   }
 }

@@ -39,7 +39,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
         authenticationService.loginAndGetToken(alice.getUserEmail(), alice.getPassword());
 
     log.info("token {}", token);
-    // Act & Assert
+
     mockMvc
         .perform(
             post("/api/chats/private")
