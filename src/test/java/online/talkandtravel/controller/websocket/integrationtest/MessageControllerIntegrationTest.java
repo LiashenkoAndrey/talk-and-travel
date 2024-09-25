@@ -77,7 +77,7 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MessageControllerIntegrationTest {
 
-  private static final long DEFAULT_SLEEP_TIME = 1000L;
+  private static final long AFTER_SUBSCRIBE_SLEEP_TIME = 1000L, AFTER_SEND_SLEEP_TIME = 400L;
 
   @LocalServerPort
   private int port;
@@ -110,7 +110,7 @@ public class MessageControllerIntegrationTest {
   @MethodSource("subscribeToMessagesTestArgs")
   void subscribeToMessagesTest(EventRequest request, int index, MessageType messageType, String content, Long chatId) throws Exception {
     stompSession.send(JOIN_CHAT_EVENT_PATH, toWSPayload(request));
-    Thread.sleep(400);
+    Thread.sleep(AFTER_SEND_SLEEP_TIME);
 
     assertMessageReceived(index, messageType, content, chatId);
   }
@@ -120,7 +120,7 @@ public class MessageControllerIntegrationTest {
   @MethodSource("sendMessageTestArgs")
   void sendMessageTest(SendMessageRequest request, int index, MessageType messageType, String content, Long chatId) throws Exception {
     stompSession.send(SEND_MESSAGE_PATH, toWSPayload(request));
-    Thread.sleep(400);
+    Thread.sleep(AFTER_SEND_SLEEP_TIME);
 
     assertMessageReceived(index, messageType, content, chatId);
   }
@@ -188,7 +188,7 @@ public class MessageControllerIntegrationTest {
     stompSession.subscribe(MESSAGES_SUBSCRIBE_PATH.formatted(ARUBA_CHAT_ID), new CustomStompFrameHandler());
     stompSession.subscribe(MESSAGES_SUBSCRIBE_PATH.formatted(ANGOLA_CHAT_ID), new CustomStompFrameHandler());
 
-    Thread.sleep(DEFAULT_SLEEP_TIME);
+    Thread.sleep(AFTER_SUBSCRIBE_SLEEP_TIME);
   }
 
   private <T> byte[] toWSPayload(T value) {
