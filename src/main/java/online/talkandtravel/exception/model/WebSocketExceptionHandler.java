@@ -29,7 +29,7 @@ public class WebSocketExceptionHandler {
   public void handleWebSocketException(WebSocketException e) {
     ExceptionResponse errorMessage =
         new ExceptionResponse(e.getMessage(), e.getHttpStatus(), e.getZonedDateTime());
-    log.error(e.getMessageToClient());
+    log.error(e.getMessage(), e);
     sendErrorToUser(e.getUserId(), errorMessage);
   }
 

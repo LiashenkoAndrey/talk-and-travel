@@ -24,7 +24,16 @@ public final class UserTestData {
         .userEmail("alice@mail.com")
         .about("Hello, I am Alice!")
         .role(Role.USER)
-        .avatar(null)
+        .build();
+  }
+
+  public static User getAdmin(){
+    return User.builder()
+        .id(1L)
+        .userName("admin")
+        .password("password")
+        .userEmail("admin@2t.com")
+        .role(Role.ADMIN)
         .build();
   }
 
@@ -36,7 +45,6 @@ public final class UserTestData {
         .userEmail("abob@mail.com")
         .about("Hello, I am Bob!")
         .role(Role.USER)
-        .avatar(null)
         .build();
   }
 
@@ -51,7 +59,6 @@ public final class UserTestData {
         .userEmail("tomas@gmail.com")
         .about("I am Tomas!")
         .role(Role.USER)
-        .avatar(null)
         .build();
   }
 }

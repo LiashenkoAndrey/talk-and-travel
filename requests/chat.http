@@ -36,6 +36,12 @@ Authorization: Bearer {{token}}
 GET {{apiUrl}}/api/chats/user/1/private
 Authorization: Bearer {{token}}
 
+###
+GET {{apiUrl}}/api/v2/user/chats
+Authorization: Bearer {{token}}
+
+
+
 
 ###
 POST {{apiUrl}}/api/chats

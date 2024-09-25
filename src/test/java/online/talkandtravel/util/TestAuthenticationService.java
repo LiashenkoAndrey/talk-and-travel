@@ -22,16 +22,15 @@ public class TestAuthenticationService {
 
   @Autowired private ObjectMapper objectMapper;
 
+  public static final String AUTHENTICATION_URL = "http://localhost:%s/api/authentication/login",
+    AUTHORIZATION_HEADER = "Bearer %s";
+
   public Principal authenticateUser(User user) {
     CustomUserDetails userDetails = new CustomUserDetails(user);
     var authData = new UsernamePasswordAuthenticationToken(userDetails, null,
         userDetails.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(authData);
     return authData;
-  }
-
-  public String loginAndGetToken(User user) throws Exception {
-    return loginAndGetToken(user.getUserEmail(), user.getPassword());
   }
 
   public String loginAndGetToken(String userEmail, String password) {
