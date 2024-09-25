@@ -29,6 +29,7 @@ import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.TestAuthenticationService;
+import online.talkandtravel.util.TestChatService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,17 +45,15 @@ import org.springframework.test.context.jdbc.Sql;
 @Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL})
 public class ChatServiceIntegrationTest extends IntegrationTest {
 
-  @Autowired
-  private ChatService underTest;
+  @Autowired private ChatService underTest;
 
-  @Autowired
-  private ChatRepository chatRepository;
+  @Autowired private ChatRepository chatRepository;
 
-  @Autowired
-  private UserChatRepository userChatRepository;
+  @Autowired private UserChatRepository userChatRepository;
 
-  @Autowired
-  private TestAuthenticationService testAuthenticationService;
+  @Autowired private TestAuthenticationService testAuthenticationService;
+
+  @Autowired private TestChatService testChatService;
 
   private User bob, alice;
 
@@ -149,7 +148,7 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     void findReadMessages_shouldReturnFiveMessages_whenLastReadIsPresent() {
       testAuthenticationService.authenticateUser(alice);
       Long lastReadMessageId = 5L;
-      setLastRead(CHAT_ID, getAlice().getId(), lastReadMessageId);
+      testChatService.setLastReadMessageId(CHAT_ID, getAlice().getId(), lastReadMessageId);
 
       Page<MessageDto> messageDtoPage = underTest.findReadMessages(CHAT_ID, Pageable.unpaged());
       assertEquals(5, messageDtoPage.getSize());
@@ -171,22 +170,13 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     void findUnreadMessages_shouldReturnFiveMessages_whenLastReadIsPresent() {
       testAuthenticationService.authenticateUser(alice);
       Long lastReadMessageId = 6L;
-      setLastRead(CHAT_ID, getAlice().getId(), lastReadMessageId);
+      testChatService.setLastReadMessageId(CHAT_ID, getAlice().getId(), lastReadMessageId);
 
       Page<MessageDto> messageDtoPage = underTest.findUnreadMessages(CHAT_ID, Pageable.unpaged());
       assertEquals(4, messageDtoPage.getSize());
 
       messageDtoPage.getContent().forEach(
           (message) -> assertThat(message.id()).isGreaterThan(lastReadMessageId));
-    }
-
-    private void setLastRead(Long chatId, Long userId, Long lastReadMessageId) {
-      UserChat userChat =
-          userChatRepository
-              .findByChatIdAndUserId(chatId, userId)
-              .orElseThrow(() -> new UserChatNotFoundException(chatId, userId));
-      userChat.setLastReadMessageId(lastReadMessageId);
-      userChatRepository.save(userChat);
     }
   }
 
