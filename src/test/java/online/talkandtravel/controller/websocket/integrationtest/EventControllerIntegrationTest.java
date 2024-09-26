@@ -36,12 +36,14 @@ import org.springframework.messaging.simp.stomp.StompSession;
 @Log4j2
 public class EventControllerIntegrationTest extends StompIntegrationTest {
 
-  @Autowired private UserRepository userRepository;
+  @Autowired
+  private UserRepository userRepository;
 
   @Nested
   @TestInstance(Lifecycle.PER_CLASS)
   @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
   class OnlineStatusTests {
+
     private final List<OnlineStatusDto> onlineStatusDtoList = new ArrayList<>();
 
     private StompSession aliceStompSession;
@@ -49,8 +51,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     @BeforeAll
     void setUp() throws InterruptedException, ExecutionException {
-      userRepository.save(getAliceSaved());
-      userRepository.save(getBobSaved());
+      saveAliseAndBob();
       aliceStompSession = authenticateAndInitializeStompSession(getAlice());
       bobStompSession = authenticateAndInitializeStompSession(getBob());
 
@@ -60,10 +61,10 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
     @Order(1)
     @ParameterizedTest
     @MethodSource("chatEventsTestArgs")
-    void chatEventsTest(Integer index, StompSession stompSession, Long userId, Boolean isOnline) throws Exception {
+    void chatEventsTest(Integer index, StompSession stompSession, Long userId, Boolean isOnline) {
       stompSession.send(UPDATE_ONLINE_STATUS_PATH, toWSPayload(isOnline));
-      Thread.sleep(AFTER_SEND_SLEEP_TIME);
-      assertMessageReceived(index, userId, isOnline);
+      pause(AFTER_SEND_PAUSE_TIME);
+      assertMessage(index, userId, isOnline);
     }
 
     private Stream<Arguments> chatEventsTestArgs() {
@@ -71,16 +72,16 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
           Arguments.of(1, aliceStompSession, 2L, true),
           Arguments.of(2, bobStompSession, 3L, true),
           Arguments.of(3, aliceStompSession, 2L, false),
-          Arguments.of(4, aliceStompSession,2L, true)
+          Arguments.of(4, aliceStompSession, 2L, true)
       );
     }
 
     @Order(2)
     @ParameterizedTest
     @MethodSource("verifyOnlineStatusIsOfflineArgs")
-    void verifyOnlineStatusIsOffline(Integer index, Long userId, Boolean isOnline) throws Exception {
-      Thread.sleep(1000);
-      assertMessageReceived(index, userId, isOnline);
+    void verifyOnlineStatusIsOffline(Integer index, Long userId, Boolean isOnline) {
+      pause(ONE_SECOND_PAUSE);
+      assertMessage(index, userId, isOnline);
     }
 
     private Stream<Arguments> verifyOnlineStatusIsOfflineArgs() {
@@ -90,13 +91,13 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
       );
     }
 
-    private void assertMessageReceived(Integer index, Long userId, Boolean isOnline) {
+    private void assertMessage(Integer index, Long userId, Boolean isOnline) {
       OnlineStatusDto onlineStatusDto = onlineStatusDtoList.get(index);
       assertEquals(userId, onlineStatusDto.userId());
       assertEquals(isOnline, onlineStatusDto.isOnline());
     }
 
-    private void subscribeToOnlineStatus() throws InterruptedException {
+    private void subscribeToOnlineStatus() {
       subscribe(onlineStatusDtoList::add, OnlineStatusDto.class, aliceStompSession,
           USERS_ONLINE_STATUS_ENDPOINT);
     }
@@ -113,7 +114,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     @BeforeAll
     void setUp() throws InterruptedException, ExecutionException {
-      saveEntities();
+      saveAliseAndBob();
       aliceStompSession = authenticateAndInitializeStompSession(getAlice());
       bobStompSession = authenticateAndInitializeStompSession(getBob());
 
@@ -123,15 +124,16 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
     @ParameterizedTest
     @MethodSource("chatEventsTestArgs")
     void chatEventsTest(Integer index, StompSession stompSession, String path, Long chatId,
-        MessageType messageType, String content) throws Exception {
+        MessageType messageType, String content) {
       stompSession.send(path, toWSPayload(new EventRequest(chatId)));
-      Thread.sleep(AFTER_SEND_SLEEP_TIME);
+      pause(AFTER_SEND_PAUSE_TIME);
       if (index != null) {
         assertMessageReceived(index, messageType, content, chatId);
       }
     }
 
-    private void assertMessageReceived(Integer index, MessageType messageType, String content, Long chatId) {
+    private void assertMessageReceived(Integer index, MessageType messageType, String content,
+        Long chatId) {
       assertThat(messageDtoList).hasSize(index + 1);
       MessageDto messageDto = messageDtoList.get(index);
       assertEquals(messageType, messageDto.type());
@@ -144,25 +146,29 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     private Stream<Arguments> chatEventsTestArgs() {
       return Stream.of(
-          Arguments.of(0, aliceStompSession, JOIN_CHAT_EVENT_PATH, ARUBA_CHAT_ID, MessageType.JOIN, "Alice joined the chat"),
+          Arguments.of(0, aliceStompSession, JOIN_CHAT_EVENT_PATH, ARUBA_CHAT_ID, MessageType.JOIN,
+              "Alice joined the chat"),
           Arguments.of(null, aliceStompSession, JOIN_CHAT_EVENT_PATH, ANGOLA_CHAT_ID, null, null),
           Arguments.of(null, bobStompSession, JOIN_CHAT_EVENT_PATH, ANGOLA_CHAT_ID, null, null),
           Arguments.of(null, bobStompSession, START_TYPING_EVENT_PATH, ANGOLA_CHAT_ID, null, null),
-          Arguments.of(1, aliceStompSession, START_TYPING_EVENT_PATH, ARUBA_CHAT_ID, MessageType.START_TYPING, null),
-          Arguments.of(2, aliceStompSession, STOP_TYPING_EVENT_PATH, ARUBA_CHAT_ID, MessageType.STOP_TYPING, null),
-          Arguments.of(3, aliceStompSession, LEAVE_CHAT_EVENT_PATH, ARUBA_CHAT_ID, MessageType.LEAVE, "Alice left the chat"),
+          Arguments.of(1, aliceStompSession, START_TYPING_EVENT_PATH, ARUBA_CHAT_ID,
+              MessageType.START_TYPING, null),
+          Arguments.of(2, aliceStompSession, STOP_TYPING_EVENT_PATH, ARUBA_CHAT_ID,
+              MessageType.STOP_TYPING, null),
+          Arguments.of(3, aliceStompSession, LEAVE_CHAT_EVENT_PATH, ARUBA_CHAT_ID,
+              MessageType.LEAVE, "Alice left the chat"),
           Arguments.of(null, bobStompSession, LEAVE_CHAT_EVENT_PATH, ANGOLA_CHAT_ID, null, null)
       );
     }
 
-    private void saveEntities() {
-      userRepository.save(getAliceSaved());
-      userRepository.save(getBobSaved());
-    }
-
-    private void subscribeToChatEvents() throws InterruptedException {
+    private void subscribeToChatEvents() {
       subscribe(messageDtoList::add, MessageDto.class, aliceStompSession,
           MESSAGES_SUBSCRIBE_PATH.formatted(ARUBA_CHAT_ID));
     }
+  }
+
+  private void saveAliseAndBob() {
+    userRepository.save(getAliceSaved());
+    userRepository.save(getBobSaved());
   }
 }
