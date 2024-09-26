@@ -41,7 +41,6 @@ public class EventController {
   private final EventService eventService;
   private final SimpMessagingTemplate messagingTemplate;
   private final OnlineService onlineService;
-  private final UserChatRepository userChatRepository;
 
   @MessageMapping("/events.updateOnlineStatus")
   @SendTo(USERS_ONLINE_STATUS_ENDPOINT)
@@ -53,7 +52,6 @@ public class EventController {
   public void joinChat(@Payload @Valid EventRequest request, Principal principal) {
     log.info("create a new JOIN CHAT event {}, {}", request, principal);
     MessageDto message = eventService.joinChat(request, principal);
-    log.info("joinChat findAllByChatId: {}", userChatRepository.findAllByChatId(1L));
     sendResponse(request, message);
   }
 

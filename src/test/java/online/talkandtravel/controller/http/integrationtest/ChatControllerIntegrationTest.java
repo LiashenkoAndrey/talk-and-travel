@@ -218,7 +218,7 @@ class ChatControllerIntegrationTest extends IntegrationTest {
     return authenticationService.loginAndGetToken(user.getUserEmail(), user.getPassword());
   }
 
-  private String toJson(Object value) throws JsonProcessingException {
+  public String toJson(Object value) throws JsonProcessingException {
     return objectMapper.writeValueAsString(value);
   }
 }

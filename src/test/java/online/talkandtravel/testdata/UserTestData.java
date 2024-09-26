@@ -27,6 +27,17 @@ public final class UserTestData {
         .build();
   }
 
+  public static User getAliceSaved(){
+    return User.builder()
+        .id(2L)
+        .userName("Alice")
+        .password("$2a$10$QDyNQbb6B6EyEb4ZLJ6TR.ogaD4mvmwr6BTszgSUCisONGUUYp4KG")
+        .userEmail("alice@mail.com")
+        .about("Hello, I am Alice!")
+        .role(Role.USER)
+        .build();
+  }
+
   public static User getAdmin(){
     return User.builder()
         .id(1L)
@@ -42,7 +53,18 @@ public final class UserTestData {
         .id(3L)
         .userName("Bob")
         .password("!123456Bb")
-        .userEmail("abob@mail.com")
+        .userEmail("bob@mail.com")
+        .about("Hello, I am Bob!")
+        .role(Role.USER)
+        .build();
+  }
+
+  public static User getBobSaved(){
+    return User.builder()
+        .id(3L)
+        .userName("Bob")
+        .password("$2a$12$BQ33GZDbIiudkjlE4yHDZe6uJBiBtTK4vLNoCWJoE2agA9TS9U7uO")
+        .userEmail("bob@mail.com")
         .about("Hello, I am Bob!")
         .role(Role.USER)
         .build();
