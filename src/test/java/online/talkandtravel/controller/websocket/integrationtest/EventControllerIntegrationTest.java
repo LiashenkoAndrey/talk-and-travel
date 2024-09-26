@@ -126,7 +126,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
     void chatEventsTest(Integer index, StompSession stompSession, String path, Long chatId,
         MessageType messageType, String content) {
       stompSession.send(path, toWSPayload(new EventRequest(chatId)));
-      pause(AFTER_SEND_PAUSE_TIME);
+      pause(500);
       if (index != null) {
         assertMessageReceived(index, messageType, content, chatId);
       }
