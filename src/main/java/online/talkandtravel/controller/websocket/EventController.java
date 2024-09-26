@@ -1,5 +1,7 @@
 package online.talkandtravel.controller.websocket;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
+
 import jakarta.validation.Valid;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +10,6 @@ import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
-import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.service.EventService;
 import online.talkandtravel.service.OnlineService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,8 +17,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
-
-import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 /**
  * Controller class responsible for handling WebSocket events related to chat interactions.

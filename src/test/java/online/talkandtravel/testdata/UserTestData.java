@@ -12,9 +12,6 @@ public final class UserTestData {
         "Utility UserTestData class cannot be instantiated");
   }
 
-  public static Long getAdminId() {
-    return ADMIN_ID;
-  }
 
   public static User getAlice(){
     return User.builder()
@@ -35,16 +32,6 @@ public final class UserTestData {
         .userEmail("alice@mail.com")
         .about("Hello, I am Alice!")
         .role(Role.USER)
-        .build();
-  }
-
-  public static User getAdmin(){
-    return User.builder()
-        .id(1L)
-        .userName("admin")
-        .password("password")
-        .userEmail("admin@2t.com")
-        .role(Role.ADMIN)
         .build();
   }
 

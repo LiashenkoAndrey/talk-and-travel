@@ -56,8 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain)
       throws IOException {
     try {
-//      log.info("users {}", userRepository.findAll());
-//      log.info("tokens {}", tokenRepository.findAll());
       authenticateRequest(request);
       filterChain.doFilter(request, response);
     } catch (Exception e) {

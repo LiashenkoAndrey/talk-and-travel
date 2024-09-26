@@ -20,6 +20,7 @@ import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.util.CustomStompSessionHandler;
 import online.talkandtravel.util.StompMessageHandler;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,7 +147,7 @@ public class StompIntegrationTest {
     restTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
     restTemplate.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler() {
       @Override
-      public boolean hasError(ClientHttpResponse response) throws IOException {
+      public boolean hasError(@NotNull ClientHttpResponse response) throws IOException {
         HttpStatusCode statusCode = response.getStatusCode();
         return statusCode.isError();
       }
