@@ -1,0 +1,41 @@
+@startuml
+actor Frontend
+participant EventController
+participant OnlineService
+participant Redis
+participant UserRepository
+participant ExpiredValueRedisListener
+
+== Last seen feature ==
+alt Flow when frontend sends event \n update user online status to Offline
+    Frontend -> EventController : User is offline
+    EventController -> OnlineService : updateUserOnlineStatus
+    OnlineService -> Redis : delete key
+    OnlineService -> UserRepository : update last seen timestamp
+    UserRepository -> OnlineService : return updated user
+
+    OnlineService -> EventController : return OnlineStatusDt0 \n (with last seen timestamp)
+    EventController -> Frontend :  Notify all users Notify all users that user is offline
+      note right
+           Notify subscribed users
+           send OnlineStatusDto
+           to /users/onlineStatus
+      end note
+
+else Flow when online status key in redis is expired
+    ExpiredValueRedisListener -> UserRepository : update last seen timestamp
+    note right
+    when key expires
+    update user last seen to current time
+    end note
+
+    UserRepository -> ExpiredValueRedisListener : return updated user
+    ExpiredValueRedisListener -> Frontend : Notify all users that user is offline
+       note right
+       Notify subscribed users
+       send OnlineStatusDto
+       to /users/onlineStatus
+       end note
+end
+
+@enduml
