@@ -120,7 +120,7 @@ public class ChatController {
   /** finds messages that was sent after specified last read message */
   @GetMapping("/chats/{chatId}/messages/unread")
   public Page<MessageDto> getUnreadMessages(
-      @PathVariable Long chatId,
+      @Positive @PathVariable Long chatId,
       @PageableDefault(sort = "creationDate") Pageable pageable) {
     return chatService.findUnreadMessages(chatId, pageable);
   }

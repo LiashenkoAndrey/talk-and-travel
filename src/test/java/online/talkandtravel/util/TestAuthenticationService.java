@@ -30,36 +30,41 @@ public class TestAuthenticationService {
     return authData;
   }
 
-  public String loginAndGetToken(String userEmail, String password) throws Exception {
-    String jsonContent =
-        """
-                {
-                    "userEmail": "%s",
-                    "password": "%s"
-                }
-                """
-            .formatted(userEmail, password);
+  public String loginAndGetToken(String userEmail, String password) {
+    try {
+      String jsonContent =
+              """
+                      {
+                          "userEmail": "%s",
+                          "password": "%s"
+                      }
+                      """
+                      .formatted(userEmail, password);
 
-    // Perform login request and extract token from the response
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/authentication/login")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonContent))
-            .andReturn();
+      // Perform login request and extract token from the response
+      MvcResult result =
+              mockMvc
+                      .perform(
+                              post("/api/authentication/login")
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .content(jsonContent))
+                      .andReturn();
 
-    // Parse the response body as JSON
-    String responseBody = result.getResponse().getContentAsString();
-    JsonNode jsonResponse = objectMapper.readTree(responseBody);
+      // Parse the response body as JSON
+      String responseBody = result.getResponse().getContentAsString();
+      JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
-    // Extract the token from the JSON response
-    String token = jsonResponse.get("token").asText();
+      // Extract the token from the JSON response
+      String token = jsonResponse.get("token").asText();
 
-    if (token == null || token.isEmpty()) {
-      throw new RuntimeException("Failed to retrieve JWT token");
+      if (token == null || token.isEmpty()) {
+        throw new RuntimeException("Failed to retrieve JWT token");
+      }
+
+      return token;
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to retrieve JWT token", e);
     }
 
-    return token;
   }
 }

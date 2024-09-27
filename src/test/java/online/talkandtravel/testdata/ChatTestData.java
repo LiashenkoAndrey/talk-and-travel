@@ -7,5 +7,4 @@ public class ChatTestData {
       EXISTING_MESSAGE_ID_OF_ARUBA_CHAT = 1001L,
       NOT_EXISTING_CHAT_ID = 777L,
       REPLIED_MESSAGE_ID = 1000L;
-
 }
