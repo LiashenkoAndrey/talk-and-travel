@@ -1,0 +1,103 @@
+@startuml
+
+skinparam linetype ortho
+
+together {
+    User --> UserCountry
+
+    UserCountry --> UserChat
+
+    together {
+
+        Country --> Chat
+    }
+
+    together {
+        Chat --> Message
+        Chat --> User
+        Chat --> ChatType
+        Message --> MessageType
+    }
+}
+
+class User {
+  - id: Long
+  - countries: List<UserCountry>
+  - userName: String
+  - password: String
+  - userEmail: String
+  - role: Role
+  - tokens: List<Token>
+  - avatar: Avatar
+  - about: String
+  - lastSeenOn: String
+}
+
+note top of User
+  This class represents a
+  user entity with relevant attributes.
+end note
+
+note right of User::lastSeenOn
+  Represents the user's
+  last activity timestamp
+end note
+
+class UserCountry {
+  - id: Long
+  - user: User
+  - country: Country
+  - chats: List<UserChat>
+}
+
+class UserChat {
+  - id: Long
+  - user: User
+  - chat: Chat
+  - userCountry: UserCountry
+  - lastReadMessageId: Long
+}
+
+class Country {
+  - name: String ID
+  - flagCode: String
+  - chats: List<Chat>
+}
+
+class Chat {
+  - id: Long
+  - name: String
+  - description: String
+  - country: Country
+  - chatType: ChatType
+  - creationDate: LocalDateTime
+  - users: List<User>
+  - messages: List<Message>
+}
+
+enum ChatType {
+  PRIVATE,
+  GROUP
+}
+
+class Message {
+  - id: Long
+  - type: MessageType
+  - content: String
+  - creationDate: LocalDateTime
+  - sender: User
+  - chat: Chat
+  - repliedMessage: Message
+}
+
+enum MessageType {
+  TEXT,
+  JOIN,
+  LEAVE,
+  START_TYPING,
+  STOP_TYPING
+}
+
+'UserChat "1" *-[#595959,plain]-> "chat\n1" Chat
+
+@enduml

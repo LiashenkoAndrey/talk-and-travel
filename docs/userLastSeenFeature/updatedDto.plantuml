@@ -1,0 +1,16 @@
+@startuml
+
+skinparam linetype ortho
+
+class OnlineStatusDto {
+  - userId: Long
+  - isOnline: Boolean
+  - lastSeenOn: String
+}
+
+note right of OnlineStatusDto::lastSeenOn
+ Represents the user's
+ last activity timestamp
+end note
+
+@enduml
