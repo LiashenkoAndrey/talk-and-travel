@@ -10,9 +10,8 @@ participant ExpiredValueRedisListener
 alt Flow when frontend sends event \n update user online status to Offline
     Frontend -> EventController : User is offline
     EventController -> OnlineService : updateUserOnlineStatus
-    OnlineService -> Redis : delete key
-    OnlineService -> UserRepository : update last seen timestamp
-    UserRepository -> OnlineService : return updated user
+    OnlineService -> Redis : delete key user:{userId}:online
+    OnlineService -> Redis : update key user:{userId}:lastSeenOn
 
     OnlineService -> EventController : return OnlineStatusDt0 \n (with last seen timestamp)
     EventController -> Frontend :  Notify all users Notify all users that user is offline
@@ -20,6 +19,11 @@ alt Flow when frontend sends event \n update user online status to Offline
            Notify subscribed users
            send OnlineStatusDto
            to /users/onlineStatus
+           {
+             userId: Long
+             isOnline: Boolean
+             lastSeenOn: String
+           }
       end note
 
 else Flow when online status key in redis is expired

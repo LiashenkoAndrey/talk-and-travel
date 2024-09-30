@@ -31,16 +31,21 @@ class User {
   - avatar: Avatar
   - about: String
   - lastSeenOn: String
+  - lastLoggedOn : String
 }
 
 note top of User
-  This class represents a
-  user entity with relevant attributes.
+  A User entity
 end note
 
 note right of User::lastSeenOn
   Represents the user's
   last activity timestamp
+end note
+
+note right of User::lastLoggedOn
+   Represents a timestamp when
+   user last logged on
 end note
 
 class UserCountry {
