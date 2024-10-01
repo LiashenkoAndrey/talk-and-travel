@@ -38,6 +38,10 @@ public class RedisUtils {
     return String.format(USER_STATUS_KEY, userId);
   }
 
+  public static String getUserLastSeenKey(Long userId) {
+    return String.format(USER_LAST_SEEN_KEY, userId);
+  }
+
   public static List<String> getUserStatusRedisKeys(List<Long> usersIdList) {
     return usersIdList.stream()
             .map(RedisUtils::getUserStatusRedisKey)

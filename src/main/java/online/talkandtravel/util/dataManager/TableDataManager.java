@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.data.FailedToReadJsonException;
@@ -16,8 +20,11 @@ import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.UserService;
+import online.talkandtravel.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +70,21 @@ public class TableDataManager implements DataManager {
 
   private final CountryArraySelector countryArraySelector;
 
+  private final RedisTemplate<String, String> redisTemplate;
+
+  private final UserRepository userRepository;
+
   private List<Country> list = new ArrayList<>();
+
+  @Override
+  public void prepareRedisData() {
+    Map<String, String> lastSeenUsersData = userRepository.findAll().stream()
+        .collect(Collectors.toMap(
+            (user) -> RedisUtils.getUserLastSeenKey(user.getId()),
+            (user) -> user.getLastSeenOn().toString()));
+
+    redisTemplate.opsForValue().multiSet(lastSeenUsersData);
+  }
 
   @Override
   @Transactional
@@ -85,9 +106,9 @@ public class TableDataManager implements DataManager {
 
   @Transactional
   public void saveAll(List<Country> list) {
-    log.debug("save...");
+    log.debug("Saving countries...");
     countryRepository.saveAll(list);
-    log.debug("save ok");
+    log.debug("Countries saved.");
   }
 
   @Override
@@ -138,14 +159,10 @@ public class TableDataManager implements DataManager {
   }
 
   private List<Country> toCountryList(JsonNode jsonArray) {
-    log.debug("iterate an array...");
     for (JsonNode node : jsonArray) {
-
       Country country = countryArraySelector.selectCountry(node);
-
       list.add(country);
     }
-    log.debug("iterate ok");
     return list;
   }
 
