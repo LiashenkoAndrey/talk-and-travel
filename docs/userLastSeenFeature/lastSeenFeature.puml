@@ -1,5 +1,7 @@
 @startuml
 actor Frontend
+participant DataManager
+participant AuthenticationController
 participant EventController
 participant OnlineService
 participant Redis
@@ -7,33 +9,67 @@ participant UserRepository
 participant ExpiredValueRedisListener
 
 == Last seen feature ==
-alt Flow when frontend sends event \n update user online status to Offline
+
+alt Flow when user logins
+    Frontend -> AuthenticationController : login
+    AuthenticationController -> UserRepository : update lastLoggedOn field
+    AuthenticationController -> OnlineService : updateUserOnlineStatus to "Online"
+    OnlineService -> Redis : set key "user:{userId}:online" \n with value true
+    OnlineService -> AuthenticationController :  return OnlineStatusDto
+
+    AuthenticationController -> Frontend : Notify all users that user is online
+    note right
+           Notify subscribed users
+           send OnlineStatusDto
+           to /users/onlineStatus
+    end note
+
+else Flow when user log out
+    Frontend -> AuthenticationController : logout
+    AuthenticationController -> OnlineService : updateUserOnlineStatus to "Offline"
+    OnlineService -> Redis : delete key "user:{userId}:online"
+    OnlineService -> Redis : update key "user:{userId}:lastSeenOn", \n set current timestamp as value
+    OnlineService -> AuthenticationController :  return OnlineStatusDto
+
+    AuthenticationController -> Frontend : Notify all users that user is offline
+    note right
+           Notify subscribed users
+           send OnlineStatusDto
+           to /users/onlineStatus
+    end note
+
+else Flow when application restart
+    DataManager -> UserRepository : get all users last login data
+    UserRepository -> DataManager : return Map<Long, ZonedDateTime>
+    DataManager -> Redis : set all users last login data,\n set keys "user:{userId}:lastSeenOn", \n set current timestamp as value
+
+else Flow when frontend sends event \n update user online status to Offline
     Frontend -> EventController : User is offline
     EventController -> OnlineService : updateUserOnlineStatus
-    OnlineService -> Redis : delete key user:{userId}:online
-    OnlineService -> Redis : update key user:{userId}:lastSeenOn
+    OnlineService -> Redis : delete key "user:{userId}:online"
+    OnlineService -> Redis : update key "user:{userId}:lastSeenOn", \n set current timestamp as value
+    note right
+        Update it in redis
+    end note
 
     OnlineService -> EventController : return OnlineStatusDt0 \n (with last seen timestamp)
-    EventController -> Frontend :  Notify all users Notify all users that user is offline
+    EventController -> Frontend :  Notify all users that user is offline
       note right
            Notify subscribed users
            send OnlineStatusDto
            to /users/onlineStatus
-           {
-             userId: Long
-             isOnline: Boolean
-             lastSeenOn: String
-           }
       end note
 
 else Flow when online status key in redis is expired
-    ExpiredValueRedisListener -> UserRepository : update last seen timestamp
+    ExpiredValueRedisListener -> OnlineService : updateUserOnlineStatus
     note right
     when key expires
-    update user last seen to current time
+    update user online status
     end note
+    OnlineService -> Redis : delete key "user:{userId}:online"
+    OnlineService -> Redis : update key "user:{userId}:lastSeenOn", \n set current timestamp as value
 
-    UserRepository -> ExpiredValueRedisListener : return updated user
+    OnlineService -> ExpiredValueRedisListener : return OnlineStatusDto
     ExpiredValueRedisListener -> Frontend : Notify all users that user is offline
        note right
        Notify subscribed users
