@@ -2,12 +2,14 @@ package online.talkandtravel.service.impl;
 
 import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
 import static online.talkandtravel.util.RedisUtils.USER_STATUS_KEY_PATTERN;
-import static online.talkandtravel.util.RedisUtils.getRedisKey;
-import static online.talkandtravel.util.RedisUtils.getRedisKeys;
+import static online.talkandtravel.util.RedisUtils.getUserStatusRedisKey;
+import static online.talkandtravel.util.RedisUtils.getUserStatusRedisKeys;
 import static online.talkandtravel.util.RedisUtils.getUserIdFromKeys;
 
 import java.security.Principal;
 import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +35,17 @@ public class OnlineServiceImpl implements OnlineService {
     private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
 
+
     @Value("${USER_ONLINE_STATUS_EXPIRATION_DURATION_IN_SEC}")
     public Long KEY_EXPIRATION_DURATION_IN_SEC;
+
+    @Override
+    public void updateLastSeenOn(Long userId, ZonedDateTime lastSeenOn) {
+        String key = getUserStatusRedisKey(userId);
+
+        redisTemplate.opsForValue().set(key, lastSeenOn.toString());
+    }
+
 
     @Override
     public OnlineStatusDto updateUserOnlineStatus(Principal principal, Boolean isOnline) {
@@ -45,16 +56,25 @@ public class OnlineServiceImpl implements OnlineService {
     @Override
     public OnlineStatusDto updateUserOnlineStatus(Long userId, Boolean isOnline) {
         log.info("updateUserOnlineStatusById userId: {}, isOnline: {}", userId, isOnline);
-        String key = getRedisKey(userId);
+        String key = getUserStatusRedisKey(userId);
 
-        if (isOnline) {
-            Duration keyDuration = Duration.ofSeconds(KEY_EXPIRATION_DURATION_IN_SEC);
-            redisTemplate.opsForValue().set(key, isOnline.toString(), keyDuration);
-            return new OnlineStatusDto(userId, true);
-        } else {
-            redisTemplate.delete(key);
-            return new OnlineStatusDto(userId, false);
-        }
+        return isOnline ?
+            updateStatusToOnline(key, userId)
+                :
+            updateStatusToOffline(key, userId);
+    }
+
+    private OnlineStatusDto updateStatusToOffline(String key, Long userId) {
+        ZonedDateTime lastSeenOn = ZonedDateTime.now(ZoneOffset.UTC);
+        updateLastSeenOn(userId, lastSeenOn);
+        redisTemplate.delete(key);
+        return new OnlineStatusDto(userId, false, lastSeenOn);
+    }
+
+    private OnlineStatusDto updateStatusToOnline(String key, Long userId) {
+        Duration keyDuration = Duration.ofSeconds(KEY_EXPIRATION_DURATION_IN_SEC);
+        redisTemplate.opsForValue().set(key, Boolean.TRUE.toString(), keyDuration);
+        return new OnlineStatusDto(userId, true);
     }
 
     /**
@@ -81,7 +101,7 @@ public class OnlineServiceImpl implements OnlineService {
     @Override
     public Boolean getUserOnlineStatusById(Long userId) {
         checkUserExists(userId);
-        String key = getRedisKey(userId);
+        String key = getUserStatusRedisKey(userId);
         String value = redisTemplate.opsForValue().get(key);
         Boolean isOnline = Boolean.valueOf(value);
 
@@ -108,7 +128,8 @@ public class OnlineServiceImpl implements OnlineService {
         Map<Long, Boolean> mapFromRedis = mapKeysAndValuesToMap(userIdList, values);
         Map<Long, Boolean> allUsersMap = new HashMap<>(users.size());
 
-        users.forEach((user) -> allUsersMap.put(user.getId(), mapFromRedis.getOrDefault(user.getId(), false)));
+        users.forEach((user) -> allUsersMap.put(user.getId(),
+            mapFromRedis.getOrDefault(user.getId(), false)));
         return allUsersMap;
     }
 
@@ -124,7 +145,7 @@ public class OnlineServiceImpl implements OnlineService {
                 .stream()
                 .map(User::getId)
                 .toList();
-        List<String> keys = getRedisKeys(realUsersIds);
+        List<String> keys = getUserStatusRedisKeys(realUsersIds);
         List<Boolean> values = getValuesFromKeys(keys);
 
         return mapKeysAndValuesToMap(realUsersIds, values);

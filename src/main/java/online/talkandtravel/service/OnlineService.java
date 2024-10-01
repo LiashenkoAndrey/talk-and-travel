@@ -1,5 +1,7 @@
 package online.talkandtravel.service;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
 
 import java.security.Principal;
@@ -7,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface OnlineService {
+
+    void updateLastSeenOn(Long userId, ZonedDateTime lastSeenOn);
 
     OnlineStatusDto updateUserOnlineStatus(Principal principal, Boolean isOnline);
 
