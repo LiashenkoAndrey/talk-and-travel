@@ -12,7 +12,7 @@ alt Request for getAllUsersOnlineStatuses()
   Backend -> OnlineService : Fetch All user statuses
   OnlineService -> Redis : get values by keys user:{userId}:online
   OnlineService -> Redis : get values by keys user:{userId}:lastSeenOn
-  OnlineService -> Backend : Return Map<Long, UserStatusDto>
+  OnlineService -> Backend : Return Map<Long, OnlineStatusDto>
   note right
   record OnlineStatusDto {
       Long userId
@@ -20,7 +20,7 @@ alt Request for getAllUsersOnlineStatuses()
       LocalDateTime lastSeenOn;
       }
   end note
-  Backend -> Frontend : Return Map<Long, UserStatusDto>
+  Backend -> Frontend : Return Map<Long, OnlineStatusDto>
 end
 
 @enduml

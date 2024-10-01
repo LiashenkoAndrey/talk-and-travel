@@ -61,15 +61,8 @@ else Flow when frontend sends event \n update user online status to Offline
       end note
 
 else Flow when online status key in redis is expired
-    ExpiredValueRedisListener -> OnlineService : updateUserOnlineStatus
-    note right
-    when key expires
-    update user online status
-    end note
-    OnlineService -> Redis : delete key "user:{userId}:online"
-    OnlineService -> Redis : update key "user:{userId}:lastSeenOn", \n set current timestamp as value
+    ExpiredValueRedisListener -> Redis : update key "user:{userId}:lastSeenOn", \n set current timestamp as value
 
-    OnlineService -> ExpiredValueRedisListener : return OnlineStatusDto
     ExpiredValueRedisListener -> Frontend : Notify all users that user is offline
        note right
        Notify subscribed users
