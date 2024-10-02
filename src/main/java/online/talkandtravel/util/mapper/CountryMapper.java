@@ -3,6 +3,7 @@ package online.talkandtravel.util.mapper;
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
+import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.UserCountry;
 import org.mapstruct.Mapper;
@@ -51,5 +52,8 @@ public interface CountryMapper {
   @Mapping(target = "flagCode", source = "country.flagCode")
   CountryInfoDto userCountryToCountryInfoDto(UserCountry userCountry);
 
+  @Mapping(target = "name", source = "country.name")
+  @Mapping(target = "flagCode", source = "country.flagCode")
+  CountryInfoWithUnreadMessagesDto userCountryToCountryInfoWithUnreadMessagesDto(UserCountry userCountry);
   CountryDto toCountryDto(Country country);
 }

@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import online.talkandtravel.config.IntegrationTest;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
+import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
 import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
@@ -46,9 +47,9 @@ public class CountryServiceIntegrationTest extends IntegrationTest {
     UserDetails userDetails = new CustomUserDetails(user);
     authenticationService.authenticateUser(userDetails, null);
 
-    List<CountryInfoDto> expected = getUser1Countries();
+    List<CountryInfoWithUnreadMessagesDto> expected = getUser1Countries();
 
-    List<CountryInfoDto> actual = underTest.findAllUserCountries();
+    List<CountryInfoWithUnreadMessagesDto> actual = underTest.findAllUserCountries();
 
     assertThat(actual.size()).isEqualTo(expected.size());
     assertThat(actual).isEqualTo(expected);

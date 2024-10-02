@@ -54,7 +54,8 @@ public class UserChat {
     return "UserChat{" +
         "id=" + id +
         ", chat=" + chat.getName()  + ", id= " + chat.getId()
-        +", lastReadMessageId=" + lastReadMessageId+
+        +", lastReadMessageId=" + lastReadMessageId
+        +", user=" + user.getUserName()+
         '}';
   }
 }

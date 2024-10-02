@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl.unittest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -13,9 +14,13 @@ import java.util.Optional;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
+import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
+import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
+import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.service.AuthenticationService;
@@ -36,6 +41,7 @@ class CountryServiceImplTest {
 
   @Mock private AuthenticationService authenticationService;
 
+  @Mock private ChatRepository chatRepository;
   @InjectMocks private CountryServiceImpl underTest;
 
   private Country country1;
@@ -45,7 +51,6 @@ class CountryServiceImplTest {
   private CountryInfoDto countryInfoDto2;
 
   private List<UserCountry> userCountries;
-  private List<CountryInfoDto> countryInfoDtos;
 
   private User user;
 
@@ -69,7 +74,6 @@ class CountryServiceImplTest {
 
     countryInfoDto2 = CountryInfoDto.builder().name("Country2").flagCode("FlagCode2").build();
 
-    countryInfoDtos = List.of(countryInfoDto1, countryInfoDto2);
 
     countryDto = new CountryDto(
         "Country1",
@@ -129,30 +133,104 @@ class CountryServiceImplTest {
   }
 
   @Test
-  void findAllCountriesByUserId_shouldReturnCountryInfoDtos_whenUserCountriesExist() {
+  void findAllUserCountries_shouldReturnCountryInfoDtos_whenUserCountriesExist() {
+    // Prepare mock data
     when(authenticationService.getAuthenticatedUser()).thenReturn(user);
-    when(userCountryRepository.findByUserId(1L)).thenReturn(userCountries);
-    when(countryMapper.userCountryToCountryInfoDto(userCountries.get(0)))
-        .thenReturn(countryInfoDtos.get(0));
-    when(countryMapper.userCountryToCountryInfoDto(userCountries.get(1)))
-        .thenReturn(countryInfoDtos.get(1));
+    when(userCountryRepository.findByUserId(user.getId())).thenReturn(userCountries);
 
-    List<CountryInfoDto> result = underTest.findAllUserCountries();
+    // Prepare a mock UserChat
+    UserChat userChat = mock(UserChat.class);
+    when(userChat.getUser()).thenReturn(user);
+    when(userChat.getLastReadMessageId()).thenReturn(1L);
+    when(userChat.getChat()).thenReturn(mock(Chat.class));
 
-    assertEquals(countryInfoDtos, result);
-    verify(userCountryRepository, times(1)).findByUserId(1L);
-    verify(countryMapper, times(1)).userCountryToCountryInfoDto(userCountries.get(0));
-    verify(countryMapper, times(1)).userCountryToCountryInfoDto(userCountries.get(1));
+    // Prepare UserCountry with associated UserChat
+    UserCountry userCountry = mock(UserCountry.class);
+    Country country = new Country("Country 1", "Flag 1");
+    when(userCountry.getCountry()).thenReturn(country);
+    when(userCountry.getChats()).thenReturn(List.of(userChat));
+
+    // Add the UserCountry to the list
+    userCountries = List.of(userCountry);
+    when(userCountryRepository.findByUserId(user.getId())).thenReturn(userCountries);
+
+    // Mock unread message count
+    when(chatRepository.countUnreadMessages(1L, userChat.getChat().getId())).thenReturn(3L);
+
+    // Expected DTO
+    CountryInfoWithUnreadMessagesDto expectedDto = new CountryInfoWithUnreadMessagesDto("Country 1", "Flag 1", 3L);
+
+    // Act
+    List<CountryInfoWithUnreadMessagesDto> result = underTest.findAllUserCountries();
+
+    // Assert
+    assertEquals(List.of(expectedDto), result);
+    verify(userCountryRepository, times(1)).findByUserId(user.getId());
+    verify(chatRepository, times(1)).countUnreadMessages(1L, userChat.getChat().getId());
   }
 
   @Test
-  void findAllCountriesByUserId_shouldReturnEmptyList_whenNoUserCountriesExist() {
+  void findAllUserCountries_shouldReturnEmptyList_whenNoUserCountriesExist() {
+    // Arrange
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+    when(userCountryRepository.findByUserId(user.getId())).thenReturn(List.of()); // No UserCountries
+
+    // Act
+    List<CountryInfoWithUnreadMessagesDto> result = underTest.findAllUserCountries();
+
+    // Assert
+    assertEquals(List.of(), result);
+    verify(userCountryRepository, times(1)).findByUserId(user.getId());
+    verifyNoInteractions(chatRepository); // No interactions if the list is empty
+  }
+
+  @Test
+  void findAllUserCountries_shouldReturnDtosWithZeroUnreadMessages_whenUserChatDoesNotExist() {
+    // Prepare mock data
     when(authenticationService.getAuthenticatedUser()).thenReturn(user);
 
-    List<CountryInfoDto> result = underTest.findAllUserCountries();
+    UserCountry userCountry = mock(UserCountry.class);
+    Country country = new Country("Country 2", "Flag 2");
+    when(userCountry.getCountry()).thenReturn(country);
+    when(userCountry.getChats()).thenReturn(List.of()); // No UserChats
 
-    assertEquals(List.of(), result);
-    verifyNoInteractions(countryMapper);
+    userCountries = List.of(userCountry);
+    when(userCountryRepository.findByUserId(user.getId())).thenReturn(userCountries);
+
+    // Act
+    List<CountryInfoWithUnreadMessagesDto> result = underTest.findAllUserCountries();
+
+    // Expected DTO with zero unread messages
+    CountryInfoWithUnreadMessagesDto expectedDto = new CountryInfoWithUnreadMessagesDto("Country 2", "Flag 2", 0L);
+
+    // Assert
+    assertEquals(List.of(expectedDto), result);
+    verify(userCountryRepository, times(1)).findByUserId(user.getId());
+    verifyNoInteractions(chatRepository); // No unread messages to count
+  }
+
+  @Test
+  void findAllUserCountries_shouldReturnDtosWithZeroUnreadMessages_whenUserChatIsNull() {
+    // Prepare mock data
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+
+    UserCountry userCountry = mock(UserCountry.class);
+    Country country = new Country("Country 3", "Flag 3");
+    when(userCountry.getCountry()).thenReturn(country);
+
+    userCountries = List.of(userCountry);
+    when(userCountryRepository.findByUserId(user.getId())).thenReturn(userCountries);
+
+    // Act
+    List<CountryInfoWithUnreadMessagesDto> result = underTest.findAllUserCountries();
+
+    // Expected DTO with zero unread messages
+    CountryInfoWithUnreadMessagesDto expectedDto = new CountryInfoWithUnreadMessagesDto("Country 3", "Flag 3", 0L);
+
+    // Assert
+    assertEquals(List.of(expectedDto), result);
+    verify(userCountryRepository, times(1)).findByUserId(user.getId());
+    verifyNoInteractions(chatRepository); // No unread messages to count
   }
 
 }
