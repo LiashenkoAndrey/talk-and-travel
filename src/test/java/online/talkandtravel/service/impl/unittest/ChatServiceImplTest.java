@@ -111,7 +111,6 @@ class ChatServiceImplTest {
   private Message message;
   private MessageDto messageDto;
   private Pageable pageable;
-  private UserNameDto userNameDto;
 
   private static final Long USER_ID = 1L;
   private static final String USER_NAME = "Tomas";
@@ -149,7 +148,7 @@ class ChatServiceImplTest {
     message.setId(1L);
     message.setContent("Test message");
 
-    userNameDto = new UserNameDto(USER_ID, USER_NAME);
+    UserNameDto userNameDto = new UserNameDto(USER_ID, USER_NAME);
     messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", LocalDateTime.now(),
         userNameDto, 1L, null);
 

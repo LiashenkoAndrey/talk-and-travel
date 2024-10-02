@@ -3,11 +3,9 @@ package online.talkandtravel.util.mapper;
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.UserCountry;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  * Mapper interface for converting between {@link Country} entities and {@link CountryDto} and
