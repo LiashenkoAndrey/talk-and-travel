@@ -131,40 +131,10 @@ public class ChatServiceImpl implements ChatService {
     User user = authenticationService.getAuthenticatedUser();
     List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
     return userChats.stream()
-        .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
-        .map(
-            userChat -> {
-              Chat chat = userChat.getChat();
-              List<UserChat> userChatList = userChatRepository.findAllByChatId(chat.getId());
-              UserChat authUserChat = getAuthUserChat(userChatList, user.getId());
-              UserChat companionUserChat = getCompanionUserChat(userChatList, user.getId(), chat);
-              Long unreadMessagesCount = chatRepository.countUnreadMessages(authUserChat.getLastReadMessageId(), chat.getId());
-
-              return mapUserChatToPrivateChatDto(chat, companionUserChat.getUser(), unreadMessagesCount, authUserChat.getLastReadMessageId());
-            })
+        .filter(userChat -> isPrivateChat(userChat.getChat()))
+        .map((userChat) -> buildPrivateChatDto(userChat, user))
         .map(chatNameToCompanionName())
         .toList();
-  }
-
-  private UserChat getAuthUserChat(List<UserChat> userChatList, Long authUserId) {
-    return userChatList.stream().filter((e) -> e.getUser().getId().equals(authUserId)).findFirst().orElseThrow(
-        () -> new UserNotFoundException(authUserId));
-  }
-
-  private UserChat getCompanionUserChat(List<UserChat> userChatList, Long authUserId, Chat chat) {
-    return userChatList.stream()
-        .filter(userChat1 -> !userChat1.getUser().getId().equals(authUserId))
-        .findFirst()
-        .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
-  }
-
-  private PrivateChatDto mapUserChatToPrivateChatDto(Chat chat, User companion, Long unreadMessagesCount, Long lastReadMessageId) {
-    List<Message> messages = chat.getMessages();
-    Message lastMessage = null;
-    if (messages != null && !messages.isEmpty()) {
-      lastMessage = messages.get(messages.size() - 1);
-    }
-    return userChatMapper.toPrivateChatDto(chat, companion, lastMessage, unreadMessagesCount, lastReadMessageId);
   }
 
   @Override
@@ -256,6 +226,44 @@ public class ChatServiceImpl implements ChatService {
     return messageRepository
         .findAllByChatId(chatId, pageable)
         .map(messageMapper::toMessageDto);
+  }
+
+  private PrivateChatDto buildPrivateChatDto(UserChat userChat, User authUser) {
+    Chat chat = userChat.getChat();
+    List<UserChat> userChatList = userChatRepository.findAllByChatId(chat.getId());
+
+    UserChat authUserChat = getAuthUserChat(userChatList, authUser.getId());
+    UserChat companionUserChat = getCompanionUserChat(userChatList, authUser.getId(), chat);
+
+    Long unreadMessagesCount = chatRepository.countUnreadMessages(authUserChat.getLastReadMessageId(), chat.getId());
+    PrivateChatInfoDto privateChatInfoDto = chatMapper.chatToPrivateChatInfoDto(chat, unreadMessagesCount);
+    Message lastMessage = getLastMessage(chat);
+    return userChatMapper.toPrivateChatDto(privateChatInfoDto, companionUserChat.getUser(), lastMessage, authUserChat.getLastReadMessageId());
+  }
+
+  private boolean isPrivateChat(Chat chat) {
+    return chat.getChatType().equals(ChatType.PRIVATE);
+  }
+
+  private UserChat getAuthUserChat(List<UserChat> userChatList, Long authUserId) {
+    return userChatList.stream().filter((e) -> e.getUser().getId().equals(authUserId)).findFirst().orElseThrow(
+        () -> new UserNotFoundException(authUserId));
+  }
+
+  private UserChat getCompanionUserChat(List<UserChat> userChatList, Long authUserId, Chat chat) {
+    return userChatList.stream()
+        .filter(userChat1 -> !userChat1.getUser().getId().equals(authUserId))
+        .findFirst()
+        .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
+  }
+
+  private Message getLastMessage(Chat chat) {
+    List<Message> messages = chat.getMessages();
+    Message lastMessage = null;
+    if (messages != null && !messages.isEmpty()) {
+      lastMessage = messages.get(messages.size() - 1);
+    }
+    return lastMessage;
   }
 
   private Chat getChat(Long chatId) {

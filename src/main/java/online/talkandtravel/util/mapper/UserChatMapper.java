@@ -2,6 +2,7 @@ package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
+import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Chat;
@@ -23,17 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * <p>This mapper relies on {@link MapperConfig} to apply global mapping settings.
  */
-@Mapper(injectionStrategy = InjectionStrategy.CONSTRUCTOR, componentModel = "spring", uses = {ChatMapper.class, MessageMapper.class})
-public abstract class UserChatMapper {
+@Mapper(config = MapperConfig.class, uses = {ChatMapper.class, MessageMapper.class})
+public interface UserChatMapper {
 
-  @Autowired
-  ChatMapper chatMapper;
-
-  @Mapping(target = "chat", expression = "java(chatMapper.chatToPrivateChatInfoDto(chat, unreadMessagesCount))")
+  @Mapping(target = "chat", source = "chatInfoDto")
   @Mapping(target = "companion", source = "companion")
   @Mapping(target = "lastReadMessageId", source = "lastReadMessageId")
   @Mapping(target = "lastMessage", source = "lastMessage")
-  public abstract PrivateChatDto toPrivateChatDto(Chat chat, User companion, Message lastMessage, Long unreadMessagesCount, Long lastReadMessageId);
-
-
+  PrivateChatDto toPrivateChatDto(PrivateChatInfoDto chatInfoDto, User companion, Message lastMessage, Long lastReadMessageId);
 }

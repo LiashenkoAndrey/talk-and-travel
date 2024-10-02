@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -64,6 +66,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -74,21 +77,33 @@ import org.springframework.data.domain.Pageable;
 @Log4j2
 class ChatServiceImplTest {
 
-  @Mock private ChatRepository chatRepository;
-  @Mock private UserChatRepository userChatRepository;
-  @Mock private UserCountryRepository userCountryRepository;
-  @Mock private CountryRepository countryRepository;
-  @Mock private MessageRepository messageRepository;
-  @Mock private MessageMapper messageMapper;
-  @Mock private ChatMapper chatMapper;
-  @Mock private UserMapper userMapper;
-  @Mock private UserRepository userRepository;
+  @Mock
+  private ChatRepository chatRepository;
+  @Mock
+  private UserChatRepository userChatRepository;
+  @Mock
+  private UserCountryRepository userCountryRepository;
+  @Mock
+  private CountryRepository countryRepository;
+  @Mock
+  private MessageRepository messageRepository;
+  @Mock
+  private MessageMapper messageMapper;
+  @Mock
+  private ChatMapper chatMapper;
+  @Mock
+  private UserMapper userMapper;
+  @Mock
+  private UserRepository userRepository;
 
-  @Mock private UserChatMapper userChatMapper;
+  @Mock
+  private UserChatMapper userChatMapper;
 
-  @Mock private AuthenticationService authenticationService;
+  @Mock
+  private AuthenticationService authenticationService;
 
-  @InjectMocks ChatServiceImpl underTest;
+  @InjectMocks
+  ChatServiceImpl underTest;
 
   private Country country;
   private Chat chat;
@@ -138,7 +153,8 @@ class ChatServiceImplTest {
     message.setContent("Test message");
 
     userNameDto = new UserNameDto(USER_ID, USER_NAME);
-    messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", LocalDateTime.now(), userNameDto, 1L, null);
+    messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", LocalDateTime.now(),
+        userNameDto, 1L, null);
 
     pageable = PageRequest.of(0, 10);
   }
@@ -277,6 +293,7 @@ class ChatServiceImplTest {
 
   @Nested
   class CreateCountryChat {
+
     String countryName = "countryName", description = "desc", chatName = "chatName";
     Country country1 = Country.builder().name(countryName).build();
     User user1 = User.builder().id(1L).build();
@@ -352,6 +369,7 @@ class ChatServiceImplTest {
 
   @Nested
   class CreatePrivateChat {
+
     private final Long userId = 1L, companionId = 2L;
     private final NewPrivateChatDto dto = new NewPrivateChatDto(companionId);
     private final List<Long> participantIds = List.of(userId, companionId);
@@ -395,6 +413,7 @@ class ChatServiceImplTest {
     }
 
   }
+
   private User createUserWithId(Long id) {
     return User.builder().id(id).build();
   }
@@ -416,61 +435,80 @@ class ChatServiceImplTest {
   @Nested
   class FindAllUsersPrivateChats {
 
-    private final User alice = getAlice(), bob = getBob();
-    private final Chat arubaChat = buildChat(1L, ChatType.GROUP, "Aruba chat", "Aruba", List.of(alice, bob, getTomas()));
-    private final Chat aliseBobChat = buildChat(200L, ChatType.PRIVATE, "Private chat for Alice and Bob", "Alice-Bob", List.of(alice, bob));
-    private final Chat aliseAndDeletedChat = buildChat(201L, ChatType.PRIVATE, "Private chat for Alice and user left the chat", "Alice-user left the chat", List.of(alice));
+    private final User alice = getAlice();
+    private final User bob = getBob();
+    private final Chat aliceBobChat = buildChat(200L, ChatType.PRIVATE,
+        "Private chat for Alice and Bob", "Alice-Bob", List.of(alice, bob));
+    private final Chat aliceAndDeletedChat = buildChat(201L, ChatType.PRIVATE,
+        "Private chat for Alice and user left the chat", "Alice-user left the chat",
+        List.of(alice));
 
+    private final Message lastAliceBobChatMessage = buildMessage(aliceBobChat, bob, 2L,
+        "hello alice how's it going?");
+    private final UserChat aliceBobUserChat = buildUserChat(2L, alice, aliceBobChat);
+    private final UserChat bobAliceUserChat = buildUserChat(3L, bob, aliceBobChat);
+    private final UserChat aliceAndDeletedUserChat = buildUserChat(4L, alice, aliceAndDeletedChat);
 
-    private static final String REMOVED_USER_NAME = "user left the chat";
-    private static final String REMOVED_USER_EMAIL = "undefined";
-    private static final String REMOVED_USER_ABOUT = "user left the chat";
-
-    private final String lastAliceBobChatMessageContent = "hello alice how's it going?";
-    private final MessageDto lastAliceBobChatMessageDto = new MessageDto(lastAliceBobChatMessageContent);
-
-    private final Message lastAliceBobChatMessage = buildMessage(aliseBobChat, bob, 2L, lastAliceBobChatMessageContent);
-    private final UserChat aliseArubaUserChat = buildUserChat(1L, alice, arubaChat);
-    private final UserChat aliseBobUserChat = buildUserChat(2L, alice, aliseBobChat);
-    private final UserChat bobAliseUserChat = buildUserChat(3L, bob, aliseBobChat);
-    private final UserChat aliseAndDeletedUserChat = buildUserChat(4L, alice, aliseAndDeletedChat);
-
-    private final List<UserChat> userChats = List.of(aliseArubaUserChat, aliseBobUserChat, aliseAndDeletedUserChat);
+    private final String REMOVED_USER_NAME = "user left the chat";
+    private final String REMOVED_USER_EMAIL = "undefined";
 
     @BeforeEach
     void init() {
-      List<Message> aliseBobChatMessages = List.of(
-          buildMessage(aliseBobChat, alice, 1L, "hi Bob!"),
+      MockitoAnnotations.openMocks(this);
+      List<Message> aliceBobChatMessages = List.of(
+          buildMessage(aliceBobChat, alice, 1L, "hi Bob!"),
           lastAliceBobChatMessage
       );
-      aliseBobChat.setMessages(aliseBobChatMessages);
+      aliceBobChat.setMessages(aliceBobChatMessages);
     }
 
     @Test
     void shouldReturnList() {
-
+      // Arrange
       PrivateChatInfoDto privateChatInfoDto = createPrivateChatInfoDto(bob.getUserName());
-      PrivateChatDto aliseBobChatDto = new PrivateChatDto(privateChatInfoDto, new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail()), null, lastAliceBobChatMessageDto);
+      PrivateChatDto aliceBobChatDto = new PrivateChatDto(privateChatInfoDto,
+          new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail()), null,
+          new MessageDto(lastAliceBobChatMessage.getContent()));
 
-      PrivateChatInfoDto privateChatAliceAndDeletedInfoDto = createPrivateChatInfoDto(REMOVED_USER_NAME);
-      PrivateChatDto aliseAndDeletedChatDto = new PrivateChatDto(privateChatAliceAndDeletedInfoDto, new UserDtoShort(null, REMOVED_USER_NAME, REMOVED_USER_EMAIL), null, null);
+      PrivateChatInfoDto privateChatAliceAndDeletedInfoDto = createPrivateChatInfoDto(
+          REMOVED_USER_NAME);
+      PrivateChatDto aliceAndDeletedChatDto = new PrivateChatDto(privateChatAliceAndDeletedInfoDto,
+          new UserDtoShort(null, REMOVED_USER_NAME, REMOVED_USER_EMAIL), null, null);
 
       when(authenticationService.getAuthenticatedUser()).thenReturn(alice);
-      when(userChatRepository.findAllByUserId(alice.getId())).thenReturn(userChats);
-      when(userChatRepository.findAllByChatId(200L)).thenReturn(List.of(aliseBobUserChat, bobAliseUserChat));
-      when(userChatRepository.findAllByChatId(201L)).thenReturn(List.of(aliseAndDeletedUserChat));
+      when(userChatRepository.findAllByUserId(alice.getId())).thenReturn(
+          List.of(aliceBobUserChat, aliceAndDeletedUserChat));
+      when(userChatRepository.findAllByChatId(200L)).thenReturn(
+          List.of(aliceBobUserChat, bobAliceUserChat));
+      when(userChatRepository.findAllByChatId(201L)).thenReturn(List.of(aliceAndDeletedUserChat));
       when(chatRepository.countUnreadMessages(any(), any())).thenReturn(0L);
-      when(userChatMapper.toPrivateChatDto(aliseBobChat, bob, lastAliceBobChatMessage, 0L, null)).thenReturn(aliseBobChatDto);
-      when(userChatMapper.toPrivateChatDto(aliseAndDeletedChat, buildRemovedUser(), null,0L, null)).thenReturn(aliseAndDeletedChatDto);
+      when(chatMapper.chatToPrivateChatInfoDto(any(Chat.class), anyLong())).thenReturn(
+          privateChatInfoDto, privateChatAliceAndDeletedInfoDto);
+      when(userChatMapper.toPrivateChatDto(eq(privateChatInfoDto), eq(bob),
+          eq(lastAliceBobChatMessage), any())).thenReturn(aliceBobChatDto);
+      when(userChatMapper.toPrivateChatDto(eq(privateChatAliceAndDeletedInfoDto), any(), isNull(),
+          any())).thenReturn(aliceAndDeletedChatDto);
 
+      // Act
       List<PrivateChatDto> actual = underTest.findAllUsersPrivateChats();
 
+      // Assert
       assertThat(actual).isNotEmpty();
-      PrivateChatDto aliseBobChatDtoActual = actual.get(0);
-      assertThat(aliseBobChatDtoActual).isEqualTo(aliseBobChatDto);
+      assertThat(actual).hasSize(2);
 
-      PrivateChatDto aliseAndDeletedChatDtoActual = actual.get(1);
-      assertThat(aliseAndDeletedChatDtoActual).isEqualTo(aliseAndDeletedChatDto);
+      PrivateChatDto aliceBobChatDtoActual = actual.get(0);
+      assertThat(aliceBobChatDtoActual).isEqualTo(aliceBobChatDto);
+
+      PrivateChatDto aliceAndDeletedChatDtoActual = actual.get(1);
+      assertThat(aliceAndDeletedChatDtoActual).isEqualTo(aliceAndDeletedChatDto);
+
+      verify(authenticationService).getAuthenticatedUser();
+      verify(userChatRepository).findAllByUserId(alice.getId());
+      verify(userChatRepository).findAllByChatId(200L);
+      verify(userChatRepository).findAllByChatId(201L);
+      verify(chatRepository, times(2)).countUnreadMessages(any(), any());
+      verify(chatMapper, times(2)).chatToPrivateChatInfoDto(any(Chat.class), anyLong());
+      verify(userChatMapper, times(2)).toPrivateChatDto(any(), any(), any(), any());
     }
 
     private static Message buildMessage(Chat chat, User sender, Long id, String content) {
@@ -483,14 +521,6 @@ class ChatServiceImplTest {
           .build();
     }
 
-    private static User buildRemovedUser() {
-      return User.builder()
-          .userName(REMOVED_USER_NAME)
-          .userEmail(REMOVED_USER_EMAIL)
-          .about(REMOVED_USER_ABOUT)
-          .build();
-    }
-
     private static UserChat buildUserChat(Long id, User user, Chat chat) {
       return UserChat.builder()
           .id(id)
@@ -498,7 +528,6 @@ class ChatServiceImplTest {
           .chat(chat)
           .build();
     }
-
 
     private PrivateChatInfoDto createPrivateChatInfoDto(String chatName) {
       return new PrivateChatInfoDto(null, chatName, null, null, null, null, null, null);
@@ -514,10 +543,19 @@ class ChatServiceImplTest {
           .build();
     }
 
+    private static User getAlice() {
+      return User.builder().id(1L).userName("Alice").userEmail("alice@example.com").build();
+    }
+
+    private static User getBob() {
+      return User.builder().id(2L).userName("Bob").userEmail("bob@example.com").build();
+    }
+
   }
 
   @Nested
   class SetLastReadMessage {
+
     private final Long chatId = 1L, userId = 1L, lastReadMessageId = 2L;
     private final UserChat userChat1 = new UserChat();
     private final SetLastReadMessageRequest requestDto =
@@ -546,6 +584,7 @@ class ChatServiceImplTest {
 
   @Nested
   class FindReadAndUnreadMessages {
+
     private final Long chatId = 1L, lastReadMessageId = 1L;
     private final Pageable pageable1 = PageRequest.of(0, 10);
     private final String content = "test";
@@ -561,10 +600,11 @@ class ChatServiceImplTest {
       when(userChatRepository.findByChatIdAndUserId(chatId, user.getId()))
           .thenReturn(Optional.ofNullable(userChat));
 
-      List<Message> messages = List.of(new Message( "Read message content"));
+      List<Message> messages = List.of(new Message("Read message content"));
       Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
 
-      when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, userChat.getLastReadMessageId(), pageable1))
+      when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId,
+          userChat.getLastReadMessageId(), pageable1))
           .thenReturn(page);
 
       MessageDto messageDto = new MessageDto("Read message content");
@@ -588,7 +628,8 @@ class ChatServiceImplTest {
       List<Message> messages = List.of(new Message("Test content"));
       Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
 
-      when(messageRepository.findAllByChatIdAndIdAfter(chatId, userChat.getLastReadMessageId(), pageable1))
+      when(messageRepository.findAllByChatIdAndIdAfter(chatId, userChat.getLastReadMessageId(),
+          pageable1))
           .thenReturn(page);
 
       MessageDto messageDto = new MessageDto("Test content");
