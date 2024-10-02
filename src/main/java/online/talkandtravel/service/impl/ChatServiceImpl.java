@@ -128,6 +128,7 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public List<PrivateChatDto> findAllUsersPrivateChats() {
     User user = authenticationService.getAuthenticatedUser();
+
     List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
     return userChats.stream()
         .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
@@ -140,9 +141,18 @@ public class ChatServiceImpl implements ChatService {
                   .findFirst()
                   .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
             })
-        .map(userChatMapper::toPrivateChatDto)
+        .map(this::mapUserChatToPrivateChatDto)
         .map(chatNameToCompanionName())
         .toList();
+  }
+
+  private PrivateChatDto mapUserChatToPrivateChatDto(UserChat userChat) {
+    List<Message> messages = userChat.getChat().getMessages();
+    Message lastMessage = null;
+    if (messages != null && !messages.isEmpty()) {
+      lastMessage = messages.get(messages.size() - 1);
+    }
+    return userChatMapper.toPrivateChatDto(userChat, lastMessage);
   }
 
   @Override
@@ -288,7 +298,7 @@ public class ChatServiceImpl implements ChatService {
 
   private Function<PrivateChatDto, PrivateChatDto> chatNameToCompanionName() {
     return oldChat ->
-        new PrivateChatDto(renameChat(oldChat), oldChat.companion(), oldChat.lastReadMessageId());
+        new PrivateChatDto(renameChat(oldChat), oldChat.companion(), oldChat.lastReadMessageId(), oldChat.lastMessage());
   }
 
   private PrivateChatInfoDto renameChat(PrivateChatDto oldChat) {

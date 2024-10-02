@@ -3,6 +3,7 @@ package online.talkandtravel.model.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @Entity
+@EqualsAndHashCode
 @Table(name = "user_chats")
 public class UserChat {
 
@@ -44,4 +46,16 @@ public class UserChat {
   @ManyToOne private UserCountry userCountry;
 
   private Long lastReadMessageId;
+
+  @Override
+  public String toString() {
+    return "UserChat{" +
+        "id=" + id +
+        ", user=" + user.getUserName() + " " + user.getUserEmail() + ", hash " + user.hashCode() +
+        ", chat=" + chat.getName()  + ", id= " + chat.getId() + "hash " + chat.hashCode()+
+        "hash " + this.hashCode() +
+        ", lastReadMessageId=" + lastReadMessageId +
+        ", userCountry=" + userCountry +
+        '}';
+  }
 }

@@ -1,5 +1,9 @@
 package online.talkandtravel.service.impl.unittest;
 
+import static online.talkandtravel.testdata.UserTestData.getAlice;
+import static online.talkandtravel.testdata.UserTestData.getBob;
+import static online.talkandtravel.testdata.UserTestData.getTomas;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,10 +29,13 @@ import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
+import online.talkandtravel.model.dto.chat.PrivateChatDto;
+import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.ChatType;
@@ -48,6 +55,7 @@ import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.impl.ChatServiceImpl;
 import online.talkandtravel.util.mapper.ChatMapper;
 import online.talkandtravel.util.mapper.MessageMapper;
+import online.talkandtravel.util.mapper.UserChatMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -74,6 +82,8 @@ class ChatServiceImplTest {
   @Mock private ChatMapper chatMapper;
   @Mock private UserMapper userMapper;
   @Mock private UserRepository userRepository;
+
+  @Mock private UserChatMapper userChatMapper;
 
   @Mock private AuthenticationService authenticationService;
 
@@ -340,7 +350,7 @@ class ChatServiceImplTest {
   }
 
   @Nested
-  class PrivateChat {
+  class CreatePrivateChat {
     private final Long userId = 1L, companionId = 2L;
     private final NewPrivateChatDto dto = new NewPrivateChatDto(companionId);
     private final List<Long> participantIds = List.of(userId, companionId);
@@ -382,8 +392,8 @@ class ChatServiceImplTest {
 
       assertThrows(PrivateChatAlreadyExistsException.class, () -> underTest.createPrivateChat(dto));
     }
-  }
 
+  }
   private User createUserWithId(Long id) {
     return User.builder().id(id).build();
   }
@@ -400,6 +410,113 @@ class ChatServiceImplTest {
       List<Long> participantsIds, Optional<Chat> thenReturn) {
     when(chatRepository.findChatByUsersAndChatType(participantsIds, ChatType.PRIVATE))
         .thenReturn(thenReturn);
+  }
+
+  @Nested
+  class FindAllUsersPrivateChats {
+
+    private final User alice = getAlice(), bob = getBob();
+    private final Chat arubaChat = buildChat(1L, ChatType.GROUP, "Aruba chat", "Aruba", List.of(alice, bob, getTomas()));
+    private final Chat aliseBobChat = buildChat(200L, ChatType.PRIVATE, "Private chat for Alice and Bob", "Alice-Bob", List.of(alice, bob));
+    private final Chat aliseAndDeletedChat = buildChat(201L, ChatType.PRIVATE, "Private chat for Alice and user left the chat", "Alice-user left the chat", List.of(alice));
+
+
+    private static final String REMOVED_USER_NAME = "user left the chat";
+    private static final String REMOVED_USER_EMAIL = "undefined";
+    private static final String REMOVED_USER_ABOUT = "user left the chat";
+
+    private final String lastAliceBobChatMessageContent = "hello alice how's it going?";
+    private final MessageDto lastAliceBobChatMessageDto = new MessageDto(lastAliceBobChatMessageContent);
+
+    private final Message lastAliceBobChatMessage = buildMessage(aliseBobChat, bob, 2L, lastAliceBobChatMessageContent);
+    private final UserChat aliseArubaUserChat = buildUserChat(1L, alice, arubaChat);
+    private final UserChat aliseBobUserChat = buildUserChat(2L, alice, aliseBobChat);
+    private final UserChat bobAliseUserChat = buildUserChat(3L, bob, aliseBobChat);
+    private final UserChat aliseAndDeletedUserChat = buildUserChat(4L, alice, aliseAndDeletedChat);
+
+    private final UserChat deletedUserAndAliseChat = buildRemovedUserChat(aliseAndDeletedChat);
+
+    private final List<UserChat> userChats = List.of(aliseArubaUserChat, aliseBobUserChat, aliseAndDeletedUserChat);
+
+    @BeforeEach
+    void init() {
+      List<Message> aliseBobChatMessages = List.of(
+          buildMessage(aliseBobChat, alice, 1L, "hi Bob!"),
+          lastAliceBobChatMessage
+      );
+      aliseBobChat.setMessages(aliseBobChatMessages);
+    }
+
+    @Test
+    void shouldReturnList() {
+
+      PrivateChatInfoDto privateChatInfoDto = createPrivateChatInfoDto(bob.getUserName());
+      PrivateChatDto aliseBobChatDto = new PrivateChatDto(privateChatInfoDto, new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail()), null, lastAliceBobChatMessageDto);
+
+      PrivateChatInfoDto privateChatAliceAndDeletedInfoDto = createPrivateChatInfoDto(REMOVED_USER_NAME);
+      PrivateChatDto aliseAndDeletedChatDto = new PrivateChatDto(privateChatAliceAndDeletedInfoDto, new UserDtoShort(null, REMOVED_USER_NAME, REMOVED_USER_EMAIL), null, null);
+
+      when(authenticationService.getAuthenticatedUser()).thenReturn(alice);
+      when(userChatRepository.findAllByUserId(alice.getId())).thenReturn(userChats);
+      when(userChatRepository.findAllByChatId(200L)).thenReturn(List.of(aliseBobUserChat, bobAliseUserChat));
+      when(userChatRepository.findAllByChatId(201L)).thenReturn(List.of(aliseAndDeletedUserChat));
+      when(userChatMapper.toPrivateChatDto(bobAliseUserChat, lastAliceBobChatMessage)).thenReturn(aliseBobChatDto);
+      when(userChatMapper.toPrivateChatDto(deletedUserAndAliseChat, null)).thenReturn(aliseAndDeletedChatDto);
+
+      List<PrivateChatDto> actual = underTest.findAllUsersPrivateChats();
+
+      assertThat(actual).isNotEmpty();
+      PrivateChatDto aliseBobChatDtoActual = actual.get(0);
+      assertThat(aliseBobChatDtoActual).isEqualTo(aliseBobChatDto);
+
+      PrivateChatDto aliseAndDeletedChatDtoActual = actual.get(1);
+      assertThat(aliseAndDeletedChatDtoActual).isEqualTo(aliseAndDeletedChatDto);
+    }
+
+    private static Message buildMessage(Chat chat, User sender, Long id, String content) {
+      return Message.builder()
+          .chat(chat)
+          .sender(sender)
+          .type(MessageType.TEXT)
+          .id(id)
+          .content(content)
+          .build();
+    }
+
+    private static UserChat buildRemovedUserChat(Chat chat) {
+      return UserChat.builder()
+          .user(User.builder()
+              .userName(REMOVED_USER_NAME)
+              .userEmail(REMOVED_USER_EMAIL)
+              .about(REMOVED_USER_ABOUT)
+              .build())
+          .chat(chat)
+          .build();
+    }
+
+    private static UserChat buildUserChat(Long id, User user, Chat chat) {
+      return UserChat.builder()
+          .id(id)
+          .user(user)
+          .chat(chat)
+          .build();
+    }
+
+
+    private PrivateChatInfoDto createPrivateChatInfoDto(String chatName) {
+      return new PrivateChatInfoDto(null, chatName, null, null, null, null, null);
+    }
+
+    private static Chat buildChat(Long id, ChatType type, String description, String name, List<User> users) {
+      return Chat.builder()
+          .id(id)
+          .chatType(type)
+          .description(description)
+          .name(name)
+          .users(users)
+          .build();
+    }
+
   }
 
   @Nested
