@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 /**
  * Entity class representing the relationship between a user and a chat.
@@ -47,15 +48,17 @@ public class UserChat {
 
   private Long lastReadMessageId;
 
+  @Formula("(SELECT COUNT(*) FROM messages m WHERE m.id > 100 AND m.chat_id = uc1_0.chat_id)")
+  private Long unreadMessagesCount;
+
+
   @Override
   public String toString() {
     return "UserChat{" +
         "id=" + id +
-        ", user=" + user.getUserName() + " " + user.getUserEmail() + ", hash " + user.hashCode() +
-        ", chat=" + chat.getName()  + ", id= " + chat.getId() + "hash " + chat.hashCode()+
-        "hash " + this.hashCode() +
-        ", lastReadMessageId=" + lastReadMessageId +
-        ", userCountry=" + userCountry +
+        ", chat=" + chat.getName()  + ", id= " + chat.getId()
+        +", unreadMessagesCount=" + unreadMessagesCount
+        +", lastReadMessageId=" + lastReadMessageId+
         '}';
   }
 }

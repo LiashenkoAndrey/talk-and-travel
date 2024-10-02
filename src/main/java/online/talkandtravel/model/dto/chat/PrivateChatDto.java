@@ -5,7 +5,4 @@ import online.talkandtravel.model.dto.user.UserDtoShort;
 
 public record PrivateChatDto(PrivateChatInfoDto chat, UserDtoShort companion, Long lastReadMessageId, MessageDto lastMessage) {
 
-  public PrivateChatDto(PrivateChatInfoDto chat, UserDtoShort companion, Long lastReadMessageId) {
-    this(chat, companion, lastReadMessageId, null);
-  }
 }

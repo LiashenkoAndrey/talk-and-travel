@@ -13,6 +13,7 @@ import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
+import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
@@ -136,28 +137,38 @@ public class ChatServiceImpl implements ChatService {
             userChat -> {
               Chat chat = userChat.getChat();
               List<UserChat> userChatList = userChatRepository.findAllByChatId(chat.getId());
-              return userChatList.stream()
-                  .filter(userChat1 -> !userChat1.getUser().getId().equals(user.getId()))
-                  .findFirst()
-                  .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
+              UserChat authUserChat = getAuthUserChat(userChatList, user.getId());
+              UserChat companionUserChat = getCompanionUserChat(userChatList, user.getId(), chat);
+
+              return mapUserChatToPrivateChatDto(chat, companionUserChat.getUser(), authUserChat.getUnreadMessagesCount(), authUserChat.getLastReadMessageId());
             })
-        .map(this::mapUserChatToPrivateChatDto)
         .map(chatNameToCompanionName())
         .toList();
   }
 
-  private PrivateChatDto mapUserChatToPrivateChatDto(UserChat userChat) {
-    List<Message> messages = userChat.getChat().getMessages();
+  private UserChat getAuthUserChat(List<UserChat> userChatList, Long authUserId) {
+    return userChatList.stream().filter((e) -> e.getUser().getId().equals(authUserId)).findFirst().orElseThrow(
+        () -> new UserNotFoundException(authUserId));
+  }
+
+  private UserChat getCompanionUserChat(List<UserChat> userChatList, Long authUserId, Chat chat) {
+    return userChatList.stream()
+        .filter(userChat1 -> !userChat1.getUser().getId().equals(authUserId))
+        .findFirst()
+        .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
+  }
+
+  private PrivateChatDto mapUserChatToPrivateChatDto(Chat chat, User companion, Long unreadMessagesCount, Long lastReadMessageId) {
+    List<Message> messages = chat.getMessages();
     Message lastMessage = null;
     if (messages != null && !messages.isEmpty()) {
       lastMessage = messages.get(messages.size() - 1);
     }
-    return userChatMapper.toPrivateChatDto(userChat, lastMessage);
+    return userChatMapper.toPrivateChatDto(chat, companion, lastMessage, unreadMessagesCount, lastReadMessageId);
   }
 
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
-    log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
     User user = authenticationService.getAuthenticatedUser();
     UserChat userChat =
         userChatRepository
@@ -309,7 +320,8 @@ public class ChatServiceImpl implements ChatService {
         oldChat.chat().chatType(),
         oldChat.chat().creationDate(),
         oldChat.chat().usersCount(),
-        oldChat.chat().messagesCount());
+        oldChat.chat().messagesCount(),
+        oldChat.chat().unreadMessagesCount());
   }
 
   private void checkIfChatExists(User user, User companion) {

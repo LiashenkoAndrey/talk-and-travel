@@ -17,23 +17,22 @@ Authorization: Bearer {{token}}
 
 
 ###
-PUT http://localhost:8080/api/chats/1/messages/last-read
+PATCH http://localhost:8080/api/chats/242/messages/last-read
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "userId": 1,
-  "lastReadMessageId": 6
+  "lastReadMessageId": 181
 }
 
-> {% client.test("is 200", () => client.assert(response.status === 200, "status is not 200")) %}
+> {% client.test("is 204", () => client.assert(response.status === 204, "status is not 204")) %}
 
 ###
 GET {{apiUrl}}/api/chats/Aruba/main
 Authorization: Bearer {{token}}
 
 ###
-GET {{apiUrl}}/api/chats/user/1/private
+GET {{apiUrl}}/api/v2/user/private-chats
 Authorization: Bearer {{token}}
 
 

@@ -429,10 +429,10 @@ class ChatServiceImplTest {
     private final MessageDto lastAliceBobChatMessageDto = new MessageDto(lastAliceBobChatMessageContent);
 
     private final Message lastAliceBobChatMessage = buildMessage(aliseBobChat, bob, 2L, lastAliceBobChatMessageContent);
-    private final UserChat aliseArubaUserChat = buildUserChat(1L, alice, arubaChat);
-    private final UserChat aliseBobUserChat = buildUserChat(2L, alice, aliseBobChat);
-    private final UserChat bobAliseUserChat = buildUserChat(3L, bob, aliseBobChat);
-    private final UserChat aliseAndDeletedUserChat = buildUserChat(4L, alice, aliseAndDeletedChat);
+    private final UserChat aliseArubaUserChat = buildUserChat(1L, alice, arubaChat, 0L);
+    private final UserChat aliseBobUserChat = buildUserChat(2L, alice, aliseBobChat, 1L);
+    private final UserChat bobAliseUserChat = buildUserChat(3L, bob, aliseBobChat, 0L);
+    private final UserChat aliseAndDeletedUserChat = buildUserChat(4L, alice, aliseAndDeletedChat, 0L);
 
     private final UserChat deletedUserAndAliseChat = buildRemovedUserChat(aliseAndDeletedChat);
 
@@ -460,8 +460,8 @@ class ChatServiceImplTest {
       when(userChatRepository.findAllByUserId(alice.getId())).thenReturn(userChats);
       when(userChatRepository.findAllByChatId(200L)).thenReturn(List.of(aliseBobUserChat, bobAliseUserChat));
       when(userChatRepository.findAllByChatId(201L)).thenReturn(List.of(aliseAndDeletedUserChat));
-      when(userChatMapper.toPrivateChatDto(bobAliseUserChat, lastAliceBobChatMessage)).thenReturn(aliseBobChatDto);
-      when(userChatMapper.toPrivateChatDto(deletedUserAndAliseChat, null)).thenReturn(aliseAndDeletedChatDto);
+      when(userChatMapper.toPrivateChatDto(aliseBobChat, bob, lastAliceBobChatMessage, 1L, null)).thenReturn(aliseBobChatDto);
+      when(userChatMapper.toPrivateChatDto(aliseAndDeletedChat, buildRemovedUser(), null,0L, null)).thenReturn(aliseAndDeletedChatDto);
 
       List<PrivateChatDto> actual = underTest.findAllUsersPrivateChats();
 
@@ -494,17 +494,26 @@ class ChatServiceImplTest {
           .build();
     }
 
-    private static UserChat buildUserChat(Long id, User user, Chat chat) {
+    private static User buildRemovedUser() {
+      return User.builder()
+          .userName(REMOVED_USER_NAME)
+          .userEmail(REMOVED_USER_EMAIL)
+          .about(REMOVED_USER_ABOUT)
+          .build();
+    }
+
+    private static UserChat buildUserChat(Long id, User user, Chat chat, Long unreadMessagesCount) {
       return UserChat.builder()
           .id(id)
           .user(user)
           .chat(chat)
+          .unreadMessagesCount(unreadMessagesCount)
           .build();
     }
 
 
     private PrivateChatInfoDto createPrivateChatInfoDto(String chatName) {
-      return new PrivateChatInfoDto(null, chatName, null, null, null, null, null);
+      return new PrivateChatInfoDto(null, chatName, null, null, null, null, null, null);
     }
 
     private static Chat buildChat(Long id, ChatType type, String description, String name, List<User> users) {
