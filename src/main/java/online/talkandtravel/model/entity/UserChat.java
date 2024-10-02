@@ -48,16 +48,12 @@ public class UserChat {
 
   private Long lastReadMessageId;
 
-  @Formula("(SELECT COUNT(*) FROM messages m WHERE m.id > 100 AND m.chat_id = uc1_0.chat_id)")
-  private Long unreadMessagesCount;
-
 
   @Override
   public String toString() {
     return "UserChat{" +
         "id=" + id +
         ", chat=" + chat.getName()  + ", id= " + chat.getId()
-        +", unreadMessagesCount=" + unreadMessagesCount
         +", lastReadMessageId=" + lastReadMessageId+
         '}';
   }

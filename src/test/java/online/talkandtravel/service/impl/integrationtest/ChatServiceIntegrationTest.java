@@ -3,6 +3,9 @@ package online.talkandtravel.service.impl.integrationtest;
 import static online.talkandtravel.config.TestDataConstant.CHAT_MESSAGES_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.PRIVATE_CHATS_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
+import static online.talkandtravel.testdata.ChatTestData.ALICE_BOB_PRIVATE_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.ALICE_DELETED_USER_PRIVATE_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static online.talkandtravel.testdata.UserTestData.getTomas;
@@ -14,6 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.IntegrationTest;
@@ -23,11 +30,17 @@ import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDto;
+import online.talkandtravel.model.dto.user.UserDtoShort;
+import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
+import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.ChatService;
+import online.talkandtravel.service.MessageService;
 import online.talkandtravel.util.TestAuthenticationService;
 import online.talkandtravel.util.TestChatService;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +68,9 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
 
   @Autowired private TestChatService testChatService;
 
+  @Autowired private MessageRepository messageRepository;
+  @Autowired private UserRepository userRepository;
+
   private User bob, alice;
 
   @BeforeEach
@@ -69,26 +85,40 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     @ParameterizedTest
     @MethodSource("findAllUsersPrivateChatsArgs")
     void shouldReturnListRelativeToArguments(User auhenticatedUser,
-        Long expectedSize, User companion) {
+        Long expectedSize, Map<Long, User> companionsMap) {
       testAuthenticationService.authenticateUser(auhenticatedUser);
 
       List<PrivateChatDto> actualList = underTest.findAllUsersPrivateChats();
-
+      log.info("actualList {}", actualList);
       assertEquals(expectedSize, actualList.size());
 
-      if (companion != null) {
-        PrivateChatDto chat = actualList.get(0);
-        assertEquals(companion.getId(), chat.companion().getId());
-        assertEquals(companion.getUserName(), chat.chat().name());
+      if (companionsMap == null) {
+        return;
+      }
+      for (Entry<Long, User> longUserEntry : companionsMap.entrySet()) {
+        Optional<PrivateChatDto> optionalPrivateChatDto = actualList.stream().filter((e) -> e.chat().id().equals(longUserEntry.getKey())).findFirst();
+        assertTrue(optionalPrivateChatDto.isPresent());
+        PrivateChatDto chatDto = optionalPrivateChatDto.get();
+        UserDtoShort actual = chatDto.companion();
+        User expected = longUserEntry.getValue();
+
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getUserName(), chatDto.chat().name());
       }
     }
 
     private static Stream<Arguments> findAllUsersPrivateChatsArgs() {
       User bob = getBob(), alice = getAlice(), tomas = getTomas();
+      User removedUser = User.builder()
+          .id(null)
+          .userName("user left the chat")
+          .about("user left the chat")
+          .userEmail("undefined")
+          .build();
       return Stream.of(
           Arguments.of(tomas, 0L, null),
-          Arguments.of(alice, 1L, bob),
-          Arguments.of(bob, 1L, alice)
+          Arguments.of(alice, 2L, Map.of(ALICE_BOB_PRIVATE_CHAT_ID, bob, ALICE_DELETED_USER_PRIVATE_CHAT_ID, removedUser)),
+          Arguments.of(bob, 1L, Map.of(ALICE_BOB_PRIVATE_CHAT_ID, alice))
       );
     }
   }
@@ -107,27 +137,39 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     private static Stream<Arguments> shouldThrow_whenNoChatFoundArgs() {
       User alice = getAlice(), tomas = getTomas();
       return Stream.of(
-          Arguments.of(tomas, 10000L),
-          Arguments.of(alice, 10001L)
+          Arguments.of(tomas, 77777L),
+          Arguments.of(alice, 77772L)
       );
     }
 
-    @Test
-    void shouldUpdate_whenChatFound() {
-      testAuthenticationService.authenticateUser(alice);
-      Long chatId = 10000L, lastReadMessageId = 4L;
-      SetLastReadMessageRequest request = new SetLastReadMessageRequest(lastReadMessageId);
+    @ParameterizedTest
+    @MethodSource("shouldUpdate_whenChatFoundArgs")
+    void shouldUpdate_whenChatFound(User authUser, Long lastReadMessageId, Long expectedUnreadMessagesCount ) {
+      Long chatId = ALICE_BOB_PRIVATE_CHAT_ID;
+      testAuthenticationService.authenticateUser(authUser);
 
-      assertNull(getCurrentLastReadMessageId(chatId));
+      SetLastReadMessageRequest request = new SetLastReadMessageRequest(lastReadMessageId);
+      assertNull(getUserChat(chatId).getLastReadMessageId());
 
       underTest.setLastReadMessage(chatId, request);
 
-      assertEquals(lastReadMessageId, getCurrentLastReadMessageId(chatId));
+      UserChat userChat = getUserChat(chatId);
+
+      assertEquals(lastReadMessageId, userChat.getLastReadMessageId());
+      assertEquals(expectedUnreadMessagesCount, chatRepository.countUnreadMessages(lastReadMessageId, chatId));
     }
 
-    private Long getCurrentLastReadMessageId(Long chatId) {
-      UserChat userChat = userChatRepository.findByChatIdAndUserId(chatId, alice.getId()).orElseThrow(() -> new UserChatNotFoundException(chatId, alice.getId()));
-      return userChat.getLastReadMessageId();
+    private static Stream<Arguments> shouldUpdate_whenChatFoundArgs() {
+      return Stream.of(
+          Arguments.of(getAlice(), 4L, 6L),
+          Arguments.of(getAlice(), 1L, 9L),
+          Arguments.of(getAlice(), 10L, 0L)
+      );
+    }
+
+    private UserChat getUserChat(Long chatId) {
+      return userChatRepository.findByChatIdAndUserId(chatId, alice.getId()).orElseThrow(() -> new UserChatNotFoundException(chatId, alice.getId()));
+
     }
   }
 

@@ -1,5 +1,6 @@
 package online.talkandtravel.repository;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
 import java.util.Optional;
 import online.talkandtravel.model.entity.Chat;
@@ -25,6 +26,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
   Page<Chat> findAllByChatType(ChatType chatType, Pageable pageable);
 
+  @Query("SELECT COUNT(*) FROM Message m WHERE m.id > :lastReadMessageId AND m.chat.id = :chatId")
+  long countUnreadMessages(@Param("lastReadMessageId") Long lastReadMessageId, @Param("chatId") Long chatId);
 
   @Query("SELECT COUNT(c) FROM Chat c")
   long countChats();
