@@ -1,8 +1,5 @@
 package online.talkandtravel.service.impl.unittest;
 
-import static online.talkandtravel.testdata.UserTestData.getAlice;
-import static online.talkandtravel.testdata.UserTestData.getBob;
-import static online.talkandtravel.testdata.UserTestData.getTomas;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -585,11 +582,9 @@ class ChatServiceImplTest {
   @Nested
   class FindReadAndUnreadMessages {
 
-    private final Long chatId = 1L, lastReadMessageId = 1L;
+    private final Long chatId = 1L;
     private final Pageable pageable1 = PageRequest.of(0, 10);
-    private final String content = "test";
-    private final Page<Message> page =
-        new PageImpl<>(List.of(new Message(content)));
+
 
     @Test
     void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {

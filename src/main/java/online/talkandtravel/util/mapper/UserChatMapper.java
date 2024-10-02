@@ -3,16 +3,12 @@ package online.talkandtravel.util.mapper;
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
-import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
-import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
-import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Mapper interface for converting between {@link UserChat} entities and {@link UserDtoBasic} data

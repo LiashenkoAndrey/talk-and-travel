@@ -1,7 +1,6 @@
 package online.talkandtravel.testdata;
 
 import java.util.List;
-import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
 
 public final class CountryTestData {

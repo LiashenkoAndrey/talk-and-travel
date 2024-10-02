@@ -23,9 +23,6 @@ import org.mapstruct.Mapping;
  *   <li>{@link #toCountryInfoDto(Country)} - Converts a {@link Country} entity to a {@link
  *       CountryInfoDto}. This method maps the basic properties of the {@link Country} entity to the
  *       DTO.
- *   <li>{@link #userCountryToCountryInfoDto(UserCountry)} - Converts a {@link UserCountry} entity to a {@link
- *       CountryInfoDto}. This method handles the mapping of properties specific to the user
- *       context, such as the country name and flag code.
  *   <li>{@link #toCountryDto(Country)} - Converts a {@link Country} entity to a {@link CountryDto}.
  *       This method maps the properties of the {@link Country} entity to the DTO, potentially
  *       including additional information.
@@ -48,12 +45,5 @@ public interface CountryMapper {
 
   CountryInfoDto toCountryInfoDto(Country country);
 
-  @Mapping(target = "name", source = "country.name")
-  @Mapping(target = "flagCode", source = "country.flagCode")
-  CountryInfoDto userCountryToCountryInfoDto(UserCountry userCountry);
-
-  @Mapping(target = "name", source = "country.name")
-  @Mapping(target = "flagCode", source = "country.flagCode")
-  CountryInfoWithUnreadMessagesDto userCountryToCountryInfoWithUnreadMessagesDto(UserCountry userCountry);
   CountryDto toCountryDto(Country country);
 }
