@@ -157,7 +157,7 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
 
       assertEquals(lastReadMessageId, userChat.getLastReadMessageId());
       assertEquals(expectedUnreadMessagesCount,
-          chatRepository.countUnreadMessages(lastReadMessageId, chatId));
+          chatRepository.countAllByIdAndIdGreaterThan(chatId, lastReadMessageId));
     }
 
     private static Stream<Arguments> shouldUpdate_whenChatFoundArgs() {

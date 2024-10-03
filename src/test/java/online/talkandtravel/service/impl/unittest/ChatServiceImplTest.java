@@ -477,7 +477,7 @@ class ChatServiceImplTest {
       when(userChatRepository.findAllByChatId(200L)).thenReturn(
           List.of(aliceBobUserChat, bobAliceUserChat));
       when(userChatRepository.findAllByChatId(201L)).thenReturn(List.of(aliceAndDeletedUserChat));
-      when(chatRepository.countUnreadMessages(any(), any())).thenReturn(0L);
+      when(chatRepository.countAllByIdAndIdGreaterThan(any(), any())).thenReturn(0L);
       when(chatMapper.chatToPrivateChatInfoDto(any(Chat.class), anyLong())).thenReturn(
           privateChatInfoDto, privateChatAliceAndDeletedInfoDto);
       when(userChatMapper.toPrivateChatDto(eq(privateChatInfoDto), eq(bob),
@@ -502,7 +502,7 @@ class ChatServiceImplTest {
       verify(userChatRepository).findAllByUserId(alice.getId());
       verify(userChatRepository).findAllByChatId(200L);
       verify(userChatRepository).findAllByChatId(201L);
-      verify(chatRepository, times(2)).countUnreadMessages(any(), any());
+      verify(chatRepository, times(2)).countAllByIdAndIdGreaterThan(any(), any());
       verify(chatMapper, times(2)).chatToPrivateChatInfoDto(any(Chat.class), anyLong());
       verify(userChatMapper, times(2)).toPrivateChatDto(any(), any(), any(), any());
     }

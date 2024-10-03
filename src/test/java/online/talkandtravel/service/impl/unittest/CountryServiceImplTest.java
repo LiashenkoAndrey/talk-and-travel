@@ -22,8 +22,10 @@ import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.service.MessageService;
 import online.talkandtravel.service.impl.CountryServiceImpl;
 import online.talkandtravel.util.mapper.CountryMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,8 +42,7 @@ class CountryServiceImplTest {
   @Mock private CountryMapper countryMapper;
 
   @Mock private AuthenticationService authenticationService;
-
-  @Mock private ChatRepository chatRepository;
+  @Mock private MessageRepository messageRepository;
   @InjectMocks private CountryServiceImpl underTest;
 
   private Country country1;
@@ -155,7 +156,7 @@ class CountryServiceImplTest {
     when(userCountryRepository.findByUserId(user.getId())).thenReturn(userCountries);
 
     // Mock unread message count
-    when(chatRepository.countUnreadMessages(1L, userChat.getChat().getId())).thenReturn(3L);
+    when(messageRepository.countAllByChatIdAndIdGreaterThan(1L, userChat.getChat().getId())).thenReturn(3L);
 
     // Expected DTO
     CountryInfoWithUnreadMessagesDto expectedDto = new CountryInfoWithUnreadMessagesDto("Country 1", "Flag 1", 3L);
@@ -166,7 +167,7 @@ class CountryServiceImplTest {
     // Assert
     assertEquals(List.of(expectedDto), result);
     verify(userCountryRepository, times(1)).findByUserId(user.getId());
-    verify(chatRepository, times(1)).countUnreadMessages(1L, userChat.getChat().getId());
+    verify(messageRepository, times(1)).countAllByChatIdAndIdGreaterThan(1L, userChat.getChat().getId());
   }
 
   @Test
@@ -181,7 +182,7 @@ class CountryServiceImplTest {
     // Assert
     assertEquals(List.of(), result);
     verify(userCountryRepository, times(1)).findByUserId(user.getId());
-    verifyNoInteractions(chatRepository); // No interactions if the list is empty
+    verifyNoInteractions(messageRepository); // No interactions if the list is empty
   }
 
   @Test
@@ -206,7 +207,7 @@ class CountryServiceImplTest {
     // Assert
     assertEquals(List.of(expectedDto), result);
     verify(userCountryRepository, times(1)).findByUserId(user.getId());
-    verifyNoInteractions(chatRepository); // No unread messages to count
+    verifyNoInteractions(messageRepository); // No unread messages to count
   }
 
   @Test
@@ -230,7 +231,7 @@ class CountryServiceImplTest {
     // Assert
     assertEquals(List.of(expectedDto), result);
     verify(userCountryRepository, times(1)).findByUserId(user.getId());
-    verifyNoInteractions(chatRepository); // No unread messages to count
+    verifyNoInteractions(messageRepository); // No unread messages to count
   }
 
 }

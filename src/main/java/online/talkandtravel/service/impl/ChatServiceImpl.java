@@ -234,8 +234,8 @@ public class ChatServiceImpl implements ChatService {
     UserChat authUserChat = getAuthUserChat(userChatList, authUser.getId());
     UserChat companionUserChat = getCompanionUserChat(userChatList, authUser.getId(), chat);
 
-    Long unreadMessagesCount = chatRepository.countUnreadMessages(
-        authUserChat.getLastReadMessageId(), chat.getId());
+    Long unreadMessagesCount = messageRepository.countAllByChatIdAndIdGreaterThan(
+       chat.getId(),  authUserChat.getLastReadMessageId());
     PrivateChatInfoDto privateChatInfoDto = chatMapper.chatToPrivateChatInfoDto(chat,
         unreadMessagesCount);
     Message lastMessage = getLastMessage(chat);

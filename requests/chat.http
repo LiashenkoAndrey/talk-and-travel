@@ -22,7 +22,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "lastReadMessageId": 184
+  "lastReadMessageId": 9
 }
 
 > {% client.test("is 204", () => client.assert(response.status === 204, "status is not 204")) %}
@@ -47,3 +47,12 @@ Content-Type: application/json
   "countryId": "Aruba"
 }
 
+
+###
+POST {{apiUrl}}/api/chats/private
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "companionId": 8
+}

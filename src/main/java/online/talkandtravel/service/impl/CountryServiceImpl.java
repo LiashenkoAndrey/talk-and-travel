@@ -13,6 +13,7 @@ import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.CountryService;
@@ -43,7 +44,7 @@ public class CountryServiceImpl implements CountryService {
   private final UserCountryRepository userCountryRepository;
   private final CountryMapper countryMapper;
   private final AuthenticationService authenticationService;
-  private final ChatRepository chatRepository;
+  private final MessageRepository messageRepository;
 
   @Override
   public List<CountryInfoDto> getAllCountriesInfo() {
@@ -69,8 +70,8 @@ public class CountryServiceImpl implements CountryService {
   private CountryInfoWithUnreadMessagesDto mapToCountryInfoDto(UserCountry userCountry, User user) {
     UserChat userChat = findUserChatForCountry(userCountry, user);
     Long unreadMessagesCount = userChat != null ?
-        chatRepository.countUnreadMessages(userChat.getLastReadMessageId(),
-            userChat.getChat().getId()) : 0;
+            messageRepository.countAllByChatIdAndIdGreaterThan(userChat.getChat().getId(),
+                userChat.getLastReadMessageId()) : 0;
 
     Country country = userCountry.getCountry();
     return new CountryInfoWithUnreadMessagesDto(country.getName(), country.getFlagCode(),
