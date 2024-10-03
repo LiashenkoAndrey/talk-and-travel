@@ -1,7 +1,7 @@
 package online.talkandtravel.testdata;
 
 import java.util.List;
-import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
+import online.talkandtravel.model.dto.country.CountryInfoDto;
 
 public final class CountryTestData {
 
@@ -16,13 +16,13 @@ public final class CountryTestData {
     return COUNTRIES_COUNT;
   }
 
-  public static List<CountryInfoWithUnreadMessagesDto> getUser1Countries(){
+  public static List<CountryInfoDto> getUser1Countries(){
     return List.of(
-        new CountryInfoWithUnreadMessagesDto("United States of America", "us", 0L),
-        new CountryInfoWithUnreadMessagesDto("Canada", "ca", 0L),
-        new CountryInfoWithUnreadMessagesDto("France", "fr", 0L),
-        new CountryInfoWithUnreadMessagesDto("Germany", "de", 0L),
-        new CountryInfoWithUnreadMessagesDto("Japan", "jp", 0L)
+        new CountryInfoDto("United States of America", "us"),
+        new CountryInfoDto("Canada", "ca"),
+        new CountryInfoDto("France", "fr"),
+        new CountryInfoDto("Germany", "de"),
+        new CountryInfoDto("Japan", "jp")
     );
   }
 }

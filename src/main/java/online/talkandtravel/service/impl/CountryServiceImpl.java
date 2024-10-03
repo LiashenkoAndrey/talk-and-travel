@@ -6,12 +6,10 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
-import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserCountryRepository;
@@ -58,7 +56,7 @@ public class CountryServiceImpl implements CountryService {
   }
 
   @Override
-  public List<CountryInfoWithUnreadMessagesDto> findAllUserCountries() {
+  public List<CountryInfoDto> findAllUserCountries() {
     User user = authenticationService.getAuthenticatedUser();
     List<UserCountry> userCountries = userCountryRepository.findByUserId(user.getId());
 
@@ -67,23 +65,11 @@ public class CountryServiceImpl implements CountryService {
         .toList();
   }
 
-  private CountryInfoWithUnreadMessagesDto mapToCountryInfoDto(UserCountry userCountry, User user) {
-    UserChat userChat = findUserChatForCountry(userCountry, user);
-    Long unreadMessagesCount = userChat != null ?
-            messageRepository.countAllByChatIdAndIdGreaterThan(userChat.getChat().getId(),
-                userChat.getLastReadMessageId()) : 0;
-
+  private CountryInfoDto mapToCountryInfoDto(UserCountry userCountry, User user) {
     Country country = userCountry.getCountry();
-    return new CountryInfoWithUnreadMessagesDto(country.getName(), country.getFlagCode(),
-        unreadMessagesCount);
+    return new CountryInfoDto(country.getName(), country.getFlagCode());
   }
 
-  private UserChat findUserChatForCountry(UserCountry userCountry, User user) {
-    return userCountry.getChats().stream()
-        .filter(userChat -> userChat.getUser().getId().equals(user.getId()))
-        .findFirst()
-        .orElse(null);
-  }
 
   private Country getCountry(String countryName) {
     return countryRepository

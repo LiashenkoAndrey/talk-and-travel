@@ -17,12 +17,12 @@ Authorization: Bearer {{token}}
 
 
 ###
-PATCH http://localhost:8080/api/chats/243/messages/last-read
+PATCH http://localhost:8080/api/chats/1/messages/last-read
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "lastReadMessageId": 9
+  "lastReadMessageId":100
 }
 
 > {% client.test("is 204", () => client.assert(response.status === 204, "status is not 204")) %}
@@ -56,3 +56,7 @@ Authorization: Bearer {{token}}
 {
   "companionId": 8
 }
+
+###
+GET {{apiUrl}}/api/v2/user/public-chats
+Authorization: Bearer {{token}}

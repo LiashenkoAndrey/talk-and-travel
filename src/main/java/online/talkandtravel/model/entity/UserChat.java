@@ -49,8 +49,11 @@ public class UserChat {
   @JoinColumn(name = "chat_id")
   private Chat chat;
 
-  @ManyToOne private UserCountry userCountry;
+  @ManyToOne
+  private UserCountry userCountry;
 
-  private Long lastReadMessageId;
+  @ManyToOne
+  @JoinColumn(name = "last_read_message_id")
+  private Message lastReadMessage;
 
 }

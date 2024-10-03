@@ -22,6 +22,7 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -177,25 +178,33 @@ class ChatServiceImplTest {
   @Test
   void findMainChat_shouldFoundMainChat_whenValid() {
     String countryName = "TestCountry";
+    Long chatId = 1L;
+    Long unreadMessagesCount = 0L;
+
     ChatDto chatDto =
         new ChatDto(
-            1L,
+            chatId,
             "TestCountry",
             "Description of TestCountry",
             new CountryInfoDto(countryName, "tc"),
             ChatType.GROUP,
             LocalDateTime.now(),
             100L,
-            Collections.emptyList());
+            0L,
+            unreadMessagesCount);
 
+    when(authenticationService.getAuthenticatedUser()).thenReturn(user);
     when(countryRepository.findById(countryName)).thenReturn(Optional.of(country));
-    when(chatMapper.toDto(chat)).thenReturn(chatDto);
+    when(userChatRepository.findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.empty());
+    when(chatMapper.toDto(chat, unreadMessagesCount)).thenReturn(chatDto);
 
     ChatDto result = underTest.findMainChat(countryName);
 
     assertEquals(chatDto, result);
+
     verify(countryRepository, times(1)).findById(countryName);
-    verify(chatMapper, times(1)).toDto(chat);
+    verifyNoInteractions(messageRepository);
+    verify(chatMapper, times(1)).toDto(chat, unreadMessagesCount);
   }
 
   @Test
@@ -315,11 +324,13 @@ class ChatServiceImplTest {
             .users(List.of(user1))
             .build();
 
+
     @Test
     void createCountryChat_shouldReturnChatDto_whenCountryFoundAndUserAuth() {
       ChatDto chatDto = new ChatDto(chatName);
       UserCountry userCountry = new UserCountry();
       UserChat userChat = new UserChat();
+      userChat.setLastReadMessage(Message.builder().creationDate(LocalDateTime.now()).build());
 
       when(authenticationService.getAuthenticatedUser()).thenReturn(user1);
       when(countryRepository.findById(countryName)).thenReturn(Optional.of(country1));
@@ -328,8 +339,8 @@ class ChatServiceImplTest {
           .thenReturn(Optional.of(userCountry));
       when(userChatRepository.findByChatIdAndUserId(chat2.getId(), user1.getId()))
           .thenReturn(Optional.of(userChat));
-
-      when(chatMapper.toDto(chat2)).thenReturn(chatDto);
+      when(messageRepository.countAllByChatIdAndCreationDateAfter(anyLong(), any(LocalDateTime.class))).thenReturn(100L);
+      when(chatMapper.toDto(chat2, 100L)).thenReturn(chatDto);
 
       ChatDto result = underTest.createCountryChat(request);
 
@@ -337,9 +348,9 @@ class ChatServiceImplTest {
       verify(countryRepository, times(1)).findById(countryName);
       verify(userCountryRepository, times(1))
           .findByCountryNameAndUserId(countryName, user1.getId());
-      verify(userChatRepository, times(1)).findByChatIdAndUserId(chat2.getId(), user1.getId());
+      verify(userChatRepository, times(2)).findByChatIdAndUserId(chat2.getId(), user1.getId());
       verify(chatRepository, times(1)).save(chat1);
-      verify(chatMapper, times(1)).toDto(chat2);
+      verify(chatMapper, times(1)).toDto(chat2, 100L);
 
       assertEquals(chatDto, result);
     }
@@ -441,9 +452,9 @@ class ChatServiceImplTest {
 
     private final Message lastAliceBobChatMessage = buildMessage(aliceBobChat, bob, 2L,
         "hello alice how's it going?");
-    private final UserChat aliceBobUserChat = buildUserChat(2L, alice, aliceBobChat);
-    private final UserChat bobAliceUserChat = buildUserChat(3L, bob, aliceBobChat);
-    private final UserChat aliceAndDeletedUserChat = buildUserChat(4L, alice, aliceAndDeletedChat);
+    private final UserChat aliceBobUserChat = buildUserChat(2L, alice, aliceBobChat, null);
+    private final UserChat bobAliceUserChat = buildUserChat(3L, bob, aliceBobChat, null);
+    private final UserChat aliceAndDeletedUserChat = buildUserChat(4L, alice, aliceAndDeletedChat, null);
 
     private final String REMOVED_USER_NAME = "user left the chat";
     private final String REMOVED_USER_EMAIL = "undefined";
@@ -477,7 +488,6 @@ class ChatServiceImplTest {
       when(userChatRepository.findAllByChatId(200L)).thenReturn(
           List.of(aliceBobUserChat, bobAliceUserChat));
       when(userChatRepository.findAllByChatId(201L)).thenReturn(List.of(aliceAndDeletedUserChat));
-      when(chatRepository.countAllByIdAndIdGreaterThan(any(), any())).thenReturn(0L);
       when(chatMapper.chatToPrivateChatInfoDto(any(Chat.class), anyLong())).thenReturn(
           privateChatInfoDto, privateChatAliceAndDeletedInfoDto);
       when(userChatMapper.toPrivateChatDto(eq(privateChatInfoDto), eq(bob),
@@ -502,7 +512,6 @@ class ChatServiceImplTest {
       verify(userChatRepository).findAllByUserId(alice.getId());
       verify(userChatRepository).findAllByChatId(200L);
       verify(userChatRepository).findAllByChatId(201L);
-      verify(chatRepository, times(2)).countAllByIdAndIdGreaterThan(any(), any());
       verify(chatMapper, times(2)).chatToPrivateChatInfoDto(any(Chat.class), anyLong());
       verify(userChatMapper, times(2)).toPrivateChatDto(any(), any(), any(), any());
     }
@@ -517,11 +526,12 @@ class ChatServiceImplTest {
           .build();
     }
 
-    private static UserChat buildUserChat(Long id, User user, Chat chat) {
+    private static UserChat buildUserChat(Long id, User user, Chat chat, Message lastReadMessage) {
       return UserChat.builder()
           .id(id)
           .user(user)
           .chat(chat)
+          .lastReadMessage(lastReadMessage)
           .build();
     }
 
@@ -562,10 +572,12 @@ class ChatServiceImplTest {
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(userChatRepository.findByChatIdAndUserId(chatId, userId))
           .thenReturn(Optional.of(userChat1));
+      when(messageRepository.findById(2L)).thenReturn(Optional.of(new Message()));
 
       underTest.setLastReadMessage(chatId, requestDto);
 
-      verify(userChatRepository, times(1)).save(userChat1);
+      verify(userChatRepository).save(userChat1);
+      verify(messageRepository).findById(2L);
     }
 
     @Test
@@ -576,6 +588,16 @@ class ChatServiceImplTest {
       assertThrows(
           UserChatNotFoundException.class, () -> underTest.setLastReadMessage(chatId, requestDto));
     }
+
+    @Test
+    void setLastReadMessage_shouldThrow_whenNoUserMessageFound() {
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(
+          Optional.ofNullable(UserChat.builder().build()));
+
+      assertThrows(
+          MessageNotFoundException.class, () -> underTest.setLastReadMessage(chatId, requestDto));
+    }
   }
 
   @Nested
@@ -584,11 +606,14 @@ class ChatServiceImplTest {
     private final Long chatId = 1L;
     private final Pageable pageable1 = PageRequest.of(0, 10);
 
-
     @Test
     void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
       user.setId(1L);
-      userChat.setLastReadMessageId(1L);
+
+      Message lastReadMessage = new Message();
+      lastReadMessage.setId(1L);
+      lastReadMessage.setContent("Last read message");
+      userChat.setLastReadMessage(lastReadMessage);
 
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(userChatRepository.findByChatIdAndUserId(chatId, user.getId()))
@@ -598,7 +623,7 @@ class ChatServiceImplTest {
       Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
 
       when(messageRepository.findAllByChatIdAndIdLessThanEqual(chatId,
-          userChat.getLastReadMessageId(), pageable1))
+          userChat.getLastReadMessage().getId(), pageable1))
           .thenReturn(page);
 
       MessageDto messageDto = new MessageDto("Read message content");
@@ -609,11 +634,13 @@ class ChatServiceImplTest {
       assertEquals("Read message content", result.toList().get(0).content());
     }
 
-
     @Test
     void findUnreadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
       user.setId(1L);
-      userChat.setLastReadMessageId(1L);
+      Message lastReadMessage = new Message();
+      lastReadMessage.setId(1L);
+      lastReadMessage.setContent("Last read message");
+      userChat.setLastReadMessage(lastReadMessage);
 
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(userChatRepository.findByChatIdAndUserId(chatId, user.getId()))
@@ -622,7 +649,7 @@ class ChatServiceImplTest {
       List<Message> messages = List.of(new Message("Test content"));
       Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
 
-      when(messageRepository.findAllByChatIdAndIdAfter(chatId, userChat.getLastReadMessageId(),
+      when(messageRepository.findAllByChatIdAndIdAfter(chatId, userChat.getLastReadMessage().getId(),
           pageable1))
           .thenReturn(page);
 
@@ -633,6 +660,6 @@ class ChatServiceImplTest {
 
       assertEquals("Test content", result.toList().get(0).content());
     }
-
   }
+
 }

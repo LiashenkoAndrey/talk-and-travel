@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
 import online.talkandtravel.service.CountryService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +46,7 @@ public class CountryController {
   }
 
   @GetMapping({"/countries/user/{userId}", "/v2/user/countries"})
-  public List<CountryInfoWithUnreadMessagesDto> getAllUserCountries() {
+  public List<CountryInfoDto> getAllUserCountries() {
     return countryService.findAllUserCountries();
   }
 }

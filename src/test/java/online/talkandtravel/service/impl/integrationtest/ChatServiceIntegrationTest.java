@@ -32,6 +32,7 @@ import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
+import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.TestAuthenticationService;
@@ -51,20 +52,17 @@ import org.springframework.test.context.jdbc.Sql;
 @Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL})
 public class ChatServiceIntegrationTest extends IntegrationTest {
 
-  @Autowired
-  private ChatService underTest;
+  @Autowired private ChatService underTest;
 
-  @Autowired
-  private ChatRepository chatRepository;
+  @Autowired private ChatRepository chatRepository;
 
-  @Autowired
-  private UserChatRepository userChatRepository;
+  @Autowired private UserChatRepository userChatRepository;
 
-  @Autowired
-  private TestAuthenticationService testAuthenticationService;
+  @Autowired private TestAuthenticationService testAuthenticationService;
 
-  @Autowired
-  private TestChatService testChatService;
+  @Autowired private TestChatService testChatService;
+
+  @Autowired private MessageRepository messageRepository;
 
   private User bob, alice;
 
@@ -149,15 +147,16 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
       testAuthenticationService.authenticateUser(authUser);
 
       SetLastReadMessageRequest request = new SetLastReadMessageRequest(lastReadMessageId);
-      assertNull(getUserChat(chatId).getLastReadMessageId());
+      assertNull(getUserChat(chatId).getLastReadMessage());
 
       underTest.setLastReadMessage(chatId, request);
 
       UserChat userChat = getUserChat(chatId);
 
-      assertEquals(lastReadMessageId, userChat.getLastReadMessageId());
+      assertEquals(lastReadMessageId, userChat.getLastReadMessage().getId());
       assertEquals(expectedUnreadMessagesCount,
-          chatRepository.countAllByIdAndIdGreaterThan(chatId, lastReadMessageId));
+          messageRepository.countAllByChatIdAndCreationDateAfter(chatId, userChat.getLastReadMessage()
+              .getCreationDate()));
     }
 
     private static Stream<Arguments> shouldUpdate_whenChatFoundArgs() {

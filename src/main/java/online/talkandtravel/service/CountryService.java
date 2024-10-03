@@ -3,7 +3,6 @@ package online.talkandtravel.service;
 import java.util.List;
 import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.dto.country.CountryInfoWithUnreadMessagesDto;
 
 /**
  * Service interface for managing country-related operations.
@@ -31,5 +30,5 @@ public interface CountryService {
 
   CountryDto findCountryByName(String countryName);
 
-  List<CountryInfoWithUnreadMessagesDto> findAllUserCountries();
+  List<CountryInfoDto> findAllUserCountries();
 }

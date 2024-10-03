@@ -42,7 +42,9 @@ import org.mapstruct.Mapping;
 public interface ChatMapper {
 
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
-  ChatDto toDto(Chat chat);
+  @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
+  @Mapping(target = "unreadMessagesCount", source = "unreadMessagesCount")
+  ChatDto toDto(Chat chat, Long unreadMessagesCount);
 
   @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
