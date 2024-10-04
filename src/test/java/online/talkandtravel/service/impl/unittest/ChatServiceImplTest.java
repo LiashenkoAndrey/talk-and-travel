@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -477,7 +476,6 @@ class ChatServiceImplTest {
 
     @Test
     void shouldReturnList() {
-      // Arrange
       PrivateChatInfoDto privateChatInfoDto = createPrivateChatInfoDto(bob.getUserName());
       PrivateChatDto aliceBobChatDto = new PrivateChatDto(privateChatInfoDto,
           new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail()),
@@ -496,9 +494,19 @@ class ChatServiceImplTest {
       when(userChatRepository.findAllByChatId(201L)).thenReturn(List.of(aliceAndDeletedUserChat));
       when(chatMapper.chatToPrivateChatInfoDto(any(Chat.class), anyLong())).thenReturn(
           privateChatInfoDto, privateChatAliceAndDeletedInfoDto);
-      when(userChatMapper.toPrivateChatDto(eq(privateChatInfoDto), eq(bob),
-          eq(lastAliceBobChatMessage))).thenReturn(aliceBobChatDto);
-      when(userChatMapper.toPrivateChatDto(eq(privateChatAliceAndDeletedInfoDto), any(), isNull()))
+      when(messageRepository.findFirstByChatIdOrderByCreationDateDesc(200L)).thenReturn(
+          Optional.of(lastAliceBobChatMessage));
+      when(userChatMapper.toPrivateChatDto(privateChatInfoDto, bob, lastAliceBobChatMessage))
+          .thenReturn(aliceBobChatDto);
+
+      when(messageRepository.findFirstByChatIdOrderByCreationDateDesc(201L)).thenReturn(
+          Optional.empty());
+      when(userChatMapper.toPrivateChatDto(privateChatAliceAndDeletedInfoDto, User.builder()
+                  .userName(REMOVED_USER_NAME)
+                  .userEmail("undefined")
+                  .about("user left the chat")
+              .build(),
+          null))
           .thenReturn(aliceAndDeletedChatDto);
 
       // Act
@@ -615,7 +623,7 @@ class ChatServiceImplTest {
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(userChatRepository.findByChatIdAndUserId(chatId, userId))
           .thenReturn(Optional.of(userChat1));
-      when(messageRepository.findById(2L)).thenReturn(Optional.of(new Message()));
+      when(messageRepository.findById(2L)).thenReturn(Optional.of(message));
 
       underTest.setLastReadMessage(chatId, requestDto);
 

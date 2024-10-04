@@ -153,12 +153,10 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
-    log.info("chatID = {}, request {}", chatId, dtoRequest);
     User user = authenticationService.getAuthenticatedUser();
     UserChat userChat = getUserChat(chatId, user.getId());
     Message message = getMessage(dtoRequest.lastReadMessageId());
 
-    log.info("msg chat id {}, chat id {}", message.getChat().getId(), chatId);
     verifyMessageBelongsToChat(message, chatId);
 
     userChat.setLastReadMessage(message);
@@ -263,7 +261,6 @@ public class ChatServiceImpl implements ChatService {
   }
 
   private void verifyMessageBelongsToChat(Message message, Long chatId) {
-    log.info("verifyMessageBelongsToChat");
     if (!message.getChat().getId().equals(chatId)) {
       throw new MessageFromAnotherChatException(message.getId(), chatId, message.getChat().getId());
     }
@@ -274,7 +271,7 @@ public class ChatServiceImpl implements ChatService {
     UserChat companionUserChat = getCompanionUserChat(authUser.getId(), chat);
 
     PrivateChatInfoDto privateChatInfoDto = chatMapper.chatToPrivateChatInfoDto(chat, countUnreadMessages(authUserChat));
-    Message lastMessage = getLastMessage(chat);
+    Message lastMessage = messageRepository.findFirstByChatIdOrderByCreationDateDesc(chat.getId()).orElse(null);
     return userChatMapper.toPrivateChatDto(privateChatInfoDto, companionUserChat.getUser(), lastMessage);
   }
 
@@ -289,10 +286,6 @@ public class ChatServiceImpl implements ChatService {
         .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
   }
 
-  private Message getLastMessage(Chat chat) {
-    List<Message> messages = chat.getMessages();
-    return messages.isEmpty() ? null : messages.get(messages.size() - 1);
-  }
 
   private Chat getChat(Long chatId) {
     return chatRepository.findById(chatId).orElseThrow(() -> new ChatNotFoundException(chatId));

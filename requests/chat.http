@@ -17,7 +17,7 @@ Authorization: Bearer {{token}}
 
 
 ###
-PATCH http://localhost:8080/api/chats/1/messages/last-read
+PATCH {{apiUrl}}/api/chats/244/messages/last-read
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -26,6 +26,18 @@ Authorization: Bearer {{token}}
 }
 
 > {% client.test("is 204", () => client.assert(response.status === 204, "status is not 204")) %}
+
+###
+PATCH {{apiUrl}}/api/chats/1/messages/last-read
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "lastReadMessageId":183
+}
+
+> {% client.test("is 400", () => client.assert(response.status === 400, "status is not 400")) %}
+
 
 ###
 GET {{apiUrl}}/api/chats/Aruba/main

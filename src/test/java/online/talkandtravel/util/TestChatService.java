@@ -19,7 +19,9 @@ public class TestChatService {
         userChatRepository
             .findByChatIdAndUserId(chatId, userId)
             .orElseThrow(() -> new UserChatNotFoundException(chatId, userId));
-    userChat.setLastReadMessage(messageRepository.findById(lastReadMessageId).orElseThrow(() -> new MessageNotFoundException(lastReadMessageId)));
+    if (lastReadMessageId != null) {
+      userChat.setLastReadMessage(messageRepository.findById(lastReadMessageId).orElseThrow(() -> new MessageNotFoundException(lastReadMessageId)));
+    }
     userChatRepository.save(userChat);
   }
 }
