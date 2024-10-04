@@ -22,7 +22,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "lastReadMessageId":100
+  "lastReadMessageId":183
 }
 
 > {% client.test("is 204", () => client.assert(response.status === 204, "status is not 204")) %}
@@ -54,7 +54,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "companionId": 8
+  "companionId": 9
 }
 
 ###

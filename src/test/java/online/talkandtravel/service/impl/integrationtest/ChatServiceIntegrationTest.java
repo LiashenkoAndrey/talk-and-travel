@@ -1,10 +1,13 @@
 package online.talkandtravel.service.impl.integrationtest;
 
+import static online.talkandtravel.config.TestDataConstant.CHAT_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.CHAT_MESSAGES_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.PRIVATE_CHATS_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
 import static online.talkandtravel.testdata.ChatTestData.ALICE_BOB_PRIVATE_CHAT_ID;
 import static online.talkandtravel.testdata.ChatTestData.ALICE_DELETED_USER_PRIVATE_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.FIRST_MESSAGE_ID_OF_ALICE_BOB_CHAT;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static online.talkandtravel.testdata.UserTestData.getTomas;
@@ -22,7 +25,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.IntegrationTest;
+import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
+import online.talkandtravel.exception.message.MessageFromAnotherChatException;
+import online.talkandtravel.exception.model.HttpException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
@@ -49,7 +55,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 
 @Log4j2
-@Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL})
+@Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL, CHAT_DATA_SQL})
 public class ChatServiceIntegrationTest extends IntegrationTest {
 
   @Autowired private ChatService underTest;
@@ -124,18 +130,18 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
 
     @ParameterizedTest
     @MethodSource("shouldThrow_whenNoChatFoundArgs")
-    void shouldThrow_whenNoChatFound(User auhenticatedUser, Long chatId) {
+    void shouldThrow_exception(Class<HttpException> httpExceptionClass, User auhenticatedUser, Long chatId, Long lastReadMessageId) {
       testAuthenticationService.authenticateUser(auhenticatedUser);
-      SetLastReadMessageRequest request = new SetLastReadMessageRequest(4L);
-      assertThrows(UserChatNotFoundException.class,
-          () -> underTest.setLastReadMessage(chatId, request));
+      SetLastReadMessageRequest request = new SetLastReadMessageRequest(lastReadMessageId);
+      assertThrows(httpExceptionClass, () -> underTest.setLastReadMessage(chatId, request));
     }
 
     private static Stream<Arguments> shouldThrow_whenNoChatFoundArgs() {
       User alice = getAlice(), tomas = getTomas();
       return Stream.of(
-          Arguments.of(tomas, 77777L),
-          Arguments.of(alice, 77772L)
+          Arguments.of(UserChatNotFoundException.class, tomas, 77777L, 4L),
+          Arguments.of(UserChatNotFoundException.class, alice, 77772L, 4L),
+          Arguments.of(MessageFromAnotherChatException.class, alice, ARUBA_CHAT_ID, FIRST_MESSAGE_ID_OF_ALICE_BOB_CHAT)
       );
     }
 
@@ -170,7 +176,6 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     private UserChat getUserChat(Long chatId) {
       return userChatRepository.findByChatIdAndUserId(chatId, alice.getId())
           .orElseThrow(() -> new UserChatNotFoundException(chatId, alice.getId()));
-
     }
   }
 

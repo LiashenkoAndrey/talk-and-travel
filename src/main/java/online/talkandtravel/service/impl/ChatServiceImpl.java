@@ -12,6 +12,7 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.message.MessageFromAnotherChatException;
 import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -152,9 +153,13 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
+    log.info("chatID = {}, request {}", chatId, dtoRequest);
     User user = authenticationService.getAuthenticatedUser();
     UserChat userChat = getUserChat(chatId, user.getId());
     Message message = getMessage(dtoRequest.lastReadMessageId());
+
+    log.info("msg chat id {}, chat id {}", message.getChat().getId(), chatId);
+    verifyMessageBelongsToChat(message, chatId);
 
     userChat.setLastReadMessage(message);
     userChatRepository.save(userChat);
@@ -171,7 +176,6 @@ public class ChatServiceImpl implements ChatService {
                 lastReadMsg.getCreationDate(), pageable))
         .orElseGet(() -> messageRepository.findAllByChatId(chatId, pageable))
         .map(messageMapper::toMessageDto);
-
   }
 
   @Override
@@ -256,6 +260,13 @@ public class ChatServiceImpl implements ChatService {
   private Message getMessage(Long id) {
     return messageRepository.findById(id).orElseThrow(
         () -> new MessageNotFoundException(id));
+  }
+
+  private void verifyMessageBelongsToChat(Message message, Long chatId) {
+    log.info("verifyMessageBelongsToChat");
+    if (!message.getChat().getId().equals(chatId)) {
+      throw new MessageFromAnotherChatException(message.getId(), chatId, message.getChat().getId());
+    }
   }
 
   private PrivateChatDto buildPrivateChatDto(UserChat authUserChat, User authUser) {
