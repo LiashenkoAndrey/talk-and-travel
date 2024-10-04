@@ -14,6 +14,7 @@ import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
 import online.talkandtravel.exception.message.MessageFromAnotherChatException;
 import online.talkandtravel.exception.message.MessageNotFoundException;
+import online.talkandtravel.exception.user.TheSameUserException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
@@ -366,8 +367,7 @@ public class ChatServiceImpl implements ChatService {
 
   private void checkIsDifferentUsers(User user, User companion) {
     if (user.getId().equals(companion.getId())) {
-      throw new IllegalArgumentException(
-          "Creation a chat with the same user. User id: %s".formatted(user.getId()));
+      throw new TheSameUserException(user.getId());
     }
   }
 
