@@ -1,0 +1,9 @@
+
+###
+GET {{apiUrl}}/api/v2/user/private-chats
+Authorization: Bearer {{token}}
+
+
+###
+GET {{apiUrl}}/api/v2/user/public-chats
+Authorization: Bearer {{token}}

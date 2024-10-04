@@ -592,7 +592,8 @@ class ChatServiceImplTest {
 
     @Test
     void findAllUsersPublicChats_shouldReturnChatDtoList_whenPublicChatsExist() {
-      when(userChatRepository.findAll()).thenReturn(userChats);
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository.findAllByUserId(1L)).thenReturn(userChats);
       when(messageRepository.countAllByChatIdAndCreationDateAfter(eq(chat.getId()), any(LocalDateTime.class)))
           .thenReturn(5L);
       when(chatMapper.toDto(any(Chat.class), anyLong())).thenReturn(chatDto);
@@ -603,7 +604,7 @@ class ChatServiceImplTest {
       assertThat(result).hasSize(1);
       assertThat(result.get(0)).isEqualTo(chatDto);
 
-      verify(userChatRepository).findAll();
+      verify(userChatRepository).findAllByUserId(1L);
       verify(messageRepository).countAllByChatIdAndCreationDateAfter(eq(chat.getId()), any(LocalDateTime.class));
       verify(chatMapper).toDto(any(Chat.class), anyLong());
     }

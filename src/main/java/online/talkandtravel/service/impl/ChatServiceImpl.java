@@ -136,6 +136,7 @@ public class ChatServiceImpl implements ChatService {
   public List<PrivateChatDto> findAllUsersPrivateChats() {
     User user = authenticationService.getAuthenticatedUser();
     List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
+
     return userChats.stream()
         .filter(userChat -> isPrivateChat(userChat.getChat()))
         .map((userChat) -> buildPrivateChatDto(userChat, user))
@@ -145,7 +146,9 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public List<ChatDto> findAllUserPublicChats() {
-    return userChatRepository.findAll().stream()
+    User user = authenticationService.getAuthenticatedUser();
+
+    return userChatRepository.findAllByUserId(user.getId()).stream()
         .filter((userChat -> userChat.getChat().getChatType().equals(ChatType.GROUP)))
         .map((userChat) -> chatMapper.toDto(userChat.getChat(), countUnreadMessages(userChat)))
         .toList();
