@@ -1,11 +1,20 @@
 package online.talkandtravel.controller.http.integrationtest;
 
+import static online.talkandtravel.config.TestDataConstant.CHAT_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.CHAT_MESSAGES_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.PRIVATE_CHATS_DATA_SQL;
 import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
+import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static online.talkandtravel.testdata.UserTestData.getTomas;
+import static online.talkandtravel.util.constants.ApiPathConstants.CREATE_PRIVATE_CHAT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.FIND_ALL_USER_PUBLIC_CHATS;
+import static online.talkandtravel.util.constants.ApiPathConstants.FIND_MAIN_CHAT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.GET_UNREAD_MESSAGES_PATH;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -13,11 +22,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.IntegrationTest;
+import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
+import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.util.TestAuthenticationService;
 import online.talkandtravel.util.TestChatService;
@@ -31,9 +46,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-@Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL})
+@Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL, CHAT_DATA_SQL})
 @Log4j2
 class ChatControllerIntegrationTest extends IntegrationTest {
 
@@ -57,8 +73,6 @@ class ChatControllerIntegrationTest extends IntegrationTest {
 
   @Nested
   class CreatePrivateChat {
-
-    private static final String CREATE_PRIVATE_CHAT_PATH = "/api/chats/private";
 
     @Test
     void createPrivateChat_shouldThrowConflict() throws Exception {
@@ -96,8 +110,6 @@ class ChatControllerIntegrationTest extends IntegrationTest {
 
   @Nested
   class FindMainChat {
-
-    private static final String FIND_MAIN_CHAT_PATH = "/api/v2/country/%s/main-chat";
 
     private NewPrivateChatDto newPrivateChatDto;
     private String token;
@@ -153,7 +165,6 @@ class ChatControllerIntegrationTest extends IntegrationTest {
 
     private final NewPrivateChatDto newPrivateChatDto = new NewPrivateChatDto(getAlice().getId());
     private String token;
-    private final String GET_UNREAD_MESSAGES_PATH = "/api/chats/%s/messages/unread";
     private final Long CHAT_ID = 10000L;
 
     @BeforeEach
@@ -211,7 +222,41 @@ class ChatControllerIntegrationTest extends IntegrationTest {
   @Nested
   class FindAllUserPublicChats {
 
+    private String token;
+    @BeforeEach
+    void init() {
+      token = authenticateUser(getAlice());
+    }
 
+    @Test
+    void shouldGetChat() throws Exception {
+      MvcResult result = mockMvc.perform(get(FIND_ALL_USER_PUBLIC_CHATS)
+              .headers(createAuthHeader(token)))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$").isArray())
+          .andReturn();
+
+      String content = result.getResponse().getContentAsString();
+
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      List<ChatDto> chatDtos = objectMapper.readValue(content, new TypeReference<>() {});
+
+      assertNotNull(chatDtos);
+      assertFalse(chatDtos.isEmpty());
+
+      ChatDto firstChat = chatDtos.get(0);
+      assertEquals(ARUBA_CHAT_ID, firstChat.id());
+      assertEquals("Aruba", firstChat.name());
+      assertEquals("Aruba main chat", firstChat.description());
+      assertEquals("aw", firstChat.country().getFlagCode());
+      assertEquals("Aruba", firstChat.country().getName());
+      assertEquals(ChatType.GROUP, firstChat.chatType());
+      assertNotNull(firstChat.creationDate());
+      assertEquals(1L, firstChat.usersCount());
+      assertEquals(1L, firstChat.messagesCount());
+      assertEquals(0L, firstChat.unreadMessagesCount());
+    }
   }
 
   private HttpHeaders createAuthHeader(String token) {

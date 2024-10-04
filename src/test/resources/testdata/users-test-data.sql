@@ -5,3 +5,4 @@ values (2, 'Hello, I am Alice!', '$2a$10$QDyNQbb6B6EyEb4ZLJ6TR.ogaD4mvmwr6BTszgS
        (3, 'Hello, I am Bob!', '$2a$10$rOPHid1otOfATe6g4fFBDeak.dnJsJRGvScf1.aSQ1NIny4WQkQPm',
         'bob@mail.com',
         'Bob', 'USER');
+
