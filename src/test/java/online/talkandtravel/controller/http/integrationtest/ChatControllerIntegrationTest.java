@@ -208,6 +208,12 @@ class ChatControllerIntegrationTest extends IntegrationTest {
 
   }
 
+  @Nested
+  class FindAllUserPublicChats {
+
+
+  }
+
   private HttpHeaders createAuthHeader(String token) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Authorization", TOKEN_PREFIX + token);

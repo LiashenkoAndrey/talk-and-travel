@@ -136,8 +136,8 @@ public class ChatController {
   }
 
   @GetMapping("/v2/user/public-chats")
-  public List<ChatDto> findUserPublicChats() {
-    return chatService.findAllUsersPublicChats();
+  public List<ChatDto> findAllUserPublicChats() {
+    return chatService.findAllUserPublicChats();
   }
 
   @GetMapping("/chats/{chatId}")

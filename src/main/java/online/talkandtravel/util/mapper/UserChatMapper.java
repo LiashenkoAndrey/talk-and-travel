@@ -25,7 +25,6 @@ public interface UserChatMapper {
 
   @Mapping(target = "chat", source = "chatInfoDto")
   @Mapping(target = "companion", source = "companion")
-  @Mapping(target = "lastReadMessageId", source = "lastReadMessageId")
   @Mapping(target = "lastMessage", source = "lastMessage")
-  PrivateChatDto toPrivateChatDto(PrivateChatInfoDto chatInfoDto, User companion, Message lastMessage, Long lastReadMessageId);
+  PrivateChatDto toPrivateChatDto(PrivateChatInfoDto chatInfoDto, User companion, Message lastMessage);
 }
