@@ -1,6 +1,7 @@
 package online.talkandtravel.repository;
 
-import online.talkandtravel.model.dto.message.MessageDto;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import online.talkandtravel.model.entity.Message;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +21,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-  Page<Message> findAllByChatIdAndIdLessThanEqual(Long chatId, Long id, Pageable pageable);
+  Page<Message> findAllByChatIdAndCreationDateLessThanEqual(Long chatId, LocalDateTime creationDate, Pageable pageable);
 
-  Page<Message> findAllByChatIdAndIdAfter(Long chatId, Long id, Pageable pageable);
+  Optional<Message> findFirstByChatIdOrderByCreationDateDesc(Long chatId);
+
+  Page<Message> findAllByChatIdAndCreationDateAfter(Long chatId, LocalDateTime creationDate, Pageable pageable);
 
   Page<Message> findAllByChatId(Long chatId, Pageable pageable);
+
+  long countAllByChatIdAndIdGreaterThan(Long chatId, Long lastReadMessageId);
+
+  long countAllByChatIdAndCreationDateAfter(Long chatId, LocalDateTime creationDate);
+
 }

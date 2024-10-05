@@ -17,23 +17,34 @@ Authorization: Bearer {{token}}
 
 
 ###
-PUT http://localhost:8080/api/chats/1/messages/last-read
+PATCH {{apiUrl}}/api/chats/244/messages/last-read
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "userId": 1,
-  "lastReadMessageId": 6
+  "lastReadMessageId":183
 }
 
-> {% client.test("is 200", () => client.assert(response.status === 200, "status is not 200")) %}
+> {% client.test("is 204", () => client.assert(response.status === 204, "status is not 204")) %}
+
+###
+PATCH {{apiUrl}}/api/chats/1/messages/last-read
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "lastReadMessageId":183
+}
+
+> {% client.test("is 400", () => client.assert(response.status === 400, "status is not 400")) %}
+
 
 ###
 GET {{apiUrl}}/api/chats/Aruba/main
 Authorization: Bearer {{token}}
 
 ###
-GET {{apiUrl}}/api/chats/user/1/private
+GET {{apiUrl}}/api/v2/user/private-chats
 Authorization: Bearer {{token}}
 
 
@@ -48,3 +59,16 @@ Content-Type: application/json
   "countryId": "Aruba"
 }
 
+
+###
+POST {{apiUrl}}/api/chats/private
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "companionId": 9
+}
+
+###
+GET {{apiUrl}}/api/v2/user/public-chats
+Authorization: Bearer {{token}}

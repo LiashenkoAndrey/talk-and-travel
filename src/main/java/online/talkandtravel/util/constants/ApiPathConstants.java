@@ -18,5 +18,10 @@ package online.talkandtravel.util.constants;
  */
 public interface ApiPathConstants {
   String API_BASE_PATH = "/api";
+  String API_V2_BASE_PATH = "/api/v2";
   String USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
+  String GET_UNREAD_MESSAGES_PATH = API_BASE_PATH + "/chats/%s/messages/unread";
+  String CREATE_PRIVATE_CHAT_PATH = API_BASE_PATH + "/chats/private";
+  String FIND_MAIN_CHAT_PATH = API_V2_BASE_PATH + "/country/%s/main-chat";
+  String FIND_ALL_USER_PUBLIC_CHATS = API_V2_BASE_PATH + "/user/public-chats";
 }

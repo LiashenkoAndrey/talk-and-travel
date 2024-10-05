@@ -12,6 +12,9 @@ import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.MainCountryChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.country.CountryNotFoundException;
+import online.talkandtravel.exception.message.MessageFromAnotherChatException;
+import online.talkandtravel.exception.message.MessageNotFoundException;
+import online.talkandtravel.exception.user.TheSameUserException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.chat.ChatDto;
@@ -91,12 +94,15 @@ public class ChatServiceImpl implements ChatService {
   private final UserChatMapper userChatMapper;
   private final AuthenticationService authenticationService;
 
+  private static final Long DEFAULT_UNREAD_MESSAGES_AMOUNT = 0L;
+
   @Transactional
   @Override
   public ChatDto createCountryChat(NewChatDto dto) {
     User user = authenticationService.getAuthenticatedUser();
     Chat chat = createAndSaveChatWithUser(dto, user);
-    return chatMapper.toDto(chat);
+    Long unreadMessagesCount = countUnreadMessages(user.getId(), chat.getId());
+    return chatMapper.toDto(chat, unreadMessagesCount);
   }
 
   /**
@@ -121,78 +127,71 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public ChatDto findChatById(Long chatId) {
+    User user = authenticationService.getAuthenticatedUser();
     Chat chat = getChat(chatId);
-    return chatMapper.toDto(chat);
+    Long unreadMessagesCount = countUnreadMessages(user.getId(), chatId);
+    return chatMapper.toDto(chat, unreadMessagesCount);
   }
 
   @Override
   public List<PrivateChatDto> findAllUsersPrivateChats() {
     User user = authenticationService.getAuthenticatedUser();
     List<UserChat> userChats = userChatRepository.findAllByUserId(user.getId());
+
     return userChats.stream()
-        .filter(userChat -> userChat.getChat().getChatType().equals(ChatType.PRIVATE))
-        .map(
-            userChat -> {
-              Chat chat = userChat.getChat();
-              List<UserChat> userChatList = userChatRepository.findAllByChatId(chat.getId());
-              return userChatList.stream()
-                  .filter(userChat1 -> !userChat1.getUser().getId().equals(user.getId()))
-                  .findFirst()
-                  .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
-            })
-        .map(userChatMapper::toPrivateChatDto)
+        .filter(userChat -> isPrivateChat(userChat.getChat()))
+        .map((userChat) -> buildPrivateChatDto(userChat, user))
         .map(chatNameToCompanionName())
         .toList();
   }
 
   @Override
-  public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
-    log.info("setLastReadMessage: chatId:{}, {}", chatId, dtoRequest);
+  public List<ChatDto> findAllUserPublicChats() {
     User user = authenticationService.getAuthenticatedUser();
-    UserChat userChat =
-        userChatRepository
-            .findByChatIdAndUserId(chatId, user.getId())
-            .orElseThrow(() -> new UserChatNotFoundException(chatId, user.getId()));
-    userChat.setLastReadMessageId(dtoRequest.lastReadMessageId());
+
+    return userChatRepository.findAllByUserId(user.getId()).stream()
+        .filter((userChat -> userChat.getChat().getChatType().equals(ChatType.GROUP)))
+        .map((userChat) -> chatMapper.toDto(userChat.getChat(), countUnreadMessages(userChat)))
+        .toList();
+  }
+
+  @Override
+  public void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest) {
+    User user = authenticationService.getAuthenticatedUser();
+    UserChat userChat = getUserChat(chatId, user.getId());
+    Message message = getMessage(dtoRequest.lastReadMessageId());
+
+    verifyMessageBelongsToChat(message, chatId);
+
+    userChat.setLastReadMessage(message);
     userChatRepository.save(userChat);
   }
 
   @Override
   public Page<MessageDto> findReadMessages(Long chatId, Pageable pageable) {
     User user = authenticationService.getAuthenticatedUser();
+    UserChat userChat = getUserChat(chatId, user.getId());
+    Optional<Message> lastReadMessageOpt = Optional.ofNullable(userChat.getLastReadMessage());
 
-    UserChat userChat =
-        userChatRepository
-            .findByChatIdAndUserId(chatId, user.getId())
-            .orElseThrow(() -> new UserChatNotFoundException(chatId, user.getId()));
-
-    Long lastReadMessageId = userChat.getLastReadMessageId();
-    if (lastReadMessageId == null) {
-      return messageRepository
-          .findAllByChatId(chatId, pageable)
-          .map(messageMapper::toMessageDto);
-    }
-    return messageRepository.findAllByChatIdAndIdLessThanEqual(chatId, lastReadMessageId, pageable)
+    return lastReadMessageOpt.map(
+            (lastReadMsg) -> messageRepository.findAllByChatIdAndCreationDateLessThanEqual(chatId,
+                lastReadMsg.getCreationDate(), pageable))
+        .orElseGet(() -> messageRepository.findAllByChatId(chatId, pageable))
         .map(messageMapper::toMessageDto);
   }
 
   @Override
   public Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable) {
     User user = authenticationService.getAuthenticatedUser();
+    UserChat userChat = getUserChat(chatId, user.getId());
+    Optional<Message> lastReadMessageOpt = Optional.ofNullable(userChat.getLastReadMessage());
 
-    UserChat userChat =
-        userChatRepository
-            .findByChatIdAndUserId(chatId, user.getId())
-            .orElseThrow(() -> new UserChatNotFoundException(chatId, user.getId()));
-
-    Long lastReadMessageId = userChat.getLastReadMessageId();
-    if (lastReadMessageId == null) {
-      return Page.empty();
-    }
-    return messageRepository.findAllByChatIdAndIdAfter(chatId, lastReadMessageId, pageable)
-        .map(messageMapper::toMessageDto);
+    return lastReadMessageOpt.map(
+            lastReadMsg -> messageRepository.findAllByChatIdAndCreationDateAfter(chatId,
+                    lastReadMsg.getCreationDate(), pageable)
+                .map(messageMapper::toMessageDto))
+        .orElseGet(Page::empty);
   }
-
 
   @Override
   public Page<ChatInfoDto> findAllGroupChats(Pageable pageable) {
@@ -203,12 +202,16 @@ public class ChatServiceImpl implements ChatService {
 
   @Override
   public ChatDto findMainChat(String countryName) {
+    User user = authenticationService.getAuthenticatedUser();
     Country country = getCountry(countryName);
     Optional<Chat> optionalChat =
         country.getChats().stream().filter(chat -> chat.getName().equals(countryName)).findFirst();
+
     Chat chat = optionalChat.orElseThrow(() -> new MainCountryChatNotFoundException(countryName));
     chat.getMessages().sort(Comparator.comparing(Message::getCreationDate));
-    return chatMapper.toDto(chat);
+    Long unreadMessagesCount = countUnreadMessages(user.getId(), chat.getId());
+
+    return chatMapper.toDto(chat, unreadMessagesCount);
   }
 
   @Override
@@ -236,6 +239,57 @@ public class ChatServiceImpl implements ChatService {
         .findAllByChatId(chatId, pageable)
         .map(messageMapper::toMessageDto);
   }
+
+  private UserChat getUserChat(Long chatId, Long userId) {
+    return userChatRepository
+        .findByChatIdAndUserId(chatId, userId)
+        .orElseThrow(() -> new UserChatNotFoundException(chatId, userId));
+  }
+
+  private Long countUnreadMessages(Long userId, Long chatId) {
+    return userChatRepository.findByChatIdAndUserId(chatId, userId)
+        .map(this::countUnreadMessages)
+        .orElse(DEFAULT_UNREAD_MESSAGES_AMOUNT);
+  }
+
+  private Long countUnreadMessages(UserChat userChat) {
+    Optional<Message> lastReadMessage = Optional.ofNullable(userChat.getLastReadMessage());
+    return lastReadMessage.map((msg) -> messageRepository.countAllByChatIdAndCreationDateAfter(
+            msg.getChat().getId(), msg.getCreationDate()))
+        .orElse(DEFAULT_UNREAD_MESSAGES_AMOUNT);
+  }
+
+  private Message getMessage(Long id) {
+    return messageRepository.findById(id).orElseThrow(
+        () -> new MessageNotFoundException(id));
+  }
+
+  private void verifyMessageBelongsToChat(Message message, Long chatId) {
+    if (!message.getChat().getId().equals(chatId)) {
+      throw new MessageFromAnotherChatException(message.getId(), chatId, message.getChat().getId());
+    }
+  }
+
+  private PrivateChatDto buildPrivateChatDto(UserChat authUserChat, User authUser) {
+    Chat chat = authUserChat.getChat();
+    UserChat companionUserChat = getCompanionUserChat(authUser.getId(), chat);
+
+    PrivateChatInfoDto privateChatInfoDto = chatMapper.chatToPrivateChatInfoDto(chat, countUnreadMessages(authUserChat));
+    Message lastMessage = messageRepository.findFirstByChatIdOrderByCreationDateDesc(chat.getId()).orElse(null);
+    return userChatMapper.toPrivateChatDto(privateChatInfoDto, companionUserChat.getUser(), lastMessage);
+  }
+
+  private boolean isPrivateChat(Chat chat) {
+    return chat.getChatType().equals(ChatType.PRIVATE);
+  }
+
+  private UserChat getCompanionUserChat(Long authUserId, Chat chat) {
+    return userChatRepository.findAllByChatId(chat.getId()).stream()
+        .filter(userChat1 -> !userChat1.getUser().getId().equals(authUserId))
+        .findFirst()
+        .orElse(UserChat.builder().chat(chat).user(getRemovedUser()).build());
+  }
+
 
   private Chat getChat(Long chatId) {
     return chatRepository.findById(chatId).orElseThrow(() -> new ChatNotFoundException(chatId));
@@ -287,8 +341,7 @@ public class ChatServiceImpl implements ChatService {
   }
 
   private Function<PrivateChatDto, PrivateChatDto> chatNameToCompanionName() {
-    return oldChat ->
-        new PrivateChatDto(renameChat(oldChat), oldChat.companion(), oldChat.lastReadMessageId());
+    return oldChat -> new PrivateChatDto(renameChat(oldChat), oldChat.companion(), oldChat.lastMessage());
   }
 
   private PrivateChatInfoDto renameChat(PrivateChatDto oldChat) {
@@ -299,7 +352,8 @@ public class ChatServiceImpl implements ChatService {
         oldChat.chat().chatType(),
         oldChat.chat().creationDate(),
         oldChat.chat().usersCount(),
-        oldChat.chat().messagesCount());
+        oldChat.chat().messagesCount(),
+        oldChat.chat().unreadMessagesCount());
   }
 
   private void checkIfChatExists(User user, User companion) {
@@ -313,7 +367,7 @@ public class ChatServiceImpl implements ChatService {
 
   private void checkIsDifferentUsers(User user, User companion) {
     if (user.getId().equals(companion.getId())) {
-      throw new IllegalArgumentException("Creation a chat with the same user. User id: %s".formatted(user.getId())) ;
+      throw new TheSameUserException(user.getId());
     }
   }
 
