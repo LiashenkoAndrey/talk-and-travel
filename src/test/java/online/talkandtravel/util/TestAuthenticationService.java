@@ -1,6 +1,7 @@
 package online.talkandtravel.util;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,22 +37,23 @@ public class TestAuthenticationService {
   public String loginAndGetToken(String userEmail, String password) {
     try {
       String jsonContent =
+          """
+              {
+                  "userEmail": "%s",
+                  "password": "%s"
+              }
               """
-                      {
-                          "userEmail": "%s",
-                          "password": "%s"
-                      }
-                      """
-                      .formatted(userEmail, password);
+              .formatted(userEmail, password);
 
       // Perform login request and extract token from the response
       MvcResult result =
-              mockMvc
-                      .perform(
-                              post("/api/authentication/login")
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .content(jsonContent))
-                      .andReturn();
+          mockMvc
+              .perform(
+                  post("/api/authentication/login")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(jsonContent))
+              .andExpect(status().isOk())
+              .andReturn();
 
       // Parse the response body as JSON
       String responseBody = result.getResponse().getContentAsString();

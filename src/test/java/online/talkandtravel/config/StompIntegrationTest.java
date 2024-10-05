@@ -1,6 +1,9 @@
 package online.talkandtravel.config;
 
+import static online.talkandtravel.config.StompTestConstants.AFTER_SUBSCRIBE_SLEEP_TIME;
+import static online.talkandtravel.config.StompTestConstants.ONE_SECOND_PAUSE;
 import static online.talkandtravel.util.TestAuthenticationService.AUTHORIZATION_HEADER;
+import static online.talkandtravel.util.constants.ApiPathConstants.HANDSHAKE_URI;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -63,22 +66,9 @@ public class StompIntegrationTest {
   @Autowired
   private TestAuthenticationService testAuthenticationService;
 
-  protected static final long AFTER_SUBSCRIBE_SLEEP_TIME = 1000L,
-      AFTER_SEND_PAUSE_TIME = 400L,
-      ONE_SECOND_PAUSE = 1000L;
-
   private final ObjectMapper objectMapper = new ObjectMapper()
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 
-  protected static final String HANDSHAKE_URI = "http://localhost:%s/ws",
-      MESSAGES_SUBSCRIBE_PATH = "/countries/%s/messages",
-      JOIN_CHAT_EVENT_PATH = "/chat/events.joinChat",
-      START_TYPING_EVENT_PATH = "/chat/events.startTyping",
-      STOP_TYPING_EVENT_PATH = "/chat/events.stopTyping",
-      LEAVE_CHAT_EVENT_PATH = "/chat/events.leaveChat",
-      SEND_MESSAGE_PATH = "/chat/messages",
-      UPDATE_ONLINE_STATUS_PATH = "/auth-user/events.updateOnlineStatus",
-      USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
 
   /**
    * Authenticates a user and initializes a STOMP session.
@@ -160,14 +150,6 @@ public class StompIntegrationTest {
     pause(AFTER_SUBSCRIBE_SLEEP_TIME);
   }
 
-  protected <T> void subscribe(Consumer<T> consumer, Class<T> messageType,
-      StompSession stompSession, long pauseTimeMillis, String... endpoints) {
-    for (String endpoint : endpoints) {
-      subscribe(endpoint, messageType, stompSession, consumer);
-    }
-    pause(pauseTimeMillis);
-  }
-
   private <T> void subscribe(String endpoint, Class<T> messageType, StompSession stompSession,
       Consumer<T> consumer) {
     stompSession.subscribe(endpoint, new StompMessageHandler<>(consumer, messageType));
@@ -180,7 +162,7 @@ public class StompIntegrationTest {
     try {
       Thread.sleep(milliseconds);
     } catch (InterruptedException e) {
-      log.error("sleep exception: {}", e.getMessage());
+      log.error("An exception occupied when sleep: {}", e.getMessage());
       throw new RuntimeException(e);
     }
   }

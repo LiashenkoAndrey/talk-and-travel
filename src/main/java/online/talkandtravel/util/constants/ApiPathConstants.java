@@ -16,7 +16,16 @@ package online.talkandtravel.util.constants;
  *       for constructing full API endpoints.
  * </ul>
  */
-public interface ApiPathConstants {
-  String API_BASE_PATH = "/api";
-  String USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
+public final class ApiPathConstants {
+  public static final String API_BASE_PATH = "/api";
+
+  public static final String USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
+  public static final String HANDSHAKE_URI = "http://localhost:%s/ws";
+  public static final String MESSAGES_SUBSCRIBE_PATH = "/countries/%s/messages";
+  public static final String JOIN_CHAT_EVENT_PATH = "/chat/events.joinChat";
+  public static final String START_TYPING_EVENT_PATH = "/chat/events.startTyping";
+  public static final String STOP_TYPING_EVENT_PATH = "/chat/events.stopTyping";
+  public static final String LEAVE_CHAT_EVENT_PATH = "/chat/events.leaveChat";
+  public static final String SEND_MESSAGE_PATH = "/chat/messages";
+  public static final String UPDATE_ONLINE_STATUS_PATH = "/auth-user/events.updateOnlineStatus";
 }
