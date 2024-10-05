@@ -160,6 +160,14 @@ public class StompIntegrationTest {
     pause(AFTER_SUBSCRIBE_SLEEP_TIME);
   }
 
+  protected <T> void subscribe(Consumer<T> consumer, Class<T> messageType,
+      StompSession stompSession, long pauseTimeMillis, String... endpoints) {
+    for (String endpoint : endpoints) {
+      subscribe(endpoint, messageType, stompSession, consumer);
+    }
+    pause(pauseTimeMillis);
+  }
+
   private <T> void subscribe(String endpoint, Class<T> messageType, StompSession stompSession,
       Consumer<T> consumer) {
     stompSession.subscribe(endpoint, new StompMessageHandler<>(consumer, messageType));

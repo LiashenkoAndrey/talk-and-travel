@@ -43,7 +43,6 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
   private UserRepository userRepository;
 
   @Nested
-  @Order(1)
   @TestInstance(Lifecycle.PER_CLASS)
   @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
   class OnlineStatusTests {
@@ -58,7 +57,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
       saveAliseAndBob();
       aliceStompSession = authenticateAndInitializeStompSession(getAlice());
       bobStompSession = authenticateAndInitializeStompSession(getBob());
-
+      pause(5000);
       subscribeToOnlineStatus();
     }
 
@@ -66,6 +65,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
     @ParameterizedTest
     @MethodSource("updateOnlineStatusTestArgs")
     void updateOnlineStatusTest(Integer index, StompSession stompSession, Long userId, Boolean isOnline) {
+      log.info("send to {}, payload: {}", UPDATE_ONLINE_STATUS_PATH, isOnline);
       stompSession.send(UPDATE_ONLINE_STATUS_PATH, toWSPayload(isOnline));
       pause(AFTER_SEND_PAUSE_TIME);
       assertMessage(index, userId, isOnline);
@@ -73,10 +73,10 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     private Stream<Arguments> updateOnlineStatusTestArgs() {
       return Stream.of(
-          Arguments.of(1, aliceStompSession, 2L, true),
-          Arguments.of(2, bobStompSession, 3L, true),
-          Arguments.of(3, aliceStompSession, 2L, false),
-          Arguments.of(4, aliceStompSession, 2L, true)
+          Arguments.of(0, aliceStompSession, 2L, true),
+          Arguments.of(1, bobStompSession, 3L, true),
+          Arguments.of(2, aliceStompSession, 2L, false),
+          Arguments.of(3, aliceStompSession, 2L, true)
       );
     }
 
@@ -90,26 +90,26 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     private Stream<Arguments> verifyOnlineStatusIsOfflineArgs() {
       return Stream.of(
-          Arguments.of(5, 3L, false),
-          Arguments.of(6, 2L, false)
+          Arguments.of(4, 3L, false),
+          Arguments.of(5, 2L, false)
       );
     }
 
     private void assertMessage(Integer index, Long userId, Boolean isOnline) {
       OnlineStatusDto onlineStatusDto = onlineStatusDtoList.get(index);
-      log.info("assert, index={} onlineStatusDto={}, userId={}, isOnline={} ", index, onlineStatusDto, userId, isOnline );
-      assertEquals(userId, onlineStatusDto.userId());
-      assertEquals(isOnline, onlineStatusDto.isOnline());
+      log.info("assert, list={} index={} onlineStatusDto={}, userId={}, isOnline={} ", onlineStatusDtoList, index, onlineStatusDto, userId, isOnline );
+      assertEquals(userId, onlineStatusDto.userId(), "expected user id %s in onlineStatusDto by index %s not match with actual user id %s".formatted(userId, index, onlineStatusDto.userId()));
+      assertEquals(isOnline, onlineStatusDto.isOnline(), "expected isOnline %s in onlineStatusDto by index %s not match with actual isOnline %s".formatted(isOnline, index, onlineStatusDto.isOnline()));
     }
 
     private void subscribeToOnlineStatus() {
-      subscribe(onlineStatusDtoList::add, OnlineStatusDto.class, aliceStompSession,
+      log.info("Subsribe to " + USERS_ONLINE_STATUS_ENDPOINT);
+      subscribe(onlineStatusDtoList::add, OnlineStatusDto.class, aliceStompSession, 1000,
           USERS_ONLINE_STATUS_ENDPOINT);
     }
   }
 
   @Nested
-  @Order(2)
   @TestInstance(Lifecycle.PER_CLASS)
   class ChatEventsTests {
 
