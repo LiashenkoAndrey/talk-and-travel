@@ -21,9 +21,11 @@ import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.repository.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -34,12 +36,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.stomp.StompSession;
 
 @Log4j2
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 public class EventControllerIntegrationTest extends StompIntegrationTest {
 
   @Autowired
   private UserRepository userRepository;
 
   @Nested
+  @Order(1)
   @TestInstance(Lifecycle.PER_CLASS)
   @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
   class OnlineStatusTests {
@@ -60,14 +64,14 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     @Order(1)
     @ParameterizedTest
-    @MethodSource("chatEventsTestArgs")
-    void chatEventsTest(Integer index, StompSession stompSession, Long userId, Boolean isOnline) {
+    @MethodSource("updateOnlineStatusTestArgs")
+    void updateOnlineStatusTest(Integer index, StompSession stompSession, Long userId, Boolean isOnline) {
       stompSession.send(UPDATE_ONLINE_STATUS_PATH, toWSPayload(isOnline));
       pause(AFTER_SEND_PAUSE_TIME);
       assertMessage(index, userId, isOnline);
     }
 
-    private Stream<Arguments> chatEventsTestArgs() {
+    private Stream<Arguments> updateOnlineStatusTestArgs() {
       return Stream.of(
           Arguments.of(1, aliceStompSession, 2L, true),
           Arguments.of(2, bobStompSession, 3L, true),
@@ -104,6 +108,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
   }
 
   @Nested
+  @Order(2)
   @TestInstance(Lifecycle.PER_CLASS)
   class ChatEventsTests {
 
