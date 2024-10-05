@@ -18,7 +18,13 @@ package online.talkandtravel.util.constants;
  */
 public final class ApiPathConstants {
   public static final String API_BASE_PATH = "/api";
+  public static final String API_V2_BASE_PATH = "/api/v2";
+  public static final String GET_UNREAD_MESSAGES_PATH = API_BASE_PATH + "/chats/%s/messages/unread";
+  public static final String CREATE_PRIVATE_CHAT_PATH = API_BASE_PATH + "/chats/private";
+  public static final String FIND_MAIN_CHAT_PATH = API_V2_BASE_PATH + "/country/%s/main-chat";
+  public static final String FIND_ALL_USER_PUBLIC_CHATS = API_V2_BASE_PATH + "/user/public-chats";
 
+  //Websocket endpoints
   public static final String USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
   public static final String HANDSHAKE_URI = "http://localhost:%s/ws";
   public static final String MESSAGES_SUBSCRIBE_PATH = "/countries/%s/messages";

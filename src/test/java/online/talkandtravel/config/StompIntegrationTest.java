@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.TalkAndTravelApplication;
 import online.talkandtravel.model.entity.User;
@@ -26,6 +27,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -66,6 +68,9 @@ public class StompIntegrationTest {
   @Autowired
   private TestAuthenticationService testAuthenticationService;
 
+  @Autowired
+  protected CustomStompSessionHandler customStompSessionHandler;
+
   private final ObjectMapper objectMapper = new ObjectMapper()
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 
@@ -81,26 +86,36 @@ public class StompIntegrationTest {
    */
   protected StompSession authenticateAndInitializeStompSession(User user)
       throws InterruptedException, ExecutionException {
-    WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(
+    WebSocketStompClient stompClient = createStompSession();
+    String token = testAuthenticationService.loginAndGetToken(user.getUserEmail(),
+        user.getPassword());
+
+    String handshakeUri = HANDSHAKE_URI.formatted(port);
+    WebSocketHttpHeaders headers = createHandshakeHeaders(token);
+
+    StompSession stompSession = stompClient.connectAsync(
+        handshakeUri,
+        headers,
+        customStompSessionHandler
+    ).get();
+
+    pause(ONE_SECOND_PAUSE);
+    return stompSession;
+  }
+
+  private WebSocketStompClient createStompSession() {
+    return new WebSocketStompClient(new SockJsClient(
         Arrays.asList(
             new WebSocketTransport(new StandardWebSocketClient()),
             new RestTemplateXhrTransport()
         )
     ));
-    String token = testAuthenticationService.loginAndGetToken(user.getUserEmail(),
-        user.getPassword());
+  }
 
+  private WebSocketHttpHeaders createHandshakeHeaders(String token) {
     WebSocketHttpHeaders handshakeHeaders = new WebSocketHttpHeaders();
     handshakeHeaders.add(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER.formatted(token));
-
-    StompSession stompSession = stompClient.connectAsync(
-        HANDSHAKE_URI.formatted(port),
-        handshakeHeaders,
-        new CustomStompSessionHandler()
-    ).get();
-
-    pause(ONE_SECOND_PAUSE);
-    return stompSession;
+    return handshakeHeaders;
   }
 
   /**
@@ -144,9 +159,9 @@ public class StompIntegrationTest {
    */
   protected <T> void subscribe(Consumer<T> consumer, Class<T> messageType,
       StompSession stompSession, String... endpoints) {
-    for (String endpoint : endpoints) {
-      subscribe(endpoint, messageType, stompSession, consumer);
-    }
+
+    Stream.of(endpoints).forEach(
+        (endpoint) -> subscribe(endpoint, messageType, stompSession, consumer));
     pause(AFTER_SUBSCRIBE_SLEEP_TIME);
   }
 
