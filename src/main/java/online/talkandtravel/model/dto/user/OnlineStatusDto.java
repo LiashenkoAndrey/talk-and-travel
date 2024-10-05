@@ -1,11 +1,11 @@
 package online.talkandtravel.model.dto.user;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 public record OnlineStatusDto(
     Long userId,
     Boolean isOnline,
-    ZonedDateTime lastSeenOn
+    LocalDateTime lastSeenOn
 ) {
 
   public OnlineStatusDto(Long userId, Boolean isOnline) {

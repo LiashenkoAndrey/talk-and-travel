@@ -47,4 +47,10 @@ public class RedisUtils {
             .map(RedisUtils::getUserStatusRedisKey)
             .toList();
   }
+
+  public static List<String> getUserLastSeenRedisKeys(List<Long> usersIdList) {
+    return usersIdList.stream()
+        .map(RedisUtils::getUserLastSeenKey)
+        .toList();
+  }
 }

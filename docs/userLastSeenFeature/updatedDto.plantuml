@@ -5,7 +5,7 @@ skinparam linetype ortho
 class OnlineStatusDto {
   - userId: Long
   - isOnline: Boolean
-  - lastSeenOn: String
+  - lastSeenOn: LocalDateTime
 }
 
 note right of OnlineStatusDto::lastSeenOn

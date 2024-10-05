@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface OnlineService {
 
-    void updateLastSeenOn(Long userId, ZonedDateTime lastSeenOn);
+    void updateLastSeenOn(Long userId, LocalDateTime lastSeenOn);
 
     OnlineStatusDto updateUserOnlineStatus(Principal principal, Boolean isOnline);
 
@@ -22,7 +22,7 @@ public interface OnlineService {
      * @return a map where the key is the user ID and the value is a boolean indicating
      * whether the user is online (true) or offline (false)
      */
-    Map<Long, Boolean> getAllUsersOnlineStatuses(List<Long> usersIdList);
+    Map<Long, OnlineStatusDto> getAllUsersOnlineStatuses(List<Long> usersIdList);
 
     /**
      * Provides a current online status of a specific user
@@ -31,5 +31,5 @@ public interface OnlineService {
      * @return a map where the key is the user ID and the value is a boolean indicating
      * whether the user is online (true) or offline (false)
      */
-    Boolean getUserOnlineStatusById(Long userId);
+    OnlineStatusDto getUserOnlineStatusById(Long userId);
 }

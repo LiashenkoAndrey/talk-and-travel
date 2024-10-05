@@ -5,7 +5,7 @@ participant OnlineService
 participant Redis
 == Fetching User Statuses ==
 
-    Frontend -> Backend : send HTTP request
+    Frontend -> Backend : send HTTP request api/v2/users/online
 
 
 alt Request for getAllUsersOnlineStatuses()

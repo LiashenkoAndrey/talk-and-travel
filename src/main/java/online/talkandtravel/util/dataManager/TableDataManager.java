@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -81,9 +81,18 @@ public class TableDataManager implements DataManager {
     Map<String, String> lastSeenUsersData = userRepository.findAll().stream()
         .collect(Collectors.toMap(
             (user) -> RedisUtils.getUserLastSeenKey(user.getId()),
-            (user) -> user.getLastSeenOn().toString()));
+            this::getLastSeenOnFromUser));
 
     redisTemplate.opsForValue().multiSet(lastSeenUsersData);
+  }
+
+  private String getLastSeenOnFromUser(User user) {
+    Optional<LocalDateTime> lastSeenOn = Optional.ofNullable(user.getLastLoggedOn());
+    return lastSeenOn.map(LocalDateTime::toString)
+        .orElseGet(() -> {
+          log.warn("user with id: {} has lastSeenOn field as null", user);
+          return "null";
+        });
   }
 
   @Override

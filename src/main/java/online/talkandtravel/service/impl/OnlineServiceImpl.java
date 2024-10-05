@@ -2,14 +2,17 @@ package online.talkandtravel.service.impl;
 
 import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
 import static online.talkandtravel.util.RedisUtils.USER_STATUS_KEY_PATTERN;
+import static online.talkandtravel.util.RedisUtils.getUserLastSeenRedisKeys;
 import static online.talkandtravel.util.RedisUtils.getUserStatusRedisKey;
 import static online.talkandtravel.util.RedisUtils.getUserStatusRedisKeys;
 import static online.talkandtravel.util.RedisUtils.getUserIdFromKeys;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.security.Principal;
 import java.time.Duration;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +43,7 @@ public class OnlineServiceImpl implements OnlineService {
     public Long KEY_EXPIRATION_DURATION_IN_SEC;
 
     @Override
-    public void updateLastSeenOn(Long userId, ZonedDateTime lastSeenOn) {
+    public void updateLastSeenOn(Long userId, LocalDateTime lastSeenOn) {
         String key = getUserStatusRedisKey(userId);
 
         redisTemplate.opsForValue().set(key, lastSeenOn.toString());
@@ -65,7 +68,7 @@ public class OnlineServiceImpl implements OnlineService {
     }
 
     private OnlineStatusDto updateStatusToOffline(String key, Long userId) {
-        ZonedDateTime lastSeenOn = ZonedDateTime.now(ZoneOffset.UTC);
+        LocalDateTime lastSeenOn = LocalDateTime.now();
         updateLastSeenOn(userId, lastSeenOn);
         redisTemplate.delete(key);
         return new OnlineStatusDto(userId, false, lastSeenOn);
@@ -84,7 +87,7 @@ public class OnlineServiceImpl implements OnlineService {
      * whether the user is online (true) or offline (false)
      */
     @Override
-    public Map<Long, Boolean> getAllUsersOnlineStatuses(List<Long> usersIdList) {
+    public Map<Long, OnlineStatusDto> getAllUsersOnlineStatuses(List<Long> usersIdList) {
         if (usersIdList != null && !usersIdList.isEmpty()) {
             return getAllUsersOnlineStatusesForUsersList(usersIdList);
         }
@@ -117,7 +120,7 @@ public class OnlineServiceImpl implements OnlineService {
         }
     }
 
-    private Map<Long, Boolean> getAllUsersOnlineStatuses() {
+    private Map<Long, OnlineStatusDto> getAllUsersOnlineStatuses() {
         Set<String> keysSet = Optional.ofNullable(redisTemplate.keys(USER_STATUS_KEY_PATTERN))
                 .orElse(Set.of());
         List<String> keys = List.copyOf(keysSet);
@@ -140,29 +143,57 @@ public class OnlineServiceImpl implements OnlineService {
      * @return a map where the key is the user ID and the value is a boolean indicating
      * whether the user is online (true) or offline (false)
      */
-    public Map<Long, Boolean> getAllUsersOnlineStatusesForUsersList(List<Long> userIds) {
+    public Map<Long, OnlineStatusDto> getAllUsersOnlineStatusesForUsersList(List<Long> userIds) {
         List<Long> realUsersIds = userRepository.findAllById(userIds)
                 .stream()
                 .map(User::getId)
                 .toList();
-        List<String> keys = getUserStatusRedisKeys(realUsersIds);
-        List<Boolean> values = getValuesFromKeys(keys);
 
-        return mapKeysAndValuesToMap(realUsersIds, values);
+        List<String> userLastSeenRedisKeys = getUserLastSeenRedisKeys(realUsersIds);
+        List<String> userStatusRedisKeys = getUserStatusRedisKeys(realUsersIds);
+
+        List<Boolean> usersStatuses = getValuesFromKeys(userStatusRedisKeys, Boolean.class);
+        List<LocalDateTime> usersLastSeenData = getValuesFromKeys(userLastSeenRedisKeys, LocalDateTime.class);
+
+        return mapKeysAndValuesToMap(realUsersIds, usersStatuses, usersLastSeenData);
     }
 
-    private List<Boolean> getValuesFromKeys(List<String> keys) {
+    private <T> List<T> getValuesFromKeys(List<String> keys, Class<T> classType) {
         List<String> stringValues = Optional.ofNullable(redisTemplate.opsForValue().multiGet(keys))
                 .orElse(List.of());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+
         return stringValues.stream()
-                .map(Boolean::valueOf)
+                .map((value) -> readVal(value, classType))
                 .toList();
     }
 
-    private Map<Long, Boolean> mapKeysAndValuesToMap(List<Long> userIdList, List<Boolean> values) {
-        Map<Long, Boolean> onlineStatuses = new HashMap<>(userIdList.size());
+    private <T> T readVal(String stringValues, Class<T> classType) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+
+            return mapper.readValue(stringValues, classType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Map<Long, OnlineStatusDto> mapKeysAndValuesToMap(List<Long> userIdList,
+        List<Boolean> usersStatuses, List<LocalDateTime> usersLastSeenData) {
+        Map<Long, OnlineStatusDto> onlineStatuses = new HashMap<>(userIdList.size());
+
         IntStream.range(0, userIdList.size())
-                .forEach((i) -> onlineStatuses.put(userIdList.get(i), values.get(i)));
+            .forEach((i) -> {
+                Long userId = userIdList.get(i);
+                Boolean isOnline = usersStatuses.get(i);
+                LocalDateTime lastSeenOn = usersLastSeenData.get(i);
+
+                onlineStatuses.put(userIdList.get(i),
+                    new OnlineStatusDto(userId, isOnline, lastSeenOn));
+            });
 
         return onlineStatuses;
     }
