@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import online.talkandtravel.model.entity.attachment.Attachment;
 import org.hibernate.annotations.CreationTimestamp;
 
 /**
@@ -57,4 +58,8 @@ public class Message {
   @ManyToOne
   @JoinColumn(name = "replied_message_id")
   private Message repliedMessage;
+
+  @OneToOne
+  @JoinColumn(name = "attachment_id")
+  private Attachment attachment; // One-to-one relation to Attachment entity
 }
