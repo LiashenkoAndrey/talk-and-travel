@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.stomp.StompSession;
 
 @Log4j2
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+//@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 public class EventControllerIntegrationTest extends StompIntegrationTest {
 
   @Autowired
@@ -97,6 +97,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     private void assertMessage(Integer index, Long userId, Boolean isOnline) {
       OnlineStatusDto onlineStatusDto = onlineStatusDtoList.get(index);
+      log.info("assert, index={} onlineStatusDto={}, userId={}, isOnline={} ", index, onlineStatusDto, userId, isOnline );
       assertEquals(userId, onlineStatusDto.userId());
       assertEquals(isOnline, onlineStatusDto.isOnline());
     }

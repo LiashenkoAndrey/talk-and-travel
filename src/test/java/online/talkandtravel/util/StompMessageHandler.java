@@ -8,10 +8,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 
+@Log4j2
 public class StompMessageHandler<T> implements StompFrameHandler {
   private final Consumer<T> consumer;
   private final Class<T> targetType;
@@ -28,6 +30,7 @@ public class StompMessageHandler<T> implements StompFrameHandler {
   @Override
   public void handleFrame(@NotNull StompHeaders headers, Object payload) {
     T message = parseJson(payload, targetType);
+    log.info("handleFrame, dest: {}, payload: {}", headers.getDestination(), message);
     consumer.accept(message);
   }
 
