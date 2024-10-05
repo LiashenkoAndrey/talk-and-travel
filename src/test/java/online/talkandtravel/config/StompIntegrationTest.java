@@ -27,9 +27,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -93,9 +93,13 @@ public class StompIntegrationTest {
     String handshakeUri = HANDSHAKE_URI.formatted(port);
     WebSocketHttpHeaders headers = createHandshakeHeaders(token);
 
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.add("Authorization", "Bearer " + token);
+
     StompSession stompSession = stompClient.connectAsync(
         handshakeUri,
         headers,
+        stompHeaders,
         customStompSessionHandler
     ).get();
 

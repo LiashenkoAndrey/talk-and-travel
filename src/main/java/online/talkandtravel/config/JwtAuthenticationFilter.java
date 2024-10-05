@@ -36,8 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
   private final AuthenticationFacade authFacade;
-  private final UserRepository userRepository;
-  private final TokenRepository tokenRepository;
   /**
    * Processes each incoming HTTP request and attempts to authenticate it based on the JWT token
    * present in the Authorization header. If the token is valid, the request proceeds; otherwise,
@@ -59,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       authenticateRequest(request);
       filterChain.doFilter(request, response);
     } catch (Exception e) {
-      log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage(), e);
+      log.error("Exception in JwtAuthenticationFilter: {}", e.getMessage());
       sendErrorResponse(response);
     }
   }
