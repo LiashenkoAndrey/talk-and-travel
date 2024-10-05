@@ -30,7 +30,6 @@ public class StompMessageHandler<T> implements StompFrameHandler {
   @Override
   public void handleFrame(@NotNull StompHeaders headers, Object payload) {
     T message = parseJson(payload, targetType);
-    log.info("handleFrame, dest: {}, payload: {}", headers.getDestination(), message);
     consumer.accept(message);
   }
 
