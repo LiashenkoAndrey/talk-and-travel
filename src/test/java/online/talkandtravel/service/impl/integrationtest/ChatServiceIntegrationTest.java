@@ -32,6 +32,7 @@ import online.talkandtravel.config.IntegrationTest;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.message.MessageFromAnotherChatException;
 import online.talkandtravel.exception.model.HttpException;
+import online.talkandtravel.exception.user.TheSameUserException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
@@ -281,7 +282,7 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     @Test
     void shouldThrow_whenCreateForTheSameUser() {
       testAuthenticationService.authenticateUser(bob);
-      assertThrows(IllegalArgumentException.class,
+      assertThrows(TheSameUserException.class,
           () -> underTest.createPrivateChat(new NewPrivateChatDto(bob.getId())));
     }
 
