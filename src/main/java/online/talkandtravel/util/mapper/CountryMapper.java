@@ -6,7 +6,6 @@ import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.UserCountry;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 /**
  * Mapper interface for converting between {@link Country} entities and {@link CountryDto} and
@@ -22,9 +21,6 @@ import org.mapstruct.Mapping;
  *   <li>{@link #toCountryInfoDto(Country)} - Converts a {@link Country} entity to a {@link
  *       CountryInfoDto}. This method maps the basic properties of the {@link Country} entity to the
  *       DTO.
- *   <li>{@link #userCountryToCountryInfoDto(UserCountry)} - Converts a {@link UserCountry} entity to a {@link
- *       CountryInfoDto}. This method handles the mapping of properties specific to the user
- *       context, such as the country name and flag code.
  *   <li>{@link #toCountryDto(Country)} - Converts a {@link Country} entity to a {@link CountryDto}.
  *       This method maps the properties of the {@link Country} entity to the DTO, potentially
  *       including additional information.
@@ -46,10 +42,6 @@ import org.mapstruct.Mapping;
 public interface CountryMapper {
 
   CountryInfoDto toCountryInfoDto(Country country);
-
-  @Mapping(target = "name", source = "country.name")
-  @Mapping(target = "flagCode", source = "country.flagCode")
-  CountryInfoDto userCountryToCountryInfoDto(UserCountry userCountry);
 
   CountryDto toCountryDto(Country country);
 }

@@ -8,8 +8,10 @@ import online.talkandtravel.model.dto.country.CountryDto;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
 import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.CountryService;
@@ -40,6 +42,7 @@ public class CountryServiceImpl implements CountryService {
   private final UserCountryRepository userCountryRepository;
   private final CountryMapper countryMapper;
   private final AuthenticationService authenticationService;
+  private final MessageRepository messageRepository;
 
   @Override
   public List<CountryInfoDto> getAllCountriesInfo() {
@@ -56,10 +59,17 @@ public class CountryServiceImpl implements CountryService {
   public List<CountryInfoDto> findAllUserCountries() {
     User user = authenticationService.getAuthenticatedUser();
     List<UserCountry> userCountries = userCountryRepository.findByUserId(user.getId());
+
     return userCountries.stream()
-        .map(countryMapper::userCountryToCountryInfoDto)
+        .map(userCountry -> mapToCountryInfoDto(userCountry, user))
         .toList();
   }
+
+  private CountryInfoDto mapToCountryInfoDto(UserCountry userCountry, User user) {
+    Country country = userCountry.getCountry();
+    return new CountryInfoDto(country.getName(), country.getFlagCode());
+  }
+
 
   private Country getCountry(String countryName) {
     return countryRepository

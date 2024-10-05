@@ -24,6 +24,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
   Page<Chat> findAllByChatType(ChatType chatType, Pageable pageable);
 
+
   @Query("SELECT COUNT(c) FROM Chat c")
   long countChats();
 

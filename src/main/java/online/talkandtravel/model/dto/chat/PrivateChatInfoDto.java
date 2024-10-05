@@ -23,4 +23,6 @@ public record PrivateChatInfoDto(
     ChatType chatType,
     LocalDateTime creationDate,
     Long usersCount,
-    Long messagesCount) {}
+    Long messagesCount,
+    Long unreadMessagesCount
+) {}

@@ -57,6 +57,8 @@ public interface ChatService {
 
   List<PrivateChatDto> findAllUsersPrivateChats();
 
+  List<ChatDto> findAllUserPublicChats();
+
   void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
   Page<MessageDto> findReadMessages(Long chatId, Pageable pageable);
