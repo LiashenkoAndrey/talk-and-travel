@@ -28,9 +28,11 @@ public record ChatDto(
     ChatType chatType,
     LocalDateTime creationDate,
     Long usersCount,
-    List<MessageDto> messages) {
+    Long messagesCount,
+    Long unreadMessagesCount
+) {
 
   public ChatDto(String name) {
-    this(null, name, null, null, null, null, null, null);
+    this(null, name, null, null, null, null, null, null, null);
   }
 }

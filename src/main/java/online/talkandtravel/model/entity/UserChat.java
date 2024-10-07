@@ -1,6 +1,12 @@
 package online.talkandtravel.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -26,8 +32,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode
 @Entity
+@EqualsAndHashCode
 @Table(name = "user_chats")
 public class UserChat {
 
@@ -43,7 +49,12 @@ public class UserChat {
   @JoinColumn(name = "chat_id")
   private Chat chat;
 
-  @ManyToOne private UserCountry userCountry;
+  @ManyToOne
+  private UserCountry userCountry;
+
+  @ManyToOne
+  @JoinColumn(name = "last_read_message_id")
+  private Message lastReadMessage;
 
   @Override
   public String toString() {
@@ -51,9 +62,6 @@ public class UserChat {
         "id=" + id +
         ", user=" + user.getId() +
         ", chat=" + chat.getId() +
-        ", lastReadMessageId=" + lastReadMessageId +
         '}';
   }
-
-  private Long lastReadMessageId;
 }
