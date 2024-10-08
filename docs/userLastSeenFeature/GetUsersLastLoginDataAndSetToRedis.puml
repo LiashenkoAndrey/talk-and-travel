@@ -1,0 +1,18 @@
+@startuml
+start
+:Get all users last login data;
+note right
+userRepository.findAll()
+end note
+:iterate elements;
+while (has next element)
+  if (**user.lastLoggedOn** is null) is (yes) then
+    #pink:log warning that field \n**user.lastLoggedOn** is null;
+    else
+    :save data to temp list;
+   endif
+
+endwhile
+:Save to redis\nkey pattern **'user:{userId}:lastSeenOn'**;
+stop
+@enduml
