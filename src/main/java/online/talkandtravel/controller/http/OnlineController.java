@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.API_V2_BASE_PATH;
+
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping(ApiPathConstants.API_BASE_PATH + "/v2")
+@RequestMapping(API_V2_BASE_PATH)
 public class OnlineController {
 
     private final OnlineService onlineService;

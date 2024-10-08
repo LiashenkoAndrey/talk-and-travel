@@ -1,6 +1,7 @@
 package online.talkandtravel.facade.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.AuthenticationFacade;
@@ -12,6 +13,7 @@ import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
@@ -19,6 +21,8 @@ import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 @Component
 @Log4j2
@@ -29,13 +33,22 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   private final TokenService tokenService;
   private final AuthenticationService authenticationService;
   private final UserMapper userMapper;
+  private final UserRepository userRepository;
 
   @Override
+  @Transactional
   public AuthResponse login(LoginRequest request) {
     log.info("Login - email {}", request.userEmail());
     User authenticatedUser = authenticationService.checkUserCredentials(request.userEmail(), request.password());
+    updateLastLoggedOn(authenticatedUser);
     String jwtToken = saveOrUpdateUserToken(authenticatedUser.getId());
     return new AuthResponse(jwtToken, userMapper.toUserDtoBasic(authenticatedUser));
+  }
+
+  private void updateLastLoggedOn(User user) {
+    log.info("Update last logged on user {}", user.getId());
+    user.setLastLoggedOn(LocalDateTime.now());
+    userRepository.save(user);
   }
 
   @Override
@@ -82,6 +95,7 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   private UserDtoBasic createAndSaveNewUser(RegisterRequest request) {
     validateUserRegistrationData(request.userEmail(), request.password());
     User user = userMapper.registerRequestToUser(request);
+    log.info("createAndSaveNewUser {}", user);
     user.setRole(Role.USER);
     return userService.save(user);
   }

@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -78,21 +75,22 @@ public class TableDataManager implements DataManager {
 
   @Override
   public void prepareRedisData() {
+    log.info("Prepare users last seen data");
     Map<String, String> lastSeenUsersData = userRepository.findAll().stream()
+            .filter((user) -> {
+              boolean isNullLastLoggedOn = Objects.isNull(user.getLastLoggedOn());
+              if (isNullLastLoggedOn) {
+                log.warn("user with id: {} has lastSeenOn field as null", user.getId());
+              }
+              return !isNullLastLoggedOn;
+            })
         .collect(Collectors.toMap(
             (user) -> RedisUtils.getUserLastSeenKey(user.getId()),
-            this::getLastSeenOnFromUser));
+            (user) -> user.getLastLoggedOn().toString()));
 
+    log.info("Users last seen data map size: {}", lastSeenUsersData.size());
     redisTemplate.opsForValue().multiSet(lastSeenUsersData);
-  }
-
-  private String getLastSeenOnFromUser(User user) {
-    Optional<LocalDateTime> lastSeenOn = Optional.ofNullable(user.getLastLoggedOn());
-    return lastSeenOn.map(LocalDateTime::toString)
-        .orElseGet(() -> {
-          log.warn("user with id: {} has lastSeenOn field as null", user);
-          return "null";
-        });
+    log.info("Prepare ok.");
   }
 
   @Override

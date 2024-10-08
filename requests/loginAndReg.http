@@ -18,7 +18,7 @@ Content-Type: application/json
 {
   "userName": "{{username}}",
   "password": "{{userPassword}}",
-  "userEmail": "{{userEmail}}",
+  "userEmail": "2{{userEmail}}",
   "about": "sdf"
 }
 
@@ -44,3 +44,7 @@ Content-Type: application/json
 
 > {% client.global.set("token", response.body.token) %}
 
+
+###
+POST {{apiUrl}}/api/authentication/logout
+Authorization: Bearer {{token}}
