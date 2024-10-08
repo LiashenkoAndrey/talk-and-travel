@@ -21,7 +21,9 @@ import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +77,11 @@ public class TableDataManager implements DataManager {
 
   @Override
   public void prepareRedisData() {
+    if (redisHasRecords()) {
+      log.info("Redis is not empty. There is no need in data population.");
+      return;
+    }
+
     log.info("Prepare users last seen data");
     Map<String, String> lastSeenUsersData = userRepository.findAll().stream()
             .filter((user) -> {
@@ -91,6 +98,13 @@ public class TableDataManager implements DataManager {
     log.info("Users last seen data map size: {}", lastSeenUsersData.size());
     redisTemplate.opsForValue().multiSet(lastSeenUsersData);
     log.info("Prepare ok.");
+  }
+
+  private boolean redisHasRecords() {
+    Cursor<String> cursor = redisTemplate.scan(
+        ScanOptions.scanOptions().count(1).build()  // Scan with a limit of 1
+    );
+    return cursor.hasNext();
   }
 
   @Override

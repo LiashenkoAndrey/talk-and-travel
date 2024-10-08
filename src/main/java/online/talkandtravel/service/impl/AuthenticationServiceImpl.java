@@ -155,7 +155,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    * @throws UserAuthenticationException if the provided password does not match the stored password.
    */
   private void checkUserCredentials(String password, User user) {
-    log.info("checkUserCredentials pass: {}, user pass {}", password, user.getPassword());
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new UserAuthenticationException("Provided password and stored password don't match");
     }

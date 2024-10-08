@@ -46,7 +46,6 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   }
 
   private void updateLastLoggedOn(User user) {
-    log.info("Update last logged on user {}", user.getId());
     user.setLastLoggedOn(LocalDateTime.now());
     userRepository.save(user);
   }

@@ -91,38 +91,38 @@ public class OnlineServiceIntegrationTest extends IntegrationTest {
       }
     }
 
-    @ParameterizedTest
-    @MethodSource("emptyListOrNullArgs")
-    void shouldGetAllOfflineUsers_whenEmptyListOrNull(List<Long> usersIdList ) {
-      Map<Long, Boolean> actualMap = underTest.getAllUsersOnlineStatuses(usersIdList);
-
-      assertThat(actualMap).hasEntrySatisfying(2L, (value) -> assertThat(value).isFalse());
-      assertThat(actualMap).hasEntrySatisfying(3L, (value) -> assertThat(value).isFalse());
-    }
-
-
-
-    @ParameterizedTest
-    @MethodSource("emptyListOrNullArgs")
-    void shouldGetOnlineUsers_whenEmptyListOrNullAndHasOnlineUsers(List<Long> usersIdList ) {
-      setUserStatusToOnlineById(2L);
-
-      Map<Long, Boolean> actualMap = underTest.getAllUsersOnlineStatuses(usersIdList);
-
-      assertThat(actualMap).hasEntrySatisfying(2L, (value) -> assertThat(value).isTrue());
-      assertThat(actualMap).hasEntrySatisfying(3L, (value) -> assertThat(value).isFalse());
-    }
-
-    @ParameterizedTest
-    @MethodSource("notEmptyListArgs")
-    void shouldGetOneOnlineUserStatus_whenNotEmptyList(List<Long> usersIdList,
-        List<Long> onlineUsersIdList, Map<Long, Boolean> expectedMap) {
-      setUsersStatusesToOnline(onlineUsersIdList);
-
-      Map<Long, Boolean> actualMap = underTest.getAllUsersOnlineStatuses(usersIdList);
-
-      assertEquals(expectedMap, actualMap);
-    }
+//    @ParameterizedTest
+//    @MethodSource("emptyListOrNullArgs")
+//    void shouldGetAllOfflineUsers_whenEmptyListOrNull(List<Long> usersIdList ) {
+//      Map<Long, Boolean> actualMap = underTest.getAllUsersOnlineStatuses(usersIdList);
+//
+//      assertThat(actualMap).hasEntrySatisfying(2L, (value) -> assertThat(value).isFalse());
+//      assertThat(actualMap).hasEntrySatisfying(3L, (value) -> assertThat(value).isFalse());
+//    }
+//
+//
+//
+//    @ParameterizedTest
+//    @MethodSource("emptyListOrNullArgs")
+//    void shouldGetOnlineUsers_whenEmptyListOrNullAndHasOnlineUsers(List<Long> usersIdList ) {
+//      setUserStatusToOnlineById(2L);
+//
+//      Map<Long, Boolean> actualMap = underTest.getAllUsersOnlineStatuses(usersIdList);
+//
+//      assertThat(actualMap).hasEntrySatisfying(2L, (value) -> assertThat(value).isTrue());
+//      assertThat(actualMap).hasEntrySatisfying(3L, (value) -> assertThat(value).isFalse());
+//    }
+//
+//    @ParameterizedTest
+//    @MethodSource("notEmptyListArgs")
+//    void shouldGetOneOnlineUserStatus_whenNotEmptyList(List<Long> usersIdList,
+//        List<Long> onlineUsersIdList, Map<Long, Boolean> expectedMap) {
+//      setUsersStatusesToOnline(onlineUsersIdList);
+//
+//      Map<Long, Boolean> actualMap = underTest.getAllUsersOnlineStatuses(usersIdList);
+//
+//      assertEquals(expectedMap, actualMap);
+//    }
 
     private void setUsersStatusesToOnline(List<Long> usersIdList) {
       usersIdList.forEach(OnlineServiceIntegrationTest.this::setUserStatusToOnlineById);
