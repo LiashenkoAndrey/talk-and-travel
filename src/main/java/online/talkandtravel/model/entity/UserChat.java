@@ -56,12 +56,4 @@ public class UserChat {
   @JoinColumn(name = "last_read_message_id")
   private Message lastReadMessage;
 
-  @Override
-  public String toString() {
-    return "UserChat{" +
-        "id=" + id +
-        ", user=" + user.getId() +
-        ", chat=" + chat.getId() +
-        '}';
-  }
 }

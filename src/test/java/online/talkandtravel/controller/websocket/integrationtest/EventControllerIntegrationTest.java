@@ -1,11 +1,20 @@
 package online.talkandtravel.controller.websocket.integrationtest;
 
+import static online.talkandtravel.config.StompTestConstants.AFTER_SEND_PAUSE_TIME;
+import static online.talkandtravel.config.StompTestConstants.ONE_SECOND_PAUSE;
 import static online.talkandtravel.testdata.ChatTestData.ANGOLA_CHAT_ID;
 import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getAliceSaved;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static online.talkandtravel.testdata.UserTestData.getBobSaved;
+import static online.talkandtravel.util.constants.ApiPathConstants.JOIN_CHAT_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.LEAVE_CHAT_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.MESSAGES_SUBSCRIBE_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.START_TYPING_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.STOP_TYPING_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.UPDATE_ONLINE_STATUS_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -54,25 +63,26 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
       saveAliseAndBob();
       aliceStompSession = authenticateAndInitializeStompSession(getAlice());
       bobStompSession = authenticateAndInitializeStompSession(getBob());
-
+      pause(5000);
       subscribeToOnlineStatus();
     }
 
     @Order(1)
     @ParameterizedTest
-    @MethodSource("chatEventsTestArgs")
-    void chatEventsTest(Integer index, StompSession stompSession, Long userId, Boolean isOnline) {
+    @MethodSource("updateOnlineStatusTestArgs")
+    void updateOnlineStatusTest(Integer index, StompSession stompSession, Long userId,
+        Boolean isOnline) {
       stompSession.send(UPDATE_ONLINE_STATUS_PATH, toWSPayload(isOnline));
       pause(AFTER_SEND_PAUSE_TIME);
       assertMessage(index, userId, isOnline);
     }
 
-    private Stream<Arguments> chatEventsTestArgs() {
+    private Stream<Arguments> updateOnlineStatusTestArgs() {
       return Stream.of(
-          Arguments.of(1, aliceStompSession, 2L, true),
-          Arguments.of(2, bobStompSession, 3L, true),
-          Arguments.of(3, aliceStompSession, 2L, false),
-          Arguments.of(4, aliceStompSession, 2L, true)
+          Arguments.of(0, aliceStompSession, 2L, true),
+          Arguments.of(1, bobStompSession, 3L, true),
+          Arguments.of(2, aliceStompSession, 2L, false),
+          Arguments.of(3, aliceStompSession, 2L, true)
       );
     }
 
@@ -86,15 +96,21 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     private Stream<Arguments> verifyOnlineStatusIsOfflineArgs() {
       return Stream.of(
-          Arguments.of(5, 3L, false),
-          Arguments.of(6, 2L, false)
+          Arguments.of(4, 3L, false),
+          Arguments.of(5, 2L, false)
       );
     }
 
     private void assertMessage(Integer index, Long userId, Boolean isOnline) {
       OnlineStatusDto onlineStatusDto = onlineStatusDtoList.get(index);
-      assertEquals(userId, onlineStatusDto.userId());
-      assertEquals(isOnline, onlineStatusDto.isOnline());
+
+      assertEquals(userId, onlineStatusDto.userId(),
+          "expected user id %s in onlineStatusDto by index %s not match with actual user id %s".formatted(
+              userId, index, onlineStatusDto.userId()));
+
+      assertEquals(isOnline, onlineStatusDto.isOnline(),
+          "expected isOnline %s in onlineStatusDto by index %s not match with actual isOnline %s".formatted(
+              isOnline, index, onlineStatusDto.isOnline()));
     }
 
     private void subscribeToOnlineStatus() {

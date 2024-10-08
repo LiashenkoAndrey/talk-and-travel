@@ -1,6 +1,9 @@
 package online.talkandtravel.config;
 
+import static online.talkandtravel.config.StompTestConstants.AFTER_SUBSCRIBE_SLEEP_TIME;
+import static online.talkandtravel.config.StompTestConstants.ONE_SECOND_PAUSE;
 import static online.talkandtravel.util.TestAuthenticationService.AUTHORIZATION_HEADER;
+import static online.talkandtravel.util.constants.ApiPathConstants.HANDSHAKE_URI;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -10,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.TalkAndTravelApplication;
 import online.talkandtravel.model.entity.User;
@@ -25,6 +29,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -63,22 +68,12 @@ public class StompIntegrationTest {
   @Autowired
   private TestAuthenticationService testAuthenticationService;
 
-  protected static final long AFTER_SUBSCRIBE_SLEEP_TIME = 1000L,
-      AFTER_SEND_PAUSE_TIME = 400L,
-      ONE_SECOND_PAUSE = 1000L;
+  @Autowired
+  protected CustomStompSessionHandler customStompSessionHandler;
 
   private final ObjectMapper objectMapper = new ObjectMapper()
       .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 
-  protected static final String HANDSHAKE_URI = "http://localhost:%s/ws",
-      MESSAGES_SUBSCRIBE_PATH = "/countries/%s/messages",
-      JOIN_CHAT_EVENT_PATH = "/chat/events.joinChat",
-      START_TYPING_EVENT_PATH = "/chat/events.startTyping",
-      STOP_TYPING_EVENT_PATH = "/chat/events.stopTyping",
-      LEAVE_CHAT_EVENT_PATH = "/chat/events.leaveChat",
-      SEND_MESSAGE_PATH = "/chat/messages",
-      UPDATE_ONLINE_STATUS_PATH = "/auth-user/events.updateOnlineStatus",
-      USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
 
   /**
    * Authenticates a user and initializes a STOMP session.
@@ -91,26 +86,40 @@ public class StompIntegrationTest {
    */
   protected StompSession authenticateAndInitializeStompSession(User user)
       throws InterruptedException, ExecutionException {
-    WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(
+    WebSocketStompClient stompClient = createStompSession();
+    String token = testAuthenticationService.loginAndGetToken(user.getUserEmail(),
+        user.getPassword());
+
+    String handshakeUri = HANDSHAKE_URI.formatted(port);
+    WebSocketHttpHeaders headers = createHandshakeHeaders(token);
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.add("Authorization", "Bearer " + token);
+
+    StompSession stompSession = stompClient.connectAsync(
+        handshakeUri,
+        headers,
+        stompHeaders,
+        customStompSessionHandler
+    ).get();
+
+    pause(ONE_SECOND_PAUSE);
+    return stompSession;
+  }
+
+  private WebSocketStompClient createStompSession() {
+    return new WebSocketStompClient(new SockJsClient(
         Arrays.asList(
             new WebSocketTransport(new StandardWebSocketClient()),
             new RestTemplateXhrTransport()
         )
     ));
-    String token = testAuthenticationService.loginAndGetToken(user.getUserEmail(),
-        user.getPassword());
+  }
 
+  private WebSocketHttpHeaders createHandshakeHeaders(String token) {
     WebSocketHttpHeaders handshakeHeaders = new WebSocketHttpHeaders();
     handshakeHeaders.add(HttpHeaders.AUTHORIZATION, AUTHORIZATION_HEADER.formatted(token));
-
-    StompSession stompSession = stompClient.connectAsync(
-        HANDSHAKE_URI.formatted(port),
-        handshakeHeaders,
-        new CustomStompSessionHandler()
-    ).get();
-
-    pause(ONE_SECOND_PAUSE);
-    return stompSession;
+    return handshakeHeaders;
   }
 
   /**
@@ -154,9 +163,9 @@ public class StompIntegrationTest {
    */
   protected <T> void subscribe(Consumer<T> consumer, Class<T> messageType,
       StompSession stompSession, String... endpoints) {
-    for (String endpoint : endpoints) {
-      subscribe(endpoint, messageType, stompSession, consumer);
-    }
+
+    Stream.of(endpoints).forEach(
+        (endpoint) -> subscribe(endpoint, messageType, stompSession, consumer));
     pause(AFTER_SUBSCRIBE_SLEEP_TIME);
   }
 
@@ -172,7 +181,7 @@ public class StompIntegrationTest {
     try {
       Thread.sleep(milliseconds);
     } catch (InterruptedException e) {
-      log.error("sleep exception: {}", e.getMessage());
+      log.error("An exception occupied when sleep: {}", e.getMessage());
       throw new RuntimeException(e);
     }
   }

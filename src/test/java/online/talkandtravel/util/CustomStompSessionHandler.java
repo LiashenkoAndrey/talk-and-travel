@@ -7,8 +7,10 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
+import org.springframework.stereotype.Component;
 
 @Log4j2
+@Component
 public class CustomStompSessionHandler implements StompSessionHandler {
 
   /**
