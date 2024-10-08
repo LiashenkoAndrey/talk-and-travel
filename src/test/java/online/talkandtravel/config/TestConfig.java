@@ -29,13 +29,14 @@ public class TestConfig {
       @Value("${POSTGRES_CONTAINER_VERSION}") String containerVersion,
       @Value("${POSTGRES_CONTAINER_USERNAME}") String containerUsername,
       @Value("${POSTGRES_CONTAINER_PASSWORD}") String containerPassword) {
-    final PostgreSQLContainer<?> container =
-        new PostgreSQLContainer<>(containerVersion)
+
+    final PostgreSQLContainer<?> container = new PostgreSQLContainer<>(containerVersion)
             .withUsername(containerUsername)
             .withPassword(containerPassword);
+
     container.start();
-    log.info(
-        "PostgreSQL container started on port: {}",
+
+    log.info("PostgreSQL container started on port: {}",
         container.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
     return container;
   }
@@ -44,9 +45,10 @@ public class TestConfig {
   @ServiceConnection(name = "redis")
   public static RedisContainer redisContainer( @Value("${REDIS_CONTAINER_VERSION}")String redisImageName) {
     var redisContainer = new RedisContainer(DockerImageName.parse(redisImageName));
+
     redisContainer.start();
-    log.info(
-        "Redis container started on port: {}",
+
+    log.info("Redis container started on port: {}",
         redisContainer.getMappedPort(RedisContainer.REDIS_PORT));
     return redisContainer;
   }

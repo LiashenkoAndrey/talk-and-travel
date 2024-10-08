@@ -33,8 +33,8 @@ public class OnlineServiceImpl implements OnlineService {
     private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
 
-    @Value("${USER_ONLINE_STATUS_EXPIRATION_DURATION_IN_MIN}")
-    public Long KEY_EXPIRATION_DURATION_IN_MIN;
+    @Value("${USER_ONLINE_STATUS_EXPIRATION_DURATION_IN_SEC}")
+    public Long KEY_EXPIRATION_DURATION_IN_SEC;
 
     @Override
     public OnlineStatusDto updateUserOnlineStatus(Principal principal, Boolean isOnline) {
@@ -48,7 +48,7 @@ public class OnlineServiceImpl implements OnlineService {
         String key = getRedisKey(userId);
 
         if (isOnline) {
-            Duration keyDuration = Duration.ofMinutes(KEY_EXPIRATION_DURATION_IN_MIN);
+            Duration keyDuration = Duration.ofSeconds(KEY_EXPIRATION_DURATION_IN_SEC);
             redisTemplate.opsForValue().set(key, isOnline.toString(), keyDuration);
             return new OnlineStatusDto(userId, true);
         } else {

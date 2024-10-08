@@ -1,5 +1,7 @@
 package online.talkandtravel.controller.websocket;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
+
 import jakarta.validation.Valid;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +17,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
-
-import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 /**
  * Controller class responsible for handling WebSocket events related to chat interactions.
@@ -51,7 +51,6 @@ public class EventController {
   public void joinChat(@Payload @Valid EventRequest request, Principal principal) {
     log.info("create a new JOIN CHAT event {}, {}", request, principal);
     MessageDto message = eventService.joinChat(request, principal);
-
     sendResponse(request, message);
   }
 

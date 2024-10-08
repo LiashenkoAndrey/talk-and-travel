@@ -43,8 +43,8 @@ public class OnlineServiceIntegrationTest extends IntegrationTest {
   @Autowired
   private OnlineService underTest;
 
-  @Value("${USER_ONLINE_STATUS_EXPIRATION_DURATION_IN_MIN}")
-  Long redisKeyExpirationInMin;
+  @Value("${USER_ONLINE_STATUS_EXPIRATION_DURATION_IN_SEC}")
+  Long redisKeyExpirationInSec;
 
   private static final String REDIS_KEY_TEMPLATE = "user:%s:isOnline";
 
@@ -63,7 +63,7 @@ public class OnlineServiceIntegrationTest extends IntegrationTest {
 
       assertEquals(true, result.isOnline());
       assertEquals(USER_ID, result.userId());
-      assertEquals(true, redisTemplate.expire(REDIS_KEY, Duration.ofMinutes(redisKeyExpirationInMin)));
+      assertEquals(true, redisTemplate.expire(REDIS_KEY, Duration.ofSeconds(redisKeyExpirationInSec)));
 
       String onlineStatusInRedis = redisTemplate.opsForValue().get(REDIS_KEY);
       assertNotNull(onlineStatusInRedis, "Online status should be stored in Redis");

@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
 import online.talkandtravel.facade.AuthenticationFacade;
+import online.talkandtravel.repository.TokenRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
@@ -34,7 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
   private final AuthenticationFacade authFacade;
-
   /**
    * Processes each incoming HTTP request and attempts to authenticate it based on the JWT token
    * present in the Authorization header. If the token is valid, the request proceeds; otherwise,

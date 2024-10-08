@@ -29,7 +29,7 @@ public class MessageController {
 
   @MessageMapping("/messages")
   public void sendMessage(@Payload SendMessageRequest request, Principal principal) {
-    log.debug("create a new message {}", request);
+    log.info("create a new message {}", request);
     MessageDto message = messageService.saveMessage(request, principal);
     messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
   }

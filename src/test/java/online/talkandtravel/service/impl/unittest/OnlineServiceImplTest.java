@@ -51,7 +51,7 @@ public class OnlineServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        underTest.KEY_EXPIRATION_DURATION_IN_MIN = 3L;
+        underTest.KEY_EXPIRATION_DURATION_IN_SEC = 3L;
         valueOperations = Mockito.mock(ValueOperations.class);
     }
 
