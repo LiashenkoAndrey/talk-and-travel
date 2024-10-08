@@ -102,7 +102,7 @@ public class TableDataManager implements DataManager {
 
   private boolean redisHasRecords() {
     Cursor<String> cursor = redisTemplate.scan(
-        ScanOptions.scanOptions().count(1).build()  // Scan with a limit of 1
+        ScanOptions.scanOptions().count(1).build()
     );
     return cursor.hasNext();
   }
