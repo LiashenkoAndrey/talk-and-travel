@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
+import online.talkandtravel.model.dto.user.OnlineStatusResponse;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.OnlineService;
@@ -68,7 +69,7 @@ public class OnlineServiceImpl implements OnlineService {
      * whether the user is online (true) or offline (false)
      */
     @Override
-    public Map<Long, OnlineStatusDto> getAllUsersOnlineStatuses(List<Long> usersIdList) {
+    public Map<Long, OnlineStatusResponse> getAllUsersOnlineStatuses(List<Long> usersIdList) {
         if (usersIdList != null && !usersIdList.isEmpty()) {
             return getAllUsersOnlineStatusesForUsersList(usersIdList);
         }
@@ -83,9 +84,9 @@ public class OnlineServiceImpl implements OnlineService {
      * whether the user is online (true) or offline (false)
      */
     @Override
-    public OnlineStatusDto getUserOnlineStatusById(Long userId) {
+    public OnlineStatusResponse getUserOnlineStatusById(Long userId) {
         User user = getUser(userId);
-        Map<Long, OnlineStatusDto> statusDtoMap = getAllUsersOnlineStatusesForUsersIdList(List.of(user));
+        Map<Long, OnlineStatusResponse> statusDtoMap = getAllUsersOnlineStatusesForUsersIdList(List.of(user));
         return statusDtoMap.get(userId);
     }
 
@@ -107,15 +108,15 @@ public class OnlineServiceImpl implements OnlineService {
         return userOptional.orElseThrow(() ->  new UserNotFoundException(userId));
     }
 
-    private Map<Long, OnlineStatusDto> getAllUsersOnlineStatuses() {
+    private Map<Long, OnlineStatusResponse> getAllUsersOnlineStatuses() {
         return getAllUsersOnlineStatusesForUsersIdList(userRepository.findAll());
     }
 
-    public Map<Long, OnlineStatusDto> getAllUsersOnlineStatusesForUsersList(List<Long> userIds) {
+    public Map<Long, OnlineStatusResponse> getAllUsersOnlineStatusesForUsersList(List<Long> userIds) {
         return getAllUsersOnlineStatusesForUsersIdList(userRepository.findAllById(userIds));
     }
 
-    public Map<Long, OnlineStatusDto> getAllUsersOnlineStatusesForUsersIdList(List<User> users){
+    public Map<Long, OnlineStatusResponse> getAllUsersOnlineStatusesForUsersIdList(List<User> users){
         List<Long> userIds = users
                 .stream()
                 .map(User::getId)
@@ -151,9 +152,9 @@ public class OnlineServiceImpl implements OnlineService {
                 .orElse(List.of());
     }
 
-    private Map<Long, OnlineStatusDto> mapKeysAndValuesToMap(List<Long> userIdList,
+    private Map<Long, OnlineStatusResponse> mapKeysAndValuesToMap(List<Long> userIdList,
         List<Boolean> usersStatuses, List<LocalDateTime> usersLastSeenData) {
-        Map<Long, OnlineStatusDto> onlineStatuses = new HashMap<>(userIdList.size());
+        Map<Long, OnlineStatusResponse> onlineStatuses = new HashMap<>(userIdList.size());
 
         IntStream.range(0, userIdList.size())
             .forEach((i) -> {
@@ -161,8 +162,8 @@ public class OnlineServiceImpl implements OnlineService {
                 Boolean isOnline = usersStatuses.get(i);
                 LocalDateTime lastSeenOn = usersLastSeenData.get(i);
 
-                onlineStatuses.put(userIdList.get(i),
-                    new OnlineStatusDto(userId, isOnline, lastSeenOn));
+                onlineStatuses.put(userId,
+                    new OnlineStatusResponse(isOnline, lastSeenOn));
             });
         return onlineStatuses;
     }

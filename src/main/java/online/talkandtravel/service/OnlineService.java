@@ -7,6 +7,7 @@ import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import online.talkandtravel.model.dto.user.OnlineStatusResponse;
 
 public interface OnlineService {
 
@@ -22,7 +23,7 @@ public interface OnlineService {
      * @return a map where the key is the user ID and the value is a boolean indicating
      * whether the user is online (true) or offline (false)
      */
-    Map<Long, OnlineStatusDto> getAllUsersOnlineStatuses(List<Long> usersIdList);
+    Map<Long, OnlineStatusResponse> getAllUsersOnlineStatuses(List<Long> usersIdList);
 
     /**
      * Provides a current online status of a specific user
@@ -31,5 +32,5 @@ public interface OnlineService {
      * @return a map where the key is the user ID and the value is a boolean indicating
      * whether the user is online (true) or offline (false)
      */
-    OnlineStatusDto getUserOnlineStatusById(Long userId);
+    OnlineStatusResponse getUserOnlineStatusById(Long userId);
 }

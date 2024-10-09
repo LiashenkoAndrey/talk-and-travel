@@ -11,5 +11,4 @@ public record OnlineStatusDto(
   public OnlineStatusDto(Long userId, Boolean isOnline) {
     this(userId, isOnline, null);
   }
-
 }

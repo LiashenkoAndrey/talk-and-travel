@@ -3,6 +3,7 @@ package online.talkandtravel.controller.http;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
+import online.talkandtravel.model.dto.user.OnlineStatusResponse;
 import online.talkandtravel.service.OnlineService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class OnlineController {
      * whether the user is online (true) or offline (false)
      */
     @GetMapping("/users/online")
-    public Map<Long, OnlineStatusDto> getAllUsersOnlineStatuses(@RequestParam(required = false) List<Long> usersIdList) {
+    public Map<Long, OnlineStatusResponse> getAllUsersOnlineStatuses(@RequestParam(required = false) List<Long> usersIdList) {
         return onlineService.getAllUsersOnlineStatuses(usersIdList);
     }
 
@@ -39,7 +40,7 @@ public class OnlineController {
      * whether the user is online (true) or offline (false)
      */
     @GetMapping("/users/{userId}/online")
-    public OnlineStatusDto getUserOnlineStatusById(@PathVariable Long userId) {
+    public OnlineStatusResponse getUserOnlineStatusById(@PathVariable Long userId) {
         return onlineService.getUserOnlineStatusById(userId);
     }
 }
