@@ -1,0 +1,36 @@
+@startuml
+|User|
+start
+:Perform Action;
+if (Action is Registration/Login?) then (yes)
+  :HTTP request;
+  -> Backend;
+else (no)
+  if (Action is WebSocket Update?) then (yes)
+    :Send WebSocket Request to /auth-user/events.updateOnlineStatus;
+    if (Payload is "true"?) then (yes)
+      :User becomes Online;
+      -> Backend;
+    else (no)
+      :User becomes Offline;
+      -> Backend;
+    endif
+  else (no)
+    stop
+  endif
+endif
+
+|Backend|
+:OnlineService;
+if (User becomes Online?) then (yes)
+  -> Redis: Set user:{userId}:online = true;
+else (no)
+  -> Redis: Set user:{userId}:online = false;
+endif
+
+|Redis|
+if (Inactivity Timeout?) then (yes)
+  :Set user:{userId}:online = false;
+endif
+stop
+@enduml

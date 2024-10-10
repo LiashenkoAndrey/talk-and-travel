@@ -127,7 +127,7 @@ public class TokenServiceImpl implements TokenService {
                         String.format(TOKEN_NOT_FOUND, userId), "Invalid token"));
 
     if (token.isExpired() && token.isRevoked()) {
-      String errorMessage = String.format("Token with id:%s is expired or revoked.", token.getId());
+      String errorMessage = String.format("Token with id :%s is expired or revoked.", token.getId());
       throw new InvalidTokenException(errorMessage, "Token is expired");
     }
   }

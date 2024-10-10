@@ -1,0 +1,131 @@
+@startuml
+
+skinparam linetype ortho
+
+together {
+    User --> UserCountry
+    UserCountry --> UserChat
+
+    together {
+        Country --> Chat
+    }
+
+    together {
+        Chat --> Message
+        Chat --> User
+        Chat --> ChatType
+        Message --> MessageType
+    }
+}
+
+class User {
+  - id: Long
+  - countries: List<UserCountry>
+  - userName: String
+  - password: String
+  - userEmail: String
+  - role: Role
+  - tokens: List<Token>
+  - avatar: Avatar
+  - about: String
+  - lastLoggedOn: String
+}
+
+
+note left of User::lastLoggedOn
+  Represents the user's
+  last login timestamp
+end note
+
+class UserCountry {
+  - id: Long
+  - user: User
+  - country: Country
+  - chats: List<UserChat>
+}
+
+class UserChat {
+  - id: Long
+  - user: User
+  - chat: Chat
+  - userCountry: UserCountry
+  - lastReadMessageId: Long
+}
+
+class Country {
+  - name: String ID
+  - flagCode: String
+  - chats: List<Chat>
+}
+
+class Chat {
+  - id: Long
+  - name: String
+  - description: String
+  - country: Country
+  - chatType: ChatType
+  - creationDate: LocalDateTime
+  - users: List<User>
+  - messages: List<Message>
+}
+
+enum ChatType {
+  PRIVATE,
+  GROUP
+}
+
+class Message {
+  - id: Long
+  - type: MessageType
+  - content: String
+  - creationDate: LocalDateTime
+  - sender: User
+  - chat: Chat
+  - repliedMessage: Message
+  - attachment: Attachment
+}
+
+enum MessageType {
+  TEXT,
+  JOIN,
+  LEAVE,
+  START_TYPING,
+  STOP_TYPING,
+  IMAGE,
+  VIDEO,
+  AUDIO,
+  FILE
+}
+
+class Attachment {
+  - id: Long
+  - fileName: String
+  - fileUrl: String
+  - size: long
+  - mimeType: String
+}
+
+class Image {
+  - thumbnailUrl: String
+}
+
+class Audio {
+  - duration: Long
+}
+
+class Video {
+  - thumbnailUrl: String
+  - duration: Long
+}
+
+class File {}
+
+Attachment <|-- Image
+Attachment <|-- Audio
+Attachment <|-- Video
+Attachment <|-- File
+
+'Associations
+Message --> Attachment : "1"
+
+@enduml

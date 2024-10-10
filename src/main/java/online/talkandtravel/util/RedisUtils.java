@@ -8,6 +8,8 @@ public class RedisUtils {
 
   public static final String USER_STATUS_KEY = "user:%s:isOnline";
   public static final String USER_STATUS_KEY_PATTERN = "user:*:isOnline";
+  public static final String USER_LAST_SEEN_KEY = "user:%s:lastSeenOn";
+  public static final String USER_LAST_SEEN_KEY_PATTERN = "user:*:lastSeenOn";
 
   /**
    * Extracts the user ID from the Redis key following the pattern:
@@ -32,13 +34,23 @@ public class RedisUtils {
             .toList();
   }
 
-  public static String getRedisKey(Long userId) {
+  public static String getUserStatusRedisKey(Long userId) {
     return String.format(USER_STATUS_KEY, userId);
   }
 
-  public static List<String> getRedisKeys(List<Long> usersIdList) {
+  public static String getUserLastSeenKey(Long userId) {
+    return String.format(USER_LAST_SEEN_KEY, userId);
+  }
+
+  public static List<String> getUserStatusRedisKeys(List<Long> usersIdList) {
     return usersIdList.stream()
-            .map(RedisUtils::getRedisKey)
+            .map(RedisUtils::getUserStatusRedisKey)
             .toList();
+  }
+
+  public static List<String> getUserLastSeenRedisKeys(List<Long> usersIdList) {
+    return usersIdList.stream()
+        .map(RedisUtils::getUserLastSeenKey)
+        .toList();
   }
 }

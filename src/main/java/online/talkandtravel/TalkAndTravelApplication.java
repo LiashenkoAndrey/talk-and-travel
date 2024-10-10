@@ -32,6 +32,7 @@ public class TalkAndTravelApplication {
     return (args) -> {
       dataManager.checkAndPopulateCountries();
       dataManager.checkAndCreateChats();
+      dataManager.prepareRedisData();
       dataManager.addAdmin();
     };
   }
