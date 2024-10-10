@@ -9,6 +9,9 @@ public final class UserTestData {
   public static final String BOB_ONLINE_STATUS_REDIS_KEY = "user:3:isOnline";
   public static final String BOB_LAST_SEEN_ON_REDIS_KEY = "user:3:lastSeenOn";
 
+  public static Long ALICE_ID = 2L, BOB_ID = 3L;
+
+
   public static User getAlice(){
     return User.builder()
         .id(2L)
