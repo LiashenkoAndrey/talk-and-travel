@@ -112,7 +112,7 @@ public class OnlineServiceWebsocketIntegrationTest extends StompIntegrationTest 
     assertOnlineStatusReceived(4);
     verifyStatusUpdateTime();
   }
-a
+
   @Test
   @Order(4)
   void shouldSendOnlineStatus_whenNewUserRegisters() {
