@@ -1,10 +1,19 @@
 package online.talkandtravel.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
+import static online.talkandtravel.util.RedisUtils.getUserLastSeenKey;
+import static online.talkandtravel.util.RedisUtils.getUserLastSeenRedisKeys;
+import static online.talkandtravel.util.RedisUtils.getUserStatusRedisKey;
+import static online.talkandtravel.util.RedisUtils.getUserStatusRedisKeys;
+
+import java.security.Principal;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -16,15 +25,6 @@ import online.talkandtravel.service.OnlineService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.security.Principal;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.IntStream;
-
-import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
-import static online.talkandtravel.util.RedisUtils.*;
 
 @Service
 @RequiredArgsConstructor

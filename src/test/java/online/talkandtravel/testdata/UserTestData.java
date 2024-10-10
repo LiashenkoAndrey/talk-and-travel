@@ -12,6 +12,9 @@ public final class UserTestData {
   public static final String TOMAS_ONLINE_STATUS_REDIS_KEY = "user:4:isOnline";
   public static final String TOMAS_LAST_SEEN_ON_REDIS_KEY = "user:4:lastSeenOn";
 
+  public static final String ONLINE_STATUS_REDIS_KEY_PATTERN = "user:%s:isOnline";
+  public static final String LAST_SEEN_ON_REDIS_KEY_PATTERN = "user:%s:lastSeenOn";
+
   public static Long ALICE_ID = 2L, BOB_ID = 3L, TOMAS_ID = 4L;
 
 
