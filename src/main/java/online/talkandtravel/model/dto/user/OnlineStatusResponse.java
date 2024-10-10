@@ -5,8 +5,4 @@ import java.time.LocalDateTime;
 public record OnlineStatusResponse (
     Boolean isOnline,
     LocalDateTime lastSeenOn
-) {
-
-
-
-}
+) { }

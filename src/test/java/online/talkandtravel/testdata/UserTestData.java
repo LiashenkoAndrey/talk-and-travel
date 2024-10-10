@@ -9,7 +9,10 @@ public final class UserTestData {
   public static final String BOB_ONLINE_STATUS_REDIS_KEY = "user:3:isOnline";
   public static final String BOB_LAST_SEEN_ON_REDIS_KEY = "user:3:lastSeenOn";
 
-  public static Long ALICE_ID = 2L, BOB_ID = 3L;
+  public static final String TOMAS_ONLINE_STATUS_REDIS_KEY = "user:4:isOnline";
+  public static final String TOMAS_LAST_SEEN_ON_REDIS_KEY = "user:4:lastSeenOn";
+
+  public static Long ALICE_ID = 2L, BOB_ID = 3L, TOMAS_ID = 4L;
 
 
   public static User getAlice(){
