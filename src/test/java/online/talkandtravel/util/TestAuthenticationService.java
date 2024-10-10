@@ -91,15 +91,21 @@ public class TestAuthenticationService {
     } catch (Exception e) {
       throw new RuntimeException("Failed to retrieve JWT token", e);
     }
-
   }
 
   private ResultActions performPost(String url, String authorizationHeader, String content) {
     try {
-      return mockMvc.perform(post(url)
-              .header(HttpHeaders.AUTHORIZATION, authorizationHeader != null ? authorizationHeader : "")
-              .contentType(MediaType.APPLICATION_JSON)
-              .content(content != null ? content : ""))
+      var requestBuilder = post(url)
+          .contentType(MediaType.APPLICATION_JSON);
+
+      if (authorizationHeader != null) {
+        requestBuilder.header(HttpHeaders.AUTHORIZATION, authorizationHeader);
+      }
+      if (content != null) {
+        requestBuilder.content(content);
+      }
+
+      return mockMvc.perform(requestBuilder)
           .andExpect(status().isOk());
     } catch (Exception e) {
       throw new RuntimeException("Request to " + url + " failed", e);
