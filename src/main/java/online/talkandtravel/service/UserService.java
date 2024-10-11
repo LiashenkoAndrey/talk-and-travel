@@ -3,6 +3,7 @@ package online.talkandtravel.service;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
+import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -31,6 +32,12 @@ import org.springframework.security.core.userdetails.UserDetails;
  * </ul>
  */
 public interface UserService {
+
+  void updateLastLoggedOnToNow(User user);
+
+  UserDtoBasic createAndSaveNewUser(RegisterRequest request);
+
+  UserDtoBasic mapToUserDtoBasic(User user);
 
   UserDtoBasic save(User user);
 

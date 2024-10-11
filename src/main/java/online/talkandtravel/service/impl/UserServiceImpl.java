@@ -1,11 +1,14 @@
 package online.talkandtravel.service.impl;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
@@ -47,6 +50,24 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final AuthenticationService authenticationService;
+
+  @Override
+  public void updateLastLoggedOnToNow(User user) {
+    user.setLastLoggedOn(LocalDateTime.now());
+    userRepository.save(user);
+  }
+
+  @Override
+  public UserDtoBasic createAndSaveNewUser(RegisterRequest request) {
+    User user = userMapper.registerRequestToUser(request);
+    user.setRole(Role.USER);
+    return save(user);
+  }
+
+  @Override
+  public UserDtoBasic mapToUserDtoBasic(User user) {
+    return userMapper.toUserDtoBasic(user);
+  }
 
   @Override
   public UserDtoBasic save(User user) {
