@@ -125,20 +125,20 @@ public class OnlineServiceImpl implements OnlineService {
         List<String> userLastSeenRedisKeys = getUserLastSeenRedisKeys(userIds);
         List<String> userStatusRedisKeys = getUserStatusRedisKeys(userIds);
 
-        List<Boolean> usersStatuses = getValuesAndParseAsBoolean(userStatusRedisKeys);
-        List<LocalDateTime> usersLastSeenData = getValuesAndParseAsTime(userLastSeenRedisKeys);
+        List<Boolean> usersStatuses = getValuesAsBoolean(userStatusRedisKeys);
+        List<LocalDateTime> usersLastSeenData = getValuesAsTime(userLastSeenRedisKeys);
 
-        return mapKeysAndValuesToMap(userIds, usersStatuses, usersLastSeenData);
+        return collectToMap(userIds, usersStatuses, usersLastSeenData);
     }
 
-    private List<Boolean> getValuesAndParseAsBoolean(List<String> keys) {
+    private List<Boolean> getValuesAsBoolean(List<String> keys) {
         return getValuesFromKeys(keys)
                 .stream()
                 .map(Boolean::parseBoolean)
                 .toList();
     }
 
-    private List<LocalDateTime> getValuesAndParseAsTime(List<String> keys) {
+    private List<LocalDateTime> getValuesAsTime(List<String> keys) {
         return getValuesFromKeys(keys)
                 .stream()
                 .map((value) -> Optional.ofNullable(value)
@@ -152,7 +152,7 @@ public class OnlineServiceImpl implements OnlineService {
                 .orElse(List.of());
     }
 
-    private Map<Long, OnlineStatusResponse> mapKeysAndValuesToMap(List<Long> userIdList,
+    private Map<Long, OnlineStatusResponse> collectToMap(List<Long> userIdList,
         List<Boolean> usersStatuses, List<LocalDateTime> usersLastSeenData) {
         Map<Long, OnlineStatusResponse> onlineStatuses = new HashMap<>(userIdList.size());
 
