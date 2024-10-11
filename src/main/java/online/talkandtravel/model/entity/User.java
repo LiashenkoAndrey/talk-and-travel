@@ -2,6 +2,7 @@ package online.talkandtravel.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -72,6 +73,8 @@ public class User {
   @Builder.Default
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserCountry> countries = new ArrayList<>();
+
+  private LocalDateTime lastLoggedOn;
 
   @Override
   public String toString() {

@@ -4,13 +4,18 @@ import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 
 public final class UserTestData {
+  public static final String ALISE_ONLINE_STATUS_REDIS_KEY = "user:2:isOnline";
+  public static final String ALISE_LAST_SEEN_ON_REDIS_KEY = "user:2:lastSeenOn";
+  public static final String BOB_ONLINE_STATUS_REDIS_KEY = "user:3:isOnline";
+  public static final String BOB_LAST_SEEN_ON_REDIS_KEY = "user:3:lastSeenOn";
 
-  private static final Long ADMIN_ID = 1L;
+  public static final String TOMAS_ONLINE_STATUS_REDIS_KEY = "user:4:isOnline";
+  public static final String TOMAS_LAST_SEEN_ON_REDIS_KEY = "user:4:lastSeenOn";
 
-  private UserTestData() {
-    throw new UnsupportedOperationException(
-        "Utility UserTestData class cannot be instantiated");
-  }
+  public static final String ONLINE_STATUS_REDIS_KEY_PATTERN = "user:%s:isOnline";
+  public static final String LAST_SEEN_ON_REDIS_KEY_PATTERN = "user:%s:lastSeenOn";
+
+  public static Long ALICE_ID = 2L, BOB_ID = 3L, TOMAS_ID = 4L;
 
 
   public static User getAlice(){

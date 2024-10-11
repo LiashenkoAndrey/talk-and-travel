@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.data.FailedToReadJsonException;
@@ -16,8 +17,13 @@ import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.CountryRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.UserService;
+import online.talkandtravel.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +69,43 @@ public class TableDataManager implements DataManager {
 
   private final CountryArraySelector countryArraySelector;
 
+  private final RedisTemplate<String, String> redisTemplate;
+
+  private final UserRepository userRepository;
+
   private List<Country> list = new ArrayList<>();
+
+  @Override
+  public void prepareRedisData() {
+    if (redisHasRecords()) {
+      log.info("Redis is not empty. There is no need in data population.");
+      return;
+    }
+
+    log.info("Prepare users last seen data");
+    Map<String, String> lastSeenUsersData = userRepository.findAll().stream()
+            .filter((user) -> {
+              boolean isNullLastLoggedOn = Objects.isNull(user.getLastLoggedOn());
+              if (isNullLastLoggedOn) {
+                log.warn("user with id: {} has lastSeenOn field as null", user.getId());
+              }
+              return !isNullLastLoggedOn;
+            })
+        .collect(Collectors.toMap(
+            (user) -> RedisUtils.getUserLastSeenKey(user.getId()),
+            (user) -> user.getLastLoggedOn().toString()));
+
+    log.info("Users last seen data map size: {}", lastSeenUsersData.size());
+    redisTemplate.opsForValue().multiSet(lastSeenUsersData);
+    log.info("Prepare ok.");
+  }
+
+  private boolean redisHasRecords() {
+    Cursor<String> cursor = redisTemplate.scan(
+        ScanOptions.scanOptions().count(1).build()
+    );
+    return cursor.hasNext();
+  }
 
   @Override
   @Transactional
@@ -85,9 +127,9 @@ public class TableDataManager implements DataManager {
 
   @Transactional
   public void saveAll(List<Country> list) {
-    log.debug("save...");
+    log.debug("Saving countries...");
     countryRepository.saveAll(list);
-    log.debug("save ok");
+    log.debug("Countries saved.");
   }
 
   @Override
@@ -138,14 +180,10 @@ public class TableDataManager implements DataManager {
   }
 
   private List<Country> toCountryList(JsonNode jsonArray) {
-    log.debug("iterate an array...");
     for (JsonNode node : jsonArray) {
-
       Country country = countryArraySelector.selectCountry(node);
-
       list.add(country);
     }
-    log.debug("iterate ok");
     return list;
   }
 

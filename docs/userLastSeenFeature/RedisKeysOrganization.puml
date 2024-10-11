@@ -1,0 +1,20 @@
+@startuml
+
+skinparam class {
+    BackgroundColor #F0F0F0
+    ArrowColor #000000
+    BorderColor #BBBBBB
+}
+
+entity "Redis" as redis {
+    + user:{userId}:online - Boolean
+    + user:{userId}:lastSeenOn - String
+}
+
+entity "User" as user {
+
+}
+
+redis -> user: "Stores data for"
+
+@enduml

@@ -25,6 +25,8 @@ package online.talkandtravel.util.dataManager;
  */
 public interface DataManager {
 
+  void prepareRedisData();
+
   void checkAndPopulateCountries();
 
   void checkAndCreateChats();
