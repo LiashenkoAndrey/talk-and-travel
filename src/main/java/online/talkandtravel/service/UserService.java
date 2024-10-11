@@ -1,6 +1,5 @@
 package online.talkandtravel.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 import online.talkandtravel.model.dto.auth.RegisterRequest;

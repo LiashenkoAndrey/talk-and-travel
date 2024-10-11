@@ -20,12 +20,10 @@ import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
-import online.talkandtravel.util.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,8 +39,6 @@ class AuthenticationFacadeImplTest {
   @Mock private TokenService tokenService;
   @Mock private HttpServletRequest request;
   @Mock private UserService userService;
-  @Mock private UserMapper userMapper;
-  @Mock private UserRepository userRepository;
   @Mock private AuthenticationService authenticationService;
 
   @InjectMocks AuthenticationFacadeImpl underTest;
@@ -73,8 +69,7 @@ class AuthenticationFacadeImplTest {
     void register_shouldSaveUserWithCorrectCredentials() {
       doNothing().when(authenticationService).validateUserEmailAndPassword(alice.getUserEmail(), alice.getPassword());
       doNothing().when(authenticationService).checkForDuplicateEmail(alice.getUserEmail());
-      when(userMapper.registerRequestToUser(registerRequest)).thenReturn(alice);
-      when(userService.save(alice)).thenReturn(aliseDtoBasic);
+      when(userService.createAndSaveNewUser(registerRequest)).thenReturn(aliseDtoBasic);
       stubbingSaveOrUpdateUserTokenMethod(alice);
 
       AuthResponse authResponse = underTest.register(registerRequest);
@@ -84,8 +79,7 @@ class AuthenticationFacadeImplTest {
       verify(authenticationService, times(1)).validateUserEmailAndPassword(alice.getUserEmail(),
           alice.getPassword());
       verify(authenticationService, times(1)).checkForDuplicateEmail(alice.getUserEmail());
-      verify(userMapper, times(1)).registerRequestToUser(registerRequest);
-      verify(userService, times(1)).save(alice);
+      verify(userService, times(1)).createAndSaveNewUser(registerRequest);
       verifyStubbingSaveOrUpdateUserTokenMethod(alice);
 
     }
@@ -122,9 +116,8 @@ class AuthenticationFacadeImplTest {
     UserDtoBasic expected = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout());
 
     when(authenticationService.checkUserCredentials(alice.getUserEmail(), alice.getPassword())).thenReturn(alice);
-    when(userRepository.save(alice)).thenReturn(alice);
-    stubbingSaveOrUpdateUserTokenMethod(alice);
-    when(userMapper.toUserDtoBasic(alice)).thenReturn(expected);
+    doNothing().when(userService).updateLastLoggedOnToNow(alice);
+    when(userService.mapToUserDtoBasic(alice)).thenReturn(expected);
 
     AuthResponse authResponse = underTest.login(loginRequest);
     UserDtoBasic actual = authResponse.userDto();
@@ -132,8 +125,8 @@ class AuthenticationFacadeImplTest {
     assertEquals(expected, actual);
 
     verify(authenticationService).checkUserCredentials(alice.getUserEmail(), alice.getPassword());
-    verifyStubbingSaveOrUpdateUserTokenMethod(alice);
-    verify(userMapper).toUserDtoBasic(alice);
+    verify(userService).mapToUserDtoBasic(alice);
+    verify(userService).updateLastLoggedOnToNow(alice);
   }
 
   @Test
