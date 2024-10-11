@@ -1,6 +1,6 @@
 package online.talkandtravel.model.dto.event;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import online.talkandtravel.model.entity.MessageType;
 /**
  * Data Transfer Object (DTO) for representing a basic event.
@@ -14,4 +14,12 @@ import online.talkandtravel.model.entity.MessageType;
  * </ul>
  */
 
-public record EventDtoBasic(Long id, Long authorId, Long chatId, MessageType messageType, LocalDateTime eventTime) {}
+public record EventDtoBasic(
+    Long id,
+    Long authorId,
+    Long chatId,
+    MessageType messageType,
+    ZonedDateTime eventTime
+) {
+
+}

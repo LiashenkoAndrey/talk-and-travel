@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
  * <p>This configuration allows for grouping and customizing the OpenAPI documentation for different
  * sets of API endpoints.
  *
- * @return {@link GroupedOpenApi} instance configured with specified group name and path patterns.
  */
 @Configuration
 public class OpenApiConfiguration {

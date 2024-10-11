@@ -15,16 +15,10 @@ import java.security.Principal;
  * <p>Methods:
  *
  * <ul>
- *   <li>{@link #saveMessage(SendMessageRequest)} - Saves a new message based on the provided
+ *   <li>{@link #saveMessage(SendMessageRequest, Principal)} - Saves a new message based on the provided
  *       request data. The request includes details about the message content, the sender, and any
  *       replied message.
  * </ul>
- *
- * @param sendMessageRequest The request object containing the details needed to create a new
- *     message, including the message content, sender information, and any referenced (replied)
- *     message.
- * @return The saved message represented as a {@link MessageDtoBasic}, which includes essential
- *     information about the saved message.
  */
 public interface MessageService {
 

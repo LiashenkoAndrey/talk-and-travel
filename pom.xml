@@ -222,6 +222,11 @@
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.0.0</version>
+                <configuration>
+                    <url>jdbc:postgresql://localhost:5432/talk_and_travel</url> <!-- Replace with your database URL -->
+                    <user>postgres</user> <!-- Replace with your database username -->
+                    <password>komunist</password> <!-- Replace with your database password -->
+                </configuration>
             </plugin>
         </plugins>
         <finalName>talk-and-travel-app</finalName>

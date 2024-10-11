@@ -40,7 +40,7 @@ public class ExpiredValueRedisListener implements MessageListener {
         try {
             String key = new String(message.getBody());
             Long userId = getUserIdFromRedisKey(key);
-            LocalDateTime lastSeenOn = LocalDateTime.now();
+            ZonedDateTime lastSeenOn = ZonedDateTime.now(ZoneOffset.UTC);
 
             onlineService.updateLastSeenOn(userId, lastSeenOn);
             notifyAllUserIsOffline(userId, lastSeenOn);
@@ -49,7 +49,7 @@ public class ExpiredValueRedisListener implements MessageListener {
         }
     }
 
-    private void notifyAllUserIsOffline(Long userId, LocalDateTime lastSeenOn) {
+    private void notifyAllUserIsOffline(Long userId, ZonedDateTime lastSeenOn) {
         OnlineStatusDto statusDto = new OnlineStatusDto(userId, false, lastSeenOn);
         messagingTemplate.convertAndSend(USERS_ONLINE_STATUS_ENDPOINT, statusDto);
     }

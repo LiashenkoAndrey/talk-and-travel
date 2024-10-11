@@ -9,6 +9,8 @@ import static online.talkandtravel.util.RedisUtils.getUserStatusRedisKeys;
 import java.security.Principal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +40,7 @@ public class OnlineServiceImpl implements OnlineService {
     public Long KEY_EXPIRATION_DURATION_IN_SEC;
 
     @Override
-    public void updateLastSeenOn(Long userId, LocalDateTime lastSeenOn) {
+    public void updateLastSeenOn(Long userId, ZonedDateTime lastSeenOn) {
         log.info("Update last seen on of user: {}", userId);
         String key = getUserLastSeenKey(userId);
 
@@ -91,7 +93,7 @@ public class OnlineServiceImpl implements OnlineService {
     }
 
     private OnlineStatusDto updateStatusToOffline(String key, Long userId) {
-        LocalDateTime lastSeenOn = LocalDateTime.now();
+        ZonedDateTime lastSeenOn = ZonedDateTime.now(ZoneOffset.UTC);
         updateLastSeenOn(userId, lastSeenOn);
         redisTemplate.delete(key);
         return new OnlineStatusDto(userId, false, lastSeenOn);
@@ -126,7 +128,7 @@ public class OnlineServiceImpl implements OnlineService {
         List<String> userStatusRedisKeys = getUserStatusRedisKeys(userIds);
 
         List<Boolean> usersStatuses = getValuesAsBoolean(userStatusRedisKeys);
-        List<LocalDateTime> usersLastSeenData = getValuesAsTime(userLastSeenRedisKeys);
+        List<ZonedDateTime> usersLastSeenData = getValuesAsTime(userLastSeenRedisKeys);
 
         return collectToMap(userIds, usersStatuses, usersLastSeenData);
     }
@@ -138,11 +140,11 @@ public class OnlineServiceImpl implements OnlineService {
                 .toList();
     }
 
-    private List<LocalDateTime> getValuesAsTime(List<String> keys) {
+    private List<ZonedDateTime> getValuesAsTime(List<String> keys) {
         return getValuesFromKeys(keys)
                 .stream()
                 .map((value) -> Optional.ofNullable(value)
-                        .map(LocalDateTime::parse)
+                        .map(ZonedDateTime::parse)
                         .orElse(null))
                 .toList();
     }
@@ -153,14 +155,14 @@ public class OnlineServiceImpl implements OnlineService {
     }
 
     private Map<Long, OnlineStatusResponse> collectToMap(List<Long> userIdList,
-        List<Boolean> usersStatuses, List<LocalDateTime> usersLastSeenData) {
+        List<Boolean> usersStatuses, List<ZonedDateTime> usersLastSeenData) {
         Map<Long, OnlineStatusResponse> onlineStatuses = new HashMap<>(userIdList.size());
 
         IntStream.range(0, userIdList.size())
             .forEach((i) -> {
                 Long userId = userIdList.get(i);
                 Boolean isOnline = usersStatuses.get(i);
-                LocalDateTime lastSeenOn = usersLastSeenData.get(i);
+                ZonedDateTime lastSeenOn = usersLastSeenData.get(i);
 
                 onlineStatuses.put(userId,
                     new OnlineStatusResponse(isOnline, lastSeenOn));

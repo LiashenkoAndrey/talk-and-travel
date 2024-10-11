@@ -8,5 +8,7 @@ import jakarta.validation.constraints.Positive;
 public record UpdateUserRequest(
     @NotBlank String userName,
     @Email String userEmail,
-    @NotNull String about) {
+    @NotNull String about
+) {
+
 }

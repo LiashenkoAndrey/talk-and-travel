@@ -114,7 +114,7 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
         UserDtoShort actual = chatDto.companion();
         User expected = longUserEntry.getValue();
 
-        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getId(), actual.id());
         assertEquals(expected.getUserName(), chatDto.chat().name());
       }
     }

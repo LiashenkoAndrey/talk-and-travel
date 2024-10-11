@@ -49,9 +49,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
  *       LogoutHandler}, and clears the security context on logout success.
  * </ul>
  *
- * @param http {@link HttpSecurity} to configure security settings.
- * @return {@link SecurityFilterChain} configured with security settings.
- * @throws Exception if any configuration errors occur.
  */
 @Configuration
 @EnableWebSecurity

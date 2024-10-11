@@ -20,7 +20,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
@@ -95,7 +96,7 @@ public class OnlineServiceImplTest {
         List<String> onlineStatusKey = List.of(ALISE_ONLINE_STATUS_REDIS_KEY);
         List<String> lastSeenKey = List.of(ALISE_LAST_SEEN_ON_REDIS_KEY);
         List<User> users = List.of(getAlice());
-        LocalDateTime time = LocalDateTime.now();
+        ZonedDateTime time = ZonedDateTime.now(ZoneOffset.UTC);
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.multiGet(onlineStatusKey)).thenReturn(List.of("true"));
@@ -120,8 +121,8 @@ public class OnlineServiceImplTest {
         List<Long> userIds = List.of(alise.getId(), bob.getId());
         List<String> onlineStatusKeys = List.of(ALISE_ONLINE_STATUS_REDIS_KEY, BOB_ONLINE_STATUS_REDIS_KEY);
         List<String> lastSeenOnKeys = List.of(ALISE_LAST_SEEN_ON_REDIS_KEY, BOB_LAST_SEEN_ON_REDIS_KEY);
-        LocalDateTime aliseLastSeenOnTime = LocalDateTime.now();
-        LocalDateTime bobLastSeenOnTime = LocalDateTime.now().minusDays(12);
+        ZonedDateTime aliseLastSeenOnTime =  ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime bobLastSeenOnTime =  ZonedDateTime.now(ZoneOffset.UTC).minusDays(12);
         boolean aliseOnlineStatus = true;
         boolean bobOnlineStatus = false;
 

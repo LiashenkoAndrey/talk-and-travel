@@ -1,7 +1,8 @@
 package online.talkandtravel.service.impl;
 
 import java.security.Principal;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -272,6 +273,7 @@ public class EventServiceImpl implements EventService {
    * @return processed event dto
    */
   private EventResponse createChatTransientEvent(User user, MessageType messageType) {
-    return new EventResponse(userMapper.toUserNameDto(user), messageType, LocalDateTime.now());
+    return new EventResponse(userMapper.toUserNameDto(user), messageType, ZonedDateTime.now(
+        ZoneOffset.UTC));
   }
 }

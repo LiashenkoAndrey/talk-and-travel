@@ -17,5 +17,7 @@ import jakarta.validation.constraints.NotNull;
 public record NewChatDto(
     @NotBlank String name,
     @NotBlank String description,
-    @NotNull String countryId) {
+    @NotNull String countryId
+) {
+
 }

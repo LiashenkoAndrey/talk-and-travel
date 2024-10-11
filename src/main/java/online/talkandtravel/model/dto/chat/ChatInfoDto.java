@@ -1,6 +1,6 @@
 package online.talkandtravel.model.dto.chat;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import online.talkandtravel.model.entity.ChatType;
 /**
  * Data Transfer Object (DTO) for representing a chat.
@@ -15,12 +15,14 @@ import online.talkandtravel.model.entity.ChatType;
  *   <li>{@code messages} - Amount of messages exchanged in the chat.
  * </ul>
  */
-public record ChatInfoDto (
+public record ChatInfoDto(
     Long id,
     String name,
     String description,
     ChatType chatType,
-    LocalDateTime creationDate,
+    ZonedDateTime creationDate,
     Long usersCount,
     Long messagesCount
-) {}
+) {
+
+}

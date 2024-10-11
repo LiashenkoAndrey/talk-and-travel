@@ -1,6 +1,6 @@
 package online.talkandtravel.model.dto.chat;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import online.talkandtravel.model.entity.ChatType;
 
 /**
@@ -21,8 +21,10 @@ public record PrivateChatInfoDto(
     String name,
     String description,
     ChatType chatType,
-    LocalDateTime creationDate,
+    ZonedDateTime creationDate,
     Long usersCount,
     Long messagesCount,
     Long unreadMessagesCount
-) {}
+) {
+
+}

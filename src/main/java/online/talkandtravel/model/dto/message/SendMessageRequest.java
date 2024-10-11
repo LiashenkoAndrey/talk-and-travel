@@ -15,7 +15,9 @@ import jakarta.validation.constraints.Positive;
  */
 
 public record SendMessageRequest(
-        @NotNull String content,
-        @NotNull @Positive Long chatId,
-        Long repliedMessageId
-) {}
+    @NotNull String content,
+    @NotNull @Positive Long chatId,
+    Long repliedMessageId
+) {
+
+}

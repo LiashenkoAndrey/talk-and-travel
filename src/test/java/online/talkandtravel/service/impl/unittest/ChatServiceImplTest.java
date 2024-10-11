@@ -12,7 +12,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -119,7 +120,7 @@ class ChatServiceImplTest {
             "TestCountry",
             "Test Chat Description",
             ChatType.GROUP,
-            LocalDateTime.now(),
+            ZonedDateTime.now(ZoneOffset.UTC),
             10L,
             0L);
 
@@ -138,7 +139,7 @@ class ChatServiceImplTest {
 
 
     UserNameDto userNameDto = new UserNameDto(USER_ID, USER_NAME);
-    messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", LocalDateTime.now(),
+    messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", ZonedDateTime.now(ZoneOffset.UTC),
         userNameDto, 1L, null);
 
     pageable = PageRequest.of(0, 10);
@@ -179,7 +180,7 @@ class ChatServiceImplTest {
               "Description of TestCountry",
               new CountryInfoDto(countryName, "tc"),
               ChatType.GROUP,
-              LocalDateTime.now(),
+              ZonedDateTime.now(ZoneOffset.UTC),
               100L,
               0L,
               unreadMessagesCount);
@@ -334,7 +335,7 @@ class ChatServiceImplTest {
       ChatDto chatDto = new ChatDto(chatName);
       UserCountry userCountry = new UserCountry();
       UserChat userChat = new UserChat();
-      userChat.setLastReadMessage(Message.builder().creationDate(LocalDateTime.now())
+      userChat.setLastReadMessage(Message.builder().creationDate(ZonedDateTime.now(ZoneOffset.UTC))
           .chat(savedChat).build());
 
       when(authenticationService.getAuthenticatedUser()).thenReturn(user1);
@@ -344,7 +345,7 @@ class ChatServiceImplTest {
           .thenReturn(Optional.of(userCountry));
       when(userChatRepository.findByChatIdAndUserId(savedChat.getId(), user1.getId()))
           .thenReturn(Optional.of(userChat));
-      when(messageRepository.countAllByChatIdAndCreationDateAfter(anyLong(), any(LocalDateTime.class))).thenReturn(100L);
+      when(messageRepository.countAllByChatIdAndCreationDateAfter(anyLong(), any(ZonedDateTime.class))).thenReturn(100L);
       when(chatMapper.toDto(savedChat, 100L)).thenReturn(chatDto);
 
       ChatDto result = underTest.createCountryChat(request);
@@ -582,7 +583,7 @@ class ChatServiceImplTest {
     @BeforeEach
     void init() {
       Message lastReadMessage = message;
-      lastReadMessage.setCreationDate(LocalDateTime.now().minusDays(1));
+      lastReadMessage.setCreationDate(ZonedDateTime.now().minusDays(1));
 
       userChat.setLastReadMessage(lastReadMessage);
 
@@ -594,7 +595,7 @@ class ChatServiceImplTest {
     void findAllUsersPublicChats_shouldReturnChatDtoList_whenPublicChatsExist() {
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
       when(userChatRepository.findAllByUserId(1L)).thenReturn(userChats);
-      when(messageRepository.countAllByChatIdAndCreationDateAfter(eq(chat.getId()), any(LocalDateTime.class)))
+      when(messageRepository.countAllByChatIdAndCreationDateAfter(eq(chat.getId()), any(ZonedDateTime.class)))
           .thenReturn(5L);
       when(chatMapper.toDto(any(Chat.class), anyLong())).thenReturn(chatDto);
 
@@ -605,7 +606,7 @@ class ChatServiceImplTest {
       assertThat(result.get(0)).isEqualTo(chatDto);
 
       verify(userChatRepository).findAllByUserId(1L);
-      verify(messageRepository).countAllByChatIdAndCreationDateAfter(eq(chat.getId()), any(LocalDateTime.class));
+      verify(messageRepository).countAllByChatIdAndCreationDateAfter(eq(chat.getId()), any(ZonedDateTime.class));
       verify(chatMapper).toDto(any(Chat.class), anyLong());
     }
 
@@ -661,11 +662,11 @@ class ChatServiceImplTest {
     Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
     MessageDto messageDto = new MessageDto("message content");
 
-    private LocalDateTime createdOn;
+    private ZonedDateTime createdOn;
 
     @BeforeEach
     void init() {
-      createdOn = LocalDateTime.now();
+      createdOn = ZonedDateTime.now(ZoneOffset.UTC);
       Message lastReadMessage = createMessage(createdOn);
       userChat.setLastReadMessage(lastReadMessage);
     }
@@ -694,7 +695,7 @@ class ChatServiceImplTest {
 
       assertEquals("message content", result.toList().get(0).content());
     }
-    private Message createMessage(LocalDateTime creationDate) {
+    private Message createMessage(ZonedDateTime creationDate) {
       return Message.builder()
           .id(1L)
           .content("Last read message")

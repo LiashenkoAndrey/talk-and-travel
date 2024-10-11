@@ -23,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -73,8 +74,8 @@ public class OnlineServiceIntegrationTest extends IntegrationTest {
   private static final String REDIS_KEY_TEMPLATE = "user:%s:isOnline";
   private static final Long NOT_EXISTING_USER_ID = 777L;
   private static User alice, bob, tomas;
-  private static final LocalDateTime aliseLastSeenOn = LocalDateTime.now().minusDays(2);
-  private static final LocalDateTime tomasLastSeenOn = LocalDateTime.now();
+  private static final ZonedDateTime aliseLastSeenOn = ZonedDateTime.now(ZoneOffset.UTC).minusDays(2);
+  private static final ZonedDateTime tomasLastSeenOn = ZonedDateTime.now(ZoneOffset.UTC);
 
   @BeforeEach
   void init() {
@@ -218,8 +219,8 @@ public class OnlineServiceIntegrationTest extends IntegrationTest {
     private static Stream<Arguments> notEmptyListArgs() {
       Long notExistingUserId2 = 888L;
       return Stream.of(
-          Arguments.of(List.of(ALICE_ID, BOB_ID), List.of(), Map.of(ALICE_ID, aliseResp(false), BOB_ID, bobResp(false))),
-          Arguments.of(List.of(ALICE_ID, BOB_ID), List.of(ALICE_ID), Map.of(ALICE_ID, aliseResp(true), BOB_ID, bobResp(false))),
+          Arguments.of(List.of(ALICE_ID, BOB_ID), List.of(), Map.of(ALICE_ID, aliseResp(false), BOB_ID, bobResp())),
+          Arguments.of(List.of(ALICE_ID, BOB_ID), List.of(ALICE_ID), Map.of(ALICE_ID, aliseResp(true), BOB_ID, bobResp())),
           Arguments.of(List.of(ALICE_ID), List.of(ALICE_ID), Map.of(ALICE_ID, aliseResp(true))),
           Arguments.of(List.of(ALICE_ID, NOT_EXISTING_USER_ID), List.of(), Map.of(ALICE_ID, aliseResp(false))),
           Arguments.of(List.of(NOT_EXISTING_USER_ID, notExistingUserId2), List.of(ALICE_ID, BOB_ID), Map.of()),
@@ -231,8 +232,8 @@ public class OnlineServiceIntegrationTest extends IntegrationTest {
       return  new OnlineStatusResponse(isOnline, aliseLastSeenOn);
     }
 
-    private static OnlineStatusResponse bobResp(boolean isOnline) {
-      return new OnlineStatusResponse(isOnline, null);
+    private static OnlineStatusResponse bobResp() {
+      return new OnlineStatusResponse(false, null);
     }
   }
 

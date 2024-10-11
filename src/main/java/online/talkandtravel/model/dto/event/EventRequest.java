@@ -12,4 +12,7 @@ import jakarta.validation.constraints.NotNull;
  */
 
 public record EventRequest(
-        @NotNull Long chatId) {}
+    @NotNull Long chatId
+) {
+
+}

@@ -347,7 +347,7 @@ public class ChatServiceImpl implements ChatService {
   private PrivateChatInfoDto renameChat(PrivateChatDto oldChat) {
     return new PrivateChatInfoDto(
         oldChat.chat().id(),
-        oldChat.companion().getUserName(),
+        oldChat.companion().userName(),
         oldChat.chat().description(),
         oldChat.chat().chatType(),
         oldChat.chat().creationDate(),

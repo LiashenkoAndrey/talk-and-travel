@@ -2,10 +2,17 @@ package online.talkandtravel.service.impl.unittest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.security.Principal;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
@@ -98,12 +105,12 @@ class EventServiceImplTest {
             message.getId(),
             message.getType(),
             "",
-            LocalDateTime.now(), // Use current time for event time
+            ZonedDateTime.now(ZoneOffset.UTC), // Use current time for event time
             userNameDto,
             chat.getId(),
             null);
 
-    eventResponse = new EventResponse(userNameDto, message.getType(), LocalDateTime.now());
+    eventResponse = new EventResponse(userNameDto, message.getType(), ZonedDateTime.now(ZoneOffset.UTC));
 
     eventRequest = new EventRequest(CHAT_ID);
 
@@ -156,7 +163,7 @@ class EventServiceImplTest {
           new EventResponse(
               userNameDto,
               MessageType.STOP_TYPING,
-              LocalDateTime.now() // Use current time for event time
+              ZonedDateTime.now(ZoneOffset.UTC) // Use current time for event time
               );
 
       EventResponse result = underTest.stopTyping(eventRequest, principal);
@@ -261,7 +268,7 @@ class EventServiceImplTest {
       chat.setCountry(new Country("Country1", "co"));
       MessageDto eventDtoBasic =
           new MessageDto(
-              null, MessageType.START_TYPING, "", LocalDateTime.now(), userNameDto, CHAT_ID, null);
+              null, MessageType.START_TYPING, "", ZonedDateTime.now(ZoneOffset.UTC), userNameDto, CHAT_ID, null);
 
       when(chatRepository.findById(CHAT_ID)).thenReturn(Optional.of(chat));
       when(userChatRepository.findByChatIdAndUserId(CHAT_ID, USER_ID))

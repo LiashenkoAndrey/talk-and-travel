@@ -1,11 +1,27 @@
 package online.talkandtravel.service.impl.unittest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.security.Principal;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.dto.user.UserNameDto;
-import online.talkandtravel.model.entity.*;
+import online.talkandtravel.model.entity.Chat;
+import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.MessageType;
+import online.talkandtravel.model.entity.Role;
+import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
@@ -20,15 +36,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.security.Principal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceImplTest {
@@ -45,7 +52,6 @@ public class MessageServiceImplTest {
 
   private final Long chatId = 1L;
   private final Long userId = 1L;
-  private static final User authUser = User.builder().id(1L).build();
   private Principal principal;
 
   @BeforeEach
@@ -77,14 +83,14 @@ public class MessageServiceImplTest {
     UserNameDto userNameDto = new UserNameDto(1L, "userName");
     MessageDto messageDto =
         new MessageDto(
-                    1L,
-                    MessageType.TEXT,
-                    "",
-                    LocalDateTime.now(), // Use current time for event time
-                    userNameDto,
-                    1L,
-                    null
-                );
+            1L,
+            MessageType.TEXT,
+            "",
+            ZonedDateTime.now(ZoneOffset.UTC), // Use current time for event time
+            userNameDto,
+            1L,
+            null
+        );
 
     when(userChatRepository.findByChatIdAndUserId(chatId, userId))
         .thenReturn(Optional.of(new UserChat()));
