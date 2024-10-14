@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -71,9 +73,14 @@ public class StompIntegrationTest {
   @Autowired
   protected CustomStompSessionHandler customStompSessionHandler;
 
-  private final ObjectMapper objectMapper = new ObjectMapper()
-      .setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+  private ObjectMapper objectMapper;
 
+  @PostConstruct
+  void init() {
+    objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+  }
 
   /**
    * Authenticates a user and initializes a STOMP session.
