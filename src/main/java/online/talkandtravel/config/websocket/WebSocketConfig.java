@@ -72,26 +72,32 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
   /**
-   * Configures the message broker for handling STOMP messages in the application.
+   * Configures the message broker for WebSocket messaging.
    *
-   * <p>This method sets the destination prefixes for sending messages and enables a simple
-   * message broker for certain endpoints.</p>
+   * This method sets the application destination prefixes and enables the simple broker
+   * for handling messages. It specifies the prefixes that clients can use to send messages
+   * to the server, as well as the destinations for which the broker will provide
+   * message routing and delivery.
    *
-   * @param registry the {@link MessageBrokerRegistry} used to configure the message broker.
-   *
+   * <p>
+   * The following prefixes are set:
    * <ul>
-   *   <li><strong>setApplicationDestinationPrefixes:</strong> Defines the prefix used for sending messages
-   *   from the client to the server. In this case, messages with the destination prefix "/chat"
-   *   or "/auth-user" will be routed to message-handling methods in the server.</li>
-   *
-   *   <li><strong>enableSimpleBroker:</strong> Enables a simple in-memory message broker for routing
-   *   messages back to clients. In this case, messages with destinations starting with "/chats" or "/user"
-   *   will be handled by the message broker.</li>
+   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHAT_APPLICATION_DESTINATION} - Prefix for chat-related messages.</li>
+   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#AUTH_USER_APPLICATION_DESTINATION} - Prefix for user authentication messages.</li>
    * </ul>
+   *
+   * The following simple broker destinations are enabled:
+   * <ul>
+   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHATS_BROKER_DESTINATION} - Destination for chat messages.</li>
+   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#USER_BROKER_DESTINATION} - Destination for user-related messages.</li>
+   * </ul>
+   *
+   * @param registry the message broker registry to configure
    */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
     registry.setApplicationDestinationPrefixes(CHAT_APPLICATION_DESTINATION, AUTH_USER_APPLICATION_DESTINATION);
     registry.enableSimpleBroker(CHATS_BROKER_DESTINATION, USER_BROKER_DESTINATION);
   }
+
 }
