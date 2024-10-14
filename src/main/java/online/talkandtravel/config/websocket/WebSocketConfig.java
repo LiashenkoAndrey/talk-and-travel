@@ -1,5 +1,10 @@
 package online.talkandtravel.config.websocket;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.AUTH_USER_APPLICATION_DESTINATION;
+import static online.talkandtravel.util.constants.ApiPathConstants.CHATS_BROKER_DESTINATION;
+import static online.talkandtravel.util.constants.ApiPathConstants.CHAT_APPLICATION_DESTINATION;
+import static online.talkandtravel.util.constants.ApiPathConstants.USER_BROKER_DESTINATION;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +38,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  *       </ul>
  * </ul>
  *
- * @param registry {@link StompEndpointRegistry} to register STOMP endpoints.
- * @param registry {@link MessageBrokerRegistry} to configure the message broker.
  */
 @Configuration
 @EnableWebSocketMessageBroker
@@ -68,9 +71,27 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         .withSockJS();
   }
 
+  /**
+   * Configures the message broker for handling STOMP messages in the application.
+   *
+   * <p>This method sets the destination prefixes for sending messages and enables a simple
+   * message broker for certain endpoints.</p>
+   *
+   * @param registry the {@link MessageBrokerRegistry} used to configure the message broker.
+   *
+   * <ul>
+   *   <li><strong>setApplicationDestinationPrefixes:</strong> Defines the prefix used for sending messages
+   *   from the client to the server. In this case, messages with the destination prefix "/chat"
+   *   or "/auth-user" will be routed to message-handling methods in the server.</li>
+   *
+   *   <li><strong>enableSimpleBroker:</strong> Enables a simple in-memory message broker for routing
+   *   messages back to clients. In this case, messages with destinations starting with "/chats" or "/user"
+   *   will be handled by the message broker.</li>
+   * </ul>
+   */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.setApplicationDestinationPrefixes("/chat", "/auth-user");
-    registry.enableSimpleBroker("/countries", "/user");
+    registry.setApplicationDestinationPrefixes(CHAT_APPLICATION_DESTINATION, AUTH_USER_APPLICATION_DESTINATION);
+    registry.enableSimpleBroker(CHATS_BROKER_DESTINATION, USER_BROKER_DESTINATION);
   }
 }

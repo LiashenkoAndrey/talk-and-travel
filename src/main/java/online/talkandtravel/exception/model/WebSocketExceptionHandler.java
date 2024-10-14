@@ -1,6 +1,7 @@
 package online.talkandtravel.exception.model;
 
 import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
+import static online.talkandtravel.util.constants.ApiPathConstants.USER_WEBSOCKET_ERRORS_PATH;
 
 import java.security.Principal;
 import java.time.ZoneOffset;
@@ -45,6 +46,6 @@ public class WebSocketExceptionHandler {
   }
 
   private void sendErrorToUser(Long userId, ExceptionResponse response) {
-    messagingTemplate.convertAndSendToUser(userId.toString(), "/errors", response);
+    messagingTemplate.convertAndSendToUser(userId.toString(), USER_WEBSOCKET_ERRORS_PATH, response);
   }
 }

@@ -1,5 +1,6 @@
 package online.talkandtravel.controller.websocket;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.MESSAGES_SUBSCRIBE_PATH;
 import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 import jakarta.validation.Valid;
@@ -78,11 +79,7 @@ public class EventController {
     sendResponse(request, message);
   }
 
-  private void sendResponse(EventRequest request, MessageDto message) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
-  }
-
-  private void sendResponse(EventRequest request, EventResponse message) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
+  private <T> void sendResponse(EventRequest request, T message) {
+    messagingTemplate.convertAndSend(MESSAGES_SUBSCRIBE_PATH.formatted(request.chatId()), message);
   }
 }
