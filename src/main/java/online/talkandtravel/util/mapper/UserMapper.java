@@ -20,7 +20,6 @@ import org.mapstruct.MappingTarget;
 @Mapper(config = MapperConfig.class)
 public interface UserMapper {
 
-  UserDtoBasic mapToBasicDto(User user);
   UpdateUserResponse toUpdateUserResponse(User user);
 
   void updateUser(UpdateUserRequest source, @MappingTarget User target);

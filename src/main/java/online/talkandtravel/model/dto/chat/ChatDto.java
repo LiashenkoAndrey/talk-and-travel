@@ -1,10 +1,7 @@
 package online.talkandtravel.model.dto.chat;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.List;
 import online.talkandtravel.model.dto.country.CountryInfoDto;
-import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.entity.ChatType;
 
 /**

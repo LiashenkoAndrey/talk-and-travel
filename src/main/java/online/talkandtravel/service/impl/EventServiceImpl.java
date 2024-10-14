@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
 import online.talkandtravel.exception.chat.PrivateChatMustContainTwoUsersException;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
@@ -63,6 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class EventServiceImpl implements EventService {
 
   public static final String JOINED_THE_CHAT = "%s joined the chat";
@@ -273,7 +275,9 @@ public class EventServiceImpl implements EventService {
    * @return processed event dto
    */
   private EventResponse createChatTransientEvent(User user, MessageType messageType) {
-    return new EventResponse(userMapper.toUserNameDto(user), messageType, ZonedDateTime.now(
+    EventResponse response = new EventResponse(userMapper.toUserNameDto(user), messageType, ZonedDateTime.now(
         ZoneOffset.UTC));
+    log.info("TransientEvent, type: {}, time: {}", messageType, response.creationDate());
+    return response;
   }
 }

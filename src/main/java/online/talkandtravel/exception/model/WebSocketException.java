@@ -1,5 +1,6 @@
 package online.talkandtravel.exception.model;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +26,7 @@ public class WebSocketException extends RuntimeException {
   public WebSocketException(String message, Long userId) {
     super(message);
     this.userId = userId;
-    this.zonedDateTime = ZonedDateTime.now();
+    this.zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
     this.messageToClient = message;
   }
 
@@ -34,7 +35,7 @@ public class WebSocketException extends RuntimeException {
     this.httpStatus = httpStatus;
     this.userId = userId;
     this.messageToClient = message;
-    this.zonedDateTime = ZonedDateTime.now();
+    this.zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
   }
 
   public WebSocketException(HttpException cause, Long userId) {
@@ -42,6 +43,6 @@ public class WebSocketException extends RuntimeException {
     this.userId = userId;
     this.httpStatus = cause.getHttpStatus();
     this.messageToClient = cause.getMessage();
-    this.zonedDateTime = ZonedDateTime.now();
+    this.zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
   }
 }

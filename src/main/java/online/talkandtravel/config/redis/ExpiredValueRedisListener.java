@@ -1,6 +1,8 @@
 package online.talkandtravel.config.redis;
 
-import java.time.LocalDateTime;
+import static online.talkandtravel.util.RedisUtils.getUserIdFromRedisKey;
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
+
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +14,6 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-
-import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
-import static online.talkandtravel.util.RedisUtils.getUserIdFromRedisKey;
 
 /**
  * This class handles events triggered when a key expires. Upon expiration, it publishes an event

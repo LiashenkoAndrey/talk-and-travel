@@ -1,5 +1,6 @@
 package online.talkandtravel.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -51,7 +52,8 @@ public class Message {
 
   private String content;
 
-  @CreationTimestamp private ZonedDateTime creationDate;
+  @CreationTimestamp
+  private ZonedDateTime creationDate;
 
   @ManyToOne
   @JoinColumn(name = "sender_id")

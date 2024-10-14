@@ -23,7 +23,4 @@ public record MessageDtoBasic(
     Long chatId,
     Long repliedMessageId) {
 
-  public MessageDtoBasic(String content) {
-    this(null, content, null, null, null, null);
-  }
 }

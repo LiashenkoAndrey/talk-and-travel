@@ -38,7 +38,6 @@ import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.repository.UserCountryRepository;
 import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.security.CustomUserDetails;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.impl.EventServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserMapper;
@@ -62,7 +61,6 @@ class EventServiceImplTest {
   @Mock private MessageMapper messageMapper;
   @Mock private UserChatRepository userChatRepository;
   @Mock private UserCountryRepository userCountryRepository;
-  @Mock private AuthenticationService authenticationService;
 
   @InjectMocks private EventServiceImpl underTest;
 

@@ -1,5 +1,6 @@
 package online.talkandtravel.model.dto.message;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.ZonedDateTime;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.MessageType;
@@ -18,6 +19,8 @@ public record MessageDto(
     Long id,
     MessageType type,
     String content,
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'")
     ZonedDateTime creationDate,
     UserNameDto user,
     Long chatId,
