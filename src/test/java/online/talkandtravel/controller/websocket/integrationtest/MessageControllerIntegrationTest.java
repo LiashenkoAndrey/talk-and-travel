@@ -6,7 +6,7 @@ import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getAliceSaved;
 import static online.talkandtravel.util.constants.ApiPathConstants.MESSAGES_SUBSCRIBE_PATH;
-import static online.talkandtravel.util.constants.ApiPathConstants.SEND_MESSAGE_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.SEND_MESSAGE_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -65,7 +65,7 @@ public class MessageControllerIntegrationTest extends StompIntegrationTest {
   @MethodSource("testUserSendsMessageSuccessfullyArgs")
   void testUserSendsMessageSuccessfully(SendMessageRequest request, int index, MessageType messageType,
       String content, Long chatId) {
-    aliceStompSession.send(SEND_MESSAGE_PATH, toWSPayload(request));
+    aliceStompSession.send(SEND_MESSAGE_FULL_PATH, toWSPayload(request));
     pause(AFTER_SEND_PAUSE_TIME);
 
     assertMessage(index, messageType, content, chatId);

@@ -1,9 +1,7 @@
 package online.talkandtravel.config.websocket;
 
-import static online.talkandtravel.util.constants.ApiPathConstants.AUTH_USER_APPLICATION_DESTINATION;
-import static online.talkandtravel.util.constants.ApiPathConstants.CHATS_BROKER_DESTINATION;
-import static online.talkandtravel.util.constants.ApiPathConstants.CHAT_APPLICATION_DESTINATION;
-import static online.talkandtravel.util.constants.ApiPathConstants.USER_BROKER_DESTINATION;
+import static online.talkandtravel.util.constants.ApiPathConstants.APPLICATION_DESTINATION_PREFIX;
+import static online.talkandtravel.util.constants.ApiPathConstants.BROKER_DESTINATION_PREFIX;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -71,33 +69,33 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         .withSockJS();
   }
 
-  /**
-   * Configures the message broker for WebSocket messaging.
-   *
-   * This method sets the application destination prefixes and enables the simple broker
-   * for handling messages. It specifies the prefixes that clients can use to send messages
-   * to the server, as well as the destinations for which the broker will provide
-   * message routing and delivery.
-   *
-   * <p>
-   * The following prefixes are set:
-   * <ul>
-   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHAT_APPLICATION_DESTINATION} - Prefix for chat-related messages.</li>
-   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#AUTH_USER_APPLICATION_DESTINATION} - Prefix for user authentication messages.</li>
-   * </ul>
-   *
-   * The following simple broker destinations are enabled:
-   * <ul>
-   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHATS_BROKER_DESTINATION} - Destination for chat messages.</li>
-   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#USER_BROKER_DESTINATION} - Destination for user-related messages.</li>
-   * </ul>
-   *
-   * @param registry the message broker registry to configure
-   */
+//  /**
+//   * Configures the message broker for WebSocket messaging.
+//   *
+//   * This method sets the application destination prefixes and enables the simple broker
+//   * for handling messages. It specifies the prefixes that clients can use to send messages
+//   * to the server, as well as the destinations for which the broker will provide
+//   * message routing and delivery.
+//   *
+//   * <p>
+//   * The following prefixes are set:
+//   * <ul>
+//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHAT_APPLICATION_DESTINATION} - Prefix for chat-related messages.</li>
+//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#AUTH_USER_APPLICATION_DESTINATION} - Prefix for user authentication messages.</li>
+//   * </ul>
+//   *
+//   * The following simple broker destinations are enabled:
+//   * <ul>
+//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHATS_BROKER_DESTINATION} - Destination for chat messages.</li>
+//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#USER_BROKER_DESTINATION} - Destination for user-related messages.</li>
+//   * </ul>
+//   *
+//   * @param registry the message broker registry to configure
+//   */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.setApplicationDestinationPrefixes(CHAT_APPLICATION_DESTINATION, AUTH_USER_APPLICATION_DESTINATION);
-    registry.enableSimpleBroker(CHATS_BROKER_DESTINATION, USER_BROKER_DESTINATION);
+    registry.setApplicationDestinationPrefixes(APPLICATION_DESTINATION_PREFIX);
+    registry.enableSimpleBroker(BROKER_DESTINATION_PREFIX);
   }
 
 }

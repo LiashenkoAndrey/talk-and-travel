@@ -8,7 +8,7 @@ import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getAliceSaved;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static online.talkandtravel.testdata.UserTestData.getBobSaved;
-import static online.talkandtravel.util.constants.ApiPathConstants.UPDATE_ONLINE_STATUS_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.UPDATE_ONLINE_STATUS_FULL_PATH;
 import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -130,7 +130,7 @@ public class OnlineServiceWebsocketIntegrationTest extends StompIntegrationTest 
   }
 
   private void sendStatusUpdate(boolean isOnline) {
-    aliseSession.send(UPDATE_ONLINE_STATUS_PATH, toWSPayload(isOnline));
+    aliseSession.send(UPDATE_ONLINE_STATUS_FULL_PATH, toWSPayload(isOnline));
     pause(AFTER_SEND_PAUSE_TIME);
   }
 
