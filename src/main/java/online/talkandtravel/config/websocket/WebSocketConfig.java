@@ -69,33 +69,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         .withSockJS();
   }
 
-//  /**
-//   * Configures the message broker for WebSocket messaging.
-//   *
-//   * This method sets the application destination prefixes and enables the simple broker
-//   * for handling messages. It specifies the prefixes that clients can use to send messages
-//   * to the server, as well as the destinations for which the broker will provide
-//   * message routing and delivery.
-//   *
-//   * <p>
-//   * The following prefixes are set:
-//   * <ul>
-//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHAT_APPLICATION_DESTINATION} - Prefix for chat-related messages.</li>
-//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#AUTH_USER_APPLICATION_DESTINATION} - Prefix for user authentication messages.</li>
-//   * </ul>
-//   *
-//   * The following simple broker destinations are enabled:
-//   * <ul>
-//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#CHATS_BROKER_DESTINATION} - Destination for chat messages.</li>
-//   *     <li>{@link online.talkandtravel.util.constants.ApiPathConstants#USER_BROKER_DESTINATION} - Destination for user-related messages.</li>
-//   * </ul>
-//   *
-//   * @param registry the message broker registry to configure
-//   */
+  /**
+   * Configures the message broker for handling WebSocket messages.
+   * <p>
+   * This method sets the application destination prefixes that are used to route
+   * messages from clients to the server, and enables a simple message broker
+   * to route messages from the server back to clients.
+   * </p>
+   * <ul>
+   *   <li>Application destination prefix - /request</li>
+   *   <li>Broker Prefix - /notify</li>
+   * </ul>
+   *
+   * @param registry the {@link MessageBrokerRegistry} used to configure the message broker.
+   *                 It allows setting destination prefixes for application destinations
+   *                 and enabling the message broker.
+   */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
     registry.setApplicationDestinationPrefixes(APPLICATION_DESTINATION_PREFIX);
     registry.enableSimpleBroker(BROKER_DESTINATION_PREFIX);
   }
-
 }
