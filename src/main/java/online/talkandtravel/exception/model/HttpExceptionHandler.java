@@ -1,5 +1,8 @@
 package online.talkandtravel.exception.model;
 
+import static online.talkandtravel.exception.util.ExceptionHandlerUtils.VALIDATION_FAILED_MESSAGE;
+import static online.talkandtravel.exception.util.ExceptionHandlerUtils.getArgumentValidations;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
@@ -30,7 +33,6 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 @Log4j2
 public class HttpExceptionHandler {
 
-  private static final String VALIDATION_FAILED_MESSAGE = "Validation failed: ";
 
   @ExceptionHandler(HttpException.class)
   public ResponseEntity<ExceptionResponse> handleApiException(HttpException e) {
@@ -86,7 +88,6 @@ public class HttpExceptionHandler {
     return createBadRequestResponse(VALIDATION_FAILED_MESSAGE + validationResults, request);
   }
 
-  //todo: delete or refactor this method
   @ExceptionHandler(value = {ConstraintViolationException.class})
   public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException e, ServletWebRequest request) {
     Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
@@ -110,18 +111,6 @@ public class HttpExceptionHandler {
     return ResponseEntity.badRequest().body(response);
   }
 
-
-  /**
-   * Extracts and formats validation errors from the {@link BindingResult}.
-   *
-   * @param bindingResult the {@link BindingResult} containing validation errors
-   * @return a formatted string of validation errors, with each error separated by a comma
-   */
-  private String getArgumentValidations(BindingResult bindingResult) {
-    return bindingResult.getFieldErrors().stream()
-        .map(fieldError -> fieldError.getField() + " " + fieldError.getDefaultMessage())
-        .collect(Collectors.joining(", "));
-  }
 
   /**
    * Formats validation errors from a list of {@link ParameterValidationResult}.

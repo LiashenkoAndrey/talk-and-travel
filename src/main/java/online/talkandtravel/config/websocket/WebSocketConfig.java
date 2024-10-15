@@ -1,5 +1,8 @@
 package online.talkandtravel.config.websocket;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.APPLICATION_DESTINATION_PREFIX;
+import static online.talkandtravel.util.constants.ApiPathConstants.BROKER_DESTINATION_PREFIX;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +36,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  *       </ul>
  * </ul>
  *
- * @param registry {@link StompEndpointRegistry} to register STOMP endpoints.
- * @param registry {@link MessageBrokerRegistry} to configure the message broker.
  */
 @Configuration
 @EnableWebSocketMessageBroker
@@ -68,9 +69,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         .withSockJS();
   }
 
+  /**
+   * Configures the message broker for handling WebSocket messages.
+   * <p>
+   * This method sets the application destination prefixes that are used to route
+   * messages from clients to the server, and enables a simple message broker
+   * to route messages from the server back to clients.
+   * </p>
+   * <ul>
+   *   <li>Application destination prefix - /request</li>
+   *   <li>Broker Prefix - /notify</li>
+   * </ul>
+   *
+   * @param registry the {@link MessageBrokerRegistry} used to configure the message broker.
+   *                 It allows setting destination prefixes for application destinations
+   *                 and enabling the message broker.
+   */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.setApplicationDestinationPrefixes("/chat", "/auth-user");
-    registry.enableSimpleBroker("/countries", "/user");
+    registry.setApplicationDestinationPrefixes(APPLICATION_DESTINATION_PREFIX);
+    registry.enableSimpleBroker(BROKER_DESTINATION_PREFIX);
   }
 }

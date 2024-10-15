@@ -8,12 +8,12 @@ import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getAliceSaved;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static online.talkandtravel.testdata.UserTestData.getBobSaved;
-import static online.talkandtravel.util.constants.ApiPathConstants.JOIN_CHAT_EVENT_PATH;
-import static online.talkandtravel.util.constants.ApiPathConstants.LEAVE_CHAT_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.JOIN_CHAT_EVENT_FULL_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.LEAVE_CHAT_EVENT_FULL_PATH;
 import static online.talkandtravel.util.constants.ApiPathConstants.MESSAGES_SUBSCRIBE_PATH;
-import static online.talkandtravel.util.constants.ApiPathConstants.START_TYPING_EVENT_PATH;
-import static online.talkandtravel.util.constants.ApiPathConstants.STOP_TYPING_EVENT_PATH;
-import static online.talkandtravel.util.constants.ApiPathConstants.UPDATE_ONLINE_STATUS_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.START_TYPING_EVENT_FULL_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.STOP_TYPING_EVENT_FULL_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.UPDATE_ONLINE_STATUS_FULL_PATH;
 import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,7 +72,7 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
     @MethodSource("updateOnlineStatusTestArgs")
     void updateOnlineStatusTest(Integer index, StompSession stompSession, Long userId,
         Boolean isOnline) {
-      stompSession.send(UPDATE_ONLINE_STATUS_PATH, toWSPayload(isOnline));
+      stompSession.send(UPDATE_ONLINE_STATUS_FULL_PATH, toWSPayload(isOnline));
       pause(AFTER_SEND_PAUSE_TIME);
       assertMessage(index, userId, isOnline);
     }
@@ -162,18 +162,18 @@ public class EventControllerIntegrationTest extends StompIntegrationTest {
 
     private Stream<Arguments> chatEventsTestArgs() {
       return Stream.of(
-          Arguments.of(0, aliceStompSession, JOIN_CHAT_EVENT_PATH, ARUBA_CHAT_ID, MessageType.JOIN,
+          Arguments.of(0, aliceStompSession, JOIN_CHAT_EVENT_FULL_PATH, ARUBA_CHAT_ID, MessageType.JOIN,
               "Alice joined the chat"),
-          Arguments.of(null, aliceStompSession, JOIN_CHAT_EVENT_PATH, ANGOLA_CHAT_ID, null, null),
-          Arguments.of(null, bobStompSession, JOIN_CHAT_EVENT_PATH, ANGOLA_CHAT_ID, null, null),
-          Arguments.of(null, bobStompSession, START_TYPING_EVENT_PATH, ANGOLA_CHAT_ID, null, null),
-          Arguments.of(1, aliceStompSession, START_TYPING_EVENT_PATH, ARUBA_CHAT_ID,
+          Arguments.of(null, aliceStompSession, JOIN_CHAT_EVENT_FULL_PATH, ANGOLA_CHAT_ID, null, null),
+          Arguments.of(null, bobStompSession, JOIN_CHAT_EVENT_FULL_PATH, ANGOLA_CHAT_ID, null, null),
+          Arguments.of(null, bobStompSession, START_TYPING_EVENT_FULL_PATH, ANGOLA_CHAT_ID, null, null),
+          Arguments.of(1, aliceStompSession, START_TYPING_EVENT_FULL_PATH, ARUBA_CHAT_ID,
               MessageType.START_TYPING, null),
-          Arguments.of(2, aliceStompSession, STOP_TYPING_EVENT_PATH, ARUBA_CHAT_ID,
+          Arguments.of(2, aliceStompSession, STOP_TYPING_EVENT_FULL_PATH, ARUBA_CHAT_ID,
               MessageType.STOP_TYPING, null),
-          Arguments.of(3, aliceStompSession, LEAVE_CHAT_EVENT_PATH, ARUBA_CHAT_ID,
+          Arguments.of(3, aliceStompSession, LEAVE_CHAT_EVENT_FULL_PATH, ARUBA_CHAT_ID,
               MessageType.LEAVE, "Alice left the chat"),
-          Arguments.of(null, bobStompSession, LEAVE_CHAT_EVENT_PATH, ANGOLA_CHAT_ID, null, null)
+          Arguments.of(null, bobStompSession, LEAVE_CHAT_EVENT_FULL_PATH, ANGOLA_CHAT_ID, null, null)
       );
     }
 

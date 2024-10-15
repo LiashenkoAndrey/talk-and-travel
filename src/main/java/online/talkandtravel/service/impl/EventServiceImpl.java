@@ -247,22 +247,15 @@ public class EventServiceImpl implements EventService {
   }
 
   private Chat getChat(EventRequest request, Long authorId) {
-    try {
-      return chatRepository
-          .findById(request.chatId())
-          .orElseThrow(() -> new ChatNotFoundException(request.chatId()));
-    } catch (ChatNotFoundException e) {
-      throw new WebSocketException(e, authorId);
-    }
+    return chatRepository
+        .findById(request.chatId())
+        .orElseThrow(
+            () -> new WebSocketException(new ChatNotFoundException(request.chatId()), authorId));
   }
 
   private void throwIfChatNotExists(EventRequest request, Long authorId) {
     if (!chatRepository.existsById(request.chatId())) {
-      try {
-        throw new ChatNotFoundException(request.chatId());
-      } catch (ChatNotFoundException e) {
-        throw new WebSocketException(e, authorId);
-      }
+      throw new WebSocketException(new ChatNotFoundException(request.chatId()), authorId);
     }
   }
 

@@ -1,5 +1,11 @@
 package online.talkandtravel.controller.websocket;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.JOIN_CHAT_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.LEAVE_CHAT_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.MESSAGES_SUBSCRIBE_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.START_TYPING_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.STOP_TYPING_EVENT_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.UPDATE_ONLINE_STATUS_EVENT_PATH;
 import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 import jakarta.validation.Valid;
@@ -41,48 +47,44 @@ public class EventController {
   private final SimpMessagingTemplate messagingTemplate;
   private final OnlineService onlineService;
 
-  @MessageMapping("/events.updateOnlineStatus")
+  @MessageMapping(UPDATE_ONLINE_STATUS_EVENT_PATH)
   @SendTo(USERS_ONLINE_STATUS_ENDPOINT)
-  public OnlineStatusDto updateUserOnlineStatus(@Payload Boolean isOnline, Principal principal) {
+  public OnlineStatusDto updateUserOnlineStatus(@Valid @Payload Boolean isOnline, Principal principal) {
     return onlineService.updateUserOnlineStatus(principal, isOnline);
   }
 
-  @MessageMapping("/events.joinChat")
-  public void joinChat(@Payload @Valid EventRequest request, Principal principal) {
+  @MessageMapping(JOIN_CHAT_EVENT_PATH)
+  public void joinChat(@Valid @Payload EventRequest request, Principal principal) {
     log.info("create a new JOIN CHAT event {}, {}", request, principal);
     MessageDto message = eventService.joinChat(request, principal);
     sendResponse(request, message);
   }
 
-  @MessageMapping("/events.leaveChat")
-  public void leaveChat(@Payload EventRequest request, Principal principal) {
+  @MessageMapping(LEAVE_CHAT_EVENT_PATH)
+  public void leaveChat(@Valid @Payload EventRequest request, Principal principal) {
     log.info("create a new LEAVE CHAT event {}", request);
     MessageDto message = eventService.leaveChat(request, principal);
     eventService.deleteChatIfEmpty(request, principal);
     sendResponse(request, message);
   }
 
-  @MessageMapping("/events.startTyping")
-  public void startTyping(@Payload EventRequest request, Principal principal) {
+  @MessageMapping(START_TYPING_EVENT_PATH)
+  public void startTyping(@Valid @Payload EventRequest request, Principal principal) {
     log.info("create a new START TYPING event {}", request);
     EventResponse message = eventService.startTyping(request, principal);
 
     sendResponse(request, message);
   }
 
-  @MessageMapping("/events.stopTyping")
-  public void stopTyping(@Payload EventRequest request, Principal principal) {
+  @MessageMapping(STOP_TYPING_EVENT_PATH)
+  public void stopTyping(@Valid @Payload EventRequest request, Principal principal) {
     log.info("create a new STOP TYPING event {}", request);
     EventResponse message = eventService.stopTyping(request, principal);
 
     sendResponse(request, message);
   }
 
-  private void sendResponse(EventRequest request, MessageDto message) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
-  }
-
-  private void sendResponse(EventRequest request, EventResponse message) {
-    messagingTemplate.convertAndSend("/countries/" + request.chatId() + "/messages", message);
+  private <T> void sendResponse(EventRequest request, T message) {
+    messagingTemplate.convertAndSend(MESSAGES_SUBSCRIBE_PATH.formatted(request.chatId()), message);
   }
 }
