@@ -1,8 +1,10 @@
 package online.talkandtravel.model.dto.user;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
-public record OnlineStatusResponse (
+public record OnlineStatusResponse(
     Boolean isOnline,
-    LocalDateTime lastSeenOn
-) { }
+    ZonedDateTime lastSeenOn
+) {
+
+}

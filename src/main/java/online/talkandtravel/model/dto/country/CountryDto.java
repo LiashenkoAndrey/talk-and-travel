@@ -12,4 +12,10 @@ import online.talkandtravel.model.dto.chat.ChatInfoDto;
  *   <li>{@code chats} - List of chats associated with the country.
  * </ul>
  */
-public record CountryDto(String name, String flagCode, List<ChatInfoDto> chats) {}
+public record CountryDto(
+    String name,
+    String flagCode,
+    List<ChatInfoDto> chats
+) {
+
+}

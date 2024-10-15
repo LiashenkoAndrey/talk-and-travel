@@ -5,14 +5,13 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
 import online.talkandtravel.exception.token.AuthenticationHeaderIsInvalidException;
 import online.talkandtravel.facade.AuthenticationFacade;
-import online.talkandtravel.repository.TokenRepository;
-import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
@@ -36,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final TokenService tokenService;
   private final ObjectMapper objectMapper;
   private final AuthenticationFacade authFacade;
+
   /**
    * Processes each incoming HTTP request and attempts to authenticate it based on the JWT token
    * present in the Authorization header. If the token is valid, the request proceeds; otherwise,
@@ -107,7 +107,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private void sendErrorResponse(HttpServletResponse response) throws IOException {
     ExceptionResponse exceptionResponse =
         new ExceptionResponse(
-            "Authentication failed", HttpStatus.UNAUTHORIZED, ZonedDateTime.now());
+            "Authentication failed", HttpStatus.UNAUTHORIZED, ZonedDateTime.now(ZoneOffset.UTC));
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     response.setContentType("application/json");
     response.getWriter().write(objectMapper.writeValueAsString(exceptionResponse));

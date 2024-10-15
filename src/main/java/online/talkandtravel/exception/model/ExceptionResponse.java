@@ -16,4 +16,5 @@ public record ExceptionResponse(String message, HttpStatus httpStatus, ZonedDate
   public ExceptionResponse(String message, HttpStatus httpStatus, ZonedDateTime timestamp) {
     this(message, httpStatus, timestamp, null);
   }
+
 }

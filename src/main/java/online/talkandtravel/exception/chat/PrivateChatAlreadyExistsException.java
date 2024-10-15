@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 /**
  * Exception thrown when a private chat already exists between two users.
  *
- * @param participantIds List of users who are part of the existing private chat.
  */
 public class PrivateChatAlreadyExistsException extends HttpException {
 

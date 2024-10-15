@@ -1,6 +1,8 @@
 package online.talkandtravel.service.impl;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
@@ -19,8 +21,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * Implementation of the {@link UserService} for managing user-related operations such as saving,
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void updateLastLoggedOnToNow(User user) {
-    user.setLastLoggedOn(LocalDateTime.now());
+    user.setLastLoggedOn(ZonedDateTime.now(ZoneOffset.UTC));
     userRepository.save(user);
   }
 

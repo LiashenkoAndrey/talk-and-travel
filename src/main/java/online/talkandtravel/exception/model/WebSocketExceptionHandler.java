@@ -3,6 +3,7 @@ package online.talkandtravel.exception.model;
 import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
 
 import java.security.Principal;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class WebSocketExceptionHandler {
     User user = getUserFromPrincipal(principal);
     String message = "Could not read JSON";
     ExceptionResponse errorMessage =
-        new ExceptionResponse(message, HttpStatus.BAD_REQUEST, ZonedDateTime.now());
+        new ExceptionResponse(message, HttpStatus.BAD_REQUEST, ZonedDateTime.now(ZoneOffset.UTC));
     sendErrorToUser(user.getId(), errorMessage);
   }
 

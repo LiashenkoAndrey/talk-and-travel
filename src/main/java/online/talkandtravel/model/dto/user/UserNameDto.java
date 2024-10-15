@@ -6,4 +6,9 @@ package online.talkandtravel.model.dto.user;
  * @param id The unique identifier of the user.
  * @param userName The name of the user.
  */
-public record UserNameDto(Long id, String userName) {}
+public record UserNameDto(
+    Long id,
+    String userName
+) {
+
+}

@@ -1,6 +1,7 @@
 package online.talkandtravel.model.dto.message;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 /**
  * Data Transfer Object (DTO) for representing a basic message.
  *
@@ -15,9 +16,11 @@ import java.time.LocalDateTime;
  */
 
 public record MessageDtoBasic(
-    Long id, String content, LocalDateTime creationDate, Long senderId, Long chatId, Long repliedMessageId) {
+    Long id,
+    String content,
+    ZonedDateTime creationDate,
+    Long senderId,
+    Long chatId,
+    Long repliedMessageId) {
 
-  public MessageDtoBasic(String content) {
-    this(null, content, null, null, null, null);
-  }
 }

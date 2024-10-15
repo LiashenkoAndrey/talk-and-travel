@@ -17,6 +17,13 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 public class StompMessageHandler<T> implements StompFrameHandler {
   private final Consumer<T> consumer;
   private final Class<T> targetType;
+  private static final ObjectMapper objectMapper;
+
+  static  {
+    objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+  }
 
   public StompMessageHandler(Consumer<T> consumer, Class<T> targetType) {
     this.consumer = consumer;
@@ -36,12 +43,10 @@ public class StompMessageHandler<T> implements StompFrameHandler {
   private T parseJson(Object payload, Class<T> targetType) {
     try {
       String jsonString = new String((byte[]) payload, StandardCharsets.UTF_8);
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
-      objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
       return objectMapper.readValue(jsonString, targetType);
     } catch (JsonProcessingException e) {
       throw new RuntimeException("Json parse exception! Payload: %s, targetType: %s".formatted(payload, targetType),e);
     }
   }
+
 }

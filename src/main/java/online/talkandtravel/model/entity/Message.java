@@ -1,7 +1,17 @@
 package online.talkandtravel.model.entity;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,7 +52,8 @@ public class Message {
 
   private String content;
 
-  @CreationTimestamp private LocalDateTime creationDate;
+  @CreationTimestamp
+  private ZonedDateTime creationDate;
 
   @ManyToOne
   @JoinColumn(name = "sender_id")
