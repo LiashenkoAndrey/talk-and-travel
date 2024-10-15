@@ -27,12 +27,14 @@ public final class ApiPathConstants {
   public static final String FIND_ALL_USER_PUBLIC_CHATS = API_V2_BASE_PATH + "/user/public-chats";
 
   // Application destinations prefixes
-  public static final String CHAT_APPLICATION_DESTINATION = "/chat";
-  public static final String AUTH_USER_APPLICATION_DESTINATION = "/auth-user";
+  public static final String APPLICATION_DESTINATION_PREFIX = "/request";
+  public static final String CHAT_APPLICATION_DESTINATION = APPLICATION_DESTINATION_PREFIX + "/chat";
+  public static final String AUTH_USER_APPLICATION_DESTINATION = APPLICATION_DESTINATION_PREFIX + "/auth-user";
 
   // Message brokers prefixes
-  public static final String CHATS_BROKER_DESTINATION = "/chats";
-  public static final String USER_BROKER_DESTINATION = "/user";
+  public static final String BROKER_DESTINATION_PREFIX = "/broadcast";
+  public static final String CHATS_BROKER_DESTINATION = BROKER_DESTINATION_PREFIX + "/chat";
+  public static final String USER_BROKER_DESTINATION = BROKER_DESTINATION_PREFIX + "/user";
 
   // Websocket endpoints
   public static final String HANDSHAKE_URI = "http://localhost:%s/ws";
@@ -45,6 +47,6 @@ public final class ApiPathConstants {
   public static final String UPDATE_ONLINE_STATUS_PATH = AUTH_USER_APPLICATION_DESTINATION + "/events.updateOnlineStatus";
 
   // Websocket subscribe endpoints
-  public static final String USERS_ONLINE_STATUS_ENDPOINT = "/users/onlineStatus";
+  public static final String USERS_ONLINE_STATUS_ENDPOINT = BROKER_DESTINATION_PREFIX + "/users/onlineStatus";
   public static final String MESSAGES_SUBSCRIBE_PATH = CHATS_BROKER_DESTINATION + "/%s/messages";
 }
