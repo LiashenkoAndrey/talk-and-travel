@@ -1,0 +1,63 @@
+@startuml
+actor Frontend
+participant Backend
+participant ImageService
+participant VideoService
+participant AudioService
+participant FileService
+'participant AttachmentService
+participant ImageRepository
+participant AmazonS3
+
+==Upload images==
+
+Frontend -> Backend : Sends image POST /api/files/upload
+
+note left
+AttachmentRequest
+{
+  MultipartFile file;
+  AttachmentType type; // (e.g. VIDEO, AUDIO)
+}
+end note
+
+alt Create attachment according to type
+  Backend -> ImageService : create image attachment
+  ImageService -> ImageRepository : save to postgres
+  ImageRepository -> ImageService : return saved entity
+  ImageService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  ImageService -> Backend : return Image class
+else
+  Backend -> VideoService : create video attachment
+  note right: the same actions as a first example
+  VideoService -> Backend : return Video class
+else
+  Backend -> AudioService : create audio attachment
+  note right: the same actions as a first example
+  AudioService -> Backend : return Audio class
+else
+  Backend -> FileService : create file attachment
+  note right: the same actions as a first example
+  AudioService -> Backend : return File class
+end
+
+Backend -> Frontend : Sends saved attachment back\n(It saved to S3 and Postgres)
+
+note left
+DTO of class extended from Attachment class
+(e.g. FileDto, ImageDto, VideoDto, AudioDto)
+end note
+
+Frontend -> Backend : send message via WS /request/chat/messages
+note left
+SendMessageRequest
+{
+   String content,
+   Long chatId,
+   Long repliedMessageId,
+   Long attachmentId // saved attachment id
+}
+end note
+
+
+@enduml
