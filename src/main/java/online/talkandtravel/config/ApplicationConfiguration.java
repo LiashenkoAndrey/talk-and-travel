@@ -3,6 +3,7 @@ package online.talkandtravel.config;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -66,16 +67,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
-  private final List<String> ALLOWED_ORIGINS =
-      Arrays.asList(
-          "http://localhost:3001",
-          "http://localhost:3000",
-          "http://localhost:5500",
-          "https://oleksandrprokopenkodev.github.io",
-          "https://splendorous-kringle-40d196.netlify.app",
-          "http://localhost:8080",
-          "http://localhost:63342",
-          "https://reginavarybrus.github.io");
+
+  @Value("${ALLOWED_ORIGINS}")
+  private String ALLOWED_ORIGINS;
+
   private final List<String> ALLOWED_METHODS =
       Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD");
   private final List<String> ALLOWED_HEADERS =
@@ -108,7 +103,7 @@ public class ApplicationConfiguration {
 
   private CorsConfiguration createNewCorsConfiguration() {
     CorsConfiguration cors = new CorsConfiguration();
-    cors.setAllowedOrigins(ALLOWED_ORIGINS);
+    cors.setAllowedOrigins(Arrays.asList(ALLOWED_ORIGINS.split(",")));
     cors.setAllowedMethods(ALLOWED_METHODS);
     cors.setAllowedHeaders(ALLOWED_HEADERS);
     cors.setExposedHeaders(EXPOSED_HEADERS);
