@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
@@ -17,6 +18,7 @@ import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.TheSameUserException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -46,6 +48,7 @@ import online.talkandtravel.util.mapper.MessageMapper;
 import online.talkandtravel.util.mapper.UserChatMapper;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -198,6 +201,18 @@ public class ChatServiceImpl implements ChatService {
     return chatRepository
         .findAllByChatType(ChatType.GROUP, pageable)
         .map(chatMapper::toChatInfoDto);
+  }
+
+  @Override
+  public Page<BasicChatInfoDto> findAllCountriesMainChats(Pageable pageable) {
+    Page<Chat> chatPage = chatRepository.findAllByChatType(ChatType.GROUP, pageable);
+
+    List<BasicChatInfoDto> filteredChats = chatPage.stream()
+        .filter(chat -> chat.getName().equals(chat.getCountry().getName()))
+        .map(chatMapper::toBasicChatInfoDto)
+        .collect(Collectors.toList());
+
+    return new PageImpl<>(filteredChats, pageable, chatPage.getTotalElements());
   }
 
   @Override

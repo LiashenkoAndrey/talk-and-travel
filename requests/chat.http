@@ -1,20 +1,30 @@
 
+###
+GET {{apiUrl}}/api/chats/247/messages/read
+    ?size=5
+    &page=0
+    &sort=creationDate,desc
+Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8080/api/chats/1/read-messages?
-    lastReadMessageId=4&
-    size=10&
+GET {{apiUrl}}/api/chats/247/messages/unread?
+    size=5&
     page=0
 Authorization: Bearer {{token}}
+
+###
+GET {{apiUrl}}/api/chats/77/messages/read?size=20&page=0&sort=creationDate,asc
+Authorization: Bearer {{token}}
+
+
+
 
 
 ###
 GET {{apiUrl}}/api/chats/1/unread-messages?
-    lastReadMessageId=4&
     size=10&
     page=0
 Authorization: Bearer {{token}}
-
 
 ###
 PATCH {{apiUrl}}/api/chats/244/messages/last-read
@@ -52,7 +62,13 @@ GET {{apiUrl}}/api/v2/user/chats
 Authorization: Bearer {{token}}
 
 
+###
+GET {{apiUrl}}/api/chats
+Authorization: Bearer {{token}}
 
+###
+GET {{apiUrl}}/api/v2/main-countries-chats?sort=id,asc
+Authorization: Bearer {{token}}
 
 ###
 POST {{apiUrl}}/api/chats

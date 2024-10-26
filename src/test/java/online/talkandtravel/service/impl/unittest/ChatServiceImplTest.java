@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl.unittest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +27,7 @@ import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -529,6 +531,49 @@ class ChatServiceImplTest {
       verify(userChatRepository).findAllByChatId(201L);
       verify(chatMapper, times(2)).chatToPrivateChatInfoDto(any(Chat.class), anyLong());
       verify(userChatMapper, times(2)).toPrivateChatDto(any(), any(), any());
+    }
+
+    @Nested
+    class FindAllCountriesMainChats {
+      private final Country country = new Country("TestCountry", "flagCode");
+      private final Chat customPublicChat = Chat.builder()
+          .name("test")
+          .country(country)
+          .build();
+
+      @Test
+      void shouldReturnBasicChatInfoDtoPage() {
+        chat.setCountry(country);
+
+        Page<Chat> chatPage = new PageImpl<>(List.of(chat, customPublicChat));
+        BasicChatInfoDto basicChatInfoDto = new BasicChatInfoDto(1L, "name", 4L, new CountryInfoDto("name", "flagCode"));
+        when(chatRepository.findAllByChatType(ChatType.GROUP, Pageable.ofSize(10))).thenReturn(chatPage);
+        when(chatMapper.toBasicChatInfoDto(chat)).thenReturn(basicChatInfoDto);
+
+        Page<BasicChatInfoDto> actual = underTest.findAllCountriesMainChats(Pageable.ofSize(10));
+
+        assertNotNull(actual);
+        assertEquals(1, actual.getTotalElements());
+        assertEquals(basicChatInfoDto, actual.toList().get(0));
+
+        verify(chatRepository).findAllByChatType(ChatType.GROUP, Pageable.ofSize(10));
+        verify(chatMapper).toBasicChatInfoDto(chat);
+      }
+
+
+      @Test
+      void shouldReturnBasicChatInfoDtoPage_whenNoElements() {
+        Page<Chat> chatPage = new PageImpl<>(List.of());
+        when(chatRepository.findAllByChatType(ChatType.GROUP, Pageable.ofSize(10))).thenReturn(chatPage);
+
+        Page<BasicChatInfoDto> actual = underTest.findAllCountriesMainChats(Pageable.ofSize(10));
+
+        assertNotNull(actual);
+        assertEquals(0, actual.getTotalElements());
+
+        verify(chatRepository).findAllByChatType(ChatType.GROUP, Pageable.ofSize(10));
+        verifyNoInteractions(chatMapper);
+      }
     }
 
     private static Message buildMessage(Chat chat, User sender, Long id, String content) {

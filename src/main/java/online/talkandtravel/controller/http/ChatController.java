@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -72,6 +73,11 @@ public class ChatController {
   @PostMapping("/chats/private")
   public Long createPrivateChat(@Valid @RequestBody NewPrivateChatDto dto) {
     return chatService.createPrivateChat(dto);
+  }
+
+  @GetMapping("/v2/main-countries-chats")
+  public Page<BasicChatInfoDto> findAllMainCountriesChats(Pageable pageable) {
+    return chatService.findAllCountriesMainChats(pageable);
   }
 
   @GetMapping("/chats")
