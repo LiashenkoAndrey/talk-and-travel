@@ -67,7 +67,7 @@ GET {{apiUrl}}/api/chats
 Authorization: Bearer {{token}}
 
 ###
-GET {{apiUrl}}/api/v2/main-countries-chats?sort=id,ascf
+GET {{apiUrl}}/api/v2/main-countries-chats?sort=id,asc
 Authorization: Bearer {{token}}
 
 ###
