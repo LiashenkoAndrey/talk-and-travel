@@ -12,7 +12,11 @@ jobs:
     steps:
       - name: stop running application
         run: sudo systemctl stop talk_and_travel
+      - name: change dir
+        run: cd /home/admin/talk-and-travel
+      - name: remove possible uncommitted git changes
+        run: sudo git restore .
       - name: fetch updated code
-        run: cd /home/admin/talk-and-travel && sudo git pull
+        run: sudo git pull
       - name: run service
         run: sudo systemctl start talk_and_travel
