@@ -14,8 +14,6 @@ jobs:
         run: sudo systemctl stop talk_and_travel
       - name: change dir
         run: cd /home/admin/talk-and-travel
-      - name: remove possible uncommitted git changes
-        run: git restore .
       - name: fetch updated code
         run: sudo git pull
       - name: run service
