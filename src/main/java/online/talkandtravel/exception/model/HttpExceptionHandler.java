@@ -40,7 +40,6 @@ public class HttpExceptionHandler {
 
   @ExceptionHandler(PropertyReferenceException.class)
   public ResponseEntity<ExceptionResponse> handlePropertyReferenceException(PropertyReferenceException e) {
-    log.info(e.getBaseProperty());
     return createResponse(new HttpException(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
