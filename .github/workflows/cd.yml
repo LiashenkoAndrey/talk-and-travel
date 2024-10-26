@@ -14,6 +14,8 @@ jobs:
         run: sudo systemctl stop talk_and_travel
       - name: change dir
         run: cd /home/admin/talk-and-travel
+      - name: dir check
+        run: pwd
       - name: fetch updated code
         run: sudo git pull
       - name: run service
