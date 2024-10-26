@@ -1,6 +1,7 @@
 package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
+import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.PrivateChatInfoDto;
@@ -49,6 +50,9 @@ public interface ChatMapper {
   @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
   ChatInfoDto toChatInfoDto(Chat chat);
+
+  @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")
+  BasicChatInfoDto toBasicChatInfoDto(Chat chat);
 
   @Mapping(target = "messagesCount", expression = "java((long) chat.getMessages().size())")
   @Mapping(target = "usersCount", expression = "java((long) chat.getUsers().size())")

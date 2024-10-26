@@ -1,6 +1,7 @@
 package online.talkandtravel.service;
 
 import java.util.List;
+import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
 import online.talkandtravel.model.dto.chat.NewChatDto;
@@ -66,6 +67,8 @@ public interface ChatService {
   Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable);
 
   Page<ChatInfoDto> findAllGroupChats(Pageable pageable);
+
+  Page<BasicChatInfoDto> findAllCountriesMainChats(Pageable pageable);
 
   ChatDto findMainChat(String countryName);
 

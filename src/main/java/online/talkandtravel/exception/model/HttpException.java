@@ -1,6 +1,8 @@
 package online.talkandtravel.exception.model;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -18,7 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Getter
 @Setter
 @ToString
-public abstract class HttpException extends RuntimeException {
+public class HttpException extends RuntimeException {
     private ZonedDateTime zonedDateTime;
     private String messageToClient;
     private HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
@@ -83,7 +85,13 @@ public abstract class HttpException extends RuntimeException {
     public String getRequestUri() {
         Optional<ServletRequestAttributes> request = Optional.ofNullable(
             ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()));
-        return request.map((e) -> e.getRequest().getRequestURI())
+        return request.map((requestAttributes) -> {
+                String uri = requestAttributes.getRequest().getRequestURI();
+                String queryString = Optional.ofNullable(requestAttributes.getRequest().getQueryString())
+                    .map((e) -> URLDecoder.decode(e, StandardCharsets.UTF_8))
+                    .orElse("");
+                return queryString.isEmpty() ? uri : uri + "?" + queryString;
+            })
             .orElse(null);
     }
 }
