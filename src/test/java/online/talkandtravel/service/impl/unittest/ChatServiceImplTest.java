@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl.unittest;
 
+import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -108,7 +109,7 @@ class ChatServiceImplTest {
   @BeforeEach
   void setUp() {
     chat = Chat.builder()
-        .id(1L)
+        .id(ARUBA_CHAT_ID)
         .chatType(ChatType.GROUP)
         .name("TestCountry")
         .build();
@@ -713,11 +714,13 @@ class ChatServiceImplTest {
       createdOn = ZonedDateTime.now(ZoneOffset.UTC);
       messages = List.of(
               Message.builder()
+                  .chat(chat)
                       .id(1L)
                       .creationDate(createdOn)
                       .content("message 1")
                       .build(),
               Message.builder()
+                      .chat(chat)
                       .id(2L)
                       .creationDate(createdOn.minusDays(1))
                       .content("message 2")
@@ -741,7 +744,6 @@ class ChatServiceImplTest {
 
       Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, FROM_MESSAGE_ID, PAGEABLE);
 
-      log.info("result {}", result.toList());
       assertEquals(2, result.getTotalElements());
       assertEquals("message 1", result.toList().get(0).content());
       assertEquals("message 2", result.toList().get(1).content());
