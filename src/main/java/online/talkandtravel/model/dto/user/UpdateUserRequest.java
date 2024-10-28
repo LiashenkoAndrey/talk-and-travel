@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 public record UpdateUserRequest(
     @NotBlank String userName,
     @Email String userEmail,
-    @NotNull String about
+    String about
 ) {
 
 }

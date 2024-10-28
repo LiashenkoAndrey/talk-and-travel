@@ -1,5 +1,6 @@
 package online.talkandtravel.config;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.LOGOUT_URL;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,6 +57,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfiguration {
 
   private static final String[] WHITE_LIST_URL = {
+    "/health",
     "/api/authentication/login",
     "/api/authentication/register",
     "/swagger-ui/**",
@@ -67,7 +69,6 @@ public class SecurityConfiguration {
     "/api/avatars/user/{userID}",
     "/api/v2/user/{userID}/avatar"
   };
-  private static final String LOGOUT_URL = "/api/authentication/logout";
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;

@@ -9,10 +9,17 @@ jobs:
   deploy:
     if: github.event_name == 'push'
     runs-on: test
+
     steps:
-      - name: stop running application
+      - name: Stop running application
         run: sudo systemctl stop talk_and_travel
-      - name: fetch updated code
-        run: cd /home/admin/talk-and-travel && sudo git pull
-      - name: run service
+
+      - name: Fetch updated code
+        working-directory: /home/admin/talk-and-travel
+        run: |
+          sudo git restore .
+          sudo git pull
+          sudo chmod +x ./mvnw
+
+      - name: Start service
         run: sudo systemctl start talk_and_travel

@@ -5,16 +5,19 @@ import static online.talkandtravel.exception.util.ExceptionHandlerUtils.getArgum
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.file.ImageProcessingException;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,10 +25,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
-
-import java.time.ZonedDateTime;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /** Global api exception handler. */
@@ -37,6 +36,11 @@ public class HttpExceptionHandler {
   @ExceptionHandler(HttpException.class)
   public ResponseEntity<ExceptionResponse> handleApiException(HttpException e) {
     return createResponse(e, e.getHttpStatus());
+  }
+
+  @ExceptionHandler(PropertyReferenceException.class)
+  public ResponseEntity<ExceptionResponse> handlePropertyReferenceException(PropertyReferenceException e) {
+    return createResponse(new HttpException(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler({
