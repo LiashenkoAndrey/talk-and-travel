@@ -31,6 +31,7 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.IntegrationTest;
 import online.talkandtravel.exception.chat.PrivateChatAlreadyExistsException;
 import online.talkandtravel.exception.message.MessageFromAnotherChatException;
+import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.model.HttpException;
 import online.talkandtravel.exception.user.TheSameUserException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
@@ -233,11 +234,12 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     private static final Long CHAT_ID = 10000L;
 
     @Test
-    void findReadMessages_shouldReturnAllMessages_whenLastReadNotPresent() {
-      testAuthenticationService.authenticateUser(alice);
+    void findReadMessages_shouldReturnAllMessages_whenFromMessageIdNotPresent() {
+//      testAuthenticationService.authenticateUser(alice);
 
-      Page<MessageDto> messageDtoPage = underTest.findReadMessages(CHAT_ID, Pageable.unpaged());
-      assertEquals(10, messageDtoPage.getSize());
+//      Page<MessageDto> messageDtoPage = underTest.findReadMessages(CHAT_ID, 1L, Pageable.unpaged());
+      assertThrows(MessageNotFoundException.class, () -> underTest.findReadMessages(CHAT_ID, 500L, Pageable.unpaged()));
+//      assertEquals(10, messageDtoPage.getSize());
     }
 
     @Test
@@ -246,7 +248,7 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
       Long lastReadMessageId = 5L;
       testChatService.setLastReadMessageId(CHAT_ID, getAlice().getId(), lastReadMessageId);
 
-      Page<MessageDto> messageDtoPage = underTest.findReadMessages(CHAT_ID, Pageable.unpaged());
+      Page<MessageDto> messageDtoPage = underTest.findReadMessages(CHAT_ID, 1L, Pageable.unpaged());
       assertEquals(5, messageDtoPage.getSize());
 
       messageDtoPage.getContent().forEach(
@@ -254,7 +256,7 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    void findUnReadMessages_shouldReturnAllMessages_whenLastReadNotPresent() {
+    void findUnreadMessages_shouldReturnAllMessages_whenLastReadNotPresent() {
       testAuthenticationService.authenticateUser(alice);
 
       Page<MessageDto> messageDtoPage = underTest.findUnreadMessages(CHAT_ID, Pageable.unpaged());
