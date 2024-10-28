@@ -1,63 +1,55 @@
 @startuml
 actor Frontend
 participant Backend
+participant AttachmentFacade
 participant ImageService
 participant VideoService
 participant AudioService
 participant FileService
-'participant AttachmentService
 participant ImageRepository
 participant AmazonS3
 
 ==Upload images==
+Frontend -> Backend : send message via http /chat/messages
 
-Frontend -> Backend : Sends image POST /api/files/upload
-
-note left
-AttachmentRequest
-{
-  MultipartFile file;
-  AttachmentType type; // (e.g. VIDEO, AUDIO)
-}
-end note
-
-alt Create attachment according to type
-  Backend -> ImageService : create image attachment
-  ImageService -> ImageRepository : save to postgres
-  ImageRepository -> ImageService : return saved entity
-  ImageService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
-  ImageService -> Backend : return Image class
-else
-  Backend -> VideoService : create video attachment
-  note right: the same actions as a first example
-  VideoService -> Backend : return Video class
-else
-  Backend -> AudioService : create audio attachment
-  note right: the same actions as a first example
-  AudioService -> Backend : return Audio class
-else
-  Backend -> FileService : create file attachment
-  note right: the same actions as a first example
-  AudioService -> Backend : return File class
-end
-
-Backend -> Frontend : Sends saved attachment back\n(It saved to S3 and Postgres)
-
-note left
-DTO of class extended from Attachment class
-(e.g. FileDto, ImageDto, VideoDto, AudioDto)
-end note
-
-Frontend -> Backend : send message via WS /request/chat/messages
 note left
 SendMessageRequest
 {
    String content,
    Long chatId,
    Long repliedMessageId,
-   Long attachmentId // saved attachment id
+   String attachmentType
+   MultipartFile attachment
 }
 end note
 
+Backend -> AttachmentFacade : save please
+
+alt Create attachment according to type
+  AttachmentFacade -> ImageService : create image attachment
+  ImageService -> ImageRepository : save to postgres
+  ImageRepository -> ImageService : return saved entity
+  ImageService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  ImageService -> AttachmentFacade : return Image class
+else
+  Backend -> AttachmentFacade : create video attachment
+  VideoService -> ImageRepository : save to postgres
+  ImageRepository -> VideoService : return saved entity
+  VideoService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  VideoService -> AttachmentFacade : return Video class
+else
+  Backend -> AttachmentFacade : create audio attachment
+  AudioService -> ImageRepository : save to postgres
+  ImageRepository -> AudioService : return saved entity
+  AudioService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  AudioService -> AttachmentFacade : return Audio class
+else
+  Backend -> AttachmentFacade : create file attachment
+  FileService -> ImageRepository : save to postgres
+  ImageRepository -> FileService : return saved entity
+  FileService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  FileService -> AttachmentFacade : return File class
+end
+Backend -> Frontend : notify all, new message created
 
 @enduml
