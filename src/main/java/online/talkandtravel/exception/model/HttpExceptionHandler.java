@@ -5,7 +5,6 @@ import static online.talkandtravel.exception.util.ExceptionHandlerUtils.getArgum
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,9 +20,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
@@ -47,22 +46,22 @@ public class HttpExceptionHandler {
       MissingServletRequestPartException.class,
       HttpMediaTypeNotSupportedException.class,
       IllegalStateException.class,
+      MissingServletRequestParameterException.class
   })
-  ResponseEntity<ExceptionResponse> handleMissingServletRequestPartException(
-      Exception e, ServletWebRequest request) {
-    return createBadRequestResponse(e.getMessage(), request);
+  ResponseEntity<ExceptionResponse> handleMissingServletRequestPartException(Exception e) {
+    return createResponse(new HttpException(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler({DataIntegrityViolationException.class, ImageProcessingException.class})
-  public ResponseEntity<ExceptionResponse> handleDataIntegrityViolationException(ServletWebRequest request) {
+  public ResponseEntity<ExceptionResponse> handleDataIntegrityViolationException() {
     String message = "Provided data is not valid or can't be processed";
-    return createBadRequestResponse(message, request);
+    return createResponse(new HttpException(message), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler({HttpMessageNotReadableException.class})
-  public ResponseEntity<ExceptionResponse> handleMessageNotReadableException(ServletWebRequest request) {
+  public ResponseEntity<ExceptionResponse> handleMessageNotReadableException() {
     String message = "The required request body is missing or not readable.";
-    return createBadRequestResponse(message, request);
+    return createResponse(new HttpException(message), HttpStatus.BAD_REQUEST);
   }
 
   /**
@@ -75,9 +74,9 @@ public class HttpExceptionHandler {
    *         the HTTP status code (400 BAD_REQUEST), and the timestamp when the error occurred.
    */
   @ExceptionHandler({HandlerMethodValidationException.class})
-  public ResponseEntity<ExceptionResponse> handleMethodValidationExceptions(HandlerMethodValidationException e, ServletWebRequest request) {
+  public ResponseEntity<ExceptionResponse> handleMethodValidationExceptions(HandlerMethodValidationException e) {
     String validationResults = getMethodValidations(e.getAllValidationResults());
-    return createBadRequestResponse(VALIDATION_FAILED_MESSAGE + validationResults, request);
+    return createResponse(new HttpException(VALIDATION_FAILED_MESSAGE + validationResults), HttpStatus.BAD_REQUEST);
   }
 
   /**
@@ -87,34 +86,19 @@ public class HttpExceptionHandler {
    * @return an {@link ExceptionResponse} object containing the error message, HTTP status code, and the timestamp
    */
   @ExceptionHandler({MethodArgumentNotValidException.class})
-  public ResponseEntity<ExceptionResponse> handleArgumentValidationExceptions(MethodArgumentNotValidException e,  ServletWebRequest request) {
+  public ResponseEntity<ExceptionResponse> handleArgumentValidationExceptions(MethodArgumentNotValidException e) {
     String validationResults = getArgumentValidations(e.getBindingResult());
-    return createBadRequestResponse(VALIDATION_FAILED_MESSAGE + validationResults, request);
+    return createResponse(new HttpException(VALIDATION_FAILED_MESSAGE + validationResults), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(value = {ConstraintViolationException.class})
-  public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException e, ServletWebRequest request) {
+  public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException e) {
     Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
     String validationResults = violations.stream()
         .map((violation) -> String.format("'%s' - %s", violation.getPropertyPath(), violation.getMessage()))
         .collect(Collectors.joining(", "));
-    return createBadRequestResponse(VALIDATION_FAILED_MESSAGE + validationResults, request);
+    return createResponse(new HttpException(VALIDATION_FAILED_MESSAGE + validationResults), HttpStatus.BAD_REQUEST);
   }
-
-  private ResponseEntity<ExceptionResponse> createBadRequestResponse(String message, ServletWebRequest request) {
-    String requestURI = request.getRequest().getRequestURI();
-    log.error("{}, uri: {}", message, requestURI);
-
-    ExceptionResponse response = new ExceptionResponse(
-        message,
-        HttpStatus.BAD_REQUEST,
-        ZonedDateTime.now(),
-        requestURI
-    );
-
-    return ResponseEntity.badRequest().body(response);
-  }
-
 
   /**
    * Formats validation errors from a list of {@link ParameterValidationResult}.

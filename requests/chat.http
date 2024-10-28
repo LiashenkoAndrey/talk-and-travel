@@ -12,7 +12,6 @@ GET {{apiUrl}}/api/chats/1/messages/read
     ?size=5
     &page=0
     &sort=creationDate,desc
-    &from-message-id=4
 Authorization: Bearer {{token}}
 
 ###
