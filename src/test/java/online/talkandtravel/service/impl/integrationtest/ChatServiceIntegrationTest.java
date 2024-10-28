@@ -7,6 +7,7 @@ import static online.talkandtravel.config.TestDataConstant.USERS_DATA_SQL;
 import static online.talkandtravel.testdata.ChatTestData.ALICE_BOB_PRIVATE_CHAT_ID;
 import static online.talkandtravel.testdata.ChatTestData.ALICE_DELETED_USER_PRIVATE_CHAT_ID;
 import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.EXISTING_MESSAGE_ID_OF_ARUBA_CHAT;
 import static online.talkandtravel.testdata.ChatTestData.FIRST_MESSAGE_ID_OF_ALICE_BOB_CHAT;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +42,7 @@ import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.user.UserDtoShort;
+import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.repository.ChatRepository;
@@ -63,17 +66,23 @@ import org.springframework.test.context.jdbc.Sql;
 @Sql({USERS_DATA_SQL, PRIVATE_CHATS_DATA_SQL, CHAT_MESSAGES_DATA_SQL, CHAT_DATA_SQL})
 public class ChatServiceIntegrationTest extends IntegrationTest {
 
-  @Autowired private ChatService underTest;
+  @Autowired
+  private ChatService underTest;
 
-  @Autowired private ChatRepository chatRepository;
+  @Autowired
+  private ChatRepository chatRepository;
 
-  @Autowired private UserChatRepository userChatRepository;
+  @Autowired
+  private UserChatRepository userChatRepository;
 
-  @Autowired private TestAuthenticationService testAuthenticationService;
+  @Autowired
+  private TestAuthenticationService testAuthenticationService;
 
-  @Autowired private TestChatService testChatService;
+  @Autowired
+  private TestChatService testChatService;
 
-  @Autowired private MessageRepository messageRepository;
+  @Autowired
+  private MessageRepository messageRepository;
 
   private User bob, alice;
 
@@ -104,13 +113,16 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
       assertNotNull(actualList);
       assertEquals(expectedSize, actualList.size());
 
-      if (companionsMap == null) return;
+      if (companionsMap == null) {
+        return;
+      }
 
       for (Entry<Long, User> longUserEntry : companionsMap.entrySet()) {
         Optional<PrivateChatDto> optionalPrivateChatDto = actualList.stream()
             .filter((e) -> e.chat().id().equals(longUserEntry.getKey())).findFirst();
         assertTrue(optionalPrivateChatDto.isPresent(),
-            "Expected chat with id " + longUserEntry.getKey() + " not found for user: " + authenticatedUser.getUserName());
+            "Expected chat with id " + longUserEntry.getKey() + " not found for user: "
+                + authenticatedUser.getUserName());
         PrivateChatDto chatDto = optionalPrivateChatDto.get();
         UserDtoShort actual = chatDto.companion();
         User expected = longUserEntry.getValue();
@@ -137,7 +149,8 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
       testAuthenticationService.authenticateUser(authenticatedUser);
       expectedDataList.stream()
           .filter(Objects::nonNull)
-          .forEach((data) -> testChatService.setLastReadMessageId(data.getChatId(), authenticatedUser.getId(), data.getLastReadMessageId()));
+          .forEach((data) -> testChatService.setLastReadMessageId(data.getChatId(),
+              authenticatedUser.getId(), data.getLastReadMessageId()));
 
       List<PrivateChatDto> actualList = underTest.findAllUsersPrivateChats();
       assertNotNull(actualList);
@@ -170,6 +183,7 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
     @Getter
     @AllArgsConstructor
     private static class ExpectedData {
+
       private Long chatId, lastReadMessageId, unreadMessagesCount, lastMessageId;
     }
   }
@@ -179,7 +193,8 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
 
     @ParameterizedTest
     @MethodSource("shouldThrow_whenNoChatFoundArgs")
-    void shouldThrow_exception(Class<HttpException> httpExceptionClass, User auhenticatedUser, Long chatId, Long lastReadMessageId) {
+    void shouldThrow_exception(Class<HttpException> httpExceptionClass, User auhenticatedUser,
+        Long chatId, Long lastReadMessageId) {
       testAuthenticationService.authenticateUser(auhenticatedUser);
       SetLastReadMessageRequest request = new SetLastReadMessageRequest(lastReadMessageId);
       assertThrows(httpExceptionClass, () -> underTest.setLastReadMessage(chatId, request));
@@ -190,7 +205,8 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
       return Stream.of(
           Arguments.of(UserChatNotFoundException.class, tomas, 77777L, 4L),
           Arguments.of(UserChatNotFoundException.class, alice, 77772L, 4L),
-          Arguments.of(MessageFromAnotherChatException.class, alice, ARUBA_CHAT_ID, FIRST_MESSAGE_ID_OF_ALICE_BOB_CHAT)
+          Arguments.of(MessageFromAnotherChatException.class, alice, ARUBA_CHAT_ID,
+              FIRST_MESSAGE_ID_OF_ALICE_BOB_CHAT)
       );
     }
 
@@ -210,8 +226,9 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
 
       assertEquals(lastReadMessageId, userChat.getLastReadMessage().getId());
       assertEquals(expectedUnreadMessagesCount,
-          messageRepository.countAllByChatIdAndCreationDateAfter(chatId, userChat.getLastReadMessage()
-              .getCreationDate()));
+          messageRepository.countAllByChatIdAndCreationDateAfter(chatId,
+              userChat.getLastReadMessage()
+                  .getCreationDate()));
     }
 
     private static Stream<Arguments> shouldUpdate_whenChatFoundArgs() {
@@ -229,31 +246,48 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  class FindMessages {
+  class FindReadMessages {
 
-    private static final Long CHAT_ID = 10000L;
 
     @Test
     void findReadMessages_shouldReturnAllMessages_whenFromMessageIdNotPresent() {
-//      testAuthenticationService.authenticateUser(alice);
-
-//      Page<MessageDto> messageDtoPage = underTest.findReadMessages(CHAT_ID, 1L, Pageable.unpaged());
-      assertThrows(MessageNotFoundException.class, () -> underTest.findReadMessages(CHAT_ID, 500L, Pageable.unpaged()));
-//      assertEquals(10, messageDtoPage.getSize());
+      assertThrows(MessageNotFoundException.class,
+          () -> underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID, 500L, Pageable.unpaged()));
     }
 
     @Test
-    void findReadMessages_shouldReturnFiveMessages_whenLastReadIsPresent() {
-      testAuthenticationService.authenticateUser(alice);
-      Long lastReadMessageId = 5L;
-      testChatService.setLastReadMessageId(CHAT_ID, getAlice().getId(), lastReadMessageId);
-
-      Page<MessageDto> messageDtoPage = underTest.findReadMessages(CHAT_ID, 1L, Pageable.unpaged());
-      assertEquals(5, messageDtoPage.getSize());
-
-      messageDtoPage.getContent().forEach(
-          (message) -> assertThat(message.id()).isLessThanOrEqualTo(lastReadMessageId));
+    void findReadMessages_shouldThrowBadRequest_whenMessageIsFromOtherChat() {
+      assertThrows(MessageFromAnotherChatException.class,
+          () -> underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID, EXISTING_MESSAGE_ID_OF_ARUBA_CHAT, Pageable.unpaged()));
     }
+
+    @ParameterizedTest
+    @MethodSource("findReadMessages_shouldReturnPage_Args")
+    void findReadMessages_shouldReturnPage(Long fromMessageId, List<Long> expectedIdList) {
+      Message message = messageRepository.findById(fromMessageId).orElseThrow(() -> new MessageNotFoundException(fromMessageId));
+      ZonedDateTime fromMessageCreationDate = message.getCreationDate();
+
+      Page<MessageDto> messageDtoPage = underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID, fromMessageId,
+          Pageable.unpaged());
+      assertEquals(expectedIdList.size(), messageDtoPage.getSize());
+      assertEquals(expectedIdList, messageDtoPage.stream().map(MessageDto::id).toList());
+      messageDtoPage.toList().forEach((messageDto -> messageDto.creationDate().isBefore(fromMessageCreationDate)));
+    }
+
+
+    private static Stream<Arguments> findReadMessages_shouldReturnPage_Args() {
+      return Stream.of(
+          Arguments.of(5L, List.of(1L, 2L, 3L, 4L)),
+          Arguments.of(2L, List.of(1L)),
+          Arguments.of(1L, List.of())
+      );
+    }
+  }
+
+  @Nested
+  class FindUnreadMessages {
+
+    private static final Long CHAT_ID = 10000L;
 
     @Test
     void findUnreadMessages_shouldReturnAllMessages_whenLastReadNotPresent() {
