@@ -62,7 +62,7 @@ public interface ChatService {
 
   void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
-  Page<MessageDto> findReadMessages(Long chatId, Pageable pageable);
+  Page<MessageDto> findReadMessages(Long chatId, Long fromMessageId, Pageable pageable);
 
   Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable);
 

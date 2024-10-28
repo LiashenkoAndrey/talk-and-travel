@@ -63,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>{@link #findAllUsersPrivateChats()} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
- *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already read
+ *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user has already read
  *   <li>{@link ChatService#findUnreadMessages(Long, Pageable)} - finds messages that the user has
  *       not yet read
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves all chats with pagination.
@@ -171,17 +171,17 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDto> findReadMessages(Long chatId, Pageable pageable) {
-    User user = authenticationService.getAuthenticatedUser();
-    UserChat userChat = getUserChat(chatId, user.getId());
-    Optional<Message> lastReadMessageOpt = Optional.ofNullable(userChat.getLastReadMessage());
+  public Page<MessageDto> findReadMessages(Long chatId, Long fromMessageId, Pageable pageable) {
+    Message fromMessage = messageRepository.findById(fromMessageId)
+            .orElseThrow(() -> new MessageNotFoundException(fromMessageId));
 
-    return lastReadMessageOpt.map(
-            (lastReadMsg) -> messageRepository.findAllByChatIdAndCreationDateLessThanEqual(chatId,
-                lastReadMsg.getCreationDate(), pageable))
-        .orElseGet(() -> messageRepository.findAllByChatId(chatId, pageable))
-        .map(messageMapper::toMessageDto);
+    verifyMessageBelongsToChat(fromMessage, chatId);
+
+    return messageRepository.findAllByChatIdAndCreationDateLessThan(chatId, fromMessage.getCreationDate(), pageable)
+            .map(messageMapper::toMessageDto);
   }
+
+
 
   @Override
   public Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable) {

@@ -21,7 +21,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-  Page<Message> findAllByChatIdAndCreationDateLessThanEqual(Long chatId, ZonedDateTime creationDate, Pageable pageable);
+  Page<Message> findAllByChatIdAndCreationDateLessThan(Long chatId, ZonedDateTime creationDate, Pageable pageable);
 
   Optional<Message> findFirstByChatIdOrderByCreationDateDesc(Long chatId);
 
