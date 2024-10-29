@@ -115,10 +115,10 @@ public class ChatController {
    */
   @GetMapping("/chats/{chatId}/messages/read")
   public Page<MessageDto> getReadMessages(
-          @RequestParam(name = "from-message-id", required = false) @Valid @Positive Optional<Long> fromMessageId,
+          @RequestParam(name = "from-message-id", required = false) Long fromMessageId,
           @PathVariable @Valid @Positive Long chatId,
           @PageableDefault(sort = "creationDate") Pageable pageable) {
-    return chatService.findReadMessages(chatId, fromMessageId, pageable);
+    return chatService.findReadMessages(chatId, Optional.ofNullable(fromMessageId), pageable);
   }
 
   /** finds messages that was sent after specified last read message */
