@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -732,18 +733,61 @@ class ChatServiceImplTest {
     }
 
     @Test
-    void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
+    void findReadMessages_shouldReturnNotEmptyList_whenProvidedMessage() {
       when(messageRepository.findById(FROM_MESSAGE_ID)).thenReturn(Optional.of(messages.get(0)));
       when(messageRepository.findAllByChatIdAndCreationDateLessThan(CHAT_ID, messages.get(0).getCreationDate(), PAGEABLE))
               .thenReturn(messagePage);
+      setupMessageMapper();
 
+      Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, Optional.of(FROM_MESSAGE_ID), PAGEABLE);
+      assertMessageDtoResponse(result);
+
+      verify(messageRepository).findAllByChatIdAndCreationDateLessThan(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+      verifyNoInteractions(authenticationService);
+      verify(messageRepository, never()).findAllByChatId(anyLong(), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThanEqual(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+    }
+
+    @Test
+    void findReadMessages_shouldReturnNotEmptyList_whenNotProvidedMessage() {
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, user.getId())).thenReturn(
+          Optional.of(userChat));
+      when(messageRepository.findAllByChatIdAndCreationDateLessThanEqual(CHAT_ID, messages.get(0).getCreationDate(), PAGEABLE))
+          .thenReturn(messagePage);
+      setupMessageMapper();
+
+      Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, Optional.empty(), PAGEABLE);
+      assertMessageDtoResponse(result);
+
+      verify(messageRepository).findAllByChatIdAndCreationDateLessThanEqual(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatId(anyLong(), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThan(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+    }
+
+    @Test
+    void findReadMessages_shouldReturnNotEmptyList_whenNotProvidedMessageAndNoLastReadMessages() {
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, user.getId())).thenReturn(
+          Optional.of(new UserChat()));
+      when(messageRepository.findAllByChatId(CHAT_ID, PAGEABLE)).thenReturn(messagePage);
+      setupMessageMapper();
+
+      Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, Optional.empty(), PAGEABLE);
+      assertMessageDtoResponse(result);
+
+      verify(messageRepository).findAllByChatId(CHAT_ID, PAGEABLE);
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThan(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThanEqual(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+    }
+
+    private void setupMessageMapper() {
       messages.forEach(message ->
-              when(messageMapper.toMessageDto(message))
-                      .thenReturn(new MessageDto(message.getContent()))
+          when(messageMapper.toMessageDto(message)).thenReturn(new MessageDto(message.getContent()))
       );
+    }
 
-      Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, FROM_MESSAGE_ID, PAGEABLE);
-
+    private void assertMessageDtoResponse(Page<MessageDto> result) {
       assertEquals(2, result.getTotalElements());
       assertEquals("message 1", result.toList().get(0).content());
       assertEquals("message 2", result.toList().get(1).content());
@@ -752,7 +796,8 @@ class ChatServiceImplTest {
     @Test
     void findReadMessages_shouldThrowNotFound_whenNoSpecifiedMessageFound() {
       when(messageRepository.findById(FROM_MESSAGE_ID)).thenReturn(Optional.empty());
-      assertThrows(MessageNotFoundException.class ,() -> underTest.findReadMessages(CHAT_ID, FROM_MESSAGE_ID, PAGEABLE));
+      assertThrows(MessageNotFoundException.class ,() -> underTest.findReadMessages(CHAT_ID,
+          Optional.of(FROM_MESSAGE_ID), PAGEABLE));
     }
 
     @Test

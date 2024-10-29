@@ -171,17 +171,29 @@ public class ChatServiceImpl implements ChatService {
   }
 
   @Override
-  public Page<MessageDto> findReadMessages(Long chatId, Long fromMessageId, Pageable pageable) {
+  public Page<MessageDto> findReadMessages(Long chatId, Optional<Long> fromMessageIdOpt, Pageable pageable) {
+    return fromMessageIdOpt.map(aLong -> findReadMessagesFromSpecifiedMessage(chatId, aLong, pageable))
+        .orElseGet(() -> findReadMessagesFromLastReadMessage(chatId, pageable));
+  }
+
+  private Page<MessageDto> findReadMessagesFromSpecifiedMessage(Long chatId, Long fromMessageId, Pageable pageable) {
     Message fromMessage = messageRepository.findById(fromMessageId)
-            .orElseThrow(() -> new MessageNotFoundException(fromMessageId));
+        .orElseThrow(() -> new MessageNotFoundException(fromMessageId));
 
     verifyMessageBelongsToChat(fromMessage, chatId);
 
     return messageRepository.findAllByChatIdAndCreationDateLessThan(chatId, fromMessage.getCreationDate(), pageable)
-            .map(messageMapper::toMessageDto);
+        .map(messageMapper::toMessageDto);
   }
 
-
+  private Page<MessageDto> findReadMessagesFromLastReadMessage(Long chatId, Pageable pageable) {
+    User user = authenticationService.getAuthenticatedUser();
+    UserChat userChat = getUserChat(chatId, user.getId());
+    return Optional.ofNullable(userChat.getLastReadMessage())
+        .map(lastReadMsg -> messageRepository.findAllByChatIdAndCreationDateLessThanEqual(chatId, lastReadMsg.getCreationDate(), pageable))
+        .orElseGet(() -> messageRepository.findAllByChatId(chatId, pageable))
+        .map(messageMapper::toMessageDto);
+  }
 
   @Override
   public Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable) {
