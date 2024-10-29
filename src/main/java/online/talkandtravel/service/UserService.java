@@ -3,6 +3,7 @@ package online.talkandtravel.service;
 import java.io.IOException;
 import java.util.Optional;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -35,6 +36,8 @@ public interface UserService {
   void updateLastLoggedOnToNow(User user);
 
   UserDtoBasic createAndSaveNewUser(RegisterRequest request);
+
+  UserDtoBasic createAndSaveNewUser(SocialRegisterRequest request);
 
   UserDtoBasic mapToUserDtoBasic(User user);
 

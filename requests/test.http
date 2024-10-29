@@ -11,3 +11,21 @@ Authorization: Bearer {{token}}
 
 ###
 GET {{apiUrl}}/health
+
+
+###
+POST {{apiUrl}}/api/v2/authentication/social/register
+Content-Type: application/json
+
+{
+  "userName" : "Social of Alise2",
+  "userEmail" : "social2@i.ua"
+}
+
+###
+POST {{apiUrl}}/api/v2/authentication/social/login
+Content-Type: application/json
+
+{
+  "userEmail" : "social2@i.ua"
+}

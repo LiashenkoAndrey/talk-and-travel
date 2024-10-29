@@ -1,11 +1,8 @@
 // new endpoints
 
 ###
-GET {{apiUrl}}/api/v2/main-countries-chats?sort=id,asc
+GET {{apiUrl}}/api/v2/main-countries-chats?sort=users,name&size=1000
 Authorization: Bearer {{token}}
-
-
-
 
 ###
 GET {{apiUrl}}/api/chats/1/messages/read
@@ -21,7 +18,7 @@ GET {{apiUrl}}/api/chats/247/messages/unread?
 Authorization: Bearer {{token}}
 
 ###
-GET {{apiUrl}}/api/chats/77/messages/read?size=20&page=0&sort=creationDate,asc
+GET {{apiUrl}}/api/chats/247/messages/read
 Authorization: Bearer {{token}}
 
 

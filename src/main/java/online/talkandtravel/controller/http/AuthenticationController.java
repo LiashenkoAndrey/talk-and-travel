@@ -7,9 +7,13 @@ import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.SocialLoginRequest;
+import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import online.talkandtravel.service.OnlineService;
 import online.talkandtravel.util.constants.ApiPathConstants;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +35,7 @@ import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_
  * </ul>
  */
 @RestController
-@RequestMapping(ApiPathConstants.API_BASE_PATH + "/authentication")
+@RequestMapping(ApiPathConstants.API_BASE_PATH)
 @RequiredArgsConstructor
 @Log4j2
 public class AuthenticationController {
@@ -40,14 +44,28 @@ public class AuthenticationController {
   private final OnlineService onlineService;
   private final SimpMessagingTemplate messagingTemplate;
 
-  @PostMapping("/register")
+  @PostMapping("/authentication/register")
   public AuthResponse register(@RequestBody @Valid RegisterRequest dto) {
     AuthResponse response = authFacade.register(dto);
     notifyAllUserIsOnline(response);
     return response;
   }
 
-  @PostMapping("/login")
+  @PostMapping("/v2/authentication/social/register")
+  public ResponseEntity<AuthResponse> socialRegister(@RequestBody @Valid SocialRegisterRequest registerRequest) {
+    AuthResponse response = authFacade.socialRegister(registerRequest);
+    notifyAllUserIsOnline(response);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @PostMapping("/v2/authentication/social/login")
+  public AuthResponse socialLogin(@RequestBody @Valid SocialLoginRequest loginRequest) {
+    AuthResponse response = authFacade.socialLogin(loginRequest);
+    notifyAllUserIsOnline(response);
+    return response;
+  }
+
+  @PostMapping("/authentication/login")
   public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
     AuthResponse response = authFacade.login(loginRequest);
     notifyAllUserIsOnline(response);

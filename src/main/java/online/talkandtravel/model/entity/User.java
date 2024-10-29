@@ -60,7 +60,7 @@ public class User {
   @Column(nullable = false)
   private String userEmail;
 
-  @Column(nullable = false)
+  @Column
   private String password;
 
   @Enumerated(EnumType.STRING)
