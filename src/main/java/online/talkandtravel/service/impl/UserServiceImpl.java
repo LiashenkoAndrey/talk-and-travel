@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
   public UserDtoBasic createAndSaveNewUser(SocialRegisterRequest request) {
     User user = userMapper.registerRequestToUser(request);
     user.setRole(Role.USER);
-    return save(user);
+    return saveFromSocial(user);
   }
 
   @Override
@@ -128,6 +128,11 @@ public class UserServiceImpl implements UserService {
   @Override
   public boolean existsByEmail(String email) {
     return userRepository.findByUserEmail(email).isPresent();
+  }
+
+  private UserDtoBasic saveFromSocial(User user) {
+    User saved = userRepository.save(user);
+    return userMapper.toUserDtoBasic(saved);
   }
 
   /**

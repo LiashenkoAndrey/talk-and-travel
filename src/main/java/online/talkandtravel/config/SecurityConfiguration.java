@@ -60,6 +60,8 @@ public class SecurityConfiguration {
     "/health",
     "/api/authentication/login",
     "/api/authentication/register",
+    "/api/v2/authentication/social/register",
+    "/api/v2/authentication/social/login",
     "/swagger-ui/**",
     "/v3/**",
     "/api/users/exists-by-email/**",

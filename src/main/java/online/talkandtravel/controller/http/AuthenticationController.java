@@ -12,6 +12,8 @@ import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import online.talkandtravel.service.OnlineService;
 import online.talkandtravel.util.constants.ApiPathConstants;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,10 +52,10 @@ public class AuthenticationController {
   }
 
   @PostMapping("/v2/authentication/social/register")
-  public AuthResponse socialRegister(@RequestBody @Valid SocialRegisterRequest registerRequest) {
+  public ResponseEntity<AuthResponse> socialRegister(@RequestBody @Valid SocialRegisterRequest registerRequest) {
     AuthResponse response = authFacade.socialRegister(registerRequest);
     notifyAllUserIsOnline(response);
-    return response;
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   @PostMapping("/v2/authentication/social/login")
