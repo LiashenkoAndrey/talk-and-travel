@@ -55,7 +55,7 @@ public class AuthenticationController {
     notifyAllUserIsOnline(response);
     return response;
   }
-a
+
   @PostMapping("/v2/authentication/social/login")
   public AuthResponse socialLogin(@RequestBody @Valid SocialLoginRequest loginRequest) {
     AuthResponse response = authFacade.socialLogin(loginRequest);
