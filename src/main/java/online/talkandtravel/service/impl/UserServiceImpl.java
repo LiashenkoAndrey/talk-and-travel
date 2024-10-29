@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -59,6 +60,13 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDtoBasic createAndSaveNewUser(RegisterRequest request) {
+    User user = userMapper.registerRequestToUser(request);
+    user.setRole(Role.USER);
+    return save(user);
+  }
+
+  @Override
+  public UserDtoBasic createAndSaveNewUser(SocialRegisterRequest request) {
     User user = userMapper.registerRequestToUser(request);
     user.setRole(Role.USER);
     return save(user);

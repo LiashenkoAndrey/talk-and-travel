@@ -23,6 +23,8 @@ public interface AuthenticationService {
 
   void validateUserEmailAndPassword(String email, String password);
 
+  void validateUserEmail(String email);
+
   void checkForDuplicateEmail(String userEmail);
 
   User getAuthenticatedUser();
@@ -30,6 +32,8 @@ public interface AuthenticationService {
   boolean isUserAuthenticated();
 
   User checkUserCredentials(String email, String password);
+
+  User getRegisteredUser(String email);
 
   void authenticateUser(UserDetails userDetails, HttpServletRequest request);
 
