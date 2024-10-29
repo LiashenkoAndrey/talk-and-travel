@@ -248,38 +248,51 @@ public class ChatServiceIntegrationTest extends IntegrationTest {
   @Nested
   class FindReadMessages {
 
-
     @Test
     void findReadMessages_shouldReturnAllMessages_whenFromMessageIdNotPresent() {
       assertThrows(MessageNotFoundException.class,
-          () -> underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID, 500L, Pageable.unpaged()));
+          () -> underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID, Optional.of(500L), Pageable.unpaged()));
     }
 
     @Test
     void findReadMessages_shouldThrowBadRequest_whenMessageIsFromOtherChat() {
       assertThrows(MessageFromAnotherChatException.class,
-          () -> underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID, EXISTING_MESSAGE_ID_OF_ARUBA_CHAT, Pageable.unpaged()));
+          () -> underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID,
+              Optional.of(EXISTING_MESSAGE_ID_OF_ARUBA_CHAT), Pageable.unpaged()));
     }
 
     @ParameterizedTest
     @MethodSource("findReadMessages_shouldReturnPage_Args")
-    void findReadMessages_shouldReturnPage(Long fromMessageId, List<Long> expectedIdList) {
-      Message message = messageRepository.findById(fromMessageId).orElseThrow(() -> new MessageNotFoundException(fromMessageId));
-      ZonedDateTime fromMessageCreationDate = message.getCreationDate();
+    void findReadMessages_shouldReturnPage(Long fromMessageId, Long lastReadMessageId, List<Long> expectedIdList) {
+      testAuthenticationService.authenticateUser(alice);
+      if (lastReadMessageId != null) {
+        testChatService.setLastReadMessageId(ALICE_BOB_PRIVATE_CHAT_ID, alice.getId(), lastReadMessageId);
+      }
 
-      Page<MessageDto> messageDtoPage = underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID, fromMessageId,
+      Page<MessageDto> messageDtoPage = underTest.findReadMessages(ALICE_BOB_PRIVATE_CHAT_ID,
+          Optional.ofNullable(fromMessageId),
           Pageable.unpaged());
       assertEquals(expectedIdList.size(), messageDtoPage.getSize());
       assertEquals(expectedIdList, messageDtoPage.stream().map(MessageDto::id).toList());
-      messageDtoPage.toList().forEach((messageDto -> messageDto.creationDate().isBefore(fromMessageCreationDate)));
+
+      if (fromMessageId != null) {
+        Message message = messageRepository.findById(fromMessageId).orElseThrow(() -> new MessageNotFoundException(fromMessageId));
+        ZonedDateTime fromMessageCreationDate = message.getCreationDate();
+        messageDtoPage.toList().forEach((messageDto -> messageDto.creationDate().isBefore(fromMessageCreationDate)));
+      }
+
     }
 
 
     private static Stream<Arguments> findReadMessages_shouldReturnPage_Args() {
       return Stream.of(
-          Arguments.of(5L, List.of(1L, 2L, 3L, 4L)),
-          Arguments.of(2L, List.of(1L)),
-          Arguments.of(1L, List.of())
+          Arguments.of(5L, null, List.of(1L, 2L, 3L, 4L)),
+          Arguments.of(2L, null, List.of(1L)),
+          Arguments.of(1L, null, List.of()),
+          Arguments.of(null, 5L, List.of(1L, 2L, 3L, 4L, 5L)),
+          Arguments.of(null, 2L, List.of(1L, 2L)),
+          Arguments.of(null, 1L, List.of(1L)),
+          Arguments.of(null, null, List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L))
       );
     }
   }

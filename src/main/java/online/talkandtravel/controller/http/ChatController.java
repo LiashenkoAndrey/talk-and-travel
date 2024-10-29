@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
@@ -114,10 +115,10 @@ public class ChatController {
    */
   @GetMapping("/chats/{chatId}/messages/read")
   public Page<MessageDto> getReadMessages(
-          @RequestParam(name = "from-message-id") @Valid @Positive Long fromMessageId,
+          @RequestParam(name = "from-message-id", required = false) Long fromMessageId,
           @PathVariable @Valid @Positive Long chatId,
           @PageableDefault(sort = "creationDate") Pageable pageable) {
-    return chatService.findReadMessages(chatId, fromMessageId, pageable);
+    return chatService.findReadMessages(chatId, Optional.ofNullable(fromMessageId), pageable);
   }
 
   /** finds messages that was sent after specified last read message */
