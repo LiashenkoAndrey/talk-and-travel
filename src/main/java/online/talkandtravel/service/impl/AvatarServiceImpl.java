@@ -21,7 +21,6 @@ import online.talkandtravel.repository.AvatarRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.expression.spel.ast.OpAnd;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
