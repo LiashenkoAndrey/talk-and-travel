@@ -41,6 +41,9 @@ public class AvatarServiceImpl implements AvatarService {
   @Value("${avatars.max-size-in-mb}")
   private int MAX_SIZE_AVATAR; // Size in MB
 
+  @Value("${aws.region}")
+  private String AWS_REGION;
+
   private final AvatarRepository avatarRepository;
   private final AuthenticationService authenticationService;
   private final S3Client s3Client;
@@ -53,7 +56,7 @@ public class AvatarServiceImpl implements AvatarService {
 
   @Override
   public String generateImageUrl(Avatar avatar) {
-    return S3_URL_PATTERN.formatted(S3_BUCKET_NAME, avatar.getKey());
+    return S3_URL_PATTERN.formatted(S3_BUCKET_NAME, AWS_REGION, AVATARS_FOLDER_NAME, avatar.getKey());
   }
 
   @Override
@@ -90,7 +93,7 @@ public class AvatarServiceImpl implements AvatarService {
 
       PutObjectRequest putObjectRequest = PutObjectRequest.builder()
           .bucket(S3_BUCKET_NAME)
-          .key(AVATARS_FOLDER_NAME + key.toString())
+          .key(AVATARS_FOLDER_NAME + "/" + key.toString())
           .contentType(file.getContentType())
           .build();
 
