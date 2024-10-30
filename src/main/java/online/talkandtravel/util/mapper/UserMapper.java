@@ -1,8 +1,5 @@
 package online.talkandtravel.util.mapper;
 
-import static online.talkandtravel.util.constants.S3Constants.S3_BUCKET_NAME;
-import static online.talkandtravel.util.constants.S3Constants.S3_URL_PATTERN;
-
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
@@ -12,9 +9,11 @@ import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.service.AvatarService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Mapper interface for converting between {@link User} entities and various {@link User} data
@@ -24,27 +23,30 @@ import org.mapstruct.MappingTarget;
  * <p>This mapper relies on {@link MapperConfig} to apply global mapping settings.
  */
 @Mapper(config = MapperConfig.class)
-public interface UserMapper {
+public abstract class UserMapper {
 
-  UpdateUserResponse toUpdateUserResponse(User user);
+  @Autowired
+  private AvatarService avatarService;
 
-  void updateUser(UpdateUserRequest source, @MappingTarget User target);
+  public abstract UpdateUserResponse toUpdateUserResponse(User user);
 
-  User registerRequestToUser(RegisterRequest request);
+  public abstract void updateUser(UpdateUserRequest source, @MappingTarget User target);
 
-  User registerRequestToUser(SocialRegisterRequest request);
+  public abstract User registerRequestToUser(RegisterRequest request);
+
+  public abstract User registerRequestToUser(SocialRegisterRequest request);
 
   @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
-  UserDtoBasic toUserDtoBasic(User user);
+  public abstract UserDtoBasic toUserDtoBasic(User user);
 
   @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
-  UserNameDto toUserNameDto(User user);
+  public abstract UserNameDto toUserNameDto(User user);
 
-  default String generateAvatarUrl(Avatar avatar) {
+  // Custom method to generate avatar URL
+  public String generateAvatarUrl(Avatar avatar) {
     if (avatar == null) {
       return null;
     }
-    return S3_URL_PATTERN.formatted(S3_BUCKET_NAME, avatar.getKey());
+    return avatarService.generateImageUrl(avatar);
   }
-
 }
