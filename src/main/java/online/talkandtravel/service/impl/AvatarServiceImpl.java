@@ -64,11 +64,8 @@ public class AvatarServiceImpl implements AvatarService {
       log.info("Save or update user avatar for user: {}", user.getId());
       validateFile(file);
       Optional<Avatar> avatarOptional = avatarRepository.findByUserId(user.getId());
-      if (avatarOptional.isPresent()) {
-        return update(file, avatarOptional.get());
-      } else {
-        return save(file);
-      }
+      return avatarOptional.map(avatar -> update(file, avatar))
+          .orElseGet(() -> save(file));
 
     } catch (Exception e) {
       log.error("Exception when save or update avatar: "  + e.getMessage(), e);
