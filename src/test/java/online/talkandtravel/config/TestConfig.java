@@ -1,5 +1,6 @@
 package online.talkandtravel.config;
 
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import com.redis.testcontainers.RedisContainer;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.util.TestAuthenticationService;
@@ -54,7 +55,14 @@ public class TestConfig {
   }
 
   @Bean
-  public TestAuthenticationService testAuthenticationService() {
-    return new TestAuthenticationService();
+  public static S3MockContainer s3MockContainer(@Value("${S3_MOCK_CONTAINER_VERSION}") String s3MockVersion) {
+    var s3MockContainer = new S3MockContainer(s3MockVersion)
+        .withValidKmsKeys("1");
+
+    s3MockContainer.start();
+
+    log.info("S3 mock container started on port: {}, with endpoint: {} ", s3MockContainer.getHttpsServerPort(),
+        s3MockContainer.getHttpsEndpoint());
+    return s3MockContainer;
   }
 }
