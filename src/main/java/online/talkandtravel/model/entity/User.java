@@ -5,14 +5,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Size;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -70,12 +68,10 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Token> tokens = new ArrayList<>();
 
-  @Transient
   @OneToOne(
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      mappedBy = "user",
-      fetch = FetchType.LAZY)
+      mappedBy = "user")
   private Avatar avatar;
 
   @Size(max = 500, message = "Maximum number of characters for About 500")

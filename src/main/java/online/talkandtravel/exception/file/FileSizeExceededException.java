@@ -16,9 +16,11 @@ import org.springframework.http.HttpStatus;
  */
 public class FileSizeExceededException extends HttpException {
 
+  private static final String message = "File size exceeds %sMB";
+
   private static final HttpStatus STATUS = HttpStatus.BAD_REQUEST;
 
-  public FileSizeExceededException(String message) {
-    super(message, STATUS);
+  public FileSizeExceededException(int size) {
+    super(message.formatted(size), STATUS);
   }
 }

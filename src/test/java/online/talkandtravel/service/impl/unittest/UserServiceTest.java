@@ -52,7 +52,7 @@ class UserServiceTest {
   @Test
   void save_shouldEncodePassword_whenUserIsCorrect() {
     User user = createDefaultUser();
-    UserDtoBasic expected = new UserDtoBasic(USER_ID, USER_NAME, USER_EMAIL, USER_ABOUT);
+    UserDtoBasic expected = new UserDtoBasic(USER_ID, USER_NAME, USER_EMAIL, USER_ABOUT, "url");
 
     when(passwordEncoder.encode(USER_PASSWORD)).thenReturn("encodedPassword");
     when(userRepository.save(user)).thenReturn(user);

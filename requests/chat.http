@@ -23,6 +23,16 @@ Authorization: Bearer {{token}}
 
 
 ###
+GET {{apiUrl}}/api/chats/1/messages
+Authorization: Bearer {{token}}
+
+###
+GET {{apiUrl}}/api/chats/1/users
+Authorization: Bearer {{token}}
+
+
+
+###
 GET {{apiUrl}}/api/chats/1/unread-messages?
     size=10&
     page=0

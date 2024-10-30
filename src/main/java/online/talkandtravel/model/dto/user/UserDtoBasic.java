@@ -15,7 +15,8 @@ public record UserDtoBasic(
     Long id,
     String userName,
     String userEmail,
-    String about
+    String about,
+    String avatarUrl
 ) {
 
 }

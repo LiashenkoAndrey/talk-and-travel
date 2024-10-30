@@ -96,7 +96,7 @@ class EventServiceImplTest {
 
     message = Message.builder().chat(chat).sender(user).type(MessageType.START_TYPING).build();
 
-    userNameDto = new UserNameDto(1L, "user");
+    userNameDto = new UserNameDto(1L, "user", "url");
 
     messageDto =
         new MessageDto(

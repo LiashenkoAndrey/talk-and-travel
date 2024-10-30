@@ -257,7 +257,10 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public List<UserDtoBasic> findAllUsersByChatId(Long chatId) {
     Chat chat = getChat(chatId);
-    return chat.getUsers().stream().map(userMapper::toUserDtoBasic).toList();
+    return chat.getUsers().stream().map((e) -> {
+      log.info("user {} avatar {}", e.getId(), e.getAvatar());
+      return userMapper.toUserDtoBasic(e);
+    }).toList();
   }
 
   @Override

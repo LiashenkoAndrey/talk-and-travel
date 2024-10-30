@@ -62,7 +62,7 @@ class AuthenticationFacadeImplTest {
     @BeforeEach
     void setUp() {
       registerRequest = new RegisterRequest(alice.getUserName(), alice.getUserEmail(), alice.getPassword());
-      aliseDtoBasic = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout());
+      aliseDtoBasic = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout(), "url");
     }
 
     @Test
@@ -113,7 +113,7 @@ class AuthenticationFacadeImplTest {
   @Test
   void login_shouldLoginUserWithCorrectCredentials() {
     LoginRequest loginRequest = new LoginRequest(alice.getUserEmail(), alice.getPassword());
-    UserDtoBasic expected = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout());
+    UserDtoBasic expected = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout(), "url");
 
     when(authenticationService.checkUserCredentials(alice.getUserEmail(), alice.getPassword())).thenReturn(alice);
     doNothing().when(userService).updateLastLoggedOnToNow(alice);

@@ -133,7 +133,7 @@ class ChatServiceImplTest {
         .chats(List.of(chat))
         .build();
 
-    userDtoBasic = new UserDtoBasic(1L, "testUser", "Test User", "test@example.com");
+    userDtoBasic = new UserDtoBasic(1L, "testUser", "Test User", "test@example.com", "url");
 
     message = Message.builder()
         .chat(chat)
@@ -142,7 +142,7 @@ class ChatServiceImplTest {
         .build();
 
 
-    UserNameDto userNameDto = new UserNameDto(USER_ID, USER_NAME);
+    UserNameDto userNameDto = new UserNameDto(USER_ID, USER_NAME, "url");
     messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", ZonedDateTime.now(ZoneOffset.UTC),
         userNameDto, 1L, null);
 
@@ -166,7 +166,6 @@ class ChatServiceImplTest {
       String countryName = "TestCountry";
       country.setChats(Collections.emptyList());
       when(countryRepository.findById(countryName)).thenReturn(Optional.of(country));
-
       assertThrows(MainCountryChatNotFoundException.class, () -> underTest.findMainChat(countryName));
       verify(countryRepository, times(1)).findById(countryName);
     }
