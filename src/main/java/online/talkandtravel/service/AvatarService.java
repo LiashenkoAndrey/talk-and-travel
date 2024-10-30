@@ -26,5 +26,7 @@ public interface AvatarService {
 
   Avatar findByUserId(Long userId);
 
-  void saveOrUpdateUserAvatar(MultipartFile imageFile);
+  String generateImageUrl(Avatar avatar);
+
+  Avatar saveOrUpdateUserAvatar(MultipartFile imageFile);
 }

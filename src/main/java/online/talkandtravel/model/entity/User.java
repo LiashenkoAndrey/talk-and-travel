@@ -70,12 +70,10 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Token> tokens = new ArrayList<>();
 
-  @Transient
   @OneToOne(
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      mappedBy = "user",
-      fetch = FetchType.LAZY)
+      mappedBy = "user")
   private Avatar avatar;
 
   @Size(max = 500, message = "Maximum number of characters for About 500")

@@ -1,18 +1,12 @@
 package online.talkandtravel.controller.http;
 
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
-
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.service.AvatarService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,19 +29,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class AvatarController {
   private final AvatarService avatarService;
 
-  @Operation(description = "Get Avatar by User ID.")
-  @GetMapping({"/avatars/user/{userID}", "/v2/user/{userID}/avatar"})
-  private ResponseEntity<byte[]> getByUserId(@PathVariable @Positive Long userID) {
-    Avatar avatar = avatarService.findByUserId(userID);
-    return ResponseEntity.ok()
-        .contentType(MediaType.valueOf(IMAGE_PNG_VALUE))
-        .body(avatar.getContent());
-  }
-
-  @Operation(description = "Update avatar.")
-  @PostMapping({"/avatars/user/{userId}","/v2/user/avatar"})
-  public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile image) {
-    avatarService.saveOrUpdateUserAvatar(image);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  @Operation(description = "Saved or updates an user avatar in Amazon S3 and database")
+  @PostMapping("/v2/user/avatar")
+  public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile image) {
+    Avatar avatar = avatarService.saveOrUpdateUserAvatar(image);
+    String imageUrl = avatarService.generateImageUrl(avatar);
+    return ResponseEntity.status(HttpStatus.CREATED).body(imageUrl);
   }
 }

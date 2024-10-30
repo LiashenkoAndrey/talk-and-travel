@@ -1,11 +1,11 @@
 ###
-GET http://localhost:8080/api/avatars/user/1
+GET {{apiUrl}}/api/avatars/user/1
 
 ###
-GET http://localhost:8080/api/v2/user/1/avatar
+GET {{apiUrl}}/api/v2/user/1/avatar
 
 ###
-POST http://localhost:8080/api/user/avatar
+POST {{apiUrl}}/api/v2/user/avatar
 Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=boundary
 
@@ -13,4 +13,5 @@ Content-Type: multipart/form-data; boundary=boundary
 Content-Disposition: form-data; name="image"; filename="input.jpg"
 
 // The 'input.txt' file will be uploaded
-< ./../docs/architecture/class-diagram/core-class-diagram_v3.png
+< ./../docs/userLastSeenFeature/img/200w.gif
+

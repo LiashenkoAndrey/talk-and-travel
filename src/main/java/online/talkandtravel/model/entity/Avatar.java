@@ -1,5 +1,6 @@
 package online.talkandtravel.model.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,10 +9,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.URL;
 
 /**
  * Entity representing user avatars. This entity maps to the `avatars` table and includes the
@@ -38,5 +41,6 @@ public class Avatar {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @Lob private byte[] content;
+  @Column(nullable = false)
+  private UUID key;
 }
