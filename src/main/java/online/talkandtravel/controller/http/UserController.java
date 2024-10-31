@@ -4,12 +4,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserDtoShort;
+import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import online.talkandtravel.util.mapper.UserMapper;
@@ -30,23 +33,28 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @Log4j2
-@RequestMapping(ApiPathConstants.API_BASE_PATH + "/users")
+@RequestMapping(ApiPathConstants.API_BASE_PATH )
 @RequiredArgsConstructor
 public class UserController {
   private final UserService userService;
 
-  @PutMapping
+  @PutMapping("/users")
   public UpdateUserResponse update(@RequestBody @Valid UpdateUserRequest dto) {
     return userService.update(dto);
   }
 
-  @GetMapping("/{userId}")
+  @GetMapping("/v2/users")
+  public List<UserDtoShort> getAllUsers() {
+    return userService.getAllUsers();
+  }
+
+  @GetMapping("/users/{userId}")
   public UserDtoBasic findById(@PathVariable @Positive Long userId) {
     return userService.findById(userId);
   }
 
   @Operation(description = "Check if email exists.")
-  @GetMapping("/exists-by-email")
+  @GetMapping("/users/exists-by-email")
   public Boolean existsByEmail(@RequestParam @Email String email) {
     return userService.existsByEmail(email);
   }

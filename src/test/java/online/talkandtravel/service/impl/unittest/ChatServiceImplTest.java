@@ -482,13 +482,13 @@ class ChatServiceImplTest {
     void shouldReturnList() {
       PrivateChatInfoDto privateChatInfoDto = createPrivateChatInfoDto(bob.getUserName());
       PrivateChatDto aliceBobChatDto = new PrivateChatDto(privateChatInfoDto,
-          new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail()),
+          new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail(), "url"),
           new MessageDto(lastAliceBobChatMessage.getContent()));
 
       PrivateChatInfoDto privateChatAliceAndDeletedInfoDto = createPrivateChatInfoDto(
           REMOVED_USER_NAME);
       PrivateChatDto aliceAndDeletedChatDto = new PrivateChatDto(privateChatAliceAndDeletedInfoDto,
-          new UserDtoShort(null, REMOVED_USER_NAME, REMOVED_USER_EMAIL), null);
+          new UserDtoShort(null, REMOVED_USER_NAME, REMOVED_USER_EMAIL, "url"), null);
 
       when(authenticationService.getAuthenticatedUser()).thenReturn(alice);
       when(userChatRepository.findAllByUserId(alice.getId())).thenReturn(
