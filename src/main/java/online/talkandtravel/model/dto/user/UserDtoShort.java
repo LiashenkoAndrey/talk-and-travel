@@ -7,7 +7,8 @@ package online.talkandtravel.model.dto.user;
 public record UserDtoShort(
     Long id,
     String userName,
-    String userEmail
+    String userEmail,
+    String avatarUrl
 ) {
 
 }

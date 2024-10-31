@@ -77,13 +77,11 @@ public class AvatarServiceImpl implements AvatarService {
   }
 
   private Avatar save(MultipartFile file) {
-    log.info("save avatar");
     UUID key = saveImageToS3(file, UUID.randomUUID());
     return saveAvatar(key);
   }
 
   private Avatar update(MultipartFile file, Avatar avatar)  {
-    log.info("update avatar");
     saveImageToS3(file, avatar.getKey());
     return avatar;
   }

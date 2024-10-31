@@ -6,6 +6,7 @@ import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
@@ -38,6 +39,9 @@ public abstract class UserMapper {
 
   @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
   public abstract UserDtoBasic toUserDtoBasic(User user);
+
+  @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
+  public abstract UserDtoShort toUserDtoShort(User user);
 
   @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
   public abstract UserNameDto toUserNameDto(User user);
