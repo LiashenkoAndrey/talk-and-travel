@@ -19,6 +19,11 @@ public class PrivacyPolicyAndUseTerms {
 
     @GetMapping("/privacy-policy")
     public String getPrivacyPolicy() {
+        return "test";
+    }
+
+    @GetMapping("/privacy-policy2")
+    public String privacyPolicy2() {
         return "pp";
     }
 

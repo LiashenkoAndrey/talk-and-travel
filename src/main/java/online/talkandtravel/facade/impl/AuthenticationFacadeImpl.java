@@ -8,6 +8,8 @@ import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.SocialLoginRequest;
+import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
@@ -33,6 +35,18 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   public AuthResponse login(LoginRequest request) {
     log.info("Login - email {}", request.userEmail());
     User authenticatedUser = authenticationService.checkUserCredentials(request.userEmail(), request.password());
+    return processSuccessfulLogin(authenticatedUser);
+  }
+
+  @Override
+  @Transactional
+  public AuthResponse socialLogin(SocialLoginRequest request) {
+    log.info("Login using social - email {}", request.userEmail());
+    User authenticatedUser = authenticationService.getRegisteredUser(request.userEmail());
+    return processSuccessfulLogin(authenticatedUser);
+  }
+
+  private AuthResponse processSuccessfulLogin(User authenticatedUser) {
     userService.updateLastLoggedOnToNow(authenticatedUser);
     String jwtToken = saveOrUpdateUserToken(authenticatedUser.getId());
     return new AuthResponse(jwtToken, userService.mapToUserDtoBasic(authenticatedUser));
@@ -41,6 +55,14 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   @Override
   public AuthResponse register(RegisterRequest request) {
     log.info("register user - name: {}, email: {}", request.userName(), request.userEmail());
+    UserDtoBasic newUser = validateAndSaveNewUser(request);
+    String jwtToken = saveOrUpdateUserToken(newUser.id());
+    return new AuthResponse(jwtToken, newUser);
+  }
+
+  @Override
+  public AuthResponse socialRegister(SocialRegisterRequest request) {
+    log.info("Register user from social - name: {}, email: {}", request.userName(), request.userEmail());
     UserDtoBasic newUser = validateAndSaveNewUser(request);
     String jwtToken = saveOrUpdateUserToken(newUser.id());
     return new AuthResponse(jwtToken, newUser);
@@ -84,6 +106,11 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     return userService.createAndSaveNewUser(request);
   }
 
+  private UserDtoBasic validateAndSaveNewUser(SocialRegisterRequest request) {
+    validateUserRegistrationData(request.userEmail());
+    return userService.createAndSaveNewUser(request);
+  }
+
   private Token createNewToken(String jwtToken, Long userId) {
     return Token.builder()
         .user(userService.getReferenceById(userId))
@@ -96,6 +123,11 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
 
   private void validateUserRegistrationData(String email, String password) {
     authenticationService.validateUserEmailAndPassword(email, password);
+    authenticationService.checkForDuplicateEmail(email);
+  }
+
+  private void validateUserRegistrationData(String email) {
+    authenticationService.validateUserEmail(email);
     authenticationService.checkForDuplicateEmail(email);
   }
 

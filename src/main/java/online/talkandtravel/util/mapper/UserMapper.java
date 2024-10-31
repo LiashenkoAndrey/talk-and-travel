@@ -2,6 +2,7 @@ package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -25,6 +26,8 @@ public interface UserMapper {
   void updateUser(UpdateUserRequest source, @MappingTarget User target);
 
   User registerRequestToUser(RegisterRequest request);
+
+  User registerRequestToUser(SocialRegisterRequest request);
 
   UserDtoBasic toUserDtoBasic(User user);
 

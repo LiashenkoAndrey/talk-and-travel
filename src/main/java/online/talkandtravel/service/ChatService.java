@@ -1,6 +1,7 @@
 package online.talkandtravel.service;
 
 import java.util.List;
+import java.util.Optional;
 import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
@@ -62,7 +63,7 @@ public interface ChatService {
 
   void setLastReadMessage(Long chatId, SetLastReadMessageRequest dtoRequest);
 
-  Page<MessageDto> findReadMessages(Long chatId, Pageable pageable);
+  Page<MessageDto> findReadMessages(Long chatId, Optional<Long> fromMessageId, Pageable pageable);
 
   Page<MessageDto> findUnreadMessages(Long chatId, Pageable pageable);
 

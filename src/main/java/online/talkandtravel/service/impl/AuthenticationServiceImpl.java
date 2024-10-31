@@ -121,18 +121,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
    */
   @Override
   public User checkUserCredentials(String email, String password) {
-    User user = userRepository.findByUserEmail(email)
-        .orElseThrow(
-            () -> new UserAuthenticationException("user with email %s not found".formatted(email)));
+    User user = getUser(email);
     checkUserCredentials(password, user);
     return user;
   }
 
   @Override
+  public User getRegisteredUser(String email) {
+    return getUser(email);
+  }
+
+  @Override
   public void validateUserEmailAndPassword(String email, String password) {
-    if (!emailValidator.isValid(email)) {
-      throw new RegistrationException("Email address %s is invalid".formatted(email));
-    }
+    validateUserEmail(email);
     if (!passwordValidator.isValid(password)) {
       throw new RegistrationException(
               "Passwords must be 8 to 16 characters long and contain "
@@ -141,10 +142,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
+  public void validateUserEmail(String email) {
+    if (!emailValidator.isValid(email)) {
+      throw new RegistrationException("Email address %s is invalid".formatted(email));
+    }
+  }
+  @Override
   public void checkForDuplicateEmail(String userEmail) {
     if (userRepository.existsByUserEmail(userEmail)) {
       throw new UserAlreadyExistsException(userEmail);
     }
+  }
+
+  private User getUser(String email) {
+    return userRepository.findByUserEmail(email)
+        .orElseThrow(
+            () -> new UserAuthenticationException("user with email %s not found".formatted(email)));
   }
 
   /**

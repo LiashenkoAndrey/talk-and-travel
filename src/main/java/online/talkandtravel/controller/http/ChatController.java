@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
@@ -22,13 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller class responsible for handling HTTP requests related to chat functionalities.
@@ -115,12 +110,15 @@ public class ChatController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  /** finds messages that was before specified last read message (including last read message) */
+  /**
+   * finds messages that was before specified last read message (including last read message)
+   */
   @GetMapping("/chats/{chatId}/messages/read")
   public Page<MessageDto> getReadMessages(
-      @PathVariable Long chatId,
-      @PageableDefault(sort = "creationDate") Pageable pageable) {
-    return chatService.findReadMessages(chatId, pageable);
+          @RequestParam(name = "from-message-id", required = false) Long fromMessageId,
+          @PathVariable @Valid @Positive Long chatId,
+          @PageableDefault(sort = "creationDate") Pageable pageable) {
+    return chatService.findReadMessages(chatId, Optional.ofNullable(fromMessageId), pageable);
   }
 
   /** finds messages that was sent after specified last read message */

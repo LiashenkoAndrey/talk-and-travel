@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl.unittest;
 
+import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -8,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -108,7 +110,7 @@ class ChatServiceImplTest {
   @BeforeEach
   void setUp() {
     chat = Chat.builder()
-        .id(1L)
+        .id(ARUBA_CHAT_ID)
         .chatType(ChatType.GROUP)
         .name("TestCountry")
         .build();
@@ -701,51 +703,125 @@ class ChatServiceImplTest {
   @Nested
   class FindReadAndUnreadMessages {
 
-    private final Long chatId = 1L;
-    private final Pageable pageable1 = PageRequest.of(0, 10);
-    List<Message> messages = List.of(new Message("message content"));
-    Page<Message> page = new PageImpl<>(messages, pageable1, messages.size());
-    MessageDto messageDto = new MessageDto("message content");
-
+    private static final Long CHAT_ID = 1L;
+    private static final Long FROM_MESSAGE_ID = 1L;
+    private static final Pageable PAGEABLE = PageRequest.of(0, 10);
+    private List<Message> messages;
+    private Page<Message> messagePage;
     private ZonedDateTime createdOn;
 
     @BeforeEach
-    void init() {
+    void setUp() {
       createdOn = ZonedDateTime.now(ZoneOffset.UTC);
-      Message lastReadMessage = createMessage(createdOn);
-      userChat.setLastReadMessage(lastReadMessage);
+      messages = List.of(
+              Message.builder()
+                  .chat(chat)
+                      .id(1L)
+                      .creationDate(createdOn)
+                      .content("message 1")
+                      .build(),
+              Message.builder()
+                      .chat(chat)
+                      .id(2L)
+                      .creationDate(createdOn.minusDays(1))
+                      .content("message 2")
+                      .build()
+      );
+      messagePage = new PageImpl<>(messages, PAGEABLE, messages.size());
+
+      userChat.setLastReadMessage(createMessage(createdOn));
     }
 
     @Test
-    void findReadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
-      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
-      when(userChatRepository.findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.ofNullable(userChat));
-      when(messageRepository.findAllByChatIdAndCreationDateLessThanEqual(chatId, createdOn, pageable1)).thenReturn(page);
-      when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
+    void findReadMessages_shouldReturnNotEmptyList_whenProvidedMessage() {
+      when(messageRepository.findById(FROM_MESSAGE_ID)).thenReturn(Optional.of(messages.get(0)));
+      when(messageRepository.findAllByChatIdAndCreationDateLessThan(CHAT_ID, messages.get(0).getCreationDate(), PAGEABLE))
+              .thenReturn(messagePage);
+      setupMessageMapper();
 
-      Page<MessageDto> result = underTest.findReadMessages(chatId, pageable1);
+      Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, Optional.of(FROM_MESSAGE_ID), PAGEABLE);
+      assertMessageDtoResponse(result);
 
-      assertEquals("message content", result.toList().get(0).content());
+      verify(messageRepository).findAllByChatIdAndCreationDateLessThan(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+      verifyNoInteractions(authenticationService);
+      verify(messageRepository, never()).findAllByChatId(anyLong(), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThanEqual(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
     }
+
+    @Test
+    void findReadMessages_shouldReturnNotEmptyList_whenNotProvidedMessage() {
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, user.getId())).thenReturn(
+          Optional.of(userChat));
+      when(messageRepository.findAllByChatIdAndCreationDateLessThanEqual(CHAT_ID, messages.get(0).getCreationDate(), PAGEABLE))
+          .thenReturn(messagePage);
+      setupMessageMapper();
+
+      Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, Optional.empty(), PAGEABLE);
+      assertMessageDtoResponse(result);
+
+      verify(messageRepository).findAllByChatIdAndCreationDateLessThanEqual(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatId(anyLong(), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThan(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+    }
+
+    @Test
+    void findReadMessages_shouldReturnNotEmptyList_whenNotProvidedMessageAndNoLastReadMessages() {
+      when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, user.getId())).thenReturn(
+          Optional.of(new UserChat()));
+      when(messageRepository.findAllByChatId(CHAT_ID, PAGEABLE)).thenReturn(messagePage);
+      setupMessageMapper();
+
+      Page<MessageDto> result = underTest.findReadMessages(CHAT_ID, Optional.empty(), PAGEABLE);
+      assertMessageDtoResponse(result);
+
+      verify(messageRepository).findAllByChatId(CHAT_ID, PAGEABLE);
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThan(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+      verify(messageRepository, never()).findAllByChatIdAndCreationDateLessThanEqual(anyLong(), any(ZonedDateTime.class), any(Pageable.class));
+    }
+
+    private void setupMessageMapper() {
+      messages.forEach(message ->
+          when(messageMapper.toMessageDto(message)).thenReturn(new MessageDto(message.getContent()))
+      );
+    }
+
+    private void assertMessageDtoResponse(Page<MessageDto> result) {
+      assertEquals(2, result.getTotalElements());
+      assertEquals("message 1", result.toList().get(0).content());
+      assertEquals("message 2", result.toList().get(1).content());
+    }
+
+    @Test
+    void findReadMessages_shouldThrowNotFound_whenNoSpecifiedMessageFound() {
+      when(messageRepository.findById(FROM_MESSAGE_ID)).thenReturn(Optional.empty());
+      assertThrows(MessageNotFoundException.class ,() -> underTest.findReadMessages(CHAT_ID,
+          Optional.of(FROM_MESSAGE_ID), PAGEABLE));
+    }
+
     @Test
     void findUnreadMessages_shouldReturnNotEmptyList_whenMessagesFound() {
       when(authenticationService.getAuthenticatedUser()).thenReturn(user);
-      when(userChatRepository.findByChatIdAndUserId(chatId, user.getId())).thenReturn(Optional.ofNullable(userChat));
-      when(messageRepository.findAllByChatIdAndCreationDateAfter(chatId, createdOn, pageable1))
-          .thenReturn(page);
+      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, user.getId())).thenReturn(Optional.of(userChat));
+      when(messageRepository.findAllByChatIdAndCreationDateAfter(CHAT_ID, createdOn, PAGEABLE))
+              .thenReturn(messagePage);
 
-      when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
+      when(messageMapper.toMessageDto(messages.get(0))).thenReturn(new MessageDto(messages.get(0).getContent()));
+      when(messageMapper.toMessageDto(messages.get(1))).thenReturn(new MessageDto(messages.get(1).getContent()));
 
-      Page<MessageDto> result = underTest.findUnreadMessages(chatId, pageable1);
+      Page<MessageDto> result = underTest.findUnreadMessages(CHAT_ID, PAGEABLE);
 
-      assertEquals("message content", result.toList().get(0).content());
+      assertEquals(messages.get(0).getContent(), result.toList().get(0).content());
+      assertEquals(messages.get(1).getContent(), result.toList().get(1).content());
     }
+
     private Message createMessage(ZonedDateTime creationDate) {
       return Message.builder()
-          .id(1L)
-          .content("Last read message")
-          .creationDate(creationDate)
-          .build();
+              .id(1L)
+              .content("Last read message")
+              .creationDate(creationDate)
+              .build();
     }
   }
 
