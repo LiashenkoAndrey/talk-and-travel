@@ -10,7 +10,7 @@ participant ImageRepository
 participant AmazonS3
 
 ==Upload images==
-Frontend -> Backend : send message via http /chat/messages
+Frontend -> Backend : send message via http /chat/{chatId}/messages
 
 note left
 SendMessageRequest
