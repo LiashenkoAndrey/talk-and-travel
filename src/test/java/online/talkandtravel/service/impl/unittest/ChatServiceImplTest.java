@@ -133,7 +133,7 @@ class ChatServiceImplTest {
         .chats(List.of(chat))
         .build();
 
-    userDtoBasic = new UserDtoBasic(1L, "testUser", "Test User", "test@example.com");
+    userDtoBasic = new UserDtoBasic(1L, "testUser", "Test User", "test@example.com", "url");
 
     message = Message.builder()
         .chat(chat)
@@ -142,7 +142,7 @@ class ChatServiceImplTest {
         .build();
 
 
-    UserNameDto userNameDto = new UserNameDto(USER_ID, USER_NAME);
+    UserNameDto userNameDto = new UserNameDto(USER_ID, USER_NAME, "url");
     messageDto = new MessageDto(1L, MessageType.TEXT, "Test message", ZonedDateTime.now(ZoneOffset.UTC),
         userNameDto, 1L, null);
 
@@ -166,7 +166,6 @@ class ChatServiceImplTest {
       String countryName = "TestCountry";
       country.setChats(Collections.emptyList());
       when(countryRepository.findById(countryName)).thenReturn(Optional.of(country));
-
       assertThrows(MainCountryChatNotFoundException.class, () -> underTest.findMainChat(countryName));
       verify(countryRepository, times(1)).findById(countryName);
     }
@@ -483,13 +482,13 @@ class ChatServiceImplTest {
     void shouldReturnList() {
       PrivateChatInfoDto privateChatInfoDto = createPrivateChatInfoDto(bob.getUserName());
       PrivateChatDto aliceBobChatDto = new PrivateChatDto(privateChatInfoDto,
-          new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail()),
+          new UserDtoShort(bob.getId(), bob.getUserName(), bob.getUserEmail(), "url"),
           new MessageDto(lastAliceBobChatMessage.getContent()));
 
       PrivateChatInfoDto privateChatAliceAndDeletedInfoDto = createPrivateChatInfoDto(
           REMOVED_USER_NAME);
       PrivateChatDto aliceAndDeletedChatDto = new PrivateChatDto(privateChatAliceAndDeletedInfoDto,
-          new UserDtoShort(null, REMOVED_USER_NAME, REMOVED_USER_EMAIL), null);
+          new UserDtoShort(null, REMOVED_USER_NAME, REMOVED_USER_EMAIL, "url"), null);
 
       when(authenticationService.getAuthenticatedUser()).thenReturn(alice);
       when(userChatRepository.findAllByUserId(alice.getId())).thenReturn(

@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +12,7 @@ import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.UserRepository;
@@ -51,6 +53,13 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final AuthenticationService authenticationService;
+
+  @Override
+  public List<UserDtoShort> getAllUsers() {
+    return userRepository.findAll().stream()
+        .map(userMapper::toUserDtoShort)
+        .toList();
+  }
 
   @Override
   public void updateLastLoggedOnToNow(User user) {

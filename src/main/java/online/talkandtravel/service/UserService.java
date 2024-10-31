@@ -1,12 +1,14 @@
 package online.talkandtravel.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -32,6 +34,8 @@ import org.springframework.security.core.userdetails.UserDetails;
  * </ul>
  */
 public interface UserService {
+
+  List<UserDtoShort> getAllUsers();
 
   void updateLastLoggedOnToNow(User user);
 

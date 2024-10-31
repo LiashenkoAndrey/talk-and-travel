@@ -48,7 +48,10 @@ class AvatarServiceImplTest {
     @ParameterizedTest
     @MethodSource("verifyExpectedResultArgs")
     void findByUserId_shouldResultDiffer_whenDifferentArguments(Long userId, Avatar expected) {
-      verifyExpectedResult(userId, expected);
+      when(avatarRepository.findByUserId(userId)).thenReturn(Optional.ofNullable(expected));
+      Avatar result = underTest.findByUserId(userId);
+      assertEquals(expected, result);
+      verify(avatarRepository, times(1)).findByUserId(userId);
     }
 
     private static Stream<Arguments> verifyExpectedResultArgs() {
@@ -56,13 +59,6 @@ class AvatarServiceImplTest {
           Arguments.of(1L, Avatar.builder().id(1L).build()),
           Arguments.of(2L, Avatar.builder().id(2L).build())
       );
-    }
-
-    private void verifyExpectedResult(Long userId, Avatar expected) {
-      when(avatarRepository.findByUserId(userId)).thenReturn(Optional.ofNullable(expected));
-      Avatar result = underTest.findByUserId(userId);
-      assertEquals(expected, result);
-      verify(avatarRepository, times(1)).findByUserId(userId);
     }
   }
 }

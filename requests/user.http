@@ -1,5 +1,5 @@
 ###
-PUT http://localhost:8080/api/users
+PUT {{apiUrl}}/api/users
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -8,3 +8,8 @@ Content-Type: application/json
   "userEmail" : "234234234@i.ua",
   "about" : "123"
 }
+
+
+###
+GET {{apiUrl}}/api/v2/users
+Authorization: Bearer {{token}}

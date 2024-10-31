@@ -80,7 +80,7 @@ public class MessageServiceImplTest {
         .build();
     Message message = new Message();
     chat.getMessages().add(message);
-    UserNameDto userNameDto = new UserNameDto(1L, "userName");
+    UserNameDto userNameDto = new UserNameDto(1L, "userName", "url");
     MessageDto messageDto =
         new MessageDto(
             1L,

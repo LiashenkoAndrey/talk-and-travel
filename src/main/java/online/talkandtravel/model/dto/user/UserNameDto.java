@@ -8,7 +8,8 @@ package online.talkandtravel.model.dto.user;
  */
 public record UserNameDto(
     Long id,
-    String userName
+    String userName,
+    String avatarUrl
 ) {
 
 }
