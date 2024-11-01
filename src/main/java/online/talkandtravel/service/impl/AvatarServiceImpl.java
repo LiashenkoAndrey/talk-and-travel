@@ -1,8 +1,6 @@
 package online.talkandtravel.service.impl;
 
 import static online.talkandtravel.util.constants.FileFormatConstants.SUPPORTED_FORMAT_AVATAR;
-import static online.talkandtravel.util.constants.S3Constants.AVATARS_FOLDER_NAME;
-import static online.talkandtravel.util.constants.S3Constants.S3_BUCKET_NAME;
 import static online.talkandtravel.util.constants.S3Constants.S3_URL_PATTERN;
 
 import java.io.IOException;
@@ -39,10 +37,16 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 public class AvatarServiceImpl implements AvatarService {
 
   @Value("${avatars.max-size-in-mb}")
-  private int MAX_SIZE_AVATAR; // Size in MB
+  private int MAX_SIZE_AVATAR_IN_MB;
 
   @Value("${aws.region}")
   private String AWS_REGION;
+
+  @Value("${aws.s3.bucketName}")
+  private String AWS_S3_BUCKET_NAME;
+
+  @Value("${aws.s3.avatarsFolderName}")
+  private String AWS_S3_AVATARS_FOLDER_NAME;
 
   private final AvatarRepository avatarRepository;
   private final AuthenticationService authenticationService;
@@ -56,7 +60,7 @@ public class AvatarServiceImpl implements AvatarService {
 
   @Override
   public String generateImageUrl(Avatar avatar) {
-    return S3_URL_PATTERN.formatted(S3_BUCKET_NAME, AWS_REGION, AVATARS_FOLDER_NAME, avatar.getKey());
+    return S3_URL_PATTERN.formatted(AWS_S3_BUCKET_NAME, AWS_REGION, AWS_S3_AVATARS_FOLDER_NAME, avatar.getKey());
   }
 
   @Override
@@ -71,8 +75,8 @@ public class AvatarServiceImpl implements AvatarService {
           .orElseGet(() -> save(file));
 
     } catch (Exception e) {
-      log.error("Exception when save or update avatar: "  + e.getMessage(), e);
-      throw new ImageProcessingException("Failed to process avatar image " + e.getMessage());
+      log.error("Exception when save or update avatar: "  + e.getMessage());
+      throw new ImageProcessingException(e.getMessage());
     }
   }
 
@@ -90,8 +94,8 @@ public class AvatarServiceImpl implements AvatarService {
     try {
 
       PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-          .bucket(S3_BUCKET_NAME)
-          .key(AVATARS_FOLDER_NAME + "/" + key.toString())
+          .bucket(AWS_S3_BUCKET_NAME)
+          .key(AWS_S3_AVATARS_FOLDER_NAME + "/" + key.toString())
           .contentType(file.getContentType())
           .build();
 
@@ -107,9 +111,8 @@ public class AvatarServiceImpl implements AvatarService {
     try {
       return imageFile.getBytes();
     } catch (IOException e) {
-      log.error("Error getting bytes." + e.getMessage());
-      throw new ImageProcessingException(
-          "Error getting bytes." + e.getMessage());
+      log.error("Error getting bytes from image: " + e.getMessage());
+      throw new ImageProcessingException(e.getMessage());
     }
   }
 
@@ -133,8 +136,8 @@ public class AvatarServiceImpl implements AvatarService {
   }
 
   private void validateImageSize(MultipartFile imageFile) {
-    if (bytesToMegabytes(imageFile.getSize()) > MAX_SIZE_AVATAR) {
-      throw new FileSizeExceededException(MAX_SIZE_AVATAR);
+    if (bytesToMegabytes(imageFile.getSize()) > MAX_SIZE_AVATAR_IN_MB) {
+      throw new FileSizeExceededException(MAX_SIZE_AVATAR_IN_MB);
     }
   }
 
