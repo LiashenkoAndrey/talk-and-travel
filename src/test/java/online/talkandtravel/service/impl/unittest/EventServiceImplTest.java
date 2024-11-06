@@ -19,6 +19,7 @@ import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
 import online.talkandtravel.exception.user.UserAlreadyJoinTheChatException;
 import online.talkandtravel.exception.user.UserCountryNotFoundException;
+import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.dto.event.EventRequest;
 import online.talkandtravel.model.dto.event.EventResponse;
 import online.talkandtravel.model.dto.message.MessageDto;
@@ -96,7 +97,7 @@ class EventServiceImplTest {
 
     message = Message.builder().chat(chat).sender(user).type(MessageType.START_TYPING).build();
 
-    userNameDto = new UserNameDto(1L, "user", "url");
+    userNameDto = new UserNameDto(1L, "user", new AvatarDto("url", "url"));
 
     messageDto =
         new MessageDto(
