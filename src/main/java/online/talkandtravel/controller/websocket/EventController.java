@@ -64,7 +64,6 @@ public class EventController {
   public void leaveChat(@Valid @Payload EventRequest request, Principal principal) {
     log.info("create a new LEAVE CHAT event {}", request);
     MessageDto message = eventService.leaveChat(request, principal);
-    eventService.deleteChatIfEmpty(request, principal);
     sendResponse(request, message);
   }
 
@@ -85,6 +84,8 @@ public class EventController {
   }
 
   private <T> void sendResponse(EventRequest request, T message) {
-    messagingTemplate.convertAndSend(MESSAGES_SUBSCRIBE_PATH.formatted(request.chatId()), message);
+    if (message != null) {
+      messagingTemplate.convertAndSend(MESSAGES_SUBSCRIBE_PATH.formatted(request.chatId()), message);
+    }
   }
 }

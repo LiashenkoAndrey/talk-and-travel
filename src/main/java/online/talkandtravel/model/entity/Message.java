@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,6 +39,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Builder
 @Entity
+@EqualsAndHashCode
 @Table(name = "messages")
 public class Message {
 
@@ -73,4 +75,18 @@ public class Message {
   @OneToOne
   @JoinColumn(name = "attachment_id")
   private Attachment attachment; // One-to-one relation to Attachment entity
+
+  @Override
+  public String toString() {
+    return "Message{" +
+        "id=" + id +
+        ", content='" + content + '\'' +
+        ", creationDate=" + creationDate +
+        ", sender=" + sender +
+        ", chat=" + chat +
+        ", type=" + type +
+        ", repliedMessage=" + repliedMessage +
+        ", attachment=" + attachment +
+        '}';
+  }
 }

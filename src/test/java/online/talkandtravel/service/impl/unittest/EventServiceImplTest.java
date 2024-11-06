@@ -1,13 +1,21 @@
 package online.talkandtravel.service.impl.unittest;
 
+import static online.talkandtravel.testdata.ChatTestData.ALICE_BOB_PRIVATE_CHAT_ID;
+import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
+import static online.talkandtravel.testdata.UserTestData.ALICE_ID;
+import static online.talkandtravel.testdata.UserTestData.getAlice;
+import static online.talkandtravel.testdata.UserTestData.getBob;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.security.Principal;
@@ -28,7 +36,6 @@ import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.MessageType;
-import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
@@ -75,20 +82,17 @@ class EventServiceImplTest {
   private UserCountry userCountry;
 
   private Principal principal;
-  private static final Long CHAT_ID = 1L, USER_ID = 1L;
+  private static final Long CHAT_ID = 1L;
 
   @BeforeEach
   void setUp() {
     chat = new Chat();
+    chat.setCountry(new Country("Aruba", "ar"));
     chat.setId(CHAT_ID);
     chat.setName("Chat1");
     chat.setChatType(ChatType.GROUP);
 
-    user = User.builder()
-        .id(USER_ID)
-        .role(Role.USER)
-        .userName("User1")
-        .build();
+    user = getAlice();
 
     userChat = UserChat.builder().chat(chat).user(user).build();
 
@@ -189,8 +193,8 @@ class EventServiceImplTest {
 
       chat.setCountry(new Country("Country1", "co"));
       when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-      when(userChatRepository.findByChatIdAndUserId(1L, 1L)).thenReturn(Optional.empty());
-      when(userCountryRepository.findByCountryNameAndUserId("Country1", 1L))
+      when(userChatRepository.findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID)).thenReturn(Optional.empty());
+      when(userCountryRepository.findByCountryNameAndUserId("Country1", ALICE_ID))
           .thenReturn(Optional.of(userCountry));
 
       when(messageRepository.save(any(Message.class))).thenReturn(message);
@@ -200,8 +204,8 @@ class EventServiceImplTest {
 
       assertEquals(messageDto, result);
       verify(chatRepository, times(1)).findById(1L);
-      verify(userChatRepository, times(1)).findByChatIdAndUserId(1L, 1L);
-      verify(userCountryRepository, times(1)).findByCountryNameAndUserId("Country1", 1L);
+      verify(userChatRepository, times(1)).findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID);
+      verify(userCountryRepository, times(1)).findByCountryNameAndUserId("Country1", ALICE_ID);
       verify(userCountryRepository, times(1)).save(any(UserCountry.class));
       verify(messageRepository, times(1)).save(any(Message.class));
       verify(messageMapper, times(1)).toMessageDto(message);
@@ -210,11 +214,11 @@ class EventServiceImplTest {
     @Test
     void joinChat_shouldThrowUserAlreadyJoinTheChatException_whenUserAlreadyJoined() {
       when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-      when(userChatRepository.findByChatIdAndUserId(1L, 1L)).thenReturn(Optional.of(userChat));
+      when(userChatRepository.findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID)).thenReturn(Optional.of(userChat));
 
       assertThrows(UserAlreadyJoinTheChatException.class, () -> underTest.joinChat(eventRequest, principal));
       verify(chatRepository, times(1)).findById(1L);
-      verify(userChatRepository, times(1)).findByChatIdAndUserId(1L, 1L);
+      verify(userChatRepository, times(1)).findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID);
       verify(userCountryRepository, never()).findByCountryNameAndUserId(anyString(), anyLong());
       verify(userChatRepository, never()).save(any(UserChat.class));
       verify(userCountryRepository, never()).save(any(UserCountry.class));
@@ -260,71 +264,91 @@ class EventServiceImplTest {
 
   @Nested
   class LeaveChat {
+
+    private static final User alice = getAlice();
+    private static final EventRequest leaveChatRequest = new EventRequest(ARUBA_CHAT_ID);
+    private Message leaveMessage = Message.builder()
+        .chat(chat)
+        .sender(alice)
+        .type(MessageType.LEAVE)
+        .content("Alice left the chat")
+        .build();
     @Test
-    void leaveChat_shouldReturnEventDtoBasic_whenUserAndChatExist_andUserHasConnections() {
-      // Arrange
+    void leaveChat_shouldReturnDto_whenUserAndChatExist_andUserHasConnections() {
+      leaveMessage.setChat(chat);
       chat.setCountry(new Country("Country1", "co"));
-      MessageDto eventDtoBasic =
-          new MessageDto(
-              null, MessageType.START_TYPING, "", ZonedDateTime.now(ZoneOffset.UTC), userNameDto, CHAT_ID, null);
 
-      when(chatRepository.findById(CHAT_ID)).thenReturn(Optional.of(chat));
-      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, USER_ID))
+      when(chatRepository.findById(ARUBA_CHAT_ID)).thenReturn(Optional.of(chat));
+      when(userChatRepository.findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID))
           .thenReturn(Optional.of(new UserChat()));
-      when(userCountryRepository.findByCountryNameAndUserId(chat.getCountry().getName(), USER_ID))
+      when(userCountryRepository.findByCountryNameAndUserId(chat.getCountry().getName(), ALICE_ID))
           .thenReturn(Optional.of(userCountry));
-      when(userChatRepository.findAllByUserIdAndUserCountryId(USER_ID, userCountry.getId()))
+      when(userChatRepository.findAllByUserIdAndUserCountryId(ALICE_ID, userCountry.getId()))
           .thenReturn(Collections.emptyList());
-      when(messageRepository.save(any(Message.class))).thenReturn(message);
-      when(messageMapper.toMessageDto(message)).thenReturn(messageDto);
+      when(messageRepository.save(leaveMessage)).thenReturn(leaveMessage);
+      when(messageMapper.toMessageDto(eq(leaveMessage))).thenReturn(new MessageDto(""));
 
-      // Act
-      MessageDto result = underTest.leaveChat(eventRequest, principal);
+      MessageDto result = underTest.leaveChat(leaveChatRequest, principal);
+      assertNotNull(result);
 
-      // Assert
-      assertEqualsExcludingTime(eventDtoBasic, result);
-      verify(chatRepository, times(1)).findById(CHAT_ID);
-      verify(userChatRepository, times(2)).findByChatIdAndUserId(CHAT_ID, USER_ID);
+      verify(chatRepository, times(1)).findById(ARUBA_CHAT_ID);
+      verify(userChatRepository, times(2)).findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID);
       verify(userCountryRepository, times(1))
-          .findByCountryNameAndUserId(chat.getCountry().getName(), USER_ID);
+          .findByCountryNameAndUserId(chat.getCountry().getName(), ALICE_ID);
       verify(userChatRepository, times(1)).delete(any(UserChat.class));
       verify(userCountryRepository, times(1)).delete(any(UserCountry.class));
-      verify(messageRepository, times(1)).save(any(Message.class));
-      verify(messageMapper, times(1)).toMessageDto(message);
+      verify(messageRepository, times(1)).save(leaveMessage);
+      verify(messageMapper, times(1)).toMessageDto(any(Message.class));
+    }
+
+    @Test
+    void leaveChat_shouldDeleteChat_whenLeaveFromPrivateChat() {
+      Chat privateChatAliceAndBob = Chat.builder()
+          .id(ALICE_BOB_PRIVATE_CHAT_ID)
+          .chatType(ChatType.PRIVATE)
+          .build();
+      EventRequest leaveFromPrivateChatRequest = new EventRequest(ALICE_BOB_PRIVATE_CHAT_ID);
+      UserChat aliceUserChat = UserChat.builder().user(alice).build();
+
+      when(chatRepository.findById(ALICE_BOB_PRIVATE_CHAT_ID)).thenReturn(Optional.of(privateChatAliceAndBob));
+      when(userChatRepository.findByChatIdAndUserId(ALICE_BOB_PRIVATE_CHAT_ID, ALICE_ID)).thenReturn(
+          Optional.of(aliceUserChat));
+
+      underTest.leaveChat(leaveFromPrivateChatRequest, principal);
+
+      verify(userChatRepository).findByChatIdAndUserId(ALICE_BOB_PRIVATE_CHAT_ID, ALICE_ID);
+      verify(chatRepository).delete(privateChatAliceAndBob);
+      verifyNoInteractions(messageMapper);
+      verifyNoInteractions(messageRepository);
     }
 
     @Test
     void leaveChat_shouldThrowUserNotJoinedTheChatException_whenUserNotInChat() {
-      // Arrange
-      when(chatRepository.findById(CHAT_ID)).thenReturn(Optional.of(new Chat()));
-      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, USER_ID)).thenReturn(Optional.empty());
+      Chat privateChatAliceAndBob = Chat.builder()
+          .chatType(ChatType.PRIVATE)
+          .build();
+      EventRequest leaveFromPrivateChatRequest = new EventRequest(ALICE_BOB_PRIVATE_CHAT_ID);
 
-      // Act & Assert
-      assertThrows(UserNotJoinedTheChatException.class, () -> underTest.leaveChat(eventRequest, principal));
+      when(chatRepository.findById(ALICE_BOB_PRIVATE_CHAT_ID)).thenReturn(Optional.of(privateChatAliceAndBob));
+      when(userChatRepository.findByChatIdAndUserId(ALICE_BOB_PRIVATE_CHAT_ID, ALICE_ID)).thenReturn(Optional.empty());
+
+      assertThrows(UserNotJoinedTheChatException.class, () -> underTest.leaveChat(leaveFromPrivateChatRequest, principal));
+
+      verify(userChatRepository).findByChatIdAndUserId(ALICE_BOB_PRIVATE_CHAT_ID, ALICE_ID);
+
     }
 
     @Test
     void leaveChat_shouldThrowUserCountryNotFoundException_whenUserCountryNotFound() {
-      // Arrange
       chat.setCountry(new Country("Country1", "co"));
-      when(chatRepository.findById(CHAT_ID)).thenReturn(Optional.of(chat));
-      when(userChatRepository.findByChatIdAndUserId(CHAT_ID, USER_ID))
+      when(chatRepository.findById(ARUBA_CHAT_ID)).thenReturn(Optional.of(chat));
+      when(userChatRepository.findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID))
           .thenReturn(Optional.of(new UserChat()));
-      when(userCountryRepository.findByCountryNameAndUserId(chat.getCountry().getName(), USER_ID))
+      when(userCountryRepository.findByCountryNameAndUserId(chat.getCountry().getName(), ALICE_ID))
           .thenReturn(Optional.empty());
 
-      // Act & Assert
       assertThrows(UserCountryNotFoundException.class, () -> underTest.leaveChat(eventRequest, principal));
     }
-  }
-
-  public void assertEqualsExcludingTime(MessageDto expected, MessageDto actual) {
-    assertEquals(expected.type(), actual.type());
-    assertEquals(expected.content(), actual.content());
-    assertEquals(expected.repliedMessageId(), actual.repliedMessageId());
-    assertEquals(expected.id(), actual.id());
-    assertEquals(expected.chatId(), actual.chatId());
-    assertEquals(expected.user(), actual.user());
   }
 
   public void assertEqualsExcludingTime(EventResponse expected, EventResponse actual) {
