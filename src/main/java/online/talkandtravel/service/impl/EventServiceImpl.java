@@ -91,34 +91,46 @@ public class EventServiceImpl implements EventService {
     return createChatTransientEvent(user, MessageType.STOP_TYPING);
   }
 
-  @Transactional
   @Override
+  @Transactional
   public MessageDto leaveChat(EventRequest request, Principal principal) {
-    User author = getUser(principal);
-    Chat chat = getChat(request, author.getId());
+    User user = getUser(principal);
+    Chat chat = getChat(request, user.getId());
+    validateUserChatMembership(request, user.getId());
 
-    removeConnections(request, chat, author);
+    if (chat.getChatType().equals(ChatType.PRIVATE)) {
+      deleteChat(chat);
+      return null;
+    }
 
-    Message message =
-        Message.builder()
-            .content(LEFT_THE_CHAT.formatted(author.getUserName()))
-            .chat(chat)
-            .sender(author)
-            .type(MessageType.LEAVE)
-            .build();
-    message = messageRepository.save(message);
+    removeConnections(request, chat, user);
 
+    if (isPrivateChatEmpty(chat)) {
+      return null;
+    }
+
+    Message message = addMessageToChat(chat, user);
     return messageMapper.toMessageDto(message);
   }
 
-  @Override
+  private Message addMessageToChat(Chat chat, User user) {
+    Message message = Message.builder()
+        .content(LEFT_THE_CHAT.formatted(user.getUserName()))
+        .chat(chat)
+        .sender(user)
+        .type(MessageType.LEAVE)
+        .build();
+    return messageRepository.save(message);
+  }
+
   @Transactional
-  public void deleteChatIfEmpty(EventRequest request, Principal principal) {
-    User user = getUser(principal);
-    Chat chat = getChat(request, user.getId());
-    if (chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty()) {
-      chatRepository.delete(chat);
-    }
+  public void deleteChat(Chat chat) {
+    log.info("delete chat {}", chat.getId());
+    chatRepository.delete(chat);
+  }
+
+  public boolean isPrivateChatEmpty(Chat chat) {
+    return chat.getChatType().equals(ChatType.PRIVATE) && chat.getUsers().isEmpty();
   }
 
   @Transactional
@@ -148,8 +160,7 @@ public class EventServiceImpl implements EventService {
   }
 
   private void removeConnections(EventRequest request, Chat chat, User author) {
-    validateUserChatMembership(request, author.getId());
-    removeUserFromChat(request, author.getId());
+    removeUserFromChat(request.chatId(), author.getId());
     handleUserCountryAssociation(chat, author);
   }
 
@@ -161,9 +172,9 @@ public class EventServiceImpl implements EventService {
     }
   }
 
-  private void removeUserFromChat(EventRequest request, Long authorId) {
+  private void removeUserFromChat(Long chatId, Long authorId) {
     userChatRepository
-        .findByChatIdAndUserId(request.chatId(), authorId)
+        .findByChatIdAndUserId(chatId, authorId)
         .ifPresent(userChatRepository::delete);
   }
 
