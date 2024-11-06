@@ -1,5 +1,7 @@
 package online.talkandtravel.model.dto.user;
 
+import online.talkandtravel.model.dto.avatar.AvatarDto;
+
 /**
  * Data transfer object representing a user's name.
  *
@@ -9,7 +11,7 @@ package online.talkandtravel.model.dto.user;
 public record UserNameDto(
     Long id,
     String userName,
-    String avatarUrl
+    AvatarDto avatar
 ) {
 
 }
