@@ -48,11 +48,11 @@ public class HttpExceptionHandler {
       IllegalStateException.class,
       MissingServletRequestParameterException.class
   })
-  ResponseEntity<ExceptionResponse> handleMissingServletRequestPartException(Exception e) {
+  ResponseEntity<ExceptionResponse> handleException(Exception e) {
     return createResponse(new HttpException(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler({DataIntegrityViolationException.class, ImageProcessingException.class})
+  @ExceptionHandler({DataIntegrityViolationException.class})
   public ResponseEntity<ExceptionResponse> handleDataIntegrityViolationException() {
     String message = "Provided data is not valid or can't be processed";
     return createResponse(new HttpException(message), HttpStatus.BAD_REQUEST);
@@ -141,7 +141,7 @@ public class HttpExceptionHandler {
    * @return user-friendly response
    */
   private ResponseEntity<ExceptionResponse> createResponse(HttpException e, HttpStatus httpStatus) {
-    log.error(e.getMessage());
+    log.error(e.getMessage(), e);
     HttpStatus httpStatus1 = e.getHttpStatus() == null ? httpStatus : e.getHttpStatus();
     return new ResponseEntity<>(e.toResponse(httpStatus1), httpStatus1);
   }

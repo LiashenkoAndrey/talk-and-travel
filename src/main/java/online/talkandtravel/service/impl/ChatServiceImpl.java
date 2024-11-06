@@ -63,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>{@link #findAllUsersPrivateChats()} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
- *   <li>{@link #findReadMessages(Long, Long, Pageable)} - finds messages that the user has already read
+ *   <li>{@link #findReadMessages(Long, Optional, Pageable)} - finds messages that the user has already read
  *   <li>{@link ChatService#findUnreadMessages(Long, Pageable)} - finds messages that the user has
  *       not yet read
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves all chats with pagination.
@@ -257,10 +257,7 @@ public class ChatServiceImpl implements ChatService {
   @Override
   public List<UserDtoBasic> findAllUsersByChatId(Long chatId) {
     Chat chat = getChat(chatId);
-    return chat.getUsers().stream().map((e) -> {
-      log.info("user {} avatar {}", e.getId(), e.getAvatar());
-      return userMapper.toUserDtoBasic(e);
-    }).toList();
+    return chat.getUsers().stream().map(userMapper::toUserDtoBasic).toList();
   }
 
   @Override

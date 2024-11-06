@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
+import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.dto.user.UserNameDto;
@@ -80,7 +81,7 @@ public class MessageServiceImplTest {
         .build();
     Message message = new Message();
     chat.getMessages().add(message);
-    UserNameDto userNameDto = new UserNameDto(1L, "userName", "url");
+    UserNameDto userNameDto = new UserNameDto(1L, "userName", new AvatarDto("url", "url"));
     MessageDto messageDto =
         new MessageDto(
             1L,

@@ -17,6 +17,7 @@ import online.talkandtravel.facade.impl.AuthenticationFacadeImpl;
 import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
@@ -62,7 +63,7 @@ class AuthenticationFacadeImplTest {
     @BeforeEach
     void setUp() {
       registerRequest = new RegisterRequest(alice.getUserName(), alice.getUserEmail(), alice.getPassword());
-      aliseDtoBasic = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout(), "url");
+      aliseDtoBasic = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout(), new AvatarDto());
     }
 
     @Test
@@ -113,7 +114,7 @@ class AuthenticationFacadeImplTest {
   @Test
   void login_shouldLoginUserWithCorrectCredentials() {
     LoginRequest loginRequest = new LoginRequest(alice.getUserEmail(), alice.getPassword());
-    UserDtoBasic expected = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout(), "url");
+    UserDtoBasic expected = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout(), new AvatarDto());
 
     when(authenticationService.checkUserCredentials(alice.getUserEmail(), alice.getPassword())).thenReturn(alice);
     doNothing().when(userService).updateLastLoggedOnToNow(alice);

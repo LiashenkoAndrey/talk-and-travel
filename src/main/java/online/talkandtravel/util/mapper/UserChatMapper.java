@@ -20,7 +20,12 @@ import org.mapstruct.Mapping;
  *
  * <p>This mapper relies on {@link MapperConfig} to apply global mapping settings.
  */
-@Mapper(config = MapperConfig.class, uses = {ChatMapper.class, MessageMapper.class})
+@Mapper(config = MapperConfig.class,
+    uses = {
+        ChatMapper.class,
+        MessageMapper.class,
+        AvatarMapper.class
+    })
 public interface UserChatMapper {
 
   @Mapping(target = "chat", source = "chatInfoDto")
