@@ -29,6 +29,7 @@ import online.talkandtravel.exception.message.MessageNotFoundException;
 import online.talkandtravel.exception.user.UserChatNotFoundException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
+import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
@@ -133,7 +134,7 @@ class ChatServiceImplTest {
         .chats(List.of(chat))
         .build();
 
-    userDtoBasic = new UserDtoBasic(1L, "testUser", "Test User", "test@example.com", "url");
+    userDtoBasic = new UserDtoBasic(1L, "testUser", "Test User", "test@example.com", new AvatarDto());
 
     message = Message.builder()
         .chat(chat)

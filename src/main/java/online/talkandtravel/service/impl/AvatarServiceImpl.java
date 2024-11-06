@@ -1,9 +1,12 @@
 package online.talkandtravel.service.impl;
 
+import static online.talkandtravel.util.constants.AvatarDimensionsConstants.X256;
+import static online.talkandtravel.util.constants.AvatarDimensionsConstants.X50;
 import static online.talkandtravel.util.constants.FileFormatConstants.SUPPORTED_FORMAT_AVATAR;
+import static online.talkandtravel.util.constants.S3Constants.AVATAR_X256_FOLDER_NAME;
+import static online.talkandtravel.util.constants.S3Constants.AVATAR_X50_FOLDER_NAME;
 import static online.talkandtravel.util.constants.S3Constants.S3_URL_PATTERN;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,13 +14,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.avatar.UserAvatarNotFoundException;
 import online.talkandtravel.exception.file.FileSizeExceededException;
-import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.UnsupportedImageFormatException;
+import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.AvatarRepository;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.AvatarService;
+import online.talkandtravel.util.mapper.AvatarMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +55,8 @@ public class AvatarServiceImpl implements AvatarService {
   private final AvatarRepository avatarRepository;
   private final AuthenticationService authenticationService;
   private final S3Client s3Client;
+  private final AvatarMapper avatarMapper;
+
 
   @Transactional
   @Override
@@ -59,61 +65,54 @@ public class AvatarServiceImpl implements AvatarService {
   }
 
   @Override
-  public String generateImageUrl(Avatar avatar) {
-    return S3_URL_PATTERN.formatted(AWS_S3_BUCKET_NAME, AWS_REGION, AWS_S3_AVATARS_FOLDER_NAME, avatar.getKey());
+  public String generateImageUrl(Avatar avatar, String avatarS3Folder) {
+    String fullAvatarFolderPath = AWS_S3_AVATARS_FOLDER_NAME + avatarS3Folder;
+    return S3_URL_PATTERN.formatted(AWS_S3_BUCKET_NAME, AWS_REGION, fullAvatarFolderPath,
+        avatar.getKey());
   }
 
   @Override
   @Transactional
-  public Avatar saveOrUpdateUserAvatar(MultipartFile file) {
-    try {
-      User user = authenticationService.getAuthenticatedUser();
-      log.info("Save or update user avatar for user: {}", user.getId());
-      validateFile(file);
-      Optional<Avatar> avatarOptional = avatarRepository.findByUserId(user.getId());
-      return avatarOptional.map(avatar -> update(file, avatar))
-          .orElseGet(() -> save(file));
+  public AvatarDto saveOrUpdateUserAvatar(byte[] image, String folder) {
+    User user = authenticationService.getAuthenticatedUser();
+    log.info("Save or update user avatar for user: {}", user.getId());
+    Optional<Avatar> avatarOptional = avatarRepository.findByUserId(user.getId());
 
-    } catch (Exception e) {
-      log.error("Exception when save or update avatar: "  + e.getMessage());
-      throw new ImageProcessingException(e.getMessage());
+    Avatar avatar;
+    if (avatarOptional.isPresent()) {
+      avatar = avatarOptional.get();
+      update(image, avatar, folder);
+
+    } else {
+      avatar = save(image, folder);
     }
+    return avatarMapper.toAvatarDto(avatar);
   }
 
-  private Avatar save(MultipartFile file) {
-    UUID key = saveImageToS3(file, UUID.randomUUID());
+  @Override
+  public void validateFile(MultipartFile imageFile) {
+    validateImageFormat(imageFile.getOriginalFilename());
+    validateImageSize(imageFile);
+  }
+
+  private Avatar save(byte[] image, String folder) {
+    UUID key = UUID.randomUUID();
+    saveImageToS3(image, AWS_S3_AVATARS_FOLDER_NAME + folder, key);
     return saveAvatar(key);
   }
 
-  private Avatar update(MultipartFile file, Avatar avatar)  {
-    saveImageToS3(file, avatar.getKey());
-    return avatar;
+  private void update(byte[] image, Avatar avatar, String folder) {
+    saveImageToS3(image, AWS_S3_AVATARS_FOLDER_NAME + folder, avatar.getKey());
   }
 
-  private UUID saveImageToS3(MultipartFile file, UUID key)  {
-    try {
+  private void saveImageToS3(byte[] bytes, String avatarFolderName, UUID key) {
+    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+        .bucket(AWS_S3_BUCKET_NAME)
+        .key(avatarFolderName + "/" + key.toString())
+        .contentType("png")
+        .build();
 
-      PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-          .bucket(AWS_S3_BUCKET_NAME)
-          .key(AWS_S3_AVATARS_FOLDER_NAME + "/" + key.toString())
-          .contentType(file.getContentType())
-          .build();
-
-      s3Client.putObject(putObjectRequest, RequestBody.fromBytes(extractImageData(file)));
-      return key;
-    } catch (Exception e) {
-      log.error(e);
-      throw new RuntimeException(e);
-    }
-   }
-
-  private byte[] extractImageData(MultipartFile imageFile) {
-    try {
-      return imageFile.getBytes();
-    } catch (IOException e) {
-      log.error("Error getting bytes from image: " + e.getMessage());
-      throw new ImageProcessingException(e.getMessage());
-    }
+    s3Client.putObject(putObjectRequest, RequestBody.fromBytes(bytes));
   }
 
   private Avatar saveAvatar(UUID key) {
@@ -122,11 +121,6 @@ public class AvatarServiceImpl implements AvatarService {
         .user(user)
         .key(key)
         .build());
-  }
-
-  private void validateFile(MultipartFile imageFile) {
-    validateImageFormat(imageFile.getOriginalFilename());
-    validateImageSize(imageFile);
   }
 
   private void validateImageFormat(String originalFilename) {

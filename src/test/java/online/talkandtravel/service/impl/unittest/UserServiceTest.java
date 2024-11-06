@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.dto.user.UpdateUserRequest;
 import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
@@ -52,7 +53,7 @@ class UserServiceTest {
   @Test
   void save_shouldEncodePassword_whenUserIsCorrect() {
     User user = createDefaultUser();
-    UserDtoBasic expected = new UserDtoBasic(USER_ID, USER_NAME, USER_EMAIL, USER_ABOUT, "url");
+    UserDtoBasic expected = new UserDtoBasic(USER_ID, USER_NAME, USER_EMAIL, USER_ABOUT, new AvatarDto());
 
     when(passwordEncoder.encode(USER_PASSWORD)).thenReturn("encodedPassword");
     when(userRepository.save(user)).thenReturn(user);
