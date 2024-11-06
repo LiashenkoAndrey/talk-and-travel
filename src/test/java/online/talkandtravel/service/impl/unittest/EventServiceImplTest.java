@@ -3,7 +3,6 @@ package online.talkandtravel.service.impl.unittest;
 import static online.talkandtravel.testdata.ChatTestData.ALICE_BOB_PRIVATE_CHAT_ID;
 import static online.talkandtravel.testdata.ChatTestData.ARUBA_CHAT_ID;
 import static online.talkandtravel.testdata.UserTestData.ALICE_ID;
-import static online.talkandtravel.testdata.UserTestData.BOB_ID;
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +22,6 @@ import java.security.Principal;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import online.talkandtravel.exception.chat.UserNotJoinedTheChatException;
 import online.talkandtravel.exception.model.WebSocketException;
@@ -38,7 +36,6 @@ import online.talkandtravel.model.entity.ChatType;
 import online.talkandtravel.model.entity.Country;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.MessageType;
-import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.UserChat;
 import online.talkandtravel.model.entity.UserCountry;
@@ -85,7 +82,7 @@ class EventServiceImplTest {
   private UserCountry userCountry;
 
   private Principal principal;
-  private static final Long CHAT_ID = 1L, USER_ID = 1L;
+  private static final Long CHAT_ID = 1L;
 
   @BeforeEach
   void setUp() {
@@ -196,8 +193,8 @@ class EventServiceImplTest {
 
       chat.setCountry(new Country("Country1", "co"));
       when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-      when(userChatRepository.findByChatIdAndUserId(1L, 1L)).thenReturn(Optional.empty());
-      when(userCountryRepository.findByCountryNameAndUserId("Country1", 1L))
+      when(userChatRepository.findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID)).thenReturn(Optional.empty());
+      when(userCountryRepository.findByCountryNameAndUserId("Country1", ALICE_ID))
           .thenReturn(Optional.of(userCountry));
 
       when(messageRepository.save(any(Message.class))).thenReturn(message);
@@ -207,8 +204,8 @@ class EventServiceImplTest {
 
       assertEquals(messageDto, result);
       verify(chatRepository, times(1)).findById(1L);
-      verify(userChatRepository, times(1)).findByChatIdAndUserId(1L, 1L);
-      verify(userCountryRepository, times(1)).findByCountryNameAndUserId("Country1", 1L);
+      verify(userChatRepository, times(1)).findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID);
+      verify(userCountryRepository, times(1)).findByCountryNameAndUserId("Country1", ALICE_ID);
       verify(userCountryRepository, times(1)).save(any(UserCountry.class));
       verify(messageRepository, times(1)).save(any(Message.class));
       verify(messageMapper, times(1)).toMessageDto(message);
@@ -217,11 +214,11 @@ class EventServiceImplTest {
     @Test
     void joinChat_shouldThrowUserAlreadyJoinTheChatException_whenUserAlreadyJoined() {
       when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
-      when(userChatRepository.findByChatIdAndUserId(1L, 1L)).thenReturn(Optional.of(userChat));
+      when(userChatRepository.findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID)).thenReturn(Optional.of(userChat));
 
       assertThrows(UserAlreadyJoinTheChatException.class, () -> underTest.joinChat(eventRequest, principal));
       verify(chatRepository, times(1)).findById(1L);
-      verify(userChatRepository, times(1)).findByChatIdAndUserId(1L, 1L);
+      verify(userChatRepository, times(1)).findByChatIdAndUserId(ARUBA_CHAT_ID, ALICE_ID);
       verify(userCountryRepository, never()).findByCountryNameAndUserId(anyString(), anyLong());
       verify(userChatRepository, never()).save(any(UserChat.class));
       verify(userCountryRepository, never()).save(any(UserCountry.class));
@@ -269,7 +266,6 @@ class EventServiceImplTest {
   class LeaveChat {
 
     private static final User alice = getAlice();
-    private static final User bob = getBob();
     private static final EventRequest leaveChatRequest = new EventRequest(ARUBA_CHAT_ID);
     private Message leaveMessage = Message.builder()
         .chat(chat)
