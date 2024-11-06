@@ -119,7 +119,7 @@ public class ImageServiceImpl implements ImageService {
    * @return A byte array representing the resized and converted image in WebP format.
    * @throws IOException If there is an error reading or writing the image data.
    */
-  private byte[] handleStandardImageFile(FileFormat fileFormat, InputStream inputStream, int width)
+  public byte[] handleStandardImageFile(FileFormat fileFormat, InputStream inputStream, int width)
       throws IOException {
     log.info("Image type is PNG, JPEG, or WEBP");
 
@@ -131,7 +131,7 @@ public class ImageServiceImpl implements ImageService {
     return convertImageToWebpFormat(image);
   }
 
-  private byte[] imageTyBytes(BufferedImage image) throws IOException {
+  public byte[] imageTyBytes(BufferedImage image) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     ImageIO.write(image, "webp", byteArrayOutputStream);
     return byteArrayOutputStream.toByteArray();
@@ -252,7 +252,7 @@ public class ImageServiceImpl implements ImageService {
    * @return A resized image as a {@link BufferedImage}.
    * @throws IOException If there is an error reading or writing the image data.
    */
-  private BufferedImage resizeImage(InputStream inputStream, int targetSize) throws IOException {
+  public BufferedImage resizeImage(InputStream inputStream, int targetSize) throws IOException {
     BufferedImage originalImage = ImageIO.read(inputStream);
     ImageDimensions imageDimensions = new ImageDimensions(originalImage, targetSize);
     int newWidth = imageDimensions.getNewWidth();
@@ -276,7 +276,7 @@ public class ImageServiceImpl implements ImageService {
     return header.contains(ANIMATED_WEBP_IMAGE_MARKER);
   }
 
-  private byte[] convertImageToWebpFormat(BufferedImage image) throws IOException {
+  public byte[] convertImageToWebpFormat(BufferedImage image) throws IOException {
     log.info("Convert image to webp format.");
     Iterator<ImageWriter> imageWriterIterator = ImageIO.getImageWritersBySuffix("webp");
     ImageWriter writer;

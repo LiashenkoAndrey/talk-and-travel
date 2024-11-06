@@ -21,7 +21,6 @@ public enum FileFormat {
   public static FileFormat fromMimeType(String mimeType) {
     if (mimeType != null) {
       String subtype = mimeType.split("/")[1].toLowerCase(); // Get the subtype in lowercase
-      System.out.println(subtype);
       for (FileFormat format : values()) {
         if (format.getExtension().equals(subtype)) {
           return format;
