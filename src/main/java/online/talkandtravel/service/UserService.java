@@ -58,4 +58,8 @@ public interface UserService {
   UserDtoBasic findById(Long userId);
 
   boolean existsByEmail(String email);
+
+  User getUser(String email);
+
+  void updateUserPassword(User user, String rawPassword);
 }
