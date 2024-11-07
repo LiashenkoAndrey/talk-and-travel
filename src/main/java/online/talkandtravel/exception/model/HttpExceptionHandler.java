@@ -141,7 +141,7 @@ public class HttpExceptionHandler {
    * @return user-friendly response
    */
   private ResponseEntity<ExceptionResponse> createResponse(HttpException e, HttpStatus httpStatus) {
-    log.error(e.getMessage(), e);
+    log.error(e.getMessage());
     HttpStatus httpStatus1 = e.getHttpStatus() == null ? httpStatus : e.getHttpStatus();
     return new ResponseEntity<>(e.toResponse(httpStatus1), httpStatus1);
   }

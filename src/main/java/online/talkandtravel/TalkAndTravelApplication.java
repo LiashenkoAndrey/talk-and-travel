@@ -43,7 +43,7 @@ public class TalkAndTravelApplication {
       dataManager.prepareRedisData();
       dataManager.addAdmin();
 
-      mailService.sendPasswordRecoverMessage("andrii.liashenko.pro@gmail.com", UUID.randomUUID().toString());
+//      mailService.sendPasswordRecoverMessage("andrii.liashenko.pro@gmail.com", UUID.randomUUID().toString());
     };
   }
 }

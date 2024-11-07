@@ -7,16 +7,22 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.token.ExpiredTokenException;
 import online.talkandtravel.exception.token.InvalidTokenException;
 import online.talkandtravel.model.entity.Token;
+import online.talkandtravel.model.entity.TokenType;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
 import online.talkandtravel.service.TokenService;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -45,12 +51,50 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
 
-  public static final String TOKEN_NOT_FOUND = "Token for user with id %s is not found";
+  public static final String TOKEN_OF_USER_NOT_FOUND = "Token for user with id %s is not found";
+  public static final String TOKEN_NOT_FOUND = "Token is not found";
 
   @Value("${SECRET_KEY}")
   private String secretKey;
 
   private final TokenRepository tokenRepository;
+
+  @Override
+  public Token generatePasswordRecoveryToken(User user) {
+    log.info("Generate password recovery token for user: {}", user.getId());
+    Token tempToken = Token.builder()
+        .token(UUID.randomUUID().toString())
+        .expired(false)
+        .revoked(false)
+        .tokenType(TokenType.PASSWORD_RECOVERY)
+        .expiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(30))
+        .user(user)
+        .build();
+    return tokenRepository.save(tempToken);
+  }
+
+  @Override
+  public void validatePasswordRecoveryToken(Token token) {
+    log.info("Validate recovery token with id: {}", token);
+    ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+    if (token.getExpiresAt().isBefore(now)) {
+      log.info("Recovery token with id: {} is expired", token.getId());
+      throw new ExpiredTokenException(token.getId());
+    }
+    log.info("Recovery token with id: {} validation successful ", token.getId());
+  }
+
+  @Override
+  public void deleteToken(Token token) {
+    log.info("Delete token with id: {}", token);
+    tokenRepository.delete(token);
+  }
+
+  @Override
+  public Token getToken(String tokenStr) {
+    return tokenRepository.findByToken(tokenStr)
+        .orElseThrow(() -> new InvalidTokenException(TOKEN_NOT_FOUND, "Invalid token"));
+  }
 
   @Override
   @Transactional
@@ -124,7 +168,7 @@ public class TokenServiceImpl implements TokenService {
             .orElseThrow(
                 () ->
                     new InvalidTokenException(
-                        String.format(TOKEN_NOT_FOUND, userId), "Invalid token"));
+                        String.format(TOKEN_OF_USER_NOT_FOUND, userId), "Invalid token"));
 
     if (token.isExpired() && token.isRevoked()) {
       String errorMessage = String.format("Token with id :%s is expired or revoked.", token.getId());

@@ -22,7 +22,6 @@ public class MailConfig {
       @Value("${mail.debug}") String isDebugEnabled
 
   ) {
-    System.out.println(isStarttlsEnable);
 
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
     mailSender.setHost(host);

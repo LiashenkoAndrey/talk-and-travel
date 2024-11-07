@@ -24,7 +24,7 @@ public class MailServiceImpl implements MailService {
   private final TemplateEngine templateEngine;
 
   private static final String TEMPLATE_FILE_NAME = "reset-password-email";
-  private static final String APP_LOGO_FILE_PATH = "src/main/resources/templates/images/appLogo.jpg";
+  private static final String APP_LOGO_FILE_PATH = "src/main/resources/templates/images/appLogo.png";
   private static final String APP_LOGO_CONTENT_ID = "logoImage";
   private static final String RESET_PASSWORD_CONTEXT_VARIABLE = "resetPasswordUrl";
   private static final String TOKEN_QUERY_PARAM_PATTERN = "?token=%s";
@@ -51,7 +51,7 @@ public class MailServiceImpl implements MailService {
       javaMailSender.send(message);
 
     } catch (Exception e) {
-      log.error("An error occupied when send mail: {}", e.getMessage(), e);
+      log.error("An error occupied when send mail: {}", e.getMessage());
     }
   }
 

@@ -10,5 +10,5 @@ package online.talkandtravel.model.entity;
  * </ul>
  */
 public enum TokenType {
-  BEARER
+  BEARER, PASSWORD_RECOVERY
 }

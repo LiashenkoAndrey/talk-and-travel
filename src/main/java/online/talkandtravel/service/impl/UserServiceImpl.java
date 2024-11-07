@@ -55,6 +55,20 @@ public class UserServiceImpl implements UserService {
   private final AuthenticationService authenticationService;
 
   @Override
+  public User getUser(String email) {
+    return userRepository.findByUserEmail(email)
+        .orElseThrow(() -> new UserNotFoundException(email));
+  }
+
+  @Override
+  public void updateUserPassword(User user, String rawPassword) {
+    log.info("Update password of user with id: {}", user.getId());
+    String encodedPassword = passwordEncoder.encode(rawPassword);
+    user.setPassword(encodedPassword);
+    userRepository.save(user);
+  }
+
+  @Override
   public List<UserDtoShort> getAllUsers() {
     return userRepository.findAll().stream()
         .map(userMapper::toUserDtoShort)
