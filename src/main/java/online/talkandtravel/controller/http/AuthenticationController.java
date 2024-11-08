@@ -3,6 +3,7 @@ package online.talkandtravel.controller.http;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.model.ExceptionResponse;
 import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.facade.RecoverPasswordFacade;
 import online.talkandtravel.model.dto.auth.AuthResponse;
@@ -14,6 +15,7 @@ import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
 import online.talkandtravel.model.dto.auth.UpdatePasswordRequest;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import online.talkandtravel.service.OnlineService;
+import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static online.talkandtravel.util.HttpUtils.createExceptionResponse;
 import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 
@@ -48,9 +51,11 @@ public class AuthenticationController {
   private final OnlineService onlineService;
   private final SimpMessagingTemplate messagingTemplate;
   private final RecoverPasswordFacade recoverPasswordFacade;
+  private final UserService userService;
 
   @PostMapping("/password-recovery")
   public ResponseEntity<?> recoverPassword(@RequestBody @Valid RecoverPasswordRequest request) {
+    userService.checkUserExistByEmail(request.userEmail());
     recoverPasswordFacade.recoverPassword(request);
     return ResponseEntity.status(HttpStatus.ACCEPTED).build();
   }

@@ -1,12 +1,12 @@
 package online.talkandtravel.config;
 
+import static online.talkandtravel.util.HttpUtils.createExceptionResponse;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
@@ -105,9 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @throws IOException If an input or output exception occurs while writing the error response.
    */
   private void sendErrorResponse(HttpServletResponse response) throws IOException {
-    ExceptionResponse exceptionResponse =
-        new ExceptionResponse(
-            "Authentication failed", HttpStatus.UNAUTHORIZED, ZonedDateTime.now(ZoneOffset.UTC));
+    ExceptionResponse exceptionResponse = createExceptionResponse("Authentication failed", HttpStatus.UNAUTHORIZED);
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     response.setContentType("application/json");
     response.getWriter().write(objectMapper.writeValueAsString(exceptionResponse));

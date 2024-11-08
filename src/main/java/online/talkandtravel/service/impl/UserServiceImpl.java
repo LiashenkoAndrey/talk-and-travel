@@ -69,6 +69,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public void checkUserExistByEmail(String email) {
+    getUser(email);
+  }
+
+  @Override
   public List<UserDtoShort> getAllUsers() {
     return userRepository.findAll().stream()
         .map(userMapper::toUserDtoShort)

@@ -2,6 +2,7 @@ package online.talkandtravel.exception.model;
 
 import static online.talkandtravel.exception.util.ExceptionHandlerUtils.VALIDATION_FAILED_MESSAGE;
 import static online.talkandtravel.util.AuthenticationUtils.getUserFromPrincipal;
+import static online.talkandtravel.util.HttpUtils.createExceptionResponse;
 import static online.talkandtravel.util.constants.ApiPathConstants.USER_WEBSOCKET_ERRORS_PATH;
 
 import java.security.Principal;
@@ -38,8 +39,7 @@ public class WebSocketExceptionHandler {
 
   @MessageExceptionHandler(WebSocketException.class)
   public void handleWebSocketException(WebSocketException e) {
-    ExceptionResponse errorMessage =
-        new ExceptionResponse(e.getMessage(), e.getHttpStatus(), e.getZonedDateTime());
+    ExceptionResponse errorMessage = createExceptionResponse(e.getMessage(), e.getHttpStatus(), e.getZonedDateTime());
     log.error("WebSocketException: {}", e.getMessage(), e);
 
     sendErrorToUser(e.getUserId(), errorMessage);

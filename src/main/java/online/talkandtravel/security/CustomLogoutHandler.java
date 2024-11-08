@@ -1,12 +1,12 @@
 package online.talkandtravel.security;
 
+import static online.talkandtravel.util.HttpUtils.createExceptionResponse;
 import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.model.ExceptionResponse;
@@ -113,11 +113,8 @@ public class CustomLogoutHandler implements LogoutHandler {
   /** Writes a Bad Request response when the request is invalid. */
   private void writeBadRequestResponse(HttpServletResponse response) {
     try {
-      ExceptionResponse exceptionResponse =
-          new ExceptionResponse(
-              "Authorization header is missing or invalid",
-              HttpStatus.BAD_REQUEST,
-              ZonedDateTime.now());
+      ExceptionResponse exceptionResponse = createExceptionResponse(
+          "Authorization header is missing or invalid", HttpStatus.BAD_REQUEST);
       response.setStatus(HttpStatus.BAD_REQUEST.value());
       response.setContentType("application/json");
       response.getWriter().write(objectMapper.writeValueAsString(exceptionResponse));

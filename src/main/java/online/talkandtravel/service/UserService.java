@@ -35,6 +35,8 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface UserService {
 
+  void checkUserExistByEmail(String email);
+
   List<UserDtoShort> getAllUsers();
 
   void updateLastLoggedOnToNow(User user);
