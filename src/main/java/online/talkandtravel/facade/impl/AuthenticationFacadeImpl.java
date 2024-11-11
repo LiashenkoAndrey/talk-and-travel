@@ -2,21 +2,26 @@ package online.talkandtravel.facade.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
+import online.talkandtravel.model.dto.auth.RecoverPasswordRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.RegistrationConfirmationRequest;
 import online.talkandtravel.model.dto.auth.SocialLoginRequest;
 import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
+import online.talkandtravel.model.dto.auth.UpdatePasswordRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Token;
-import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.service.MailService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -29,6 +34,28 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   private final UserService userService;
   private final TokenService tokenService;
   private final AuthenticationService authenticationService;
+  private final MailService mailService;
+
+  @Override
+  @Async
+  public void recoverPassword(RecoverPasswordRequest request) {
+    log.info("Recover user password, email: {}", request.userEmail());
+    String email = request.userEmail();
+    User user = userService.getUser(email);
+    Token recoveryToken = tokenService.generatePasswordRecoveryToken(user);
+
+    mailService.sendPasswordRecoverMessage(email, recoveryToken.getToken());
+  }
+
+  @Override
+  public void updatePassword(UpdatePasswordRequest request) {
+    log.info("Update user password");
+    String tokenStr = request.token();
+    Token token = tokenService.getToken(tokenStr);
+    tokenService.checkTokenIsExpired(token);
+    userService.updateUserPassword(token.getUser(), request.newPassword());
+    tokenService.deleteToken(token);
+  }
 
   @Override
   @Transactional
@@ -44,20 +71,6 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     log.info("Login using social - email {}", request.userEmail());
     User authenticatedUser = authenticationService.getRegisteredUser(request.userEmail());
     return processSuccessfulLogin(authenticatedUser);
-  }
-
-  private AuthResponse processSuccessfulLogin(User authenticatedUser) {
-    userService.updateLastLoggedOnToNow(authenticatedUser);
-    String jwtToken = saveOrUpdateUserToken(authenticatedUser.getId());
-    return new AuthResponse(jwtToken, userService.mapToUserDtoBasic(authenticatedUser));
-  }
-
-  @Override
-  public AuthResponse register(RegisterRequest request) {
-    log.info("register user - name: {}, email: {}", request.userName(), request.userEmail());
-    UserDtoBasic newUser = validateAndSaveNewUser(request);
-    String jwtToken = saveOrUpdateUserToken(newUser.id());
-    return new AuthResponse(jwtToken, newUser);
   }
 
   @Override
@@ -82,8 +95,9 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   @Override
   public String saveOrUpdateUserToken(Long userId) {
     String jwtToken = tokenService.generateToken(userId);
-    var token = createNewToken(jwtToken, userId);
-    tokenService.deleteUserToken(userId);
+    User user = userService.getUserById(userId);
+    var token = tokenService.saveNewToken(jwtToken, user);
+    tokenService.deleteUserToken(user);
     tokenService.save(token);
     return jwtToken;
   }
@@ -101,33 +115,43 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
     return authenticationService.createUsernamePasswordAuthenticationToken(userDetails);
   }
 
-  private UserDtoBasic validateAndSaveNewUser(RegisterRequest request) {
-    validateUserRegistrationData(request.userEmail(), request.password());
-    return userService.createAndSaveNewUser(request);
+  @Override
+  public AuthResponse confirmRegistration(RegistrationConfirmationRequest request) {
+    RegisterRequest registerRequest = userService.getUserRegisterDataFromTempStorage(request.token());
+    return register(registerRequest);
+  }
+
+  @Override
+  @Async
+  public void onUserRegister(RegisterRequest request) {
+    log.info("Register user: email: {}, name: {}", request.userEmail(), request.userName());
+    validateUserRegistrationData(request.userEmail());
+    String token = UUID.randomUUID().toString();
+    log.info("token: {}", token);
+
+    userService.saveUserRegisterDataToTempStorage(token, request);
+    mailService.sendConfirmRegistrationMessage(request.userEmail(), token);
+  }
+
+  private AuthResponse register(RegisterRequest request) {
+    log.info("register user - name: {}, email: {}", request.userName(), request.userEmail());
+    UserDtoBasic newUser = userService.saveNewUser(request);
+    String jwtToken = saveOrUpdateUserToken(newUser.id());
+    return new AuthResponse(jwtToken, newUser);
+  }
+
+  private AuthResponse processSuccessfulLogin(User authenticatedUser) {
+    userService.updateLastLoggedOnToNow(authenticatedUser);
+    String jwtToken = saveOrUpdateUserToken(authenticatedUser.getId());
+    return new AuthResponse(jwtToken, userService.mapToUserDtoBasic(authenticatedUser));
   }
 
   private UserDtoBasic validateAndSaveNewUser(SocialRegisterRequest request) {
     validateUserRegistrationData(request.userEmail());
-    return userService.createAndSaveNewUser(request);
-  }
-
-  private Token createNewToken(String jwtToken, Long userId) {
-    return Token.builder()
-        .user(userService.getReferenceById(userId))
-        .token(jwtToken)
-        .tokenType(TokenType.BEARER)
-        .expired(false)
-        .revoked(false)
-        .build();
-  }
-
-  private void validateUserRegistrationData(String email, String password) {
-    authenticationService.validateUserEmailAndPassword(email, password);
-    authenticationService.checkForDuplicateEmail(email);
+    return userService.saveNewUser(request);
   }
 
   private void validateUserRegistrationData(String email) {
-    authenticationService.validateUserEmail(email);
     authenticationService.checkForDuplicateEmail(email);
   }
 

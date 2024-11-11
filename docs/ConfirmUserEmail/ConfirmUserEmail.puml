@@ -1,0 +1,75 @@
+@startuml
+actor User
+actor Frontend
+participant AuthenticationController
+participant AuthenticationFacade
+participant UserService
+participant RedisTemplate
+participant UserRepository
+participant EmailService
+participant TokenService
+
+== Confirm user email during user registration  ==
+
+User -> Frontend : fills register form
+Frontend -> AuthenticationController : POST /api/authentication/register
+note right
+Body:
+RegisterRequest
+{
+  "userName": "string",
+  "userEmail": "string",
+  "password": "string"
+}
+end note
+
+AuthenticationController -> AuthenticationFacade : call onUserRegister(RegisterRequest)
+AuthenticationFacade -> AuthenticationFacade : hash password
+AuthenticationFacade -> UserService : save user to temp storage
+UserService -> RedisTemplate : saveUserFromTempStorage(token, RegisterRequest)
+note over RedisTemplate
+key - random UUID
+value - RegisterRequest
+end note
+AuthenticationFacade -> EmailService : send confirmation letter to email
+EmailService -> User : send confirmation letter to email
+
+== When user confirms their email ==
+
+User -> Frontend : redirect when confirm
+Frontend -> AuthenticationController : POST /api/authentication/registration-confirmation
+note right
+Body:
+{
+  "token": "string"
+}
+end note
+AuthenticationController -> AuthenticationFacade : call confirmRegistration(String token)
+AuthenticationFacade -> UserService : getUserFromTempStorage(token)
+UserService -> RedisTemplate : get user by UUID string
+UserService -> AuthenticationFacade : returns RegisterRequest DTO
+AuthenticationFacade -> UserService : saveUser(RegisterRequest)
+UserService -> UserRepository : save user
+UserRepository -> UserService : returns saved user
+UserService -> AuthenticationFacade : returns saved user
+AuthenticationFacade -> TokenService : generate token
+AuthenticationFacade -> UserService : map user to UserDtoBasic
+AuthenticationFacade -> AuthenticationController : returns AuthResponse
+AuthenticationController -> Frontend : return status 200
+note over AuthenticationController
+AuthResponse:
+{
+  "token": "string",
+  "userDto": {
+    "id": 0,
+    "userName": "string",
+    "userEmail": "string",
+    "about": "string",
+    "avatar": {
+      "image50x50": "string",
+      "image256x256": "string"
+    }
+  }
+}
+end note
+@enduml

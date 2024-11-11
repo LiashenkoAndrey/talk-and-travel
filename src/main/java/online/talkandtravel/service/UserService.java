@@ -41,15 +41,15 @@ public interface UserService {
 
   void updateLastLoggedOnToNow(User user);
 
-  UserDtoBasic createAndSaveNewUser(RegisterRequest request);
+  UserDtoBasic saveNewUser(RegisterRequest request);
 
-  UserDtoBasic createAndSaveNewUser(SocialRegisterRequest request);
+  UserDtoBasic saveNewUser(SocialRegisterRequest request);
 
   UserDtoBasic mapToUserDtoBasic(User user);
 
   UserDtoBasic save(User user);
 
-  User getReferenceById(Long userId);
+  User getUserById(Long userId);
 
   UserDetails getUserDetails(Long userId);
 
@@ -64,4 +64,8 @@ public interface UserService {
   User getUser(String email);
 
   void updateUserPassword(User user, String rawPassword);
+
+  void saveUserRegisterDataToTempStorage(String token, RegisterRequest request);
+
+  RegisterRequest getUserRegisterDataFromTempStorage(String token);
 }

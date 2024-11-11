@@ -62,6 +62,7 @@ public class SecurityConfiguration {
     "/api/authentication/register",
     "/api/authentication/social/register",
     "/api/authentication/password-recovery",
+    "/api/authentication/registration-confirmation",
     "/api/authentication/social/login",
     "/swagger-ui/**",
     "/v3/**",

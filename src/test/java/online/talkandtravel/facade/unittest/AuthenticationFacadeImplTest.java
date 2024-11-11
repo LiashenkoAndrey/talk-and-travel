@@ -68,19 +68,19 @@ class AuthenticationFacadeImplTest {
 
     @Test
     void register_shouldSaveUserWithCorrectCredentials() {
-      doNothing().when(authenticationService).validateUserEmailAndPassword(alice.getUserEmail(), alice.getPassword());
+      doNothing().when(authenticationService).validateUserPassword(alice.getUserEmail(), alice.getPassword());
       doNothing().when(authenticationService).checkForDuplicateEmail(alice.getUserEmail());
-      when(userService.createAndSaveNewUser(registerRequest)).thenReturn(aliseDtoBasic);
+      when(userService.saveNewUser(registerRequest)).thenReturn(aliseDtoBasic);
       stubbingSaveOrUpdateUserTokenMethod(alice);
 
       AuthResponse authResponse = underTest.register(registerRequest);
       assertEquals(TEST_TOKEN, authResponse.token());
       assertEquals(aliseDtoBasic, authResponse.userDto());
 
-      verify(authenticationService, times(1)).validateUserEmailAndPassword(alice.getUserEmail(),
+      verify(authenticationService, times(1)).validateUserPassword(alice.getUserEmail(),
           alice.getPassword());
       verify(authenticationService, times(1)).checkForDuplicateEmail(alice.getUserEmail());
-      verify(userService, times(1)).createAndSaveNewUser(registerRequest);
+      verify(userService, times(1)).saveNewUser(registerRequest);
       verifyStubbingSaveOrUpdateUserTokenMethod(alice);
 
     }
@@ -94,7 +94,7 @@ class AuthenticationFacadeImplTest {
 
       assertThrows(RegistrationException.class, () -> underTest.register(registerRequest));
 
-      verify(authenticationService).validateUserEmailAndPassword(aliseDtoBasic.userEmail(),
+      verify(authenticationService).validateUserPassword(aliseDtoBasic.userEmail(),
           alice.getPassword());
     }
 
@@ -102,11 +102,11 @@ class AuthenticationFacadeImplTest {
     void register_shouldThrowRegistrationException_whenInvalidEmailOrPassword() {
       doThrow(RegistrationException.class)
           .when(authenticationService)
-          .validateUserEmailAndPassword(aliseDtoBasic.userEmail(), alice.getPassword());
+          .validateUserPassword(aliseDtoBasic.userEmail(), alice.getPassword());
 
       assertThrows(RegistrationException.class, () -> underTest.register(registerRequest));
 
-      verify(authenticationService).validateUserEmailAndPassword(aliseDtoBasic.userEmail(),
+      verify(authenticationService).validateUserPassword(aliseDtoBasic.userEmail(),
           alice.getPassword());
     }
   }

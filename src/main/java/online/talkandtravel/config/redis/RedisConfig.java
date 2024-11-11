@@ -1,13 +1,16 @@
 package online.talkandtravel.config.redis;
 
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.model.dto.auth.RegisterRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 
 /**
  * Configuration class for setting up Redis integration. Enables Redis keyspace notifications for
@@ -43,5 +46,13 @@ public class RedisConfig {
         listenerContainer.setErrorHandler(
                 e -> log.error("Error in Redis key expiration listener container: {}", e.getMessage()));
         return listenerContainer;
+    }
+
+    @Bean
+    public RedisTemplate<String, RegisterRequest> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, RegisterRequest> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        template.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
+        return template;
     }
 }

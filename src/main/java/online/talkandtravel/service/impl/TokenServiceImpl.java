@@ -24,6 +24,7 @@ import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
+import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.TokenService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,14 +75,14 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
-  public void validatePasswordRecoveryToken(Token token) {
-    log.info("Validate recovery token with id: {}", token);
+  public void checkTokenIsExpired(Token token) {
+    log.info("Validate token with id: {}", token);
     ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
     if (token.getExpiresAt().isBefore(now)) {
-      log.info("Recovery token with id: {} is expired", token.getId());
+      log.info("Token with id: {} is expired", token.getId());
       throw new ExpiredTokenException(token.getId());
     }
-    log.info("Recovery token with id: {} validation successful ", token.getId());
+    log.info("Token with id: {} validation successful ", token.getId());
   }
 
   @Override
@@ -97,9 +98,20 @@ public class TokenServiceImpl implements TokenService {
   }
 
   @Override
+  public Token saveNewToken(String jwtToken, User user) {
+    return Token.builder()
+        .user(user)
+        .token(jwtToken)
+        .tokenType(TokenType.BEARER)
+        .expired(false)
+        .revoked(false)
+        .build();
+  }
+
+  @Override
   @Transactional
-  public void deleteUserToken(Long userId) {
-    tokenRepository.deleteAllByUserId(userId);
+  public void deleteUserToken(User user) {
+    tokenRepository.deleteAllByUser(user);
   }
 
   @Override

@@ -26,6 +26,7 @@ public class ExpiredValueRedisListener implements MessageListener {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final OnlineService onlineService;
+    private static final String LAST_SEEN_ON_FIELD = "lastSeenOn";
 
     /**
      * Invoked when a Redis key expires. This method processes the expired key
@@ -36,6 +37,17 @@ public class ExpiredValueRedisListener implements MessageListener {
      */
     @Override
     public void onMessage(@NonNull Message message, byte[] pattern) {
+        if (isLastSeenOnKey(message)) {
+            updateLastSeenOn(message);
+        }
+    }
+
+    private boolean isLastSeenOnKey(Message message) {
+        String key = new String(message.getBody());
+        return key.contains(LAST_SEEN_ON_FIELD);
+    }
+
+    private void updateLastSeenOn(Message message) {
         try {
             String key = new String(message.getBody());
             Long userId = getUserIdFromRedisKey(key);
