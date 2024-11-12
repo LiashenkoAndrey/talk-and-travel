@@ -40,7 +40,7 @@ public class WebSocketExceptionHandler {
   @MessageExceptionHandler(WebSocketException.class)
   public void handleWebSocketException(WebSocketException e) {
     ExceptionResponse errorMessage = createExceptionResponse(e.getMessage(), e.getHttpStatus(), e.getZonedDateTime());
-    log.error("WebSocketException: {}", e.getMessage(), e);
+    log.error("WebSocketException: {}", e.getMessage());
 
     sendErrorToUser(e.getUserId(), errorMessage);
   }

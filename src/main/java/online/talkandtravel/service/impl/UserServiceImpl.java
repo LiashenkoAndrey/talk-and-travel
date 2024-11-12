@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void saveUserRegisterDataToTempStorage(String token, RegisterRequest request) {
-    log.info("save user data to redis");
+    log.info("save user data to redis: email: {}", request.userEmail());
     String password = passwordEncoder.encode(request.password());
     RegisterRequest userRegisterData = new RegisterRequest(request.userName(), request.userEmail(), password);
     Duration expireTime = Duration.ofMinutes(USER_REGISTER_DATA_EXPIRING_TIME_IN_MIN);
