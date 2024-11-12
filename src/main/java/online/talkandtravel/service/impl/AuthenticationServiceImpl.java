@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.UserAuthenticationException;
-import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.exception.user.UserNotAuthenticatedException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.entity.User;

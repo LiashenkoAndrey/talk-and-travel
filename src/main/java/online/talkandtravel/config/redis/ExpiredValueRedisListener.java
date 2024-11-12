@@ -37,6 +37,7 @@ public class ExpiredValueRedisListener implements MessageListener {
      */
     @Override
     public void onMessage(@NonNull Message message, byte[] pattern) {
+        log.info("Expired key: {}, pattern: {}", new String(message.getBody()), new String(pattern));
         if (isOnlineKey(message)) {
             updateLastSeenOn(message);
         }
