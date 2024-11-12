@@ -1,5 +1,7 @@
 package online.talkandtravel.testdata;
 
+import online.talkandtravel.model.dto.avatar.AvatarDto;
+import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.Role;
 import online.talkandtravel.model.entity.User;
 
@@ -27,6 +29,12 @@ public final class UserTestData {
         .about("Hello, I am Alice!")
         .role(Role.USER)
         .build();
+  }
+
+  public static UserDtoBasic getAliceDtoBasic() {
+    User alice = getAlice();
+    return new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(),
+        alice.getAbout(), new AvatarDto());
   }
 
   public static User getAliceSaved(){

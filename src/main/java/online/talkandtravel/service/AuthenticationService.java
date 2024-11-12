@@ -21,8 +21,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface AuthenticationService {
 
-  void checkForDuplicateEmail(String userEmail);
-
   User getAuthenticatedUser();
 
   boolean isUserAuthenticated();

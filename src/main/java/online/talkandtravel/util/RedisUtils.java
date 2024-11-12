@@ -7,9 +7,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 public class RedisUtils {
 
   public static final String USER_STATUS_KEY = "user:%s:isOnline";
-  public static final String USER_STATUS_KEY_PATTERN = "user:*:isOnline";
   public static final String USER_LAST_SEEN_KEY = "user:%s:lastSeenOn";
-  public static final String USER_LAST_SEEN_KEY_PATTERN = "user:*:lastSeenOn";
+  public static final String USER_REGISTER_DATA_REDIS_KEY_PATTERN = "register-user-data:%s";
 
   /**
    * Extracts the user ID from the Redis key following the pattern:
@@ -26,12 +25,6 @@ public class RedisUtils {
       return NumberUtils.toLong(userId);
     }
     throw new StringParseException(userId, "Can't parse a long value");
-  }
-
-  public static List<Long> getUserIdFromKeys(List<String> keys) {
-    return keys.stream()
-            .map(RedisUtils::getUserIdFromRedisKey)
-            .toList();
   }
 
   public static String getUserStatusRedisKey(Long userId) {

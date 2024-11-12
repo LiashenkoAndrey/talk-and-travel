@@ -117,6 +117,7 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
 
   @Override
   public AuthResponse confirmRegistration(RegistrationConfirmationRequest request) {
+    log.info("confirm user registration");
     RegisterRequest registerRequest = userService.getUserRegisterDataFromTempStorage(request.token());
     return register(registerRequest);
   }
@@ -152,7 +153,7 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
   }
 
   private void validateUserRegistrationData(String email) {
-    authenticationService.checkForDuplicateEmail(email);
+    userService.checkForDuplicateEmail(email);
   }
 
   private UserDetails getUserDetails(String token) {

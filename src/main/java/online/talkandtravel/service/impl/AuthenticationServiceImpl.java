@@ -127,14 +127,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
 
-
-  @Override
-  public void checkForDuplicateEmail(String userEmail) {
-    if (userRepository.existsByUserEmail(userEmail)) {
-      throw new UserAlreadyExistsException(userEmail);
-    }
-  }
-
   private User getUser(String email) {
     return userRepository.findByUserEmail(email)
         .orElseThrow(

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.security.Principal;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.RegistrationConfirmationRequest;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +50,19 @@ public class TestAuthenticationService {
     try {
       String requestBody = objectMapper.writeValueAsString(request);
       performPost("/api/authentication/register", null, requestBody)
-          .andExpect(status().isOk());
+          .andExpect(status().isAccepted());
     } catch (Exception e) {
       throw new RuntimeException("Registration failed", e);
+    }
+  }
+
+  public void confirmUserRegistration(String token) {
+    try {
+      String requestBody = objectMapper.writeValueAsString(new RegistrationConfirmationRequest(token));
+      performPost("/api/authentication/registration-confirmation", null, requestBody)
+          .andExpect(status().isCreated());
+    } catch (Exception e) {
+      throw new RuntimeException("confirm User Registration failed", e);
     }
   }
 
@@ -105,8 +116,7 @@ public class TestAuthenticationService {
         requestBuilder.content(content);
       }
 
-      return mockMvc.perform(requestBuilder)
-          .andExpect(status().isOk());
+      return mockMvc.perform(requestBuilder);
     } catch (Exception e) {
       throw new RuntimeException("Request to " + url + " failed", e);
     }

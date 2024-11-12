@@ -1,5 +1,7 @@
 package online.talkandtravel.service.impl;
 
+import static online.talkandtravel.util.RedisUtils.USER_REGISTER_DATA_REDIS_KEY_PATTERN;
+
 import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -8,6 +10,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.UserRegistrationDataNotFound;
+import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
@@ -53,10 +56,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 public class UserServiceImpl implements UserService {
 
-  private static final String USER_REGISTER_DATA_REDIS_KEY_PATTERN = "register-user-data:%s";
-
   @Value("${USER_REGISTER_DATA_EXPIRING_TIME_IN_MIN}")
-  private Long USER_REGISTER_DATA_EXPIRING_TIME_IN_MIN;
+  public Long USER_REGISTER_DATA_EXPIRING_TIME_IN_MIN;
 
   private final UserRepository userRepository;
   private final RedisTemplate<String, RegisterRequest> redisTemplate;
@@ -191,6 +192,14 @@ public class UserServiceImpl implements UserService {
   public boolean existsByEmail(String email) {
     return userRepository.findByUserEmail(email).isPresent();
   }
+
+  @Override
+  public void checkForDuplicateEmail(String userEmail) {
+    if (userRepository.existsByUserEmail(userEmail)) {
+      throw new UserAlreadyExistsException(userEmail);
+    }
+  }
+
 
   private UserDtoBasic saveAndMapToDto(User user) {
     User saved = userRepository.save(user);
