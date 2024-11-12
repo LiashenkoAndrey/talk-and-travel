@@ -2,17 +2,13 @@ package online.talkandtravel.service.impl;
 
 
 import static online.talkandtravel.util.constants.RedisConstants.USER_REGISTER_DATA_REDIS_KEY_PATTERN;
-import static online.talkandtravel.util.constants.RedisConstants.USER_REGISTER_DATA_REDIS_KEY_SEARCH_PATTERN;
 
 import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.auth.UserRegistrationDataNotFound;
 import online.talkandtravel.exception.user.UserAlreadyExistsException;
@@ -31,9 +27,7 @@ import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
