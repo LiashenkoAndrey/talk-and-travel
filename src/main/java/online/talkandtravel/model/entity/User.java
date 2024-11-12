@@ -52,7 +52,7 @@ public class User {
   @Size(
       min = 2,
       max = 16,
-      message = "The username must be at least 2 " + "and no more than 16 characters long")
+      message = "The username must be at least 2 and no more than 16 characters long")
   private String userName;
 
   @Column(nullable = false)

@@ -28,9 +28,6 @@ public class TalkAndTravelApplication {
 
   private final DataManager dataManager;
 
-  private final MailService mailService;
-
-
   public static void main(String[] args) {
     SpringApplication.run(TalkAndTravelApplication.class, args);
   }
@@ -42,8 +39,6 @@ public class TalkAndTravelApplication {
       dataManager.checkAndCreateChats();
       dataManager.prepareRedisData();
       dataManager.addAdmin();
-
-//      mailService.sendPasswordRecoverMessage("andrii.liashenko.pro@gmail.com", UUID.randomUUID().toString());
     };
   }
 }

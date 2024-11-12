@@ -1,0 +1,45 @@
+@startuml
+
+start
+
+
+:send data;
+
+if (valid input?) is (yes) then
+  :true;
+  if (Does account with same email exist?) then (yes)
+    :server sends error;
+    detach
+  else (no)
+   :save data to temp storage;
+   :Server respond with message telling client to check their email;
+
+   :User click on a link in an email;
+
+   :User directed to frontend;
+   if (query parameter with name "token" is provided?) is (yes) then
+     :Get token from query parameter;
+     :Send POST request to server \n /api/authentication/registration-confirmation?token={TOKEN};
+      if (token is valid?) is (yes) then
+        :Send 200 response status with user DTO ;
+        stop
+      else (no)
+        :server sends error;
+        detach
+      endif
+   else (no)
+     :show message with error;
+     detach
+   endif
+
+  endif
+
+else (no)
+  : server sends error;
+  detach
+endif
+
+
+
+
+@enduml

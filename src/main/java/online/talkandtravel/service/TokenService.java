@@ -26,7 +26,7 @@ import online.talkandtravel.model.entity.User;
  */
 public interface TokenService {
 
-  void deleteUserToken(Long userId);
+  void deleteUserToken(User user);
 
   Token save(Token token);
 
@@ -44,9 +44,11 @@ public interface TokenService {
 
   Token generatePasswordRecoveryToken(User user);
 
-  void validatePasswordRecoveryToken(Token token);
+  void checkTokenIsExpired(Token token);
 
   void deleteToken(Token token);
 
   Token getToken(String token);
+
+  Token saveNewToken(String jwtToken, User user);
 }

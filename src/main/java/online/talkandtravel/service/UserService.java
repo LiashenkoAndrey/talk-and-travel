@@ -1,6 +1,5 @@
 package online.talkandtravel.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
@@ -18,36 +17,24 @@ import org.springframework.security.core.userdetails.UserDetails;
  * <p>This service provides methods for performing various user-related operations, including saving
  * and updating user details, finding users by email or ID, and checking for the existence of users
  * based on their email address.
- *
- * <p>Methods:
- *
- * <ul>
- *   <li>{@link #save(User)} - Saves a new user or updates an existing user's information. The
- *       password of the user is encoded before being saved. Throws {@link IOException} if there is
- *       an error during the saving process.
- *   <li>{@link #findUserByEmail(String)} - Retrieves a user by their email address. Returns an
- *       {@link Optional} that contains the user if found, or empty if no user with the specified
- *       email exists.
- *   <li>{@link #findById(Long)} - Finds a user by their unique ID.
- *   <li>{@link #existsByEmail(String)} - Checks if a user with the specified email address already
- *       exists in the system. Returns true if such a user exists, false otherwise.
- * </ul>
  */
 public interface UserService {
+
+  void checkUserExistByEmail(String email);
 
   List<UserDtoShort> getAllUsers();
 
   void updateLastLoggedOnToNow(User user);
 
-  UserDtoBasic createAndSaveNewUser(RegisterRequest request);
+  UserDtoBasic saveNewUser(RegisterRequest request);
 
-  UserDtoBasic createAndSaveNewUser(SocialRegisterRequest request);
+  UserDtoBasic saveNewUser(SocialRegisterRequest request);
 
   UserDtoBasic mapToUserDtoBasic(User user);
 
   UserDtoBasic save(User user);
 
-  User getReferenceById(Long userId);
+  User getUserById(Long userId);
 
   UserDetails getUserDetails(Long userId);
 
@@ -62,4 +49,10 @@ public interface UserService {
   User getUser(String email);
 
   void updateUserPassword(User user, String rawPassword);
+
+  void saveUserRegisterDataToTempStorage(String token, RegisterRequest request);
+
+  RegisterRequest getUserRegisterDataFromTempStorage(String token);
+
+  void checkForDuplicateEmail(String userEmail);
 }

@@ -19,9 +19,12 @@ package online.talkandtravel.util.constants;
 public final class ApiPathConstants {
   public static final String API_BASE_PATH = "/api";
   public static final String API_V2_BASE_PATH = "/api/v2";
-  public static final String LOGOUT_URL = "/api/authentication/logout";
 
   // HTTP endpoints
+  public static final String REGISTER_USER_PATH = API_BASE_PATH + "/authentication/register";
+  public static final String LOGIN_USER_PATH = API_BASE_PATH + "/authentication/login";
+  public static final String LOGOUT_USER_PATH = API_BASE_PATH + "/authentication/logout";
+  public static final String CONFIRM_REGISTRATION_USER_PATH = API_BASE_PATH + "/authentication/registration-confirmation";
   public static final String GET_UNREAD_MESSAGES_PATH = API_BASE_PATH + "/chats/%s/messages/unread";
   public static final String CREATE_PRIVATE_CHAT_PATH = API_BASE_PATH + "/chats/private";
   public static final String FIND_MAIN_CHAT_PATH = API_V2_BASE_PATH + "/country/%s/main-chat";

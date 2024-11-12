@@ -2,27 +2,30 @@ package online.talkandtravel.facade.unittest;
 
 import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.exception.auth.RegistrationException;
+import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.facade.impl.AuthenticationFacadeImpl;
 import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.RegistrationConfirmationRequest;
 import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
-import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
+import online.talkandtravel.service.MailService;
 import online.talkandtravel.service.TokenService;
 import online.talkandtravel.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,74 +44,71 @@ class AuthenticationFacadeImplTest {
   @Mock private HttpServletRequest request;
   @Mock private UserService userService;
   @Mock private AuthenticationService authenticationService;
+  @Mock private MailService mailService;
 
   @InjectMocks AuthenticationFacadeImpl underTest;
 
   private static final String TEST_TOKEN = "test_token";
 
   private User alice;
+  private RegisterRequest registerRequest;
+  private UserDtoBasic userDtoBasic;
 
   @BeforeEach
   void setUp() {
     alice = getAlice();
+    registerRequest = new RegisterRequest(alice.getUserName(), alice.getUserEmail(), alice.getPassword());
+    userDtoBasic = new UserDtoBasic(1L, "testUser", "Test User", "test@example.com", new AvatarDto());
     SecurityContextHolder.clearContext();
   }
 
   @Nested
-  class Register {
+  class OnUserRegister {
 
-    private RegisterRequest registerRequest;
-    private  UserDtoBasic aliseDtoBasic;
+    @Test
+    void onUserRegister_shouldSaveToRedisAndSendEmail() {
+      doNothing().when(userService).checkForDuplicateEmail(alice.getUserEmail());
+      doNothing().when(userService).saveUserRegisterDataToTempStorage(anyString(), eq(registerRequest));
+      doNothing().when(mailService).sendConfirmRegistrationMessage(eq(alice.getUserEmail()), anyString());
 
-    @BeforeEach
-    void setUp() {
-      registerRequest = new RegisterRequest(alice.getUserName(), alice.getUserEmail(), alice.getPassword());
-      aliseDtoBasic = new UserDtoBasic(alice.getId(), alice.getUserName(), alice.getUserEmail(), alice.getAbout(), new AvatarDto());
+      underTest.onUserRegister(registerRequest);
+
+      verify(userService).checkForDuplicateEmail(alice.getUserEmail());
+      verify(userService).saveUserRegisterDataToTempStorage(anyString(), eq(registerRequest));
+      verify(mailService).sendConfirmRegistrationMessage(eq(alice.getUserEmail()), anyString());
     }
 
     @Test
-    void register_shouldSaveUserWithCorrectCredentials() {
-      doNothing().when(authenticationService).validateUserEmailAndPassword(alice.getUserEmail(), alice.getPassword());
-      doNothing().when(authenticationService).checkForDuplicateEmail(alice.getUserEmail());
-      when(userService.createAndSaveNewUser(registerRequest)).thenReturn(aliseDtoBasic);
-      stubbingSaveOrUpdateUserTokenMethod(alice);
-
-      AuthResponse authResponse = underTest.register(registerRequest);
-      assertEquals(TEST_TOKEN, authResponse.token());
-      assertEquals(aliseDtoBasic, authResponse.userDto());
-
-      verify(authenticationService, times(1)).validateUserEmailAndPassword(alice.getUserEmail(),
-          alice.getPassword());
-      verify(authenticationService, times(1)).checkForDuplicateEmail(alice.getUserEmail());
-      verify(userService, times(1)).createAndSaveNewUser(registerRequest);
-      verifyStubbingSaveOrUpdateUserTokenMethod(alice);
-
-    }
-
-    @Test
-    void register_shouldThrowRegistrationException_whenUserExists() {
-
-      doThrow(RegistrationException.class)
-          .when(authenticationService)
+    void onUserRegister_shouldThrowException_whenUserExists() {
+      doThrow(UserAlreadyExistsException.class)
+          .when(userService)
           .checkForDuplicateEmail(alice.getUserEmail());
 
-      assertThrows(RegistrationException.class, () -> underTest.register(registerRequest));
-
-      verify(authenticationService).validateUserEmailAndPassword(aliseDtoBasic.userEmail(),
-          alice.getPassword());
+      assertThrows(UserAlreadyExistsException.class, () -> underTest.onUserRegister(registerRequest));
     }
+  }
+
+  @Nested
+  class ConfirmRegistration {
+
+    private static final RegistrationConfirmationRequest confirmationRequest = new RegistrationConfirmationRequest(TEST_TOKEN);
 
     @Test
-    void register_shouldThrowRegistrationException_whenInvalidEmailOrPassword() {
-      doThrow(RegistrationException.class)
-          .when(authenticationService)
-          .validateUserEmailAndPassword(aliseDtoBasic.userEmail(), alice.getPassword());
+    void confirmRegistration_shouldDeleteDataFromRedisAndSaveUser() {
+      when(userService.getUserRegisterDataFromTempStorage(TEST_TOKEN)).thenReturn(registerRequest);
+      when(userService.saveNewUser(registerRequest)).thenReturn(userDtoBasic);
+      when(tokenService.generateToken(anyLong())).thenReturn(TEST_TOKEN);
 
-      assertThrows(RegistrationException.class, () -> underTest.register(registerRequest));
+      AuthResponse authResponse = underTest.confirmRegistration(confirmationRequest);
 
-      verify(authenticationService).validateUserEmailAndPassword(aliseDtoBasic.userEmail(),
-          alice.getPassword());
+      assertNotNull(authResponse);
+      assertEquals(TEST_TOKEN, authResponse.token());
+      assertEquals(userDtoBasic, authResponse.userDto());
+
+      verify(userService).getUserRegisterDataFromTempStorage(TEST_TOKEN);
+      verify(userService).saveNewUser(registerRequest);
     }
+
   }
 
   @Test
@@ -141,19 +141,5 @@ class AuthenticationFacadeImplTest {
 
     verify(tokenService).extractId(TEST_TOKEN);
     verify(userService).getUserDetails(alice.getId());
-  }
-
-  private void stubbingSaveOrUpdateUserTokenMethod(User user) {
-    when(tokenService.generateToken(user.getId())).thenReturn(TEST_TOKEN);
-    when(userService.getReferenceById(user.getId())).thenReturn(user);
-    doNothing().when(tokenService).deleteUserToken(user.getId());
-    when(tokenService.save(any(Token.class))).thenReturn(null);
-  }
-
-  private void verifyStubbingSaveOrUpdateUserTokenMethod(User user) {
-    verify(userService).getReferenceById(user.getId());
-    verify(tokenService).generateToken(user.getId());
-    verify(tokenService).deleteUserToken(user.getId());
-    verify(tokenService).save(any(Token.class));
   }
 }

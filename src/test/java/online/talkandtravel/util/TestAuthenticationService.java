@@ -1,5 +1,9 @@
 package online.talkandtravel.util;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.CONFIRM_REGISTRATION_USER_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.LOGIN_USER_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.LOGOUT_USER_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.REGISTER_USER_PATH;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -7,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.security.Principal;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.RegistrationConfirmationRequest;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,20 +43,29 @@ public class TestAuthenticationService {
 
   public void logout(String token) {
     try {
-      performPost("/api/authentication/logout", AUTHORIZATION_HEADER.formatted(token), null)
+      performPost(LOGOUT_USER_PATH, AUTHORIZATION_HEADER.formatted(token), null)
           .andExpect(status().isOk());
     } catch (Exception e) {
       throw new RuntimeException("Logout failed", e);
     }
   }
 
-  public void register(RegisterRequest request) {
+  public ResultActions register(RegisterRequest request) {
     try {
       String requestBody = objectMapper.writeValueAsString(request);
-      performPost("/api/authentication/register", null, requestBody)
-          .andExpect(status().isOk());
+      return performPost(REGISTER_USER_PATH, null, requestBody);
     } catch (Exception e) {
       throw new RuntimeException("Registration failed", e);
+    }
+  }
+
+  public ResultActions confirmUserRegistration(String token) {
+    try {
+      String requestBody = objectMapper.writeValueAsString(new RegistrationConfirmationRequest(token));
+      return performPost(CONFIRM_REGISTRATION_USER_PATH, null, requestBody)
+          .andExpect(status().isCreated());
+    } catch (Exception e) {
+      throw new RuntimeException("confirm User Registration failed", e);
     }
   }
 
@@ -70,7 +84,7 @@ public class TestAuthenticationService {
       MvcResult result =
           mockMvc
               .perform(
-                  post("/api/authentication/login")
+                  post(LOGIN_USER_PATH)
                       .contentType(MediaType.APPLICATION_JSON)
                       .content(jsonContent))
               .andExpect(status().isOk())
@@ -105,8 +119,7 @@ public class TestAuthenticationService {
         requestBuilder.content(content);
       }
 
-      return mockMvc.perform(requestBuilder)
-          .andExpect(status().isOk());
+      return mockMvc.perform(requestBuilder);
     } catch (Exception e) {
       throw new RuntimeException("Request to " + url + " failed", e);
     }

@@ -1,11 +1,17 @@
 package online.talkandtravel.service.impl;
 
+
+import static online.talkandtravel.util.constants.RedisConstants.USER_REGISTER_DATA_REDIS_KEY_PATTERN;
+
+import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.auth.UserRegistrationDataNotFound;
+import online.talkandtravel.exception.user.UserAlreadyExistsException;
 import online.talkandtravel.exception.user.UserNotFoundException;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
 import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
@@ -20,6 +26,8 @@ import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.mapper.UserMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,10 +57,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 public class UserServiceImpl implements UserService {
 
+  @Value("${USER_REGISTER_DATA_EXPIRING_TIME_IN_MIN}")
+  public Long USER_REGISTER_DATA_EXPIRING_TIME_IN_MIN;
+
   private final UserRepository userRepository;
+  private final RedisTemplate<String, RegisterRequest> redisTemplate;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final AuthenticationService authenticationService;
+
+
 
   @Override
   public User getUser(String email) {
@@ -65,7 +79,33 @@ public class UserServiceImpl implements UserService {
     log.info("Update password of user with id: {}", user.getId());
     String encodedPassword = passwordEncoder.encode(rawPassword);
     user.setPassword(encodedPassword);
+
     userRepository.save(user);
+  }
+
+  @Override
+  public void saveUserRegisterDataToTempStorage(String token, RegisterRequest request) {
+    log.info("save user data to redis: email: {}", request.userEmail());
+    String password = passwordEncoder.encode(request.password());
+    RegisterRequest userRegisterData = new RegisterRequest(request.userName(), request.userEmail(), password);
+    Duration expireTime = Duration.ofMinutes(USER_REGISTER_DATA_EXPIRING_TIME_IN_MIN);
+    String key = createTempUserRedisKey(token);
+
+    redisTemplate.opsForValue().set(key, userRegisterData, expireTime);
+  }
+
+  @Override
+  public RegisterRequest getUserRegisterDataFromTempStorage(String token) {
+    log.info("get user register data from redis");
+    String key = createTempUserRedisKey(token);
+
+    return Optional.ofNullable(redisTemplate.opsForValue().getAndDelete(key))
+        .orElseThrow(UserRegistrationDataNotFound::new);
+  }
+
+  @Override
+  public void checkUserExistByEmail(String email) {
+    getUser(email);
   }
 
   @Override
@@ -82,17 +122,17 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDtoBasic createAndSaveNewUser(RegisterRequest request) {
+  public UserDtoBasic saveNewUser(RegisterRequest request) {
     User user = userMapper.registerRequestToUser(request);
     user.setRole(Role.USER);
-    return save(user);
+    return saveAndMapToDto(user);
   }
 
   @Override
-  public UserDtoBasic createAndSaveNewUser(SocialRegisterRequest request) {
+  public UserDtoBasic saveNewUser(SocialRegisterRequest request) {
     User user = userMapper.registerRequestToUser(request);
     user.setRole(Role.USER);
-    return saveFromSocial(user);
+    return saveAndMapToDto(user);
   }
 
   @Override
@@ -108,8 +148,9 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User getReferenceById(Long userId) {
-    return userRepository.getReferenceById(userId);
+  public User getUserById(Long userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new UserNotFoundException(userId));
   }
 
   @Override
@@ -153,9 +194,21 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByUserEmail(email).isPresent();
   }
 
-  private UserDtoBasic saveFromSocial(User user) {
+  @Override
+  public void checkForDuplicateEmail(String userEmail) {
+    if (userRepository.existsByUserEmail(userEmail)) {
+      throw new UserAlreadyExistsException(userEmail);
+    }
+  }
+
+
+  private UserDtoBasic saveAndMapToDto(User user) {
     User saved = userRepository.save(user);
     return userMapper.toUserDtoBasic(saved);
+  }
+
+  private String createTempUserRedisKey(String token) {
+    return USER_REGISTER_DATA_REDIS_KEY_PATTERN.formatted(token);
   }
 
   /**

@@ -10,6 +10,7 @@ import static online.talkandtravel.testdata.UserTestData.getBob;
 import static online.talkandtravel.testdata.UserTestData.getBobSaved;
 import static online.talkandtravel.util.constants.ApiPathConstants.UPDATE_ONLINE_STATUS_FULL_PATH;
 import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
+import static online.talkandtravel.util.constants.RedisConstants.USER_REGISTER_DATA_REDIS_KEY_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,9 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.config.StompIntegrationTest;
@@ -45,6 +48,9 @@ public class OnlineServiceWebsocketIntegrationTest extends StompIntegrationTest 
   private RedisTemplate<String, String> redisTemplate;
 
   @Autowired
+  private RedisTemplate<String, RegisterRequest> registerRequestRedisTemplate;
+
+  @Autowired
   private TestAuthenticationService testAuthenticationService;
 
   @Autowired
@@ -55,6 +61,7 @@ public class OnlineServiceWebsocketIntegrationTest extends StompIntegrationTest 
   private StompSession aliseSession;
 
   private final List<OnlineStatusDto> onlineStatusDtoList = new ArrayList<>();
+  private final RegisterRequest aliceRegisterRequest = new RegisterRequest("jane", "jane@i.ua", "!123456Bb");
 
   @BeforeAll
   void init() throws ExecutionException, InterruptedException {
@@ -115,19 +122,41 @@ public class OnlineServiceWebsocketIntegrationTest extends StompIntegrationTest 
 
   @Test
   @Order(4)
-  void shouldSendOnlineStatus_whenNewUserRegisters() {
+  void shouldNotSendOnlineStatus_whenNewUserRequestRegister() {
     registerNewUser();
+    assertOnlineStatusReceived(4);
+  }
+
+  @Test
+  @Order(5)
+  void shouldSendOnlineStatus_whenNewConfirmRegistration() {
+    RegisterRequestWithToken requestWithToken = saveUserRegisterDataToRedis();
+    confirmUserRegistration(requestWithToken.token);
+    pause(AFTER_SEND_PAUSE_TIME);
     assertOnlineStatusReceived(5);
     verifyNewUserOnlineStatus(onlineStatusDtoList.get(4));
   }
 
   @Test
-  @Order(5)
-  void shouldSendOnlineStatus_whenNewUserInactive() {
+  @Order(6)
+  void shouldSendOfflineStatus_whenNewUserIsInactive() {
     pause(2000);
     assertOnlineStatusReceived(6);
     verifyNewUserOfflineStatus(onlineStatusDtoList.get(5));
   }
+
+  private RegisterRequestWithToken saveUserRegisterDataToRedis() {
+    String token = UUID.randomUUID().toString();
+    registerRequestRedisTemplate.opsForValue().set(USER_REGISTER_DATA_REDIS_KEY_PATTERN.formatted(token), aliceRegisterRequest, Duration.ofSeconds(5));
+    return new RegisterRequestWithToken(token, aliceRegisterRequest);
+  }
+
+  private void confirmUserRegistration(String token) {
+    log.info("Value from token: {}, - {}", token, registerRequestRedisTemplate.opsForValue().get(token));
+    testAuthenticationService.confirmUserRegistration(token);
+  }
+
+  private record RegisterRequestWithToken(String token, RegisterRequest registerRequest) {}
 
   private void sendStatusUpdate(boolean isOnline) {
     aliseSession.send(UPDATE_ONLINE_STATUS_FULL_PATH, toWSPayload(isOnline));
@@ -135,7 +164,7 @@ public class OnlineServiceWebsocketIntegrationTest extends StompIntegrationTest 
   }
 
   private void registerNewUser() {
-    testAuthenticationService.register(new RegisterRequest("jane", "jane@i.ua", "!123456Bb"));
+    testAuthenticationService.register(aliceRegisterRequest);
     pause(AFTER_SEND_PAUSE_TIME);
   }
 
