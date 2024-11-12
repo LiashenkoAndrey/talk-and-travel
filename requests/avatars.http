@@ -13,5 +13,5 @@ Content-Type: multipart/form-data; boundary=boundary
 Content-Disposition: form-data; name="image"; filename="input.jpg"
 
 // The 'input.txt' file will be uploaded
-< ./../docs/userLastSeenFeature/img/UpdatedDto.png
+< ./../images/T&T.jpg
 

@@ -1,5 +1,5 @@
 
-###
+### my new email
 POST {{apiUrl}}/api/authentication/login
 Content-Type: application/json
 
@@ -8,7 +8,17 @@ Content-Type: application/json
   "userEmail": "{{userEmail}}"
 }
 
-> {% client.global.set("token", response.body.token) %}
+
+### andrey
+POST {{apiUrl}}/api/authentication/login
+Content-Type: application/json
+
+{
+  "password": "{{Andrey_userPassword}}",
+  "userEmail": "{{Andrey_userEmail}}"
+}
+
+
 
 
 ###
@@ -18,7 +28,7 @@ Content-Type: application/json
 {
   "userName": "{{username}}",
   "password": "{{userPassword}}",
-  "userEmail": "2{{userEmail}}",
+  "userEmail": "{{userEmail}}",
   "about": "sdf"
 }
 
@@ -28,7 +38,7 @@ Content-Type: application/json
 
 {
   "userName": "testing",
-  "userPassword": "V66M:c6%wQkK6]u",
+  "password": "V66M:c6%wQkK6]u",
   "userEmail": "testing@i.ua",
   "about": "sdf"
 }

@@ -1,5 +1,7 @@
 package online.talkandtravel.model.dto.user;
 
+import online.talkandtravel.model.dto.avatar.AvatarDto;
+
 /**
  * Data Transfer Object (DTO) for representing basic user information.
  *
@@ -16,7 +18,7 @@ public record UserDtoBasic(
     String userName,
     String userEmail,
     String about,
-    String avatarUrl
+    AvatarDto avatar
 ) {
 
 }

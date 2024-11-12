@@ -1,6 +1,7 @@
 package online.talkandtravel.service;
 
 import java.io.IOException;
+import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.entity.Avatar;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,9 +25,13 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface AvatarService {
 
+
+
+  void validateFile(MultipartFile file);
+
   Avatar findByUserId(Long userId);
 
-  String generateImageUrl(Avatar avatar);
+  String generateImageUrl(Avatar avatar, String avatarS3Folder);
 
-  Avatar saveOrUpdateUserAvatar(MultipartFile imageFile);
+  AvatarDto saveOrUpdateUserAvatar(byte[] image, String folder);
 }

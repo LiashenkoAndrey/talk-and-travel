@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
-import online.talkandtravel.exception.file.ImageProcessingException;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -48,11 +47,11 @@ public class HttpExceptionHandler {
       IllegalStateException.class,
       MissingServletRequestParameterException.class
   })
-  ResponseEntity<ExceptionResponse> handleMissingServletRequestPartException(Exception e) {
+  ResponseEntity<ExceptionResponse> handleException(Exception e) {
     return createResponse(new HttpException(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler({DataIntegrityViolationException.class, ImageProcessingException.class})
+  @ExceptionHandler({DataIntegrityViolationException.class})
   public ResponseEntity<ExceptionResponse> handleDataIntegrityViolationException() {
     String message = "Provided data is not valid or can't be processed";
     return createResponse(new HttpException(message), HttpStatus.BAD_REQUEST);

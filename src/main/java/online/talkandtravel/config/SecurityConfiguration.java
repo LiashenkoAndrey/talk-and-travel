@@ -1,6 +1,9 @@
 package online.talkandtravel.config;
 
-import static online.talkandtravel.util.constants.ApiPathConstants.LOGOUT_URL;
+import static online.talkandtravel.util.constants.ApiPathConstants.CONFIRM_REGISTRATION_USER_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.LOGIN_USER_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.LOGOUT_USER_PATH;
+import static online.talkandtravel.util.constants.ApiPathConstants.REGISTER_USER_PATH;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,19 +60,21 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfiguration {
 
   private static final String[] WHITE_LIST_URL = {
-    "/health",
-    "/api/authentication/login",
-    "/api/authentication/register",
-    "/api/v2/authentication/social/register",
-    "/api/v2/authentication/social/login",
-    "/swagger-ui/**",
-    "/v3/**",
-    "/api/users/exists-by-email/**",
-    "/ws/**",
-    "/privacy-policy",
-    "/public-terms-of-service",
-    "/api/avatars/user/{userID}",
-    "/api/v2/user/{userID}/avatar"
+      "/health",
+      LOGIN_USER_PATH,
+      REGISTER_USER_PATH,
+      CONFIRM_REGISTRATION_USER_PATH,
+      "/api/authentication/social/register",
+      "/api/authentication/password-recovery",
+      "/api/authentication/social/login",
+      "/swagger-ui/**",
+      "/v3/**",
+      "/api/users/exists-by-email/**",
+      "/ws/**",
+      "/privacy-policy",
+      "/public-terms-of-service",
+      "/api/avatars/user/{userID}",
+      "/api/v2/user/{userID}/avatar"
   };
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -89,7 +94,7 @@ public class SecurityConfiguration {
         .logout(
             logout ->
                 logout
-                    .logoutUrl(LOGOUT_URL)
+                    .logoutUrl(LOGOUT_USER_PATH)
                     .addLogoutHandler(customLogoutHandler)
                     .logoutSuccessHandler(getLogoutSuccessHandler())
                     .permitAll());

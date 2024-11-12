@@ -1,26 +1,31 @@
 package online.talkandtravel.controller.http;
 
+import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.facade.AuthenticationFacade;
 import online.talkandtravel.model.dto.auth.AuthResponse;
 import online.talkandtravel.model.dto.auth.LoginRequest;
+import online.talkandtravel.model.dto.auth.RecoverPasswordRequest;
 import online.talkandtravel.model.dto.auth.RegisterRequest;
+import online.talkandtravel.model.dto.auth.RegistrationConfirmationRequest;
 import online.talkandtravel.model.dto.auth.SocialLoginRequest;
 import online.talkandtravel.model.dto.auth.SocialRegisterRequest;
+import online.talkandtravel.model.dto.auth.UpdatePasswordRequest;
 import online.talkandtravel.model.dto.user.OnlineStatusDto;
 import online.talkandtravel.service.OnlineService;
+import online.talkandtravel.service.UserService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_STATUS_ENDPOINT;
 
 
 /**
@@ -35,7 +40,7 @@ import static online.talkandtravel.util.constants.ApiPathConstants.USERS_ONLINE_
  * </ul>
  */
 @RestController
-@RequestMapping(ApiPathConstants.API_BASE_PATH)
+@RequestMapping(ApiPathConstants.API_BASE_PATH + "/authentication")
 @RequiredArgsConstructor
 @Log4j2
 public class AuthenticationController {
@@ -43,33 +48,53 @@ public class AuthenticationController {
   private final AuthenticationFacade authFacade;
   private final OnlineService onlineService;
   private final SimpMessagingTemplate messagingTemplate;
+  private final UserService userService;
 
-  @PostMapping("/authentication/register")
-  public AuthResponse register(@RequestBody @Valid RegisterRequest dto) {
-    AuthResponse response = authFacade.register(dto);
+  @PostMapping("/password-recovery")
+  public ResponseEntity<?> recoverPassword(@RequestBody @Valid RecoverPasswordRequest request) {
+    userService.checkUserExistByEmail(request.userEmail());
+    authFacade.recoverPassword(request);
+    return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+  }
+
+  @PatchMapping("/password-recovery")
+  public ResponseEntity<?> updatePassword(@RequestBody @Valid UpdatePasswordRequest request) {
+    authFacade.updatePassword(request);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  @PostMapping("/login")
+  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
+    AuthResponse response = authFacade.login(loginRequest);
     notifyAllUserIsOnline(response);
     return response;
   }
 
-  @PostMapping("/v2/authentication/social/register")
-  public ResponseEntity<AuthResponse> socialRegister(@RequestBody @Valid SocialRegisterRequest registerRequest) {
-    AuthResponse response = authFacade.socialRegister(registerRequest);
-    notifyAllUserIsOnline(response);
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
-  }
-
-  @PostMapping("/v2/authentication/social/login")
+  @PostMapping("/social/login")
   public AuthResponse socialLogin(@RequestBody @Valid SocialLoginRequest loginRequest) {
     AuthResponse response = authFacade.socialLogin(loginRequest);
     notifyAllUserIsOnline(response);
     return response;
   }
 
-  @PostMapping("/authentication/login")
-  public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
-    AuthResponse response = authFacade.login(loginRequest);
+  @PostMapping("/register")
+  public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest dto) {
+    authFacade.onUserRegister(dto);
+    return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+  }
+
+  @PostMapping("/registration-confirmation")
+  public ResponseEntity<AuthResponse> confirmRegistration(@RequestBody @Valid RegistrationConfirmationRequest request) {
+    AuthResponse response = authFacade.confirmRegistration(request);
     notifyAllUserIsOnline(response);
-    return response;
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @PostMapping("/social/register")
+  public ResponseEntity<AuthResponse> socialRegister(@RequestBody @Valid SocialRegisterRequest registerRequest) {
+    AuthResponse response = authFacade.socialRegister(registerRequest);
+    notifyAllUserIsOnline(response);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   private void notifyAllUserIsOnline(AuthResponse authResponse) {

@@ -8,13 +8,9 @@ import online.talkandtravel.model.dto.user.UpdateUserResponse;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoShort;
 import online.talkandtravel.model.dto.user.UserNameDto;
-import online.talkandtravel.model.entity.Avatar;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.service.AvatarService;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Mapper interface for converting between {@link User} entities and various {@link User} data
@@ -23,34 +19,23 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * <p>This mapper relies on {@link MapperConfig} to apply global mapping settings.
  */
-@Mapper(config = MapperConfig.class)
-public abstract class UserMapper {
+@Mapper(
+    config = MapperConfig.class,
+    uses = AvatarMapper.class
+)
+public interface UserMapper {
 
-  @Autowired
-  private AvatarService avatarService;
+  UpdateUserResponse toUpdateUserResponse(User user);
 
-  public abstract UpdateUserResponse toUpdateUserResponse(User user);
+  void updateUser(UpdateUserRequest source, @MappingTarget User target);
 
-  public abstract void updateUser(UpdateUserRequest source, @MappingTarget User target);
+  User registerRequestToUser(RegisterRequest request);
 
-  public abstract User registerRequestToUser(RegisterRequest request);
+  User registerRequestToUser(SocialRegisterRequest request);
 
-  public abstract User registerRequestToUser(SocialRegisterRequest request);
+  UserDtoBasic toUserDtoBasic(User user);
 
-  @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
-  public abstract UserDtoBasic toUserDtoBasic(User user);
+  UserDtoShort toUserDtoShort(User user);
 
-  @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
-  public abstract UserDtoShort toUserDtoShort(User user);
-
-  @Mapping(target = "avatarUrl", expression = "java(generateAvatarUrl(user.getAvatar()))")
-  public abstract UserNameDto toUserNameDto(User user);
-
-  // Custom method to generate avatar URL
-  public String generateAvatarUrl(Avatar avatar) {
-    if (avatar == null) {
-      return null;
-    }
-    return avatarService.generateImageUrl(avatar);
-  }
+  UserNameDto toUserNameDto(User user);
 }

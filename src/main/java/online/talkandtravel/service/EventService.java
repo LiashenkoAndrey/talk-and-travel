@@ -31,7 +31,6 @@ import online.talkandtravel.model.dto.message.MessageDto;
  */
 public interface EventService {
 
-  void deleteChatIfEmpty(EventRequest request, Principal principal);
 
   MessageDto joinChat(EventRequest request, Principal principal);
 

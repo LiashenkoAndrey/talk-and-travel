@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import online.talkandtravel.model.entity.Token;
+import online.talkandtravel.model.entity.User;
 
 /**
  * Service interface for managing authentication tokens within the application.
@@ -25,7 +26,7 @@ import online.talkandtravel.model.entity.Token;
  */
 public interface TokenService {
 
-  void deleteUserToken(Long userId);
+  void deleteUserToken(User user);
 
   Token save(Token token);
 
@@ -40,4 +41,14 @@ public interface TokenService {
   String generateToken(Long userId);
 
   String generateToken(Map<String, Object> extraClaims, Long userId);
+
+  Token generatePasswordRecoveryToken(User user);
+
+  void checkTokenIsExpired(Token token);
+
+  void deleteToken(Token token);
+
+  Token getToken(String token);
+
+  Token saveNewToken(String jwtToken, User user);
 }
