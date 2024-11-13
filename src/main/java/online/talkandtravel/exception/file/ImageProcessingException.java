@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
  */
 public class ImageProcessingException extends HttpException {
 
-  private static final String MESSAGE = "Failed to process avatar image: %s";
+  private static final String MESSAGE = "Failed to process image: %s";
 
   private static final HttpStatus STATUS = HttpStatus.UNPROCESSABLE_ENTITY;
 

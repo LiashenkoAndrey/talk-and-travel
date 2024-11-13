@@ -50,7 +50,6 @@ public class MessageServiceImpl implements MessageService {
   private final ChatRepository chatRepository;
   private final UserChatRepository userChatRepository;
   private final MessageMapper messageMapper;
-  private final AuthenticationService authenticationService;
 
   @Override
   @Transactional

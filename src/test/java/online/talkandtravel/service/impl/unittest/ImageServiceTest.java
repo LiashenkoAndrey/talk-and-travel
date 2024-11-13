@@ -12,9 +12,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.file.ImageProcessingException;
@@ -36,7 +34,6 @@ public class ImageServiceTest {
 
   private ImageServiceImpl underTest;
 
-  private InputStream mockInputStream;
   private byte[] expectedBytes;
   private int width;
   private BufferedImage mockBufferedImage;
@@ -46,7 +43,6 @@ public class ImageServiceTest {
   void setUp() {
     imageBytes = new byte[] {61,45,5,52,54,55,65};
     underTest = spy(new ImageServiceImpl());
-    mockInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
     expectedBytes = new byte[]{5, 5, 5};
     width = 64;
     mockBufferedImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
@@ -65,14 +61,14 @@ public class ImageServiceTest {
     verify(underTest).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(width));
     verify(underTest, never()).resizeGif(any(), anyInt());
     verify(mockFile, never()).getBytes();
-    verify(underTest, never()).isAnimatedWebP(any());
+    verify(underTest, never()).isAnimatedWebPImage(any());
     verify(underTest, never()).imageTyBytes(any(BufferedImage.class));
   }
 
   @Test
   void generateThumbnail_shouldReturnWebpThumbnail_whenWebpImage() throws IOException {
     String webpImageContentType = "image/webp";
-    doReturn(false).when(underTest).isAnimatedWebP(imageBytes);
+    doReturn(false).when(underTest).isAnimatedWebPImage(imageBytes);
     doReturn(mockBufferedImage).when(underTest).resizeImage(imageBytes, width);
     doReturn(expectedBytes).when(underTest).imageTyBytes(mockBufferedImage);
 
@@ -84,7 +80,7 @@ public class ImageServiceTest {
     verify(underTest).handleStandardImageFile(eq(FileFormat.WEBP), eq(imageBytes), anyInt());
     verify(underTest, never()).resizeGif(any(), anyInt());
     verify(mockFile, never()).getBytes();
-    verify(underTest).isAnimatedWebP(imageBytes);
+    verify(underTest).isAnimatedWebPImage(imageBytes);
     verify(underTest).imageTyBytes(mockBufferedImage);
     verify(underTest, never()).convertImageToWebpFormat(any(BufferedImage.class));
   }
@@ -104,7 +100,7 @@ public class ImageServiceTest {
 
     verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(gifWidth));
     verify(mockFile, never()).getInputStream();
-    verify(underTest, never()).isAnimatedWebP(any());
+    verify(underTest, never()).isAnimatedWebPImage(any());
   }
 
   @Test
@@ -119,14 +115,14 @@ public class ImageServiceTest {
     verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(svgWidth));
     verify(underTest, never()).resizeGif(any(), anyInt());
     verify(mockFile, never()).getInputStream();
-    verify(underTest, never()).isAnimatedWebP(any());
+    verify(underTest, never()).isAnimatedWebPImage(any());
   }
 
   @Test
   void generateThumbnail_shouldThrowExceptionWhenAnimatedWebp() throws IOException {
     String imageType = "image/webp";
 
-    doReturn(true).when(underTest).isAnimatedWebP(imageBytes);
+    doReturn(true).when(underTest).isAnimatedWebPImage(imageBytes);
 
     assertThrows(ImageProcessingException.class, () -> {
       underTest.generateThumbnail(imageBytes, imageType, width);
@@ -134,7 +130,7 @@ public class ImageServiceTest {
 
     verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(width));
     verify(underTest, never()).resizeGif(any(), anyInt());
-    verify(underTest).isAnimatedWebP(imageBytes);
+    verify(underTest).isAnimatedWebPImage(imageBytes);
   }
 
 }

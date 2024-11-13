@@ -29,6 +29,7 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.ImageWriteException;
 import online.talkandtravel.service.ImageService;
+import online.talkandtravel.util.FilesUtils;
 import online.talkandtravel.util.constants.FileFormat;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
@@ -93,7 +94,7 @@ public class ImageServiceImpl implements ImageService {
         log.info("Image is svg, just return bytes");
         return image;
 
-      } else if (fileFormat.equals(WEBP) && isAnimatedWebP(image)) {
+      } else if (fileFormat.equals(WEBP) && isAnimatedWebPImage(image)) {
         log.error("File is animated webp. This format is not supported");
         throw new ImageProcessingException("Animated webp is not supported.");
 
@@ -264,13 +265,8 @@ public class ImageServiceImpl implements ImageService {
     return resizedImage;
   }
 
-  public boolean isAnimatedWebP(byte[] image) throws IOException {
-    ByteArrayInputStream webpStream = new ByteArrayInputStream(image);
-    byte[] buffer = new byte[64];
-    webpStream.read(buffer);
-
-    String header = new String(buffer, StandardCharsets.UTF_8);
-    return header.contains(ANIMATED_WEBP_IMAGE_MARKER);
+  public boolean isAnimatedWebPImage(byte[] image) {
+    return FilesUtils.isAnimatedWebPImage(image);
   }
 
   public byte[] convertImageToWebpFormat(BufferedImage image) throws IOException {

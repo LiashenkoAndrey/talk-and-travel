@@ -7,8 +7,7 @@ import online.talkandtravel.util.FileDto;
 
 public interface MessageFacade {
 
- void saveMessageWithAttachment(SendMessageWithAttachmentRequest file, FileDto fileDto, User sender);
+ void saveMessageWithAttachment(SendMessageWithAttachmentRequest file, FileDto fileDto, User user);
 
- void validateAttachmentType(AttachmentType attachmentType);
 
 }

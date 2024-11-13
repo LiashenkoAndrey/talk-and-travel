@@ -36,7 +36,10 @@ public abstract class MessageMapper {
   @Mapping(target = "attachment", expression = "java(mapAttachment2(message))")
   public abstract MessageDto toMessageDto(Message message);
 
-  public AttachmentDto mapAttachment2(Message att) {
-    return attachmentMapper.toImageAttachmentDto((Image) att.getAttachment(), att.getChat().getId());
+  public AttachmentDto mapAttachment2(Message message) {
+    if (message.getAttachment() == null) {
+      return null;
+    }
+    return attachmentMapper.toImageAttachmentDto((Image) message.getAttachment(), message.getChat().getId());
   }
 }
