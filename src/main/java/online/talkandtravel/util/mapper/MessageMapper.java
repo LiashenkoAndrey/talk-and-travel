@@ -6,7 +6,6 @@ import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.attachment.Image;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;

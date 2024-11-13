@@ -1,7 +1,6 @@
 package online.talkandtravel.service.impl;
 
 import java.security.Principal;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import online.talkandtravel.exception.chat.ChatNotFoundException;
@@ -15,8 +14,6 @@ import online.talkandtravel.model.entity.Chat;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.model.entity.User;
-import online.talkandtravel.model.entity.attachment.Attachment;
-import online.talkandtravel.model.entity.attachment.File;
 import online.talkandtravel.model.entity.attachment.Image;
 import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
@@ -28,7 +25,6 @@ import online.talkandtravel.util.mapper.MessageMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Implementation of the {@link MessageService} for handling message operations within chats.

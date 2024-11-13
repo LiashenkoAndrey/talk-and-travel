@@ -6,6 +6,7 @@ import static online.talkandtravel.util.constants.FileFormat.WEBP;
 import static online.talkandtravel.util.constants.FileFormatConstants.ANIMATED_WEBP_IMAGE_MARKER;
 
 import com.luciad.imageio.webp.WebPWriteParam;
+import com.madgag.gif.fmsware.AnimatedGifEncoder;
 import com.madgag.gif.fmsware.GifDecoder;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -13,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,8 +33,6 @@ import online.talkandtravel.util.constants.FileFormat;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import com.madgag.gif.fmsware.AnimatedGifEncoder;
 
 
 /**
@@ -77,7 +75,6 @@ public class ImageServiceImpl implements ImageService {
    * appropriately while maintaining their aspect ratio. It also supports detecting and processing
    * animated WebP images, which are not supported for resizing.</p>
    *
-   * @param file The uploaded image file.
    * @param width The target width for the thumbnail.
    * @return A byte array representing the generated thumbnail.
    * @throws ImageProcessingException If the image cannot be processed (e.g., unsupported format or error during processing).
@@ -114,7 +111,6 @@ public class ImageServiceImpl implements ImageService {
    * Handles standard image files (e.g., PNG, JPEG, WEBP) by resizing and converting them to WebP format.
    *
    * @param fileFormat The file format of the image.
-   * @param inputStream The input stream containing the image data.
    * @param width The target width for resizing.
    * @return A byte array representing the resized and converted image in WebP format.
    * @throws IOException If there is an error reading or writing the image data.
@@ -247,7 +243,6 @@ public class ImageServiceImpl implements ImageService {
   /**
    * Resizes a standard image (PNG, JPEG, or WebP) to fit within the target size.
    *
-   * @param inputStream The input stream containing the image data.
    * @param targetSize The target size for the resized image.
    * @return A resized image as a {@link BufferedImage}.
    * @throws IOException If there is an error reading or writing the image data.
