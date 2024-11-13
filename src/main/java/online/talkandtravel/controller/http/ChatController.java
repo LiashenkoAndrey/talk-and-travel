@@ -1,5 +1,8 @@
 package online.talkandtravel.controller.http;
 
+import static online.talkandtravel.util.FilesUtils.toFile;
+import static online.talkandtravel.util.constants.ApiPathConstants.MESSAGES_SUBSCRIBE_PATH;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,6 +21,8 @@ import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageWithAttachmentRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.entity.User;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.data.domain.Page;
@@ -25,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -56,7 +62,9 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
 
   private final ChatService chatService;
+  private final SimpMessagingTemplate messagingTemplate;
   private final MessageFacade messageFacade;
+  private final AuthenticationService authenticationService;
 
   @PostMapping("/chats")
   public ChatDto createCountryChat(@RequestBody @Valid NewChatDto dto) {
@@ -101,9 +109,11 @@ public class ChatController {
   }
 
   @PostMapping("/chats/{chatId}/messages")
-  public ResponseEntity<MessageDto> saveImageAttachment(@ModelAttribute SendMessageWithAttachmentRequest request) {
-    MessageDto messageDto = messageFacade.saveMessageWithAttachment(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
+  public ResponseEntity<?> saveImageAttachment(@ModelAttribute SendMessageWithAttachmentRequest request) {
+    User user = authenticationService.getAuthenticatedUser();
+    messageFacade.validateAttachmentType(request.attachmentType());
+    messageFacade.saveMessageWithAttachment(request, toFile(request.file()), user);
+    return ResponseEntity.status(HttpStatus.ACCEPTED).build();
   }
 
   /**

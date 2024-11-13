@@ -26,10 +26,19 @@ public class AvatarFacadeImpl implements AvatarFacade {
   public AvatarDto saveOrUpdateAvatar(MultipartFile file) {
     log.info("Save user avatar");
     avatarService.validateFile(file);
-    byte[] thumbnailX50 = imageService.generateThumbnail(file, X50);
-    byte[] thumbnailX256 = imageService.generateThumbnail(file, X256);
+    byte[] thumbnailX50 = imageService.generateThumbnail(getBytes(file), file.getContentType(), X50);
+    byte[] thumbnailX256 = imageService.generateThumbnail(getBytes(file), file.getContentType(), X256);
 
     avatarService.saveOrUpdateUserAvatar(thumbnailX50, AVATAR_X50_FOLDER_NAME);
     return avatarService.saveOrUpdateUserAvatar(thumbnailX256, AVATAR_X256_FOLDER_NAME);
+  }
+
+  private byte[] getBytes(MultipartFile file) {
+    try {
+      return file.getBytes();
+    } catch (Exception e) {
+      log.info("Error when get bytes");
+      throw new RuntimeException(e);
+    }
   }
 }

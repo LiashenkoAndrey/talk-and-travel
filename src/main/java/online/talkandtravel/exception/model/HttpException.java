@@ -37,12 +37,14 @@ public class HttpException extends RuntimeException {
         this.messageToClient = message;
         this.httpStatus = httpStatus;
     }
+
     public HttpException(String message, String messageToClient, HttpStatus httpStatus) {
         super(message);
         this.zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
         this.messageToClient = messageToClient;
         this.httpStatus = httpStatus;
     }
+
     public HttpException(String message, String messageToClient) {
         super(message);
         this.zonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);

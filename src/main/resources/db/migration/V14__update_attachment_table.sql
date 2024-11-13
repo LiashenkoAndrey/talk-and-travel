@@ -26,3 +26,7 @@ ALTER TABLE public.messages
 ALTER TABLE public.messages
     DROP CONSTRAINT fk_messages_attachment,
     ADD CONSTRAINT fk_messages_attachment FOREIGN KEY (attachment_id) REFERENCES public.attachments(id) ON DELETE CASCADE;
+
+ALTER TABLE public.messages
+    DROP COLUMN IF EXISTS file_url,
+    DROP COLUMN IF EXISTS thumbnail_url;

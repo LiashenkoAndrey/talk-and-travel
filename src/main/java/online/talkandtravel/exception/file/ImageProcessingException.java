@@ -15,4 +15,8 @@ public class ImageProcessingException extends HttpException {
   public ImageProcessingException(String message) {
     super(MESSAGE.formatted(message), STATUS);
   }
+
+  public ImageProcessingException(String message, String messageToClient) {
+    super(MESSAGE.formatted(message), messageToClient, STATUS);
+  }
 }

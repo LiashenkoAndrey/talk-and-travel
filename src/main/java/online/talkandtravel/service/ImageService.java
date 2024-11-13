@@ -1,7 +1,5 @@
 package online.talkandtravel.service;
 
-import org.springframework.web.multipart.MultipartFile;
-
 /**
  * Service interface for image generation tasks.
  *
@@ -17,6 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface ImageService {
 
-  byte[] generateThumbnail(MultipartFile file, int width);
+  byte[] generateThumbnail(byte[] image, String contentType, int width);
 
 }

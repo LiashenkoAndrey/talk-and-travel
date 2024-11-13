@@ -6,6 +6,7 @@ import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.entity.Message;
 import online.talkandtravel.model.entity.attachment.Image;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +34,10 @@ public abstract class MessageMapper {
   @Mapping(target = "user", source = "sender")
   @Mapping(target = "repliedMessageId", source = "repliedMessage.id")
   @Mapping(target = "chatId", source = "chat.id")
-  @Mapping(target = "attachment", source = "attachment")
+  @Mapping(target = "attachment", expression = "java(mapAttachment2(message))")
   public abstract MessageDto toMessageDto(Message message);
 
-  public AttachmentDto mapAttachment(Object attachment) {
-    if (attachment instanceof Image imageAttachment) {
-      return attachmentMapper.toImageAttachmentDto(imageAttachment);
-    }
-    // Add handling for other attachment types if needed
-    return null; // or throw an exception if attachment is unsupported
+  public AttachmentDto mapAttachment2(Message att) {
+    return attachmentMapper.toImageAttachmentDto((Image) att.getAttachment(), att.getChat().getId());
   }
 }

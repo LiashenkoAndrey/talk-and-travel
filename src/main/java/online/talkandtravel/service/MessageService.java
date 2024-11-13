@@ -4,6 +4,7 @@ import java.security.Principal;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
 import online.talkandtravel.model.dto.message.SendMessageWithAttachmentRequest;
+import online.talkandtravel.model.entity.User;
 import online.talkandtravel.model.entity.attachment.Image;
 
 /**
@@ -24,5 +25,5 @@ public interface MessageService {
 
   MessageDto saveMessage(SendMessageRequest sendMessageRequest, Principal principal);
 
-  MessageDto saveMessageWithImage(SendMessageWithAttachmentRequest request, Image image);
+  MessageDto saveMessageWithImage(SendMessageWithAttachmentRequest request, Image image, User sender);
 }

@@ -21,14 +21,14 @@ public abstract class AttachmentMapper {
   @Lazy
   private AttachmentService attachmentService;
 
-  protected static final String THUMBNAIL_FOLDER = IMAGE_ATTACHMENT_THUMBNAIL_X256_FOLDER_PATTERN.formatted(1);
-  protected static final String ORIGINAL_FOLDER = IMAGE_ATTACHMENT_ORIGINAL_FOLDER_PATTERN.formatted(1);
+  protected static final String THUMBNAIL_FOLDER = IMAGE_ATTACHMENT_THUMBNAIL_X256_FOLDER_PATTERN;
+  protected static final String ORIGINAL_FOLDER = IMAGE_ATTACHMENT_ORIGINAL_FOLDER_PATTERN;
 
-  @Mapping(target = "thumbnailImageUrl", expression = "java(generateAvatarUrl(image, THUMBNAIL_FOLDER))")
-  @Mapping(target = "originalImageUrl", expression = "java(generateAvatarUrl(image, ORIGINAL_FOLDER))")
-  public abstract ImageAttachmentDto toImageAttachmentDto(Image image);
+  @Mapping(target = "thumbnailImageUrl", expression = "java(generateAvatarUrl(image, THUMBNAIL_FOLDER, chatId))")
+  @Mapping(target = "originalImageUrl", expression = "java(generateAvatarUrl(image, ORIGINAL_FOLDER, chatId))")
+  public abstract ImageAttachmentDto toImageAttachmentDto(Image image, Long chatId);
 
-  public String generateAvatarUrl(Image image, String avatarS3Folder) {
-    return attachmentService.generateImageUrl(image, avatarS3Folder);
+  public String generateAvatarUrl(Image image, String avatarS3Folder, Long chatId) {
+    return attachmentService.generateImageUrl(image, avatarS3Folder.formatted(chatId));
   }
 }

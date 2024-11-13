@@ -81,9 +81,8 @@ public class MessageServiceImpl implements MessageService {
 
   @Override
   @Transactional
-  public MessageDto saveMessageWithImage(SendMessageWithAttachmentRequest request, Image image) {
+  public MessageDto saveMessageWithImage(SendMessageWithAttachmentRequest request, Image image, User sender) {
     log.info("Save message to database, attachment: {}", image);
-    User sender = authenticationService.getAuthenticatedUser();
     checkUserJoinedTheChat(request.chatId(), sender.getId());
     Chat chat = getChat(request.chatId(), sender.getId());
     Message repliedMessage = getRepliedMessage(request.repliedMessageId(), sender.getId(), chat.getId());
@@ -96,7 +95,6 @@ public class MessageServiceImpl implements MessageService {
             .sender(sender)
             .attachment(image)
             .build();
-    log.info("save message: {}", message);
     chat.getMessages().add(message);
     chat = chatRepository.save(chat);
     // Retrieve the last added message from the saved chat

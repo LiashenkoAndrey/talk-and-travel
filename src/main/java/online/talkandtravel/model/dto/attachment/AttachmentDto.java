@@ -1,5 +1,7 @@
 package online.talkandtravel.model.dto.attachment;
 
-public interface AttachmentDto {
+import online.talkandtravel.model.entity.attachment.Image;
+import online.talkandtravel.model.entity.attachment.Video;
 
+public interface AttachmentDto {
 }
