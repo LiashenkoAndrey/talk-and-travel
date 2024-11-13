@@ -1,5 +1,7 @@
 package online.talkandtravel.controller.http;
 
+import static online.talkandtravel.util.FilesUtils.toFileDto;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.facade.MessageFacade;
 import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
@@ -15,15 +18,29 @@ import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDto;
+import online.talkandtravel.model.dto.message.SendMessageWithAttachmentRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
+import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.attachment.AttachmentType;
+import online.talkandtravel.service.AttachmentService;
+import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
+import online.talkandtravel.util.FileDto;
 import online.talkandtravel.util.constants.ApiPathConstants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller class responsible for handling HTTP requests related to chat functionalities.
@@ -54,6 +71,9 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
 
   private final ChatService chatService;
+  private final MessageFacade messageFacade;
+  private final AttachmentService attachmentService;
+  private final AuthenticationService authenticationService;
 
   @PostMapping("/chats")
   public ChatDto createCountryChat(@RequestBody @Valid NewChatDto dto) {
@@ -95,6 +115,15 @@ public class ChatController {
       @PathVariable Long chatId,
       @PageableDefault Pageable pageable) {
     return chatService.findAllMessagesInChatOrdered(chatId, pageable);
+  }
+
+  @PostMapping("/chats/{chatId}/messages")
+  public ResponseEntity<?> saveImageAttachment(@Valid @ModelAttribute SendMessageWithAttachmentRequest request) {
+    attachmentService.validateAttachmentFile(request.file(), request.attachmentType());
+    User user = authenticationService.getAuthenticatedUser();
+    FileDto fileDto = toFileDto(request.file());
+    messageFacade.saveMessageWithAttachment(request, fileDto, user);
+    return ResponseEntity.status(HttpStatus.ACCEPTED).build();
   }
 
   /**

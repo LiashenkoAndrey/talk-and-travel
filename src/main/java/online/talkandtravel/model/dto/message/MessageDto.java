@@ -3,6 +3,7 @@ package online.talkandtravel.model.dto.message;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.ZonedDateTime;
+import online.talkandtravel.model.dto.attachment.AttachmentDto;
 import online.talkandtravel.model.dto.user.UserNameDto;
 import online.talkandtravel.model.entity.MessageType;
 import online.talkandtravel.util.CustomZonedDateTimeDeserializer;
@@ -27,7 +28,13 @@ public record MessageDto(
     ZonedDateTime creationDate,
     UserNameDto user,
     Long chatId,
-    Long repliedMessageId) {
+    Long repliedMessageId,
+    AttachmentDto attachment) {
+
+  public MessageDto(Long id, MessageType type, String content, ZonedDateTime creationDate,
+      UserNameDto user, Long chatId, Long repliedMessageId) {
+    this(id, type, content, creationDate, user, chatId, repliedMessageId, null);
+  }
 
   public MessageDto(String content) {
     this(null, null, content, null, null, null, null);

@@ -6,6 +6,7 @@ import static online.talkandtravel.util.constants.FileFormat.WEBP;
 import static online.talkandtravel.util.constants.FileFormatConstants.ANIMATED_WEBP_IMAGE_MARKER;
 
 import com.luciad.imageio.webp.WebPWriteParam;
+import com.madgag.gif.fmsware.AnimatedGifEncoder;
 import com.madgag.gif.fmsware.GifDecoder;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -13,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,12 +29,11 @@ import lombok.extern.log4j.Log4j2;
 import online.talkandtravel.exception.file.ImageProcessingException;
 import online.talkandtravel.exception.file.ImageWriteException;
 import online.talkandtravel.service.ImageService;
+import online.talkandtravel.util.FilesUtils;
 import online.talkandtravel.util.constants.FileFormat;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import com.madgag.gif.fmsware.AnimatedGifEncoder;
 
 
 /**
@@ -77,36 +76,35 @@ public class ImageServiceImpl implements ImageService {
    * appropriately while maintaining their aspect ratio. It also supports detecting and processing
    * animated WebP images, which are not supported for resizing.</p>
    *
-   * @param file The uploaded image file.
    * @param width The target width for the thumbnail.
    * @return A byte array representing the generated thumbnail.
    * @throws ImageProcessingException If the image cannot be processed (e.g., unsupported format or error during processing).
    */
   @Override
-  public byte[] generateThumbnail(MultipartFile file, int width) {
+  public byte[] generateThumbnail(byte[] image, String contentType, int width) {
     log.info("Generate thumbnail with width: {}", width);
     try {
-      FileFormat fileFormat = FileFormat.fromMimeType(Objects.requireNonNull(file.getContentType()));
+      FileFormat fileFormat = FileFormat.fromMimeType(Objects.requireNonNull(contentType));
       log.info("Uploaded file format: {}", fileFormat);
 
       if (fileFormat.equals(GIF)) {
-        return resizeGif(file.getBytes(), width);
+        return resizeGif(image, width);
 
       } else if (fileFormat.equals(SVG)) {
         log.info("Image is svg, just return bytes");
-        return file.getBytes();
+        return image;
 
-      } else if (fileFormat.equals(WEBP) && isAnimatedWebP( file.getInputStream())) {
+      } else if (fileFormat.equals(WEBP) && isAnimatedWebPImage(image)) {
         log.error("File is animated webp. This format is not supported");
         throw new ImageProcessingException("Animated webp is not supported.");
 
       } else {
-        return handleStandardImageFile(fileFormat, file.getInputStream(), width);
+        return handleStandardImageFile(fileFormat, image, width);
       }
 
     } catch (Exception e) {
       log.error("Can't generate a thumbnail: {}", e.getMessage(), e);
-      throw new ImageProcessingException(e.getMessage());
+      throw new ImageProcessingException(e.getMessage(), "Your file is invalid");
     }
   }
 
@@ -114,16 +112,15 @@ public class ImageServiceImpl implements ImageService {
    * Handles standard image files (e.g., PNG, JPEG, WEBP) by resizing and converting them to WebP format.
    *
    * @param fileFormat The file format of the image.
-   * @param inputStream The input stream containing the image data.
    * @param width The target width for resizing.
    * @return A byte array representing the resized and converted image in WebP format.
    * @throws IOException If there is an error reading or writing the image data.
    */
-  public byte[] handleStandardImageFile(FileFormat fileFormat, InputStream inputStream, int width)
+  public byte[] handleStandardImageFile(FileFormat fileFormat, byte[] imageBytes, int width)
       throws IOException {
     log.info("Image type is PNG, JPEG, or WEBP");
 
-    BufferedImage image = resizeImage(inputStream, width);
+    BufferedImage image = resizeImage(imageBytes, width);
     if (fileFormat.equals(WEBP)) {
       log.info("Image format is webp. No converting needed, just return.");
       return imageTyBytes(image);
@@ -247,12 +244,12 @@ public class ImageServiceImpl implements ImageService {
   /**
    * Resizes a standard image (PNG, JPEG, or WebP) to fit within the target size.
    *
-   * @param inputStream The input stream containing the image data.
    * @param targetSize The target size for the resized image.
    * @return A resized image as a {@link BufferedImage}.
    * @throws IOException If there is an error reading or writing the image data.
    */
-  public BufferedImage resizeImage(InputStream inputStream, int targetSize) throws IOException {
+  public BufferedImage resizeImage(byte[] image, int targetSize) throws IOException {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream(image);
     BufferedImage originalImage = ImageIO.read(inputStream);
     ImageDimensions imageDimensions = new ImageDimensions(originalImage, targetSize);
     int newWidth = imageDimensions.getNewWidth();
@@ -268,12 +265,8 @@ public class ImageServiceImpl implements ImageService {
     return resizedImage;
   }
 
-  public boolean isAnimatedWebP(InputStream webpStream) throws IOException {
-    byte[] buffer = new byte[64];
-    webpStream.read(buffer);
-
-    String header = new String(buffer, StandardCharsets.UTF_8);
-    return header.contains(ANIMATED_WEBP_IMAGE_MARKER);
+  public boolean isAnimatedWebPImage(byte[] image) {
+    return FilesUtils.isAnimatedWebPImage(image);
   }
 
   public byte[] convertImageToWebpFormat(BufferedImage image) throws IOException {

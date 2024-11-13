@@ -1,5 +1,6 @@
 package online.talkandtravel.service.impl;
 
+import static online.talkandtravel.util.FilesUtils.bytesToMegabytes;
 import static online.talkandtravel.util.constants.AvatarDimensionsConstants.X256;
 import static online.talkandtravel.util.constants.AvatarDimensionsConstants.X50;
 import static online.talkandtravel.util.constants.FileFormatConstants.SUPPORTED_FORMAT_AVATAR;
@@ -133,10 +134,6 @@ public class AvatarServiceImpl implements AvatarService {
     if (bytesToMegabytes(imageFile.getSize()) > MAX_SIZE_AVATAR_IN_MB) {
       throw new FileSizeExceededException(MAX_SIZE_AVATAR_IN_MB);
     }
-  }
-
-  public static double bytesToMegabytes(long bytes) {
-    return bytes / (1024.0 * 1024.0);
   }
 
   private boolean isSupportedFormat(String fileName) {

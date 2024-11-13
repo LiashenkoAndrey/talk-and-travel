@@ -1,0 +1,55 @@
+@startuml
+actor Frontend
+participant Backend
+participant AttachmentFacade
+participant ImageService
+participant VideoService
+participant AudioService
+participant FileService
+participant ImageRepository
+participant AmazonS3
+
+==Upload images==
+Frontend -> Backend : send message via http /chat/{chatId}/messages
+
+note left
+SendMessageRequest
+{
+   String content,
+   Long chatId,
+   Long repliedMessageId,
+   String attachmentType
+   MultipartFile attachment
+}
+end note
+
+Backend -> AttachmentFacade : save please
+
+alt Create attachment according to type
+  AttachmentFacade -> ImageService : create image attachment
+  ImageService -> ImageRepository : save to postgres
+  ImageRepository -> ImageService : return saved entity
+  ImageService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  ImageService -> AttachmentFacade : return Image class
+else
+  Backend -> AttachmentFacade : create video attachment
+  VideoService -> ImageRepository : save to postgres
+  ImageRepository -> VideoService : return saved entity
+  VideoService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  VideoService -> AttachmentFacade : return Video class
+else
+  Backend -> AttachmentFacade : create audio attachment
+  AudioService -> ImageRepository : save to postgres
+  ImageRepository -> AudioService : return saved entity
+  AudioService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  AudioService -> AttachmentFacade : return Audio class
+else
+  Backend -> AttachmentFacade : create file attachment
+  FileService -> ImageRepository : save to postgres
+  ImageRepository -> FileService : return saved entity
+  FileService -> AmazonS3 : save to S3 (set KEY as attachment ID from postgres)
+  FileService -> AttachmentFacade : return File class
+end
+Backend -> Frontend : notify all, new message created
+
+@enduml

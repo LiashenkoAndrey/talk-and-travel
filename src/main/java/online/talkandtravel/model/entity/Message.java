@@ -1,6 +1,7 @@
 package online.talkandtravel.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -47,7 +48,6 @@ public class Message {
     this.content = content;
   }
 
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -72,7 +72,7 @@ public class Message {
   @JoinColumn(name = "replied_message_id")
   private Message repliedMessage;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "attachment_id")
   private Attachment attachment; // One-to-one relation to Attachment entity
 
