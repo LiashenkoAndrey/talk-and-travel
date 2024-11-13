@@ -41,9 +41,11 @@ public class ImageServiceTest {
   private byte[] expectedBytes;
   private int width;
   private BufferedImage mockBufferedImage;
+  byte[] imageBytes;
 
   @BeforeEach
   void setUp() {
+    imageBytes = new byte[] {61,45,5,52,54,55,65};
     underTest = spy(new ImageServiceImpl());
     mockInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
     expectedBytes = new byte[]{5, 5, 5};
@@ -53,16 +55,15 @@ public class ImageServiceTest {
 
   @Test
   void generateThumbnail_shouldReturnPngThumbnail_whenPngImage() throws IOException {
-    when(mockFile.getContentType()).thenReturn("image/png");
-    when(mockFile.getInputStream()).thenReturn(mockInputStream);
-    doReturn(expectedBytes).when(underTest).handleStandardImageFile(FileFormat.PNG, mockInputStream, width);
+    String pngImageContentType = "image/png";
+    doReturn(expectedBytes).when(underTest).handleStandardImageFile(FileFormat.PNG, imageBytes, width);
 
-    byte[] actual = underTest.generateThumbnail(mockFile, width);
+    byte[] actual = underTest.generateThumbnail(imageBytes, pngImageContentType, width);
     log.info(Arrays.toString(actual));
     assertNotNull(actual);
     assertArrayEquals(expectedBytes, actual);
 
-    verify(underTest).handleStandardImageFile(eq(FileFormat.PNG), any(InputStream.class), eq(width));
+    verify(underTest).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(width));
     verify(underTest, never()).resizeGif(any(), anyInt());
     verify(mockFile, never()).getBytes();
     verify(underTest, never()).isAnimatedWebP(any());
@@ -71,80 +72,70 @@ public class ImageServiceTest {
 
   @Test
   void generateThumbnail_shouldReturnWebpThumbnail_whenWebpImage() throws IOException {
-    when(mockFile.getContentType()).thenReturn("image/webp");
-    when(mockFile.getInputStream()).thenReturn(mockInputStream);
-    doReturn(false).when(underTest).isAnimatedWebP(mockInputStream);
-    doReturn(mockBufferedImage).when(underTest).resizeImage(mockInputStream, width);
+    String webpImageContentType = "image/webp";
+    doReturn(false).when(underTest).isAnimatedWebP(imageBytes);
+    doReturn(mockBufferedImage).when(underTest).resizeImage(imageBytes, width);
     doReturn(expectedBytes).when(underTest).imageTyBytes(mockBufferedImage);
 
-    byte[] actual = underTest.generateThumbnail(mockFile, width);
+    byte[] actual = underTest.generateThumbnail(imageBytes, webpImageContentType, width);
 
     assertNotNull(actual);
     assertArrayEquals(expectedBytes, actual);
 
-    verify(underTest).handleStandardImageFile(eq(FileFormat.WEBP), any(InputStream.class), anyInt());
+    verify(underTest).handleStandardImageFile(eq(FileFormat.WEBP), eq(imageBytes), anyInt());
     verify(underTest, never()).resizeGif(any(), anyInt());
     verify(mockFile, never()).getBytes();
-    verify(underTest).isAnimatedWebP(mockInputStream);
+    verify(underTest).isAnimatedWebP(imageBytes);
     verify(underTest).imageTyBytes(mockBufferedImage);
     verify(underTest, never()).convertImageToWebpFormat(any(BufferedImage.class));
   }
 
   @Test
   void generateThumbnail_shouldReturnGifThumbnail_whenGifImage() throws IOException {
-    byte[] inputImage = {5,34};
+    String imageType = "image/gif";
     byte[] gifExpectedBytes = {5};
     int gifWidth = 1;
 
-    when(mockFile.getContentType()).thenReturn("image/gif");
-    when(mockFile.getBytes()).thenReturn(inputImage);
-    doReturn(gifExpectedBytes).when(underTest).resizeGif(inputImage, gifWidth);
+    doReturn(gifExpectedBytes).when(underTest).resizeGif(imageBytes, gifWidth);
 
-    byte[] actual = underTest.generateThumbnail(mockFile, gifWidth);
+    byte[] actual = underTest.generateThumbnail(imageBytes, imageType, gifWidth);
     log.info(Arrays.toString(actual));
     assertNotNull(actual);
     assertArrayEquals(gifExpectedBytes, actual);
 
-    verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), any(InputStream.class), eq(gifWidth));
+    verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(gifWidth));
     verify(mockFile, never()).getInputStream();
     verify(underTest, never()).isAnimatedWebP(any());
   }
 
   @Test
   void generateThumbnail_shouldReturnSvgThumbnail_whenSvgImage() throws IOException {
-    byte[] svgExpectedBytes = {5};
+    String imageType = "image/svg+xml";
     int svgWidth = 1;
 
-    when(mockFile.getContentType()).thenReturn("image/svg+xml");
-    when(mockFile.getBytes()).thenReturn(svgExpectedBytes);
-
-    byte[] actual = underTest.generateThumbnail(mockFile, svgWidth);
-    log.info(Arrays.toString(actual));
+    byte[] actual = underTest.generateThumbnail(imageBytes, imageType, svgWidth);
     assertNotNull(actual);
-    assertArrayEquals(svgExpectedBytes, actual);
+    assertArrayEquals(imageBytes, actual);
 
-    verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), any(InputStream.class), eq(svgWidth));
+    verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(svgWidth));
     verify(underTest, never()).resizeGif(any(), anyInt());
     verify(mockFile, never()).getInputStream();
-    verify(mockFile).getBytes();
     verify(underTest, never()).isAnimatedWebP(any());
   }
 
   @Test
   void generateThumbnail_shouldThrowExceptionWhenAnimatedWebp() throws IOException {
-    when(mockFile.getContentType()).thenReturn("image/webp");
-    when(mockFile.getInputStream()).thenReturn(mockInputStream);
-    doReturn(true).when(underTest).isAnimatedWebP(mockInputStream);
+    String imageType = "image/webp";
+
+    doReturn(true).when(underTest).isAnimatedWebP(imageBytes);
 
     assertThrows(ImageProcessingException.class, () -> {
-      underTest.generateThumbnail(mockFile, width);
+      underTest.generateThumbnail(imageBytes, imageType, width);
     }, "Animated webp is not supported.");
 
-    verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), any(InputStream.class), eq(width));
+    verify(underTest, never()).handleStandardImageFile(eq(FileFormat.PNG), eq(imageBytes), eq(width));
     verify(underTest, never()).resizeGif(any(), anyInt());
-    verify(mockFile, never()).getBytes();
-    verify(mockFile).getInputStream();
-    verify(underTest).isAnimatedWebP(mockInputStream);
+    verify(underTest).isAnimatedWebP(imageBytes);
   }
 
 }

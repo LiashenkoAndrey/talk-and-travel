@@ -106,8 +106,7 @@ public class ImageServiceImpl implements ImageService {
 
     } catch (Exception e) {
       log.error("Can't generate a thumbnail: {}", e.getMessage(), e);
-      throw new RuntimeException(e);
-//      throw new ImageProcessingException(e.getMessage(), "Your file is invalid");
+      throw new ImageProcessingException(e.getMessage(), "Your file is invalid");
     }
   }
 
