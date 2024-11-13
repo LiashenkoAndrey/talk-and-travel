@@ -6,23 +6,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 @Table(name = "attachments")
 public abstract class Attachment {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private String id;
 
   private String fileName;
-  private String fileUrl; // Location in S3 bucket
-  private long size; // File size in bytes
-  private String mimeType; // MIME type (e.g., image/jpeg, video/mp4)
+//  private long size; // File size in bytes
+//  private String mimeType; // MIME type (e.g., image/jpeg, video/mp4)
 }

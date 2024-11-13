@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.facade.MessageFacade;
 import online.talkandtravel.model.dto.chat.BasicChatInfoDto;
 import online.talkandtravel.model.dto.chat.ChatDto;
 import online.talkandtravel.model.dto.chat.ChatInfoDto;
@@ -15,6 +16,7 @@ import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDto;
+import online.talkandtravel.model.dto.message.SendMessageWithAttachmentRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.service.ChatService;
 import online.talkandtravel.util.constants.ApiPathConstants;
@@ -54,6 +56,7 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
 
   private final ChatService chatService;
+  private final MessageFacade messageFacade;
 
   @PostMapping("/chats")
   public ChatDto createCountryChat(@RequestBody @Valid NewChatDto dto) {
@@ -95,6 +98,12 @@ public class ChatController {
       @PathVariable Long chatId,
       @PageableDefault Pageable pageable) {
     return chatService.findAllMessagesInChatOrdered(chatId, pageable);
+  }
+
+  @PostMapping("/chats/{chatId}/messages")
+  public ResponseEntity<MessageDto> saveImageAttachment(@ModelAttribute SendMessageWithAttachmentRequest request) {
+    MessageDto messageDto = messageFacade.saveMessageWithAttachment(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
   }
 
   /**

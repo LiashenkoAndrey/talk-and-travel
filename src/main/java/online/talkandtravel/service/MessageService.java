@@ -3,6 +3,8 @@ package online.talkandtravel.service;
 import java.security.Principal;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageRequest;
+import online.talkandtravel.model.dto.message.SendMessageWithAttachmentRequest;
+import online.talkandtravel.model.entity.attachment.Image;
 
 /**
  * Service interface for handling message operations within the application.
@@ -21,4 +23,6 @@ import online.talkandtravel.model.dto.message.SendMessageRequest;
 public interface MessageService {
 
   MessageDto saveMessage(SendMessageRequest sendMessageRequest, Principal principal);
+
+  MessageDto saveMessageWithImage(SendMessageWithAttachmentRequest request, Image image);
 }

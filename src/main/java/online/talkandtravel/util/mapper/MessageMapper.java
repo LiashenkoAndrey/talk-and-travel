@@ -1,11 +1,14 @@
 package online.talkandtravel.util.mapper;
 
 import online.talkandtravel.config.MapperConfig;
+import online.talkandtravel.model.dto.attachment.AttachmentDto;
 import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.entity.Message;
+import online.talkandtravel.model.entity.attachment.Image;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Mapper interface for converting between {@link Message} entities and {@link MessageDtoBasic} data
@@ -19,12 +22,25 @@ import org.mapstruct.Mapping;
  */
 @Mapper(config = MapperConfig.class,
     uses = {
-        UserMapper.class
+        UserMapper.class,
+        AttachmentMapper.class
     })
-public interface MessageMapper {
+public abstract class MessageMapper {
+
+  @Autowired
+  private AttachmentMapper attachmentMapper;
 
   @Mapping(target = "user", source = "sender")
   @Mapping(target = "repliedMessageId", source = "repliedMessage.id")
   @Mapping(target = "chatId", source = "chat.id")
-  MessageDto toMessageDto(Message message);
+  @Mapping(target = "attachment", source = "attachment")
+  public abstract MessageDto toMessageDto(Message message);
+
+  public AttachmentDto mapAttachment(Object attachment) {
+    if (attachment instanceof Image imageAttachment) {
+      return attachmentMapper.toImageAttachmentDto(imageAttachment);
+    }
+    // Add handling for other attachment types if needed
+    return null; // or throw an exception if attachment is unsupported
+  }
 }

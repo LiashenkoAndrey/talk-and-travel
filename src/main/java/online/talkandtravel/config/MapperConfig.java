@@ -1,5 +1,8 @@
 package online.talkandtravel.config;
 
+import static online.talkandtravel.util.constants.S3Constants.IMAGE_ATTACHMENT_ORIGINAL_FOLDER_PATTERN;
+import static online.talkandtravel.util.constants.S3Constants.IMAGE_ATTACHMENT_THUMBNAIL_X256_FOLDER_PATTERN;
+
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.NullValueCheckStrategy;
 
@@ -35,4 +38,8 @@ import org.mapstruct.NullValueCheckStrategy;
     injectionStrategy = InjectionStrategy.CONSTRUCTOR,
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
     implementationPackage = "<PACKAGE_NAME>.impl")
-public class MapperConfig {}
+public class MapperConfig {
+//  public static final String THUMBNAIL_FOLDER = IMAGE_ATTACHMENT_THUMBNAIL_X256_FOLDER_PATTERN.formatted(1);
+//  public static final String ORIGINAL_FOLDER = IMAGE_ATTACHMENT_ORIGINAL_FOLDER_PATTERN.formatted(1);
+
+}
