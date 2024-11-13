@@ -24,5 +24,8 @@ public class Image extends Attachment {
     super(id, fileName);
   }
 
-
+  @Override
+  public String getDiscriminatorValue() {
+    return super.getDiscriminatorValue();
+  }
 }

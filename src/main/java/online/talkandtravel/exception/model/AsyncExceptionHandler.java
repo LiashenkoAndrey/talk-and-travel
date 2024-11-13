@@ -16,6 +16,5 @@ public class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
     Class<?> declaringClass = method.getDeclaringClass();
     log.error("Exception occupied during execution async method: {}.{}, Exception message: {}",
         declaringClass, method.getName(), ex.getMessage());
-    throw ex;
   }
 }

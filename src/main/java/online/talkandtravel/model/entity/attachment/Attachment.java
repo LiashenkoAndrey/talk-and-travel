@@ -1,7 +1,6 @@
 package online.talkandtravel.model.entity.attachment;
 
 import jakarta.persistence.*;
-import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +22,9 @@ public abstract class Attachment {
   private String id;
 
   private String fileName;
-//  private long size; // File size in bytes
-//  private String mimeType; // MIME type (e.g., image/jpeg, video/mp4)
+
+  @Transient
+  public String getDiscriminatorValue() {
+    return this.getClass().getAnnotation(DiscriminatorValue.class).value();
+  }
 }

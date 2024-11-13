@@ -119,12 +119,6 @@ public class ChatController {
 
   @PostMapping("/chats/{chatId}/messages")
   public ResponseEntity<?> saveImageAttachment(@Valid @ModelAttribute SendMessageWithAttachmentRequest request) {
-    log.info("attachment: {}", request);
-    log.info(request.file().getContentType());
-    log.info("is empty: {}" , request.file().isEmpty());
-    log.info(request.file().getSize());
-    log.info(request.file().getName());
-    log.info(request.file().getOriginalFilename());
     attachmentService.validateAttachmentFile(request.file(), request.attachmentType());
     User user = authenticationService.getAuthenticatedUser();
     FileDto fileDto = toFileDto(request.file());

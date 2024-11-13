@@ -26,6 +26,7 @@ public abstract class AttachmentMapper {
 
   @Mapping(target = "thumbnailImageUrl", expression = "java(generateAvatarUrl(image, THUMBNAIL_FOLDER, chatId))")
   @Mapping(target = "originalImageUrl", expression = "java(generateAvatarUrl(image, ORIGINAL_FOLDER, chatId))")
+  @Mapping(target = "type", expression = "java(image.getDiscriminatorValue())")
   public abstract ImageAttachmentDto toImageAttachmentDto(Image image, Long chatId);
 
   public String generateAvatarUrl(Image image, String avatarS3Folder, Long chatId) {
