@@ -7,8 +7,10 @@ import static online.talkandtravel.util.constants.AttachmentConstants.SUPPORTED_
 import static online.talkandtravel.util.constants.S3Constants.S3_URL_PATTERN;
 
 import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.talkandtravel.exception.attachment.MultipartFileIsEmptyException;
 import online.talkandtravel.exception.attachment.UnsupportedAttachmentTypeException;
 import online.talkandtravel.exception.file.FileSizeExceededException;
 import online.talkandtravel.exception.file.ImageProcessingException;
@@ -48,10 +50,18 @@ public class AttachmentServiceImpl implements AttachmentService {
   private final S3Client s3Client;
 
   @Override
-  public void validateAttachmentFile(MultipartFile file, AttachmentType attachmentType) {
+  public void validateAttachmentFile(MultipartFile file, String attachmentType) {
     validateAttachmentType(attachmentType);
+    checkFileIsEmpty(file);
+
     if (attachmentType.equals(AttachmentType.IMAGE)) {
       validateImage(file);
+    }
+  }
+
+  private void checkFileIsEmpty(MultipartFile file) {
+    if (file.isEmpty()) {
+      throw new MultipartFileIsEmptyException();
     }
   }
 
@@ -63,8 +73,8 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
   }
 
-  public void validateAttachmentType(AttachmentType attachmentType) {
-    if (!Arrays.asList(AttachmentType.values()).contains(attachmentType)) {
+  public void validateAttachmentType(String attachmentType) {
+    if (Arrays.stream(AttachmentType.values()).map(AttachmentType::toString).noneMatch((e) -> e.equals(attachmentType))) {
       throw new UnsupportedAttachmentTypeException(attachmentType);
     }
   }

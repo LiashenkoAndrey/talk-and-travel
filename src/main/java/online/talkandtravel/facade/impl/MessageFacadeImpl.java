@@ -22,6 +22,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Log4j2
@@ -39,7 +40,7 @@ public class MessageFacadeImpl implements MessageFacade {
   public void saveMessageWithAttachment(SendMessageWithAttachmentRequest request, FileDto fileDto,
       User user) {
     log.info("save message with attachment of type: {}", request.attachmentType());
-    if (request.attachmentType().equals(AttachmentType.IMAGE)) {
+    if (AttachmentType.valueOf(request.attachmentType()).equals(AttachmentType.IMAGE)) {
       saveMessageWithImageAndNotifySubscribers(request, fileDto, user);
     }
   }
@@ -52,7 +53,8 @@ public class MessageFacadeImpl implements MessageFacade {
     notifySubscribers(messageDto);
   }
 
-  private MessageDto saveMessageWithImage(SendMessageWithAttachmentRequest request, FileDto file,
+  @Transactional
+  public MessageDto saveMessageWithImage(SendMessageWithAttachmentRequest request, FileDto file,
       User user) {
     log.info("Save image attachment: {}", file.filename());
     String key = UUID.randomUUID().toString();

@@ -21,6 +21,7 @@ import online.talkandtravel.model.dto.message.MessageDto;
 import online.talkandtravel.model.dto.message.SendMessageWithAttachmentRequest;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import online.talkandtravel.model.entity.User;
+import online.talkandtravel.model.entity.attachment.AttachmentType;
 import online.talkandtravel.service.AttachmentService;
 import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.ChatService;
@@ -117,7 +118,13 @@ public class ChatController {
   }
 
   @PostMapping("/chats/{chatId}/messages")
-  public ResponseEntity<?> saveImageAttachment(@ModelAttribute SendMessageWithAttachmentRequest request) {
+  public ResponseEntity<?> saveImageAttachment(@Valid @ModelAttribute SendMessageWithAttachmentRequest request) {
+    log.info("attachment: {}", request);
+    log.info(request.file().getContentType());
+    log.info("is empty: {}" , request.file().isEmpty());
+    log.info(request.file().getSize());
+    log.info(request.file().getName());
+    log.info(request.file().getOriginalFilename());
     attachmentService.validateAttachmentFile(request.file(), request.attachmentType());
     User user = authenticationService.getAuthenticatedUser();
     FileDto fileDto = toFileDto(request.file());
