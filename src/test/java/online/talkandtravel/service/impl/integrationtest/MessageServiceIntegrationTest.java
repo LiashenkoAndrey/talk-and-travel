@@ -11,6 +11,7 @@ import static online.talkandtravel.testdata.UserTestData.getAlice;
 import static online.talkandtravel.testdata.UserTestData.getBob;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.security.Principal;
@@ -93,10 +94,24 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
     assertEquals(messageId, actual.id());
     assertEquals(content, actual.content());
     assertEquals(MessageType.TEXT, actual.type());
+    assertNotNull(actual.creationDate());
+    assertNull(actual.attachment());
+    assertUserDataExists(actual);
     assertEquals(alise.getId(), actual.user().id());
 
-    assertEquals(repliedMessageId, actual.repliedMessageId());
-    assertNotNull(actual.creationDate());
+    if (repliedMessageId != null) {
+      assertNotNull(actual.repliedMessage());
+      assertEquals(repliedMessageId, actual.repliedMessage().id());
+    } else {
+      assertNull(actual.repliedMessage());
+    }
+  }
+
+  private void assertUserDataExists(MessageDto actual) {
+    assertNotNull(actual.user());
+    assertNotNull(actual.user().id());
+    assertNotNull(actual.user().userName());
+    assertNull(actual.user().avatar());
   }
 
   private static Stream<Arguments> saveMessageArgs() {

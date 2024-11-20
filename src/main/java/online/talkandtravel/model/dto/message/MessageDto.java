@@ -16,7 +16,7 @@ import online.talkandtravel.util.CustomZonedDateTimeDeserializer;
  * @param creationDate The date and time when the message was created.
  * @param user The user who sent the message.
  * @param chatId The ID of the chat where the message was sent.
- * @param repliedMessageId The ID of the message being replied to, if applicable.
+ * @param repliedMessage The ID of the message being replied to, if applicable.
  */
 public record MessageDto(
     Long id,
@@ -28,12 +28,12 @@ public record MessageDto(
     ZonedDateTime creationDate,
     UserNameDto user,
     Long chatId,
-    Long repliedMessageId,
+    MessageDtoShort repliedMessage,
     AttachmentDto attachment) {
 
   public MessageDto(Long id, MessageType type, String content, ZonedDateTime creationDate,
-      UserNameDto user, Long chatId, Long repliedMessageId) {
-    this(id, type, content, creationDate, user, chatId, repliedMessageId, null);
+      UserNameDto user, Long chatId, MessageDtoShort repliedMessage) {
+    this(id, type, content, creationDate, user, chatId, repliedMessage, null);
   }
 
   public MessageDto(String content) {

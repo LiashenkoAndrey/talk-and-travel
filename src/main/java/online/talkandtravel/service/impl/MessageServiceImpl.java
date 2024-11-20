@@ -19,7 +19,6 @@ import online.talkandtravel.repository.ChatRepository;
 import online.talkandtravel.repository.MessageRepository;
 import online.talkandtravel.repository.UserChatRepository;
 import online.talkandtravel.security.CustomUserDetails;
-import online.talkandtravel.service.AuthenticationService;
 import online.talkandtravel.service.MessageService;
 import online.talkandtravel.util.mapper.MessageMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
