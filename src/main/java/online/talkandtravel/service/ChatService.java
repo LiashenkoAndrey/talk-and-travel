@@ -10,7 +10,6 @@ import online.talkandtravel.model.dto.chat.NewPrivateChatDto;
 import online.talkandtravel.model.dto.chat.PrivateChatDto;
 import online.talkandtravel.model.dto.chat.SetLastReadMessageRequest;
 import online.talkandtravel.model.dto.message.MessageDto;
-import online.talkandtravel.model.dto.message.MessageDtoBasic;
 import online.talkandtravel.model.dto.user.UserDtoBasic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,7 @@ import org.springframework.data.domain.Pageable;
  *   <li>{@link #findAllUsersPrivateChats()} - finds all private chats of a user
  *   <li>{@link #setLastReadMessage(Long, SetLastReadMessageRequest)} - updates lastReadMessage of
  *       field that represents last read message of chat by user
- *   <li>{@link #findReadMessages(Long, Pageable)} - finds messages that the user has already read
+ *   <li>{@link #findReadMessages(Long, Optional, Pageable)} - finds messages that the user has already read
  *   <li>{@link #findUnreadMessages(Long, Pageable)} - finds messages that the user has not yet read
  *   <li>{@link #findAllGroupChats(Pageable)} - Retrieves a paginated list of all chats. The method
  *       returns a {@link Page} of {@link ChatDto} objects, allowing for efficient querying and
@@ -47,7 +46,7 @@ import org.springframework.data.domain.Pageable;
  *       given chat ID.
  *   <li>{@link #findAllMessagesInChatOrdered(Long, Pageable)} - Retrieves a paginated list of all
  *       messages within a specific chat, ordered according to the defined sorting criteria. The
- *       method returns a {@link Page} of {@link MessageDtoBasic} objects, representing messages in
+ *       method returns a {@link Page} of {@link MessageDto} objects, representing messages in
  *       the chat identified by the provided chat ID.
  * </ul>
  */

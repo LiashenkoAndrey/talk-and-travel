@@ -95,7 +95,7 @@ public class MessageServiceIntegrationTest extends IntegrationTest {
     assertEquals(MessageType.TEXT, actual.type());
     assertEquals(alise.getId(), actual.user().id());
 
-    assertEquals(repliedMessageId, actual.repliedMessageId());
+    assertEquals(repliedMessageId, actual.repliedMessage());
     assertNotNull(actual.creationDate());
   }
 
