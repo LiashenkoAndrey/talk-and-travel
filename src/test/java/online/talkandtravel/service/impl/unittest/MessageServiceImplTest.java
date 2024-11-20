@@ -30,6 +30,7 @@ import online.talkandtravel.security.CustomUserDetails;
 import online.talkandtravel.service.impl.MessageServiceImpl;
 import online.talkandtravel.util.mapper.MessageMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -70,79 +71,79 @@ public class MessageServiceImplTest {
     );
   }
 
-  @Test
-  void saveMessage_shouldReturnMessageDtoBasic_whenUserJoinedChatAndMessageExists() {
-    Long repliedMessageId = 2L;
-    String content = "Hello, World!";
-    SendMessageRequest request = new SendMessageRequest(content, chatId, repliedMessageId);
-    Chat chat = Chat.builder().id(1L).build();
-    Message repliedMessage = Message.builder()
-        .chat(Chat.builder().id(1L).build())
-        .build();
-    Message message = new Message();
-    chat.getMessages().add(message);
-    UserNameDto userNameDto = new UserNameDto(1L, "userName", new AvatarDto("url", "url"));
-    MessageDto messageDto =
-        new MessageDto(
-            1L,
-            MessageType.TEXT,
-            "",
-            ZonedDateTime.now(ZoneOffset.UTC), // Use current time for event time
-            userNameDto,
-            1L,
-            null
-        );
+  @Nested
+  class SaveMessage {
+    @Test
+    void replyToMessage_shouldReturnSavedMessage_whenUserJoinedChatAndMessageExists() {
+      Long repliedMessageId = 2L;
+      String content = "Hello, World!";
+      SendMessageRequest request = new SendMessageRequest(content, chatId, repliedMessageId);
+      Chat chat = Chat.builder().id(1L).build();
+      Message repliedMessage = Message.builder()
+          .chat(Chat.builder().id(1L).build())
+          .build();
+      UserNameDto userNameDto = new UserNameDto(1L, "userName", new AvatarDto("url", "url"));
+      MessageDto messageDto =
+          new MessageDto(
+              1L,
+              MessageType.TEXT,
+              "",
+              ZonedDateTime.now(ZoneOffset.UTC), // Use current time for event time
+              userNameDto,
+              1L,
+              null
+          );
 
-    when(userChatRepository.findByChatIdAndUserId(chatId, userId))
-        .thenReturn(Optional.of(new UserChat()));
-    when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
-    when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.of(repliedMessage));
-    when(chatRepository.save(any(Chat.class))).thenReturn(chat);
-    when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId))
+          .thenReturn(Optional.of(new UserChat()));
+      when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
+      when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.of(repliedMessage));
+      when(chatRepository.save(any(Chat.class))).thenReturn(chat);
+      when(messageMapper.toMessageDto(any(Message.class))).thenReturn(messageDto);
 
-    MessageDto result = underTest.saveMessage(request, principal);
+      MessageDto result = underTest.saveMessage(request, principal);
 
-    assertEquals(messageDto, result);
-    verify(userChatRepository, times(1)).findByChatIdAndUserId(chatId, userId);
-    verify(chatRepository, times(1)).findById(chatId);
-    verify(messageRepository, times(1)).findById(repliedMessageId);
-    verify(chatRepository, times(1)).save(chat);
-    verify(messageMapper, times(1)).toMessageDto(any(Message.class));
+      assertEquals(messageDto, result);
+      verify(userChatRepository, times(1)).findByChatIdAndUserId(chatId, userId);
+      verify(chatRepository, times(1)).findById(chatId);
+      verify(messageRepository, times(1)).findById(repliedMessageId);
+      verify(chatRepository, times(1)).save(chat);
+      verify(messageMapper, times(1)).toMessageDto(any(Message.class));
+    }
+
+    @Test
+    void shouldThrowUserNotJoinedTheChatException_whenUserNotInChat() {
+      SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
+
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.empty());
+
+      assertThrows(UserNotJoinedTheChatException.class, () -> underTest.saveMessage(request, principal));
+    }
+
+    @Test
+    void shouldThrowChatNotFoundException_whenChatNotFound() {
+      SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
+
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId))
+          .thenReturn(Optional.of(new UserChat()));
+      when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
+
+      assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
+    }
+
+    @Test
+    void shouldThrowMessageNotFoundException_whenRepliedMessageNotFound() {
+      Long repliedMessageId = 2L;
+      SendMessageRequest request = new SendMessageRequest("Hello", chatId, repliedMessageId);
+      Chat chat = new Chat();
+
+      when(userChatRepository.findByChatIdAndUserId(chatId, userId))
+          .thenReturn(Optional.of(new UserChat()));
+      when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
+      when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.empty());
+
+      assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
+    }
   }
 
-  @Test
-  void saveMessage_shouldThrowUserNotJoinedTheChatException_whenUserNotInChat() {
-    SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
-
-    when(userChatRepository.findByChatIdAndUserId(chatId, userId)).thenReturn(Optional.empty());
-
-    assertThrows(UserNotJoinedTheChatException.class, () -> underTest.saveMessage(request, principal));
-  }
-
-  @Test
-  void saveMessage_shouldThrowChatNotFoundException_whenChatNotFound() {
-    // Arrange
-    SendMessageRequest request = new SendMessageRequest("Hello", chatId, null);
-
-    when(userChatRepository.findByChatIdAndUserId(chatId, userId))
-        .thenReturn(Optional.of(new UserChat()));
-    when(chatRepository.findById(chatId)).thenReturn(Optional.empty());
-
-    // Act & Assert
-    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
-  }
-
-  @Test
-  void saveMessage_shouldThrowMessageNotFoundException_whenRepliedMessageNotFound() {
-    Long repliedMessageId = 2L;
-    SendMessageRequest request = new SendMessageRequest("Hello", chatId, repliedMessageId);
-    Chat chat = new Chat();
-
-    when(userChatRepository.findByChatIdAndUserId(chatId, userId))
-        .thenReturn(Optional.of(new UserChat()));
-    when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
-    when(messageRepository.findById(repliedMessageId)).thenReturn(Optional.empty());
-
-    assertThrows(WebSocketException.class, () -> underTest.saveMessage(request, principal));
-  }
 }
