@@ -55,4 +55,6 @@ public interface UserService {
   RegisterRequest getUserRegisterDataFromTempStorage(String token);
 
   void checkForDuplicateEmail(String userEmail);
+
+  void deleteUser(User user);
 }

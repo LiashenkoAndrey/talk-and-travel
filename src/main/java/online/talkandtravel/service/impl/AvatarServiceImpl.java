@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 /**
@@ -88,6 +89,29 @@ public class AvatarServiceImpl implements AvatarService {
       avatar = save(image, folder);
     }
     return avatarMapper.toAvatarDto(avatar);
+  }
+
+  @Override
+  @Transactional
+  public void deleteByKey(UUID key) {
+    avatarRepository.deleteByKey(key);
+
+    String[] folderPaths = {AVATAR_X50_FOLDER_NAME, AVATAR_X256_FOLDER_NAME};
+    for (String folder : folderPaths) {
+      deleteObject(buildS3Key(folder, key));
+    }
+  }
+
+  private String buildS3Key(String folderName, UUID key) {
+    return AWS_S3_AVATARS_FOLDER_NAME + folderName + "/" + key;
+  }
+
+  private void deleteObject(String fullKey) {
+    DeleteObjectRequest request = DeleteObjectRequest.builder()
+        .bucket(AWS_S3_BUCKET_NAME)
+        .key(fullKey)
+        .build();
+    s3Client.deleteObject(request);
   }
 
   @Override

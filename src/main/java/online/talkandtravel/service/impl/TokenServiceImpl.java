@@ -7,8 +7,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +26,6 @@ import online.talkandtravel.model.entity.Token;
 import online.talkandtravel.model.entity.TokenType;
 import online.talkandtravel.model.entity.User;
 import online.talkandtravel.repository.TokenRepository;
-import online.talkandtravel.repository.UserRepository;
 import online.talkandtravel.service.TokenService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,6 +56,12 @@ public class TokenServiceImpl implements TokenService {
   public static final String TOKEN_OF_USER_NOT_FOUND = "Token for user with id %s is not found";
   public static final String TOKEN_NOT_FOUND = "Token is not found";
 
+  @Value("${userBearerToken.expiringTimeInHours}")
+  private int USER_TOKEN_EXPIRING_TIME_IN_HOURS;
+
+  @Value("${userPasswordRecoveryToken.expiringTimeInMin}")
+  private int RECOVER_PASSWORD_TOKEN_EXPIRING_TIME_IN_MIN;
+
   @Value("${SECRET_KEY}")
   private String secretKey;
 
@@ -68,7 +75,7 @@ public class TokenServiceImpl implements TokenService {
         .expired(false)
         .revoked(false)
         .tokenType(TokenType.PASSWORD_RECOVERY)
-        .expiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(30))
+        .expiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(RECOVER_PASSWORD_TOKEN_EXPIRING_TIME_IN_MIN))
         .user(user)
         .build();
     return tokenRepository.save(tempToken);
@@ -154,14 +161,13 @@ public class TokenServiceImpl implements TokenService {
     return generateToken(new HashMap<>(), userId);
   }
 
-  /** 86400000 milliseconds = 24 hours */
   @Override
   public String generateToken(Map<String, Object> extraClaims, Long userId) {
     return Jwts.builder()
         .setClaims(extraClaims)
         .setSubject(userId.toString())
         .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+        .setExpiration(Date.from(Instant.now().plus(USER_TOKEN_EXPIRING_TIME_IN_HOURS, ChronoUnit.MINUTES)))
         .signWith(SignatureAlgorithm.HS256, getSignInKey())
         .compact();
   }

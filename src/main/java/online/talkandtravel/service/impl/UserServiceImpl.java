@@ -2,6 +2,7 @@ package online.talkandtravel.service.impl;
 
 
 import static online.talkandtravel.util.constants.RedisConstants.USER_REGISTER_DATA_REDIS_KEY_PATTERN;
+import static online.talkandtravel.util.constants.UserConstants.DELETED_USER_NAME;
 
 import java.time.Duration;
 import java.time.ZoneOffset;
@@ -65,8 +66,6 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final AuthenticationService authenticationService;
-
-
 
   @Override
   public User getUser(String email) {
@@ -201,6 +200,16 @@ public class UserServiceImpl implements UserService {
     }
   }
 
+  @Override
+  public void deleteUser(User user) {
+    user.setUserName(DELETED_USER_NAME);
+    user.setAbout(null);
+    user.setUserEmail(null);
+    user.setTokens(List.of());
+    user.setPassword(null);
+    user.setCountries(List.of());
+    userRepository.save(user);
+  }
 
   private UserDtoBasic saveAndMapToDto(User user) {
     User saved = userRepository.save(user);

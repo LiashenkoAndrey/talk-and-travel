@@ -1,6 +1,7 @@
 package online.talkandtravel.service;
 
 import java.io.IOException;
+import java.util.UUID;
 import online.talkandtravel.model.dto.avatar.AvatarDto;
 import online.talkandtravel.model.entity.Avatar;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
  * </ul>
  */
 public interface AvatarService {
+
+  void deleteByKey(UUID key);
 
   void validateFile(MultipartFile file);
 

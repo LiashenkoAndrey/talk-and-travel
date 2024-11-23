@@ -1,8 +1,10 @@
 package online.talkandtravel.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 import online.talkandtravel.model.entity.Avatar;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -19,4 +21,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AvatarRepository extends JpaRepository<Avatar, Long> {
   Optional<Avatar> findByUserId(Long userId);
+
+  @Modifying
+  void deleteByKey(UUID key);
 }
