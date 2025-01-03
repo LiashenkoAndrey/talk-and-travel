@@ -167,7 +167,7 @@ public class TokenServiceImpl implements TokenService {
         .setClaims(extraClaims)
         .setSubject(userId.toString())
         .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setExpiration(Date.from(Instant.now().plus(USER_TOKEN_EXPIRING_TIME_IN_HOURS, ChronoUnit.MINUTES)))
+        .setExpiration(Date.from(Instant.now().plus(USER_TOKEN_EXPIRING_TIME_IN_HOURS, ChronoUnit.HOURS)))
         .signWith(SignatureAlgorithm.HS256, getSignInKey())
         .compact();
   }
